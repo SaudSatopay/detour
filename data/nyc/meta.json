@@ -1,0 +1,57 @@
+{
+  "builtAt": "2026-10-16T13:55:11.902Z",
+  "sources": [
+    {
+      "name": "MTA GTFS static (subway)",
+      "url": "http://web.mta.info/developers/data/nyct/subway/google_transit.zip",
+      "slice": "service_id Weekday, departures 08:00-08:59",
+      "retrieved": "2026-10-16"
+    },
+    {
+      "name": "MTA Subway Stations",
+      "url": "https://data.ny.gov/d/39hk-dx4f",
+      "retrieved": "2026-10-16"
+    },
+    {
+      "name": "MTA Subway Stations and Complexes",
+      "url": "https://data.ny.gov/d/5f5g-n3cz",
+      "retrieved": "2026-10-16"
+    },
+    {
+      "name": "MTA Subway Origin-Destination Ridership Estimate: 2025",
+      "url": "https://data.ny.gov/d/y2qv-fytt",
+      "slice": "October 2025, Wednesday, hour 8",
+      "retrieved": "2026-10-16"
+    }
+  ],
+  "assumptions": {
+    "peakWindow": "08:00-08:59 weekday",
+    "riderLoadPerCarA": 110,
+    "riderLoadPerCar60ft": 145,
+    "riderLoadPerCar75ft": 175,
+    "minRidersPerPair": 2,
+    "transferPenaltyMinutes": 3,
+    "maxWaitMinutes": 30,
+    "minTrainsPerHourForAssignment": 3,
+    "walkRadiusMeters": 400,
+    "walkSpeedMetersPerMinute": 75,
+    "walkCapacityPerHour": 3000,
+    "assignment": "all-or-nothing, route-aware shortest time (in-vehicle + half-headway wait + transfer penalty)"
+  },
+  "counts": {
+    "stations": 445,
+    "routes": 26,
+    "segments": 1459,
+    "walks": 190,
+    "demandPairs": 30205,
+    "overloadedSegments": 1
+  },
+  "ridership": {
+    "totalRiders": 446230,
+    "pairsTotal": 91719,
+    "pairsKept": 30205,
+    "ridersKept": 404040,
+    "ridersAssigned": 404040,
+    "unassignedPairs": 0
+  }
+}

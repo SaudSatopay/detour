@@ -36,3 +36,6 @@ __pycache__/
 test-results/
 playwright-report/
 .playwright-cli/
+
+# raw MTA downloads (re-fetch with scripts/fetch-mta.sh)
+data/raw/
