@@ -157,10 +157,10 @@ export async function scriptedControl(
   const d4 = imp?.byDepth.find((d) => d.depth === 4);
   const cut = peak?.unmet ? peak.cut.slice(0, 3) : [];
   const past = shuttleRatio(memory);
-  const remembered = [
-    ...(memory?.findings ?? []).filter((f) => f.validToMs === null || f.validToMs === undefined).slice(0, 2).map((f) => `Since ${day(f.validFromMs)}: ${f.text}`),
-    ...(past ? [`${past.note[0].toUpperCase()}${past.note.slice(1)}.`] : []),
-  ];
+  const facts = (memory?.findings ?? []).filter((f) => f.validToMs === null || f.validToMs === undefined).slice(0, 2).map((f) => `Since ${day(f.validFromMs)}: ${f.text}`);
+  // The shuttle ratio only when no recalled fact already states it.
+  const ratioStated = past !== null && facts.some((f) => f.includes(`${Math.round(past.ratio * 100)}%`));
+  const remembered = [...facts, ...(past && !ratioStated ? [`${past.note[0].toUpperCase()}${past.note.slice(1)}.`] : [])];
   const overloads = cap?.reroute.overloaded.length ?? 0;
 
   const brief = [

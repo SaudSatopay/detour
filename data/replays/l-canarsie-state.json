@@ -5,7 +5,7 @@
   "copyMs": 0
  },
  "incident": {
-  "id": "INC-MVB4EM9P",
+  "id": "INC-MVB8W6YR",
   "title": "L train: Canarsie Tube closed",
   "report": "Signal fire in the Canarsie Tube. No L service between Bedford Av and 8 Av in either direction until further notice.",
   "routes": [
@@ -32,11 +32,11 @@
    1064
   ],
   "status": "open",
-  "openedMs": 1792164390973
+  "openedMs": 1792171929411
  },
  "plans": [
   {
-   "id": "PLAN-MVB4EOXN",
+   "id": "PLAN-MVB8W9Q4",
    "label": "1 Av ↔ Astor Pl + Bedford Av ↔ Metropolitan Av/Lorimer St",
    "status": "simulated",
    "legs": [
@@ -64,12 +64,12 @@
    "unmetAfter": 315,
    "strandedBefore": 4689,
    "strandedAfter": 623,
-   "createdMs": 1792164395062,
+   "createdMs": 1792171933695,
    "publishedMs": null,
-   "incident": "INC-MVB4EM9P"
+   "incident": "INC-MVB8W6YR"
   },
   {
-   "id": "PLAN-MVB4ENSF",
+   "id": "PLAN-MVB8W8KN",
    "label": "1 Av ↔ Astor Pl",
    "status": "published",
    "legs": [
@@ -89,9 +89,9 @@
    "unmetAfter": 315,
    "strandedBefore": 4689,
    "strandedAfter": 623,
-   "createdMs": 1792164393639,
-   "publishedMs": 1792164395074,
-   "incident": "INC-MVB4EM9P"
+   "createdMs": 1792171932192,
+   "publishedMs": 1792171933711,
+   "incident": "INC-MVB8W6YR"
   }
  ],
  "riders": [
@@ -132,7 +132,7 @@
    "advisory": {
     "rider": "aisha",
     "text": "Take the M to 14 St/6 Av. About 33 minutes, step-free.",
-    "atMs": 1792164395088,
+    "atMs": 1792171933726,
     "minutes": 33.3,
     "route": [
      "630",
@@ -181,7 +181,7 @@
    "advisory": {
     "rider": "dev",
     "text": "Take the L to Metropolitan Av/Lorimer St, then take the G to Court Sq-23 St, then take the E to 14 St/8 Av. About 41 minutes.",
-    "atMs": 1792164395088,
+    "atMs": 1792171933726,
     "minutes": 40.8,
     "route": [
      "120",
@@ -320,7 +320,7 @@
    "advisory": {
     "rider": "maya",
     "text": "Take the L to Myrtle-Wyckoff Avs, then take the M to Broadway-Lafayette St/Bleecker St, then take the 6 to 14 St-Union Sq. About 45 minutes.",
-    "atMs": 1792164395088,
+    "atMs": 1792171933727,
     "minutes": 45.4,
     "route": [
      "125",
@@ -402,7 +402,7 @@
    "advisory": {
     "rider": "tomas",
     "text": "Take the L to Broadway Junction, then take the A to Fulton St, then take the 4 to 14 St-Union Sq. About 52 minutes.",
-    "atMs": 1792164395091,
+    "atMs": 1792171933730,
     "minutes": 51.7,
     "route": [
      "138",
@@ -427,10 +427,10 @@
  ],
  "findings": [
   {
-   "id": "F-MVB4EPFB",
+   "id": "F-MVB8WA9S",
    "text": "During L train: Canarsie Tube closed, the G overloads first: Greenpoint Av to 21 St reached 244% of capacity at 8 a.m.",
    "kind": "crowding",
-   "validFromMs": 1792164395064,
+   "validFromMs": 1792171933700,
    "validToMs": null,
    "example": null,
    "about": [
@@ -521,34 +521,34 @@
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Tomás: about 52 min, 2 transfers: L Canarsie-Rockaway Pkwy → Broadway Junction (6 stops), then A Broadway Junction → Fulton St (6 stops), then 4 Fulton St → 14 St-Union Sq (2 stops).",
-   "atMs": 1792164395090,
+   "atMs": 1792171933730,
    "agent": "rider-desk",
    "queries": 3,
-   "ms": 2
+   "ms": 3
   },
   {
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Maya: about 45 min, 2 transfers: L Morgan Av → Myrtle-Wyckoff Avs (3 stops), then M Myrtle-Wyckoff Avs → Broadway-Lafayette St/Bleecker St (9 stops), then 6 Broadway-Lafayette St/Bleecker St → 14 St-Union Sq (2 stops).",
-   "atMs": 1792164395088,
+   "atMs": 1792171933726,
    "agent": "rider-desk",
    "queries": 3,
-   "ms": 9
+   "ms": 10
   },
   {
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Dev: about 41 min, 2 transfers: L Bedford Av → Metropolitan Av/Lorimer St (1 stop), then G Metropolitan Av/Lorimer St → Court Sq-23 St (4 stops), then E Court Sq-23 St → 14 St/8 Av (8 stops).",
-   "atMs": 1792164395088,
+   "atMs": 1792171933726,
    "agent": "rider-desk",
    "queries": 3,
-   "ms": 9
+   "ms": 10
   },
   {
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Aisha: about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops).",
-   "atMs": 1792164395087,
+   "atMs": 1792171933725,
    "agent": "rider-desk",
    "queries": 3,
    "ms": 8
@@ -556,8 +556,8 @@
   {
    "tool": "publish_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB4ENSF published: 1 Av ↔ Astor Pl. The rider desk has the handoff.",
-   "atMs": 1792164395075,
+   "summary": "PLAN-MVB8W8KN published: 1 Av ↔ Astor Pl. The rider desk has the handoff.",
+   "atMs": 1792171933712,
    "agent": "controller",
    "queries": 5,
    "ms": 4
@@ -565,71 +565,71 @@
   {
    "tool": "remember",
    "outcome": "answered",
-   "summary": "Remembered F-MVB4EPFB: During L train: Canarsie Tube closed, the G overloads first: Greenpoint Av to 21 St reached 244% of capacity at 8 a.m.",
-   "atMs": 1792164395071,
+   "summary": "Remembered F-MVB8WA9S: During L train: Canarsie Tube closed, the G overloads first: Greenpoint Av to 21 St reached 244% of capacity at 8 a.m.",
+   "atMs": 1792171933707,
    "agent": "controller",
    "queries": 4,
-   "ms": 3
+   "ms": 5
   },
   {
    "tool": "simulate_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB4EOXN: 1 Av ↔ Astor Pl at 25 buses an hour (1,750 riders); Bedford Av ↔ Metropolitan Av/Lorimer St at 60 buses an hour (4,200 riders); 26 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 28,762 riders an hour (riders who had no path now travel and add load downstream).",
-   "atMs": 1792164395063,
+   "summary": "PLAN-MVB8W9Q4: 1 Av ↔ Astor Pl at 25 buses an hour (1,750 riders); Bedford Av ↔ Metropolitan Av/Lorimer St at 60 buses an hour (4,200 riders); 26 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 28,762 riders an hour (riders who had no path now travel and add load downstream).",
+   "atMs": 1792171933697,
    "agent": "controller",
    "queries": 24,
-   "ms": 1406
+   "ms": 1485
   },
   {
    "tool": "simulate_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB4ENSF: 1 Av ↔ Astor Pl at 25 buses an hour (1,750 riders); 8 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 28,762 riders an hour (riders who had no path now travel and add load downstream).",
-   "atMs": 1792164393642,
+   "summary": "PLAN-MVB8W8KN: 1 Av ↔ Astor Pl at 25 buses an hour (1,750 riders); 8 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 28,762 riders an hour (riders who had no path now travel and add load downstream).",
+   "atMs": 1792171932194,
    "agent": "controller",
    "queries": 24,
-   "ms": 1474
+   "ms": 1453
   },
   {
    "tool": "shuttle_candidates",
    "outcome": "answered",
    "summary": "Shuttle candidates: 1 Av → Astor Pl (1,266 riders an hour with no open line, 0.8 km, 6); 1 Av → 8 St-NYU (1,266 riders an hour with no open line, 0.9 km, W/R); Bedford Av → Metropolitan Av/Lorimer St (relief for 4,038 riders an hour, 0.7 km, L/G); Bedford Av → Nassau Av (relief for 4,038 riders an hour, 0.9 km, G); Metropolitan Av/Lorimer St → Hewes St (relief for 1,643 riders an hour, 0.8 km, M/J).",
-   "atMs": 1792164392151,
+   "atMs": 1792171930716,
    "agent": "controller",
    "queries": 16,
-   "ms": 223
+   "ms": 314
   },
   {
    "tool": "measure_capacity",
    "outcome": "answered",
    "summary": "23,445 displaced riders an hour. If each takes the fastest open path, 4 segments overflow by 24,078 riders an hour: G Greenpoint Av → 21 St at 244%; G Nassau Av → Greenpoint Av at 201%; G 21 St → Court Sq-23 St at 198%; 4,689 have no open path. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 17,167 of 18,432 (93%); 1,266 cannot move. Min cut is at the riders' own stations: 1 Av (1,266) have no open alternative.",
-   "atMs": 1792164391919,
+   "atMs": 1792171930389,
    "agent": "controller",
    "queries": 19,
-   "ms": 833
+   "ms": 852
   },
   {
    "tool": "affected_riders",
    "outcome": "answered",
    "summary": "23,445 riders an hour had trips crossing the closure (2,021 origin-destination pairs). Within 1 stop of it: 10,142 riders at 23 stations; within 4 stops: 14,713 at 90 stations; 2,698 more start further out. Largest origin: Bedford Av (4,038).",
-   "atMs": 1792164391064,
+   "atMs": 1792171929510,
    "agent": "controller",
    "queries": 10,
-   "ms": 155
+   "ms": 167
   },
   {
    "tool": "close_line",
    "outcome": "answered",
-   "summary": "Opened INC-MVB4EM9P. Closed 10 L segments across 6 stations (Bedford Av → 1 Av → 3 Av → 14 St-Union Sq → 14 St/6 Av → 14 St/8 Av). At 8 a.m. the busiest closed segment carried 18,086 riders an hour.",
-   "atMs": 1792164390978,
+   "summary": "Opened INC-MVB8W6YR. Closed 10 L segments across 6 stations (Bedford Av → 1 Av → 3 Av → 14 St-Union Sq → 14 St/6 Av → 14 St/8 Av). At 8 a.m. the busiest closed segment carried 18,086 riders an hour.",
+   "atMs": 1792171929416,
    "agent": "controller",
    "queries": 6,
-   "ms": 7
+   "ms": 8
   },
   {
    "tool": "recall",
    "outcome": "memory",
-   "summary": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2100, carried 1650 | Playbook \"Canarsie Tube closure\" used 1 time(s): Close the L between Bedford Av and 8 Av in both directio",
-   "atMs": 1792164390966,
+   "summary": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2100, carried 1650 | Playbook \"Canarsie Tube closure\" used 1 time(s): Close the L between Bedford Av and 8 Av in both…",
+   "atMs": 1792171929403,
    "agent": "controller",
    "queries": 3,
    "ms": 6
@@ -638,7 +638,7 @@
    "tool": "resolve_places",
    "outcome": "answered",
    "summary": "Resolved: Bedford Av → Bedford Av (L) [120]; 14 St/8 Av → 14 St/8 Av (A,C,E,L) [618]; L → route L.",
-   "atMs": 1792164390964,
+   "atMs": 1792171929401,
    "agent": "controller",
    "queries": 2,
    "ms": 5
@@ -649,7 +649,7 @@
    "from": "controller",
    "to": "rider-desk",
    "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-   "atMs": 1792164395074
+   "atMs": 1792171933711
   }
  ],
  "playbooks": [
