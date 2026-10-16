@@ -2,23 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { CypherBlock } from "@/components/cypher-block";
+import { TOOL_TITLE } from "@/lib/tool-titles";
 import { BriefLines, OutcomeChip } from "./bits";
 import type { Item, RunState, ToolStep } from "./run-state";
 
-const TOOL_TITLE: Record<string, string> = {
-  resolve_places: "Resolve names",
-  recall_memory: "Recall memory",
-  close_line: "Close the line",
-  affected_riders: "Who rides through it",
-  measure_capacity: "Measure capacity",
-  shuttle_candidates: "Find shuttle bridges",
-  simulate_plan: "Simulate a plan",
-  propose_steering: "Steer riders, no buses",
-  remember: "Remember a finding",
-  riders_affected: "Remembered riders hit",
-  route_rider: "Route a rider",
-  publish_plan: "Publish the plan",
-};
 
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;

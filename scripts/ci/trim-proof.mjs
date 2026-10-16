@@ -12,7 +12,17 @@ mkdirSync("data/proof", { recursive: true });
 for (const id of scenarios) {
   const full = JSON.parse(readFileSync(`ci-out/${id}.json`, "utf8"));
   const trimmed = Object.fromEntries(
-    Object.entries(full).map(([step, r]) => [step, { tool: r.tool, outcome: r.outcome, summary: r.summary, trace: r.trace }]),
+    Object.entries(full).map(([step, r]) => [
+      step,
+      {
+        tool: r.tool,
+        outcome: r.outcome,
+        summary: r.summary,
+        trace: r.trace,
+        // Small results the proof page compares with NetworkX.
+        ...(r.tool === "affected_riders" && r.data ? { byDepth: r.data.byDepth } : {}),
+      },
+    ]),
   );
   writeFileSync(`data/proof/${id}.json`, JSON.stringify(trimmed) + "\n");
 }

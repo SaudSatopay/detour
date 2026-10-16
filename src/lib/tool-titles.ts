@@ -1,0 +1,17 @@
+/** Plain names for the graph tools, shared by the control room trace and the proof page. */
+export const TOOL_TITLE: Record<string, string> = {
+  resolve_places: "Resolve names",
+  recall_memory: "Recall memory",
+  recall: "Recall memory",
+  close_line: "Close the line",
+  affected_riders: "Who rides through it",
+  measure_capacity: "Measure capacity",
+  shuttle_candidates: "Find shuttle bridges",
+  simulate_plan: "Simulate a plan",
+  propose_steering: "Steer riders, no buses",
+  remember: "Remember a finding",
+  riders_affected: "Remembered riders hit",
+  route_rider: "Route a rider",
+  publish_plan: "Publish the plan",
+  resolve_incident: "Resolve the incident",
+};

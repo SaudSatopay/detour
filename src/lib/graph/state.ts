@@ -44,6 +44,8 @@ export interface SandboxState {
   findings: FindingRow[];
   episodes: EpisodeRow[];
   handoffs: { from: string; to: string; note: string; atMs: number }[];
+  playbooks: { id: string; title: string; steps: string[]; uses: number; lastUsedMs: number; routes: string[] }[];
+  pastIncidents: { id: string; title: string; openedMs: number; status: string; example: boolean | null; shuttles: { from: string; to: string; planned: number; observed: number }[] }[];
   /** Set when this state was recorded earlier and served because the database is unreachable. */
   recorded?: string;
 }
@@ -52,7 +54,7 @@ export interface SandboxState {
 export async function sandboxState(visitor: string): Promise<SandboxState> {
   const sandbox = await ensureSandbox(visitor);
   const ctx = { visitorId: visitor, sandbox: sandbox.graph, agentId: "controller", tracer: new Tracer() };
-  const [incident, riders, advisories, findings, episodes, handoffs] = await Promise.all([
+  const [incident, riders, advisories, findings, episodes, handoffs, playbooks, pastIncidents] = await Promise.all([
     openIncident(ctx),
     listRiders(ctx),
     run<AdvisoryRow>(
@@ -91,6 +93,25 @@ export async function sandboxState(visitor: string): Promise<SandboxState> {
       {},
       { readOnly: true },
     ),
+    run<SandboxState["playbooks"][number]>(
+      sandbox.graph,
+      `MATCH (p:Playbook)-[:FOR]->(r:Route)
+       RETURN p.id AS id, p.title AS title, p.steps AS steps, p.uses AS uses, p.lastUsedMs AS lastUsedMs, collect(r.id) AS routes`,
+      {},
+      { readOnly: true },
+    ),
+    run<SandboxState["pastIncidents"][number]>(
+      sandbox.graph,
+      `MATCH (i:Incident) WHERE i.status <> 'open'
+       OPTIONAL MATCH (sh:Shuttle)-[:FOR]->(i)
+       OPTIONAL MATCH (sh)-[:FROM]->(a:Station)
+       OPTIONAL MATCH (sh)-[:TO]->(b:Station)
+       WITH i, collect(CASE WHEN sh IS NULL THEN null ELSE {from: a.name, to: b.name, planned: sh.planned, observed: sh.observed} END) AS shuttles
+       RETURN i.id AS id, i.title AS title, i.openedMs AS openedMs, i.status AS status, i.example AS example, shuttles
+       ORDER BY openedMs DESC LIMIT 12`,
+      {},
+      { readOnly: true },
+    ),
   ]);
   const plans = incident ? await listPlans(ctx, incident.id) : [];
   const latest = new Map<string, AdvisoryRow>();
@@ -103,5 +124,7 @@ export async function sandboxState(visitor: string): Promise<SandboxState> {
     findings: findings.rows,
     episodes: episodes.rows,
     handoffs: handoffs.rows,
+    playbooks: playbooks.rows,
+    pastIncidents: pastIncidents.rows.map((i) => ({ ...i, shuttles: (i.shuttles ?? []).filter(Boolean) })),
   };
 }

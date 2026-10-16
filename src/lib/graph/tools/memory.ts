@@ -154,3 +154,44 @@ export async function remember(
     { id, superseded },
   );
 }
+
+/**
+ * A rider-desk report that a platform elevator works again (or broke again). The current fact is
+ * superseded, not deleted: route_rider reads only facts with no end date, so the next route changes,
+ * and the old fact stays queryable with its validity window.
+ */
+export async function reportElevator(
+  ctx: ToolContext,
+  input: { station: string; stationName: string; route: string; working: boolean },
+): Promise<ToolResult<{ id: string; superseded: string | null } | null>> {
+  const current = await ctx.tracer.run<{ id: string; kind: string; text: string }>(
+    "current elevator facts for this platform",
+    ctx.sandbox,
+    `MATCH (f:Finding)-[:ABOUT]->(:Station {id: $station}), (f)-[:ABOUT]->(:Route {id: $route})
+     WHERE f.validToMs IS NULL AND f.text STARTS WITH 'Elevator'
+     RETURN f.id AS id, f.kind AS kind, f.text AS text
+     ORDER BY f.validFromMs DESC`,
+    { station: input.station, route: input.route },
+    { readOnly: true },
+  );
+  const outage = current.rows.find((f) => f.kind === "accessibility");
+  const working = current.rows.find((f) => f.kind !== "accessibility");
+  if (input.working && !outage) {
+    return result(ctx, "remember", "not_in_graph", `Memory has no current elevator outage on the ${input.route} platform at ${input.stationName}.`, null);
+  }
+  if (!input.working && outage) {
+    return result(ctx, "remember", "memory", `Memory already says the ${input.route} platform elevator at ${input.stationName} is out: ${outage.text}`, null);
+  }
+  const written = await remember(ctx, {
+    text: input.working
+      ? `Elevator to the ${input.route} platform at ${input.stationName} back in service.`
+      : `Elevator to the ${input.route} platform at ${input.stationName} out of service again.`,
+    kind: input.working ? "observation" : "accessibility",
+    stations: [input.station],
+    routes: [input.route],
+    confidence: 1,
+    supersedes: input.working ? outage?.id : working?.id,
+  });
+  // remember() returns every query this context ran, the lookup first.
+  return written;
+}
