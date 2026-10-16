@@ -1,17 +1,17 @@
 import { cookies } from "next/headers";
 import { connect } from "../graph/db";
-import { isVisitorId } from "../graph/names";
+import { isVisitorId, newVisitorId, VISITOR_COOKIE, VISITOR_MAX_AGE } from "../graph/names";
 
-const COOKIE = "detour_vid";
-
-/** Anonymous visitor id (one sandbox graph each), kept in an httpOnly cookie for a week. */
+/**
+ * Anonymous visitor id (one sandbox graph each), kept in an httpOnly cookie for a week. The proxy
+ * sets it on the first request, so parallel API calls from a new visitor share one sandbox.
+ */
 export async function visitorId(): Promise<string> {
   const store = await cookies();
-  const existing = store.get(COOKIE)?.value;
+  const existing = store.get(VISITOR_COOKIE)?.value;
   if (existing && isVisitorId(existing)) return existing;
-  const bytes = crypto.getRandomValues(new Uint8Array(12));
-  const id = Array.from(bytes, (b) => (b % 36).toString(36)).join("") + Date.now().toString(36).slice(-4);
-  store.set(COOKIE, id, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 7 * 24 * 3600, path: "/" });
+  const id = newVisitorId();
+  store.set(VISITOR_COOKIE, id, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: VISITOR_MAX_AGE, path: "/" });
   return id;
 }
 

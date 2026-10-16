@@ -5,7 +5,7 @@
   "copyMs": 0
  },
  "incident": {
-  "id": "INC-MVB3FBUE",
+  "id": "INC-MVB4EQDY",
   "title": "A and C: Cranberry Street Tunnel closed",
   "report": "Water condition in the Cranberry Street Tunnel. No A or C trains between High St and Fulton St.",
   "routes": [
@@ -23,11 +23,11 @@
    711
   ],
   "status": "open",
-  "openedMs": 1792162744503
+  "openedMs": 1792164396311
  },
  "plans": [
   {
-   "id": "PLAN-MVB3FCKP",
+   "id": "PLAN-MVB4EQWV",
    "label": "No extra buses: steer riders onto open lines",
    "status": "published",
    "legs": [],
@@ -38,9 +38,9 @@
    "unmetAfter": 0,
    "strandedBefore": 0,
    "strandedAfter": 0,
-   "createdMs": 1792162745449,
-   "publishedMs": 1792162745460,
-   "incident": "INC-MVB3FBUE"
+   "createdMs": 1792164396991,
+   "publishedMs": 1792164396998,
+   "incident": "INC-MVB4EQDY"
   }
  ],
  "riders": [
@@ -136,7 +136,7 @@
    "advisory": {
     "rider": "grace",
     "text": "Walk to Hoyt St, then take the 2 to Fulton St. About 19 minutes.",
-    "atMs": 1792162745468,
+    "atMs": 1792164397004,
     "minutes": 19.3,
     "route": [
      "636",
@@ -302,10 +302,10 @@
  ],
  "findings": [
   {
-   "id": "F-MVB3FCKP",
+   "id": "F-MVB4EQWW",
    "text": "During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses were needed.",
    "kind": "capacity",
-   "validFromMs": 1792162745450,
+   "validFromMs": 1792164396992,
    "validToMs": null,
    "example": null,
    "about": [
@@ -396,34 +396,34 @@
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Grace: about 19 min, 0 transfers: walk Jay St-MetroTech → Hoyt St, then 2 Hoyt St → Fulton St (4 stops).",
-   "atMs": 1792162745467,
+   "atMs": 1792164397003,
    "agent": "rider-desk",
    "queries": 3,
-   "ms": 4
+   "ms": 2
   },
   {
    "tool": "publish_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB3FCKP published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
-   "atMs": 1792162745460,
+   "summary": "PLAN-MVB4EQWV published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
+   "atMs": 1792164396999,
    "agent": "controller",
    "queries": 5,
-   "ms": 5
+   "ms": 3
   },
   {
    "tool": "remember",
    "outcome": "answered",
-   "summary": "Remembered F-MVB3FCKP: During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses ",
-   "atMs": 1792162745456,
+   "summary": "Remembered F-MVB4EQWW: During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses ",
+   "atMs": 1792164396996,
    "agent": "controller",
    "queries": 4,
-   "ms": 3
+   "ms": 2
   },
   {
    "tool": "propose_steering",
    "outcome": "answered",
-   "summary": "PLAN-MVB3FCKP: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
-   "atMs": 1792162745450,
+   "summary": "PLAN-MVB4EQWV: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
+   "atMs": 1792164396992,
    "agent": "controller",
    "queries": 3,
    "ms": 2
@@ -431,46 +431,46 @@
   {
    "tool": "measure_capacity",
    "outcome": "answered",
-   "summary": "16,268 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 14,268 of 14,267 (100%); 0 cannot move.",
-   "atMs": 1792162745447,
+   "summary": "16,268 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 14,267 of 14,267 (100%); 0 cannot move.",
+   "atMs": 1792164396990,
    "agent": "controller",
    "queries": 19,
-   "ms": 826
+   "ms": 605
   },
   {
    "tool": "affected_riders",
    "outcome": "answered",
    "summary": "16,268 riders an hour had trips crossing the closure (1,308 origin-destination pairs). Within 1 stop of it: 2,400 riders at 5 stations; within 4 stops: 9,993 at 42 stations; 2,051 more start further out. Largest origin: Nostrand Av (1,703).",
-   "atMs": 1792162744605,
+   "atMs": 1792164396372,
    "agent": "controller",
    "queries": 10,
-   "ms": 182
+   "ms": 106
   },
   {
    "tool": "close_line",
    "outcome": "answered",
-   "summary": "Opened INC-MVB3FBUE. Closed 4 A/C segments across 2 stations (High St → Fulton St). At 8 a.m. the busiest closed segment carried 11,103 riders an hour.",
-   "atMs": 1792162744503,
+   "summary": "Opened INC-MVB4EQDY. Closed 4 A/C segments across 2 stations (High St → Fulton St). At 8 a.m. the busiest closed segment carried 11,103 riders an hour.",
+   "atMs": 1792164396312,
    "agent": "controller",
    "queries": 6,
-   "ms": 9
-  },
-  {
-   "tool": "recall",
-   "outcome": "memory",
-   "summary": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1680, carried 1560",
-   "atMs": 1792162744494,
-   "agent": "controller",
-   "queries": 3,
-   "ms": 5
+   "ms": 7
   },
   {
    "tool": "resolve_places",
    "outcome": "answered",
    "summary": "Resolved: High St → High St (A,C) [173]; Fulton St → Fulton St (2,3,4,5,A,C,J,Z) [628]; A → route A; C → route C.",
-   "atMs": 1792162744493,
+   "atMs": 1792164396304,
    "agent": "controller",
    "queries": 2,
+   "ms": 3
+  },
+  {
+   "tool": "recall",
+   "outcome": "memory",
+   "summary": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1680, carried 1560",
+   "atMs": 1792164396304,
+   "agent": "controller",
+   "queries": 3,
    "ms": 4
   }
  ],
@@ -479,7 +479,56 @@
    "from": "controller",
    "to": "rider-desk",
    "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-   "atMs": 1792162745460
+   "atMs": 1792164396999
+  }
+ ],
+ "playbooks": [
+  {
+   "id": "PB-L-TUBE",
+   "title": "Canarsie Tube closure",
+   "steps": [
+    "Close the L between Bedford Av and 8 Av in both directions.",
+    "Measure what the J/M/Z and G can absorb toward Manhattan.",
+    "Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity.",
+    "Add G trains if Metropolitan Av/Lorimer St is in the min cut."
+   ],
+   "uses": 1,
+   "lastUsedMs": 1781260200000,
+   "routes": [
+    "L"
+   ]
+  }
+ ],
+ "pastIncidents": [
+  {
+   "id": "INC-0903",
+   "title": "Water condition, Cranberry Street Tunnel",
+   "openedMs": 1788417600000,
+   "status": "closed",
+   "example": true,
+   "shuttles": [
+    {
+     "from": "Jay St-MetroTech",
+     "to": "Fulton St",
+     "planned": 1680,
+     "observed": 1560
+    }
+   ]
+  },
+  {
+   "id": "INC-0612",
+   "title": "Smoke condition, Canarsie Tube",
+   "openedMs": 1781251080000,
+   "status": "closed",
+   "example": true,
+   "shuttles": [
+    {
+     "from": "Bedford Av",
+     "to": "Marcy Av",
+     "planned": 2100,
+     "observed": 1650
+    }
+   ]
   }
  ]
 }

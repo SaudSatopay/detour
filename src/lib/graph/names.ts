@@ -12,6 +12,15 @@ export const FORK_PREFIX = "detour:fork:";
 
 const VISITOR_ID = /^[a-z0-9]{8,32}$/;
 
+/** The anonymous visitor cookie: one sandbox graph per visitor, kept for a week. */
+export const VISITOR_COOKIE = "detour_vid";
+export const VISITOR_MAX_AGE = 7 * 24 * 3600;
+
+export function newVisitorId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(12));
+  return Array.from(bytes, (b) => (b % 36).toString(36)).join("") + Date.now().toString(36).slice(-4);
+}
+
 export function isVisitorId(id: string): boolean {
   return VISITOR_ID.test(id);
 }

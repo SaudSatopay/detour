@@ -137,7 +137,7 @@ export function Trace({ state, selected, onSelect }: { state: RunState; selected
     const scroller = el?.closest("[data-scroll]");
     if (!el || !scroller) return;
     const near = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 240;
-    if (near) el.scrollIntoView({ block: "end", behavior: "smooth" });
+    if (near) scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
   }, [count, state.brief]);
 
   let n = 0;

@@ -99,7 +99,9 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
   // When the rider desk starts, bring its advisories into view in the right rail.
   const deskStarted = state.stage === "desk";
   useEffect(() => {
-    if (deskStarted) rail.current?.querySelector("[data-riders]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const el = rail.current?.querySelector<HTMLElement>("[data-riders]");
+    // Scroll the rail only; scrollIntoView would also move the page under the sticky header.
+    if (deskStarted && el && rail.current) rail.current.scrollTo({ top: el.offsetTop - 8, behavior: "smooth" });
   }, [deskStarted]);
 
   const onApprove = useCallback(
@@ -283,7 +285,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
           <Legend overlay={overlay} />
         </section>
 
-        <aside ref={rail} data-scroll className="hidden min-w-0 overflow-y-auto lg:block lg:border-l lg:border-line">
+        <aside ref={rail} data-scroll className="relative hidden min-w-0 overflow-y-auto lg:block lg:border-l lg:border-line">
           <ImpactPanel {...impactProps} />
         </aside>
 
