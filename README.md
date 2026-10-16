@@ -10,6 +10,13 @@ Agents work on a FalkorDB graph of the real subway, built from MTA open data. Th
 
 ![The control room after closing the L: displaced riders' fastest paths overload the G (red), max flow moves 17,167 of 18,432 riders an hour, and the trace shows every tool call with its Cypher.](docs/images/control-room.png)
 
+<details>
+<summary>Watch a 20-second run (GIF)</summary>
+
+![A run of the L closure: the controller's tool calls stream in, the map shows each step's evidence, and the G overload and max flow appear with their numbers.](docs/images/control-room.gif)
+
+</details>
+
 ## What it finds on the L train
 
 Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday. Every number below comes from tool calls on FalkorDB and is recomputed by an independent NetworkX program.
@@ -190,7 +197,7 @@ pnpm seed                      # loads the network, demand and memory into Falko
 pnpm dev                       # http://localhost:3000
 ```
 
-The built network is committed in `data/nyc/`. To rebuild it from MTA sources: `pnpm fetch:data && pnpm build:data`.
+From a clean checkout, install, type check, unit tests and a production build take about a minute (62 s with a warm pnpm cache). The built network is committed in `data/nyc/`; to rebuild it from MTA sources: `pnpm fetch:data && pnpm build:data`.
 
 | Command | What it checks |
 |---|---|

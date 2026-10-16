@@ -1,24 +1,31 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { RidersRoom } from "@/components/riders/riders-room";
-
-// The room streams in under Suspense; Next 16.4's dev-time instant-navigation check cannot render this segment, so opt out.
-export const instant = false;
+import { SEED_FINDINGS, SEED_RIDERS } from "@/lib/graph/seed-memory";
 
 export const metadata: Metadata = {
   title: "Riders",
   description: "Remembered riders with their usual trips, preferences and advisories. Route any of them on the live graph, and change a remembered fact to watch the route change.",
 };
 
-async function Room({ searchParams }: { searchParams: PageProps<"/riders">["searchParams"] }) {
-  const sp = await searchParams;
-  return <RidersRoom initialRider={typeof sp.rider === "string" ? sp.rider : null} />;
-}
+// Static: the seeded riders paint at once; the visitor's sandbox state replaces them on the client.
+const seedRiders = SEED_RIDERS.map((r) => ({
+  id: r.id,
+  name: r.name,
+  persona: r.persona,
+  departs: r.departs,
+  stepFree: r.stepFree,
+  from: r.from,
+  to: r.to,
+  usualEids: [],
+  usualStations: [r.from, r.to],
+  usualMinutes: 0,
+  preferences: r.preferences.map((p) => ({ key: p.key, value: p.value, sinceMs: Date.parse(p.since) })),
+  advisory: null,
+}));
 
-export default function RidersPage({ searchParams }: PageProps<"/riders">) {
-  return (
-    <Suspense fallback={<div className="h-[calc(100dvh-3rem)] animate-pulse bg-sunk" aria-busy="true" aria-label="Loading riders" />}>
-      <Room searchParams={searchParams} />
-    </Suspense>
-  );
+const elevator = SEED_FINDINGS.find((f) => f.id === "F-ELEV-2")!;
+const elevatorSeed = { text: elevator.text, kind: elevator.kind, validFromMs: Date.parse(elevator.validFrom) };
+
+export default function RidersPage() {
+  return <RidersRoom seedRiders={seedRiders} elevatorSeed={elevatorSeed} />;
 }

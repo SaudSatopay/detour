@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function MemoryPage() {
   const recall = cypherCatalog().find((c) => c.tool === "recall")?.queries ?? [];
   return (
-    <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-6 px-4 pb-24 pt-10 sm:px-6">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-4 pb-24 pt-10 sm:px-6">
       <header className="flex max-w-[70ch] flex-col gap-4">
         <p className="label text-ink-500">Memory</p>
         <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">Memory is part of the graph, not a log beside it.</h1>

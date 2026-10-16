@@ -1,6 +1,6 @@
 "use client";
 
-import { SubwayMap, type MapOverlay } from "./subway-map";
+import { SubwayMap, type LabelExclusion, type MapOverlay } from "./subway-map";
 import { useMapModel } from "./use-map-model";
 
 interface Props {
@@ -11,10 +11,11 @@ interface Props {
   interactive?: boolean;
   selected?: string | null;
   onSelect?: (id: string) => void;
+  exclude?: LabelExclusion[];
 }
 
 /** Loads the network once and shows a quiet skeleton until it arrives. */
-export function MapPanel({ overlay, focus, label, className = "", interactive, selected, onSelect }: Props) {
+export function MapPanel({ overlay, focus, label, className = "", interactive, selected, onSelect, exclude }: Props) {
   const { model, error } = useMapModel();
   if (error) {
     return (
@@ -30,5 +31,5 @@ export function MapPanel({ overlay, focus, label, className = "", interactive, s
       </div>
     );
   }
-  return <SubwayMap model={model} overlay={overlay} focus={focus} label={label} className={className} interactive={interactive} selected={selected} onSelect={onSelect} />;
+  return <SubwayMap model={model} overlay={overlay} focus={focus} label={label} className={className} interactive={interactive} selected={selected} onSelect={onSelect} exclude={exclude} />;
 }

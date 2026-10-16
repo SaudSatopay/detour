@@ -23,6 +23,18 @@ export interface MapOverlay {
   stations?: string[];
 }
 
+/** A screen-pixel rectangle pinned to a corner of the map (an overlay such as a card or legend) where labels are not drawn. */
+export interface LabelExclusion {
+  anchor: "tl" | "tr" | "bl" | "br";
+  w: number;
+  h: number;
+  /** Only when the map is at least / at most this many pixels wide (overlays that move between breakpoints). */
+  minWidth?: number;
+  maxWidth?: number;
+}
+
+const NO_EXCLUSIONS: LabelExclusion[] = [];
+
 interface Props {
   model: MapModel;
   overlay?: MapOverlay;
@@ -33,6 +45,7 @@ interface Props {
   className?: string;
   showLabels?: "major" | "none";
   interactive?: boolean;
+  exclude?: LabelExclusion[];
 }
 
 type View = { k: number; x: number; y: number };
@@ -62,11 +75,14 @@ function computeFit(model: MapModel, ids?: string[]): View {
 
 const SPACING = 2.4;
 
-export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, label, className = "", showLabels = "major", interactive = true }: Props) {
+const ZOOM_CONTROLS: LabelExclusion = { anchor: "br", w: 56, h: 136 };
+
+export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, label, className = "", showLabels = "major", interactive = true, exclude = NO_EXCLUSIONS }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState<View>(() => computeFit(model, focus));
   const [hidden, setHidden] = useState(false);
   const [scalePx, setScalePx] = useState(2);
+  const [box, setBox] = useState({ w: 0, h: 0 });
   const drag = useRef<{ x: number; y: number; vx: number; vy: number; id: number } | null>(null);
   const hasOverlay = Boolean(overlay.closedEids?.length || overlay.flows?.length || overlay.path?.length || overlay.depth);
 
@@ -135,7 +151,10 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      if (width && height) setScalePx(Math.max(model.width / width, model.height / height));
+      if (width && height) {
+        setScalePx(Math.max(model.width / width, model.height / height));
+        setBox({ w: width, h: height });
+      }
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -213,18 +232,35 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
     const placed: { x0: number; y0: number; x1: number; y1: number }[] = [];
     const out: { s: MapStation; size: number }[] = [];
     const pad = 2 * unit;
+    // Screen pixels to model coordinates (the SVG letterboxes the view box into the element).
+    const offX = (box.w * scalePx - model.width) / 2;
+    const offY = (box.h * scalePx - model.height) / 2;
+    const toModel = (sx: number, sy: number) => ({ x: (sx * scalePx - offX - view.x) / view.k, y: (sy * scalePx - offY - view.y) / view.k });
+    const seen0 = toModel(0, 0);
+    const seen1 = toModel(box.w, box.h);
+    const active = [...exclude, ...(interactive ? [ZOOM_CONTROLS] : [])].filter((e) => box.w >= (e.minWidth ?? 0) && box.w <= (e.maxWidth ?? Infinity));
+    const blocked = (box.w ? active : []).map((e) => {
+      const x0 = e.anchor.endsWith("l") ? 0 : box.w - e.w;
+      const y0 = e.anchor.startsWith("t") ? 0 : box.h - e.h;
+      const a = toModel(x0, y0);
+      const b = toModel(x0 + e.w, y0 + e.h);
+      return { x0: a.x, y0: a.y, x1: b.x, y1: b.y };
+    });
     for (const s of candidates) {
       const size = emphasized.has(s.id) ? 13 : 11;
       const x0 = s.x + 5 * unit;
       const base = s.y - 4 * unit;
       // Barlow Condensed runs about half an em per character.
-      const box = { x0, x1: x0 + s.name.length * size * 0.5 * unit, y0: base - 0.8 * size * unit, y1: base + 0.25 * size * unit };
-      if (placed.some((p) => box.x0 - pad < p.x1 && box.x1 + pad > p.x0 && box.y0 - pad < p.y1 && box.y1 + pad > p.y0)) continue;
-      placed.push(box);
+      const rect = { x0, x1: x0 + s.name.length * size * 0.5 * unit, y0: base - 0.8 * size * unit, y1: base + 0.25 * size * unit };
+      const hits = (p: { x0: number; y0: number; x1: number; y1: number }) => rect.x0 - pad < p.x1 && rect.x1 + pad > p.x0 && rect.y0 - pad < p.y1 && rect.y1 + pad > p.y0;
+      // Not clipped at the pane edge, not under an overlay, not over another label.
+      if (box.w && (rect.x0 < seen0.x || rect.x1 > seen1.x || rect.y0 < seen0.y || rect.y1 > seen1.y)) continue;
+      if (blocked.some(hits) || placed.some(hits)) continue;
+      placed.push(rect);
       out.push({ s, size });
     }
     return out;
-  }, [model, majorLabels, emphasized, unit]);
+  }, [model, majorLabels, emphasized, unit, scalePx, box, view, exclude, interactive]);
 
   return (
     <div className={`relative ${className}`}>
@@ -268,7 +304,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
             const l = segmentLine(eid);
             if (!l) return null;
             return (
-              <g key={`c${eid}`}>
+              <g key={`c${eid}`} className="fade-in">
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(4.6)} strokeLinecap="round" opacity={0.25} />
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(1.8)} strokeDasharray={`${sw(2.2)} ${sw(1.6)}`} />
               </g>

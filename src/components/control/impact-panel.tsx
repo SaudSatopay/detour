@@ -155,7 +155,7 @@ function Plan({
   onApprove: () => void;
 }) {
   return (
-    <article className={`flex flex-col gap-2.5 rounded-md border p-3 ${recommended ? "border-signal bg-panel shadow-lift" : "border-line bg-panel"}`}>
+    <article data-recommended={recommended ? "" : undefined} className={`flex flex-col gap-2.5 rounded-md border p-3 ${recommended ? "border-signal bg-panel shadow-lift" : "border-line bg-panel"}`}>
       <header className="flex flex-wrap items-baseline gap-2">
         <h3 className="font-display text-lg font-semibold leading-tight text-ink-900">{plan.kind === "steer" ? "Steer riders, no buses" : "Shuttle bridge"}</h3>
         <span className="font-mono text-xs text-ink-500">{plan.id}</span>

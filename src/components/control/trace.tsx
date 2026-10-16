@@ -38,7 +38,18 @@ function StepCard({ step, n, active, onSelect, enter }: { step: ToolStep; n: num
               </span>
               {drawable ? <span className="label ml-auto text-signal-strong">{active ? "On the map" : "Show on map"}</span> : null}
             </span>
-            <span className="mt-1.5 block text-sm leading-relaxed text-ink-700">{r.summary}</span>
+            {r.summary.includes(" | ") ? (
+              // Memory recalls several facts; one per line (spans: a button may only hold phrasing content).
+              <span className="mt-1.5 flex flex-col gap-1 text-sm leading-relaxed text-ink-700">
+                {r.summary.split(" | ").map((fact) => (
+                  <span key={fact} className="block border-l-2 border-line pl-2">
+                    {fact}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              <span className="mt-1.5 block text-sm leading-relaxed text-ink-700">{r.summary}</span>
+            )}
           </>
         ) : step.error ? (
           <span className="mt-1.5 block text-sm text-crit">Failed: {step.error}</span>
@@ -129,7 +140,7 @@ function Row({ item, index, n, selected, onSelect, enter }: { item: Item; index:
 }
 
 /** The agents' work in order: what they said, every tool call with its answer shape, and the Cypher behind it. */
-export function Trace({ state, selected, onSelect }: { state: RunState; selected: number; onSelect: (i: number) => void }) {
+export function Trace({ state, selected, onSelect, onJumpToPlan }: { state: RunState; selected: number; onSelect: (i: number) => void; onJumpToPlan?: () => void }) {
   const end = useRef<HTMLDivElement>(null);
   const count = state.items.length;
   useEffect(() => {
@@ -158,8 +169,17 @@ export function Trace({ state, selected, onSelect }: { state: RunState; selected
       {state.brief ? (
         <section className="rise overflow-hidden rounded-md border border-line bg-panel">
           <h3 className="sign-band label px-3 py-1.5">Brief for the dispatcher</h3>
-          <div className="p-3">
+          <div className="flex flex-col gap-3 p-3">
             <BriefLines text={state.brief} />
+            {onJumpToPlan && state.stage === "control" && state.status === "done" ? (
+              <button
+                type="button"
+                onClick={onJumpToPlan}
+                className="label w-fit rounded-sm border border-ink-900 px-2.5 py-1.5 text-ink-900 transition-colors duration-150 hover:bg-sunk"
+              >
+                Go to the recommended plan
+              </button>
+            ) : null}
           </div>
         </section>
       ) : null}

@@ -74,7 +74,7 @@ export default function Home() {
   return (
     <>
       {/* Phones: claim, then the broken L, then the rest. Desktop: text left, map right across both rows. */}
-      <section className="mx-auto grid w-full max-w-[1180px] gap-6 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-center lg:gap-x-12 lg:gap-y-6 lg:pb-16 lg:pt-12">
+      <section className="mx-auto grid w-full max-w-page gap-6 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-center lg:gap-x-12 lg:gap-y-6 lg:pb-16 lg:pt-12">
         <div className="rise flex flex-col gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="label text-ink-500">Graph Hacks · FalkorDB · Tracks 1 and 2</p>
           <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">
@@ -120,7 +120,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="findings" className="border-t border-line bg-panel">
-        <div className="mx-auto w-full max-w-[1180px] px-4 py-12 sm:px-6 lg:py-24">
+        <div className="mx-auto w-full max-w-page px-4 py-12 sm:px-6 lg:py-24">
           <h2 id="findings" className="max-w-[24ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
             What the graph found when the Canarsie Tube closed at 8 a.m.
           </h2>
@@ -144,7 +144,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="how" className="border-t border-line">
-        <div className="mx-auto w-full max-w-[1180px] px-4 py-12 sm:px-6 lg:py-24">
+        <div className="mx-auto w-full max-w-page px-4 py-12 sm:px-6 lg:py-24">
           <h2 id="how" className="max-w-[24ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
             The agents choose the tools. The graph does the work.
           </h2>
@@ -168,7 +168,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="memory" className="border-t border-line bg-panel">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-24">
+        <div className="mx-auto grid w-full max-w-page gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
             <h2 id="memory" className="max-w-[22ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
               Agents that remember, and hand off through the graph.
@@ -196,7 +196,7 @@ export default function Home() {
       </section>
 
       <section className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-[1180px] flex-col items-start gap-5 px-4 py-12 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-16">
+        <div className="mx-auto flex w-full max-w-page flex-col items-start gap-5 px-4 py-12 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-16">
           <p className="max-w-[40ch] font-display text-2xl font-semibold leading-snug sm:text-3xl">
             Close a line yourself and watch the agents measure it.
           </p>

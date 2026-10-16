@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { FlowHighlight } from "@/lib/graph/tools/types";
-import { SubwayMap, type MapOverlay, type Overloaded } from "./subway-map";
+import { SubwayMap, type LabelExclusion, type MapOverlay, type Overloaded } from "./subway-map";
 import { useMapModel } from "./use-map-model";
 
 interface Hero {
@@ -13,6 +13,12 @@ interface Hero {
   stranded: number;
   peak: { required: number; absorbed: number; unmet: number };
 }
+
+// The numbers card: bottom-left on phones, top-left from the sm breakpoint.
+const CARD: LabelExclusion[] = [
+  { anchor: "bl", w: 300, h: 160, maxWidth: 639 },
+  { anchor: "tl", w: 372, h: 160, minWidth: 640 },
+];
 
 const FOCUS = ["120", "119", "118", "602", "601", "618", "629", "283", "282", "606", "612", "625", "101", "630", "621"];
 
@@ -38,7 +44,7 @@ export function HeroMap({ className = "" }: { className?: string }) {
   useEffect(() => {
     if (!hero || !model) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timers = reduce ? [setTimeout(() => setStage(2), 0)] : [setTimeout(() => setStage(1), 500), setTimeout(() => setStage(2), 1300)];
+    const timers = reduce ? [setTimeout(() => setStage(2), 0)] : [setTimeout(() => setStage(1), 250), setTimeout(() => setStage(2), 800)];
     return () => timers.forEach(clearTimeout);
   }, [hero, model]);
 
@@ -65,11 +71,12 @@ export function HeroMap({ className = "" }: { className?: string }) {
           className="h-full w-full"
           label="The L train closed between Bedford Av and 8 Av. Displaced riders' fastest alternatives overload the G train between Metropolitan Av and Court Sq."
           showLabels="major"
+          exclude={CARD}
         />
       ) : (
         <div className="absolute inset-0 animate-pulse bg-sunk" aria-busy="true" />
       )}
-      <figcaption className="pointer-events-none absolute bottom-3 left-3 max-w-[min(22rem,calc(100%-4.5rem))] rounded-md border border-line bg-panel/95 p-3 shadow-lift sm:bottom-auto sm:top-3">
+      <figcaption style={{ animationDelay: "500ms" }} className="rise pointer-events-none absolute bottom-3 left-3 max-w-[min(22rem,calc(100%-4.5rem))] rounded-md border border-line bg-panel/95 p-3 shadow-lift sm:bottom-auto sm:top-3">
         <p className="label text-crit">L closed · Bedford Av to 8 Av · 8 a.m.</p>
         {hero ? (
           <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">

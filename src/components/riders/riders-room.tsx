@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import type { AgentEvent } from "@/lib/agent/catalog";
 import { readNdjson } from "@/lib/client/ndjson";
 import type { SandboxState } from "@/lib/graph/state";
@@ -17,7 +17,10 @@ import { useSandbox } from "../use-sandbox";
 type RouteResult = ToolResult<{ rider: string | null; answer: RouteAnswer | null; alternatives: number }>;
 type Rider = SandboxState["riders"][number];
 
-const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+// Pinned to the subway's time zone, so server and browser render the same date.
+const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
+// Preferences are date-only facts, stored at UTC midnight.
+const dateOnly = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 // The seeded accessibility fact the demo flips: the L platform elevator at Myrtle-Wyckoff Avs.
 const ELEVATOR = { station: "630", route: "L", prefix: "Elevator to the L platform at Myrtle-Wyckoff" };
 
@@ -89,12 +92,26 @@ function RouteCard({ title, result, colorOf, nameOf, tone }: { title: string; re
   );
 }
 
-export function RidersRoom({ initialRider }: { initialRider: string | null }) {
+const noSubscribe = () => () => {};
+
+export interface ElevatorSeed {
+  text: string;
+  kind: string;
+  validFromMs: number;
+}
+
+/**
+ * The page is static: the seeded riders render at once, ?rider is read on the client, and the visitor's
+ * sandbox state (advisories, current memory) replaces the seed when it arrives.
+ */
+export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; elevatorSeed: ElevatorSeed }) {
   const { state, error, loading, reload } = useSandbox();
+  const search = useSyncExternalStore(noSubscribe, () => window.location.search, () => "");
   const { model } = useMapModel();
   const nameOf = useCallback((id: string) => model?.stations.get(id)?.name ?? id, [model]);
   const colorOf = useCallback((r: string) => model?.routes.get(r)?.color ?? "", [model]);
-  const [selected, setSelected] = useState(initialRider ?? "aisha");
+  const [picked, setSelected] = useState<string | null>(null);
+  const selected = picked ?? new URLSearchParams(search).get("rider") ?? "aisha";
   const [routes, setRoutes] = useState<Record<string, { now: RouteResult; before?: RouteResult }>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -104,11 +121,15 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
   const askAbort = useRef<AbortController | null>(null);
 
   const recorded = Boolean(state?.recorded);
-  const riders = state?.riders ?? [];
+  // Live controls need the visitor's graph: not while it loads, not when the database is down.
+  const paused = loading ? "Loading your sandbox graph…" : recorded || !state ? "Paused: live routing and memory writes need the graph database." : null;
+  const riders = state?.riders ?? seedRiders;
   const rider: Rider | undefined = riders.find((r) => r.id === selected) ?? riders[0];
   const closed = useMemo(() => new Set(state?.incident?.closedEids ?? []), [state?.incident?.closedEids]);
   const published = state?.plans.find((p) => p.status === "published") ?? null;
-  const elevatorFact = state?.findings.find((f) => (f.validToMs === null || f.validToMs === undefined) && f.text.startsWith(ELEVATOR.prefix)) ?? null;
+  const elevatorFact = state
+    ? (state.findings.find((f) => (f.validToMs === null || f.validToMs === undefined) && f.text.startsWith(ELEVATOR.prefix)) ?? null)
+    : elevatorSeed;
   const elevatorOut = elevatorFact?.kind === "accessibility";
 
   const routeNow = useCallback(
@@ -174,28 +195,18 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
   }, [askPath, current, published, rider, state?.incident?.closedEids]);
   const focus = overlay.path?.length ? overlay.path : rider ? [rider.from, rider.to, ...(rider.usualStations ?? [])] : undefined;
 
-  if (loading) return <div className="h-[calc(100dvh-3rem)] animate-pulse bg-sunk" aria-busy="true" aria-label="Loading riders" />;
-  if (!state) {
-    return (
-      <div className="mx-auto flex max-w-[60ch] flex-col gap-3 px-4 py-16">
-        <h1 className="font-display text-3xl font-bold">Riders could not load.</h1>
-        <p className="text-ink-700">{error}</p>
-        <button type="button" onClick={reload} className="w-fit rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold text-paper">
-          Try again
-        </button>
-      </div>
-    );
-  }
-
   const hit = (r: Rider) => r.usualEids?.some((e) => closed.has(e));
 
   return (
-    // A different element from the loading placeholder, so React mounts it fresh (no layout shift).
     <article className="flex flex-col lg:h-[calc(100dvh-3rem)]">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-4 py-2">
         <h1 className="font-display text-xl font-bold tracking-wide">Riders</h1>
         <p className="min-w-0 flex-1 text-xs text-ink-500">
-          {recorded
+          {loading
+            ? "Remembered riders and their usual trips. Loading your sandbox graph…"
+            : !state
+              ? `Your sandbox could not load (${error}). These are the remembered riders as seeded.`
+              : recorded
             ? "The graph database is unreachable, so this is the state recorded after the L closure run; routing and memory writes are paused."
             : state.incident
               ? `${state.incident.id} is open in your sandbox (${state.incident.routes.join("/")} closed)${published ? `; ${published.id} is published` : ""}. Routes below account for it.`
@@ -248,13 +259,14 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
                 {rider.stepFree ? <span className="label rounded-sm border border-line-strong px-1.5 text-ink-900">Step-free</span> : null}
               </div>
               <p className="text-sm text-ink-700">
-                Usually {nameOf(rider.from)} → {nameOf(rider.to)}, leaves {rider.departs}, about {Math.round(rider.usualMinutes)} min.
+                Usually {nameOf(rider.from)} → {nameOf(rider.to)}, leaves {rider.departs}
+                {rider.usualMinutes ? `, about ${Math.round(rider.usualMinutes)} min` : ""}.
               </p>
               {rider.preferences.length ? (
                 <ul className="flex flex-wrap gap-1.5 pt-1">
                   {rider.preferences.map((p) => (
                     <li key={`${p.key}${p.value}`} className="rounded-sm bg-sunk px-2 py-0.5 text-xs text-ink-700">
-                      {p.key} {p.value} <span className="text-ink-500">· since {day(p.sinceMs)}</span>
+                      {p.key} {p.value} <span className="text-ink-500">· since {dateOnly(p.sinceMs)}</span>
                     </li>
                   ))}
                 </ul>
@@ -274,12 +286,15 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
                 <button
                   type="button"
                   onClick={() => void routeNow(rider.id, false)}
-                  disabled={recorded || busy !== null}
+                  disabled={paused !== null || busy !== null}
+                  aria-describedby="route-why"
                   className="shrink-0 whitespace-nowrap rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy === `route:${rider.id}` ? "Routing…" : `Route ${rider.name} now`}
                 </button>
-                <span className="text-xs text-ink-500">Shortest path on the platform graph, with any closure, shuttle and remembered outage.</span>
+                <span id="route-why" className="text-xs text-ink-500">
+                  {paused ?? "Shortest path on the platform graph, with any closure, shuttle and remembered outage."}
+                </span>
               </div>
               {current ? (
                 <div className="flex flex-col gap-2">
@@ -302,11 +317,17 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
                 <button
                   type="button"
                   onClick={() => void flipElevator()}
-                  disabled={recorded || busy !== null}
+                  disabled={paused !== null || busy !== null}
+                  aria-describedby="elevator-why"
                   className="w-fit rounded-md border border-ink-900 px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 enabled:hover:bg-sunk disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy === "elevator" ? "Writing to memory…" : elevatorOut ? "Report the L elevator fixed" : "Report it out of service again"}
                 </button>
+                {paused ? (
+                  <p id="elevator-why" className="text-xs text-ink-500">
+                    {paused}
+                  </p>
+                ) : null}
                 {memoryWrite ? <p className="text-xs text-ink-700">{memoryWrite.summary}</p> : null}
               </section>
             ) : null}

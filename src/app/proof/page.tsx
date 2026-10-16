@@ -35,7 +35,7 @@ export default function ProofPage() {
   const queryCount = catalog.reduce((s, c) => s + c.queries.length, 0);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-16 px-4 pb-24 pt-10 sm:px-6">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-16 px-4 pb-24 pt-10 sm:px-6">
       <header className="flex max-w-[70ch] flex-col gap-4">
         <p className="label text-ink-500">Proof</p>
         <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">Every number is computed twice, by two different programs.</h1>

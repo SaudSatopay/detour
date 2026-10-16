@@ -61,6 +61,13 @@ function forModel(r: ToolResult): unknown {
   }
 }
 
+/** Shortens text at a word boundary, with an ellipsis, so stored summaries never end mid-word. */
+export function clip(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max / 2)).replace(/[\s,;:|]+$/, "")}…`;
+}
+
 /** Persists each tool call as an Episode in the visitor's graph: the incident's history is graph state. */
 export async function recordEpisode(ctx: ToolContext, r: ToolResult) {
   try {
@@ -75,7 +82,7 @@ export async function recordEpisode(ctx: ToolContext, r: ToolResult) {
         agent: ctx.agentId,
         tool: r.tool,
         outcome: r.outcome,
-        summary: r.summary.slice(0, 600),
+        summary: clip(r.summary, 600),
         queries: r.trace.length,
         ms: Math.round(r.trace.reduce((s, t) => s + t.ms, 0)),
       },

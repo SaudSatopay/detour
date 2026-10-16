@@ -9,7 +9,8 @@ import { agentName } from "../control/trace";
 import { useSandbox } from "../use-sandbox";
 import type { Outcome } from "@/lib/graph/tools/types";
 
-const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+// Facts are dated in the subway's time zone, as the agents state them.
+const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 const time = (ms: number) => new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const current = (f: FindingRow) => f.validToMs === null || f.validToMs === undefined;
 

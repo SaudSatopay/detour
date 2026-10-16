@@ -57,9 +57,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // The browser bar matches the station-sign header: --sign in light (oklch 0.17 0.008 260) and dark (oklch 0.13 0.008 260).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1d24" },
+    { media: "(prefers-color-scheme: light)", color: "#0d1013" },
+    { media: "(prefers-color-scheme: dark)", color: "#06070a" },
   ],
 };
 

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
+import type { LabelExclusion } from "../map/subway-map";
 import { useMapModel } from "../map/use-map-model";
 import { ImpactPanel } from "./impact-panel";
 import { capacityOf, impactOf, incidentOf, lastDrawable, overlayAt, plansOf, recommendedPlan, ridersOf, type RunState } from "./run-state";
@@ -30,6 +31,12 @@ function ModeBadge({ state }: { state: RunState }) {
     </span>
   );
 }
+
+// The step caption (top-left) and the legend (bottom-left) sit over the map; no station labels under them.
+const MAP_OVERLAYS: LabelExclusion[] = [
+  { anchor: "tl", w: 470, h: 52 },
+  { anchor: "bl", w: 620, h: 52 },
+];
 
 function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] }) {
   const items: { key: string; label: string; swatch: React.ReactNode }[] = [];
@@ -163,6 +170,21 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
     onApprove,
   };
 
+  // Keyboard users jump from the brief to the recommended plan's Approve button.
+  const jumpToPlan = () => {
+    const focusIn = (root: ParentNode | null) => {
+      const button = root?.querySelector<HTMLElement>("[data-recommended] button") ?? root?.querySelector<HTMLElement>("article button");
+      button?.focus({ preventScroll: false });
+      return Boolean(button);
+    };
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      focusIn(rail.current);
+      return;
+    }
+    setTab("impact");
+    requestAnimationFrame(() => requestAnimationFrame(() => focusIn(document.getElementById("run-tabpanel"))));
+  };
+
   // On phones the intake folds to one line once a run exists, so the map and its evidence come first.
   const compact = state.items.length > 0 && !editing;
   const intake = (
@@ -232,7 +254,17 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
         >
           {running ? "Running…" : state.items.length ? "Run again" : "Run the controller"}
         </button>
-        <span className="text-xs leading-snug text-ink-500">On your own copy of the graph. Nothing reaches riders until you approve.</span>
+        {state.brief && plans.length && state.stage === "control" && !running ? (
+          <button
+            type="button"
+            onClick={jumpToPlan}
+            className="label rounded-sm border border-ink-900 px-2.5 py-1.5 text-ink-900 transition-colors duration-150 hover:bg-sunk"
+          >
+            Go to the recommended plan
+          </button>
+        ) : (
+          <span className="text-xs leading-snug text-ink-500">On your own copy of the graph. Nothing reaches riders until you approve.</span>
+        )}
       </div>
       {status?.incident && !state.items.length ? (
         <p className="text-xs text-ink-500">
@@ -246,7 +278,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   );
 
   const tracePane = state.items.length ? (
-    <Trace state={state} selected={selected} onSelect={(i) => setPinned(i === latestIndex ? null : i)} />
+    <Trace state={state} selected={selected} onSelect={(i) => setPinned(i === latestIndex ? null : i)} onJumpToPlan={plans.length ? jumpToPlan : undefined} />
   ) : (
     <div className="flex flex-col gap-2 text-sm text-ink-700">
       <p className="font-display text-xl font-semibold text-ink-900">The agents&apos; work shows here.</p>
@@ -288,6 +320,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
               overlay={overlay}
               focus={focus.length ? focus : undefined}
               className="h-full w-full"
+              exclude={MAP_OVERLAYS}
               label={selectedStep?.kind === "tool" && selectedStep.result ? selectedStep.result.summary : "The New York City subway network."}
             />
           </div>
