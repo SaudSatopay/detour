@@ -7,51 +7,41 @@ node_modules/
 out/
 build/
 dist/
+next-env.d.ts
+*.tsbuildinfo
 
-# env
-.env
-.env*.local
-.env.production
+# env (only the example is committed)
+.env*
+!.env.example
 
 # vercel
-.vercel
+.vercel/
 
-# misc
-.DS_Store
-*.pem
-*.log
-npm-debug.log*
+# tests and check output
 coverage/
-*.tsbuildinfo
-next-env.d.ts
+test-results/
+playwright-report/
+.playwright-cli/
+ci-out/
 
 # python
 __pycache__/
 .venv/
 
-# missile sensor output
-.missile/
-
-# playwright
-test-results/
-playwright-report/
-.playwright-cli/
-
 # raw MTA downloads (re-fetch with scripts/fetch-mta.sh)
 data/raw/
 
-# agent worktrees
-.claude/worktrees/
+# local tooling and notes: kept on disk, never pushed
+.claude/
+.missile/
+AGENTS.md
+CLAUDE.md
+MISSILE.md
+PRODUCT.md
+DESIGN.md
+docs/blog.md
 
-# ci outputs
-ci-out/
-
-.vercel
-.env*
-
-# Playwright
-/test-results/
-/playwright-report/
-
-# pnpm may put its store inside the project on CI (Vercel)
-.pnpm-store/
+# misc
+.DS_Store
+*.pem
+*.log

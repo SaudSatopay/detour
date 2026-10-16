@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * Detour tokens. One source of truth (DESIGN.md). Light is paper; dark is "night service",
+ * Detour tokens, the one source of truth for color, type and spacing. Light is paper; dark is "night service",
  * chosen by hand, not inverted. Components use the utilities these generate, never literals.
  */
 :root {
