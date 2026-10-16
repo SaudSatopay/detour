@@ -254,3 +254,14 @@ p {
 .paused .flow {
   animation-play-state: paused;
 }
+
+/* Map legend swatches: the same strokes the map draws. */
+.swatch-closed {
+  background: repeating-linear-gradient(90deg, var(--crit) 0 4px, transparent 4px 7px);
+}
+.swatch-cut {
+  background: repeating-linear-gradient(45deg, var(--crit) 0 2px, var(--crit-wash) 2px 4px);
+}
+.swatch-bus {
+  background: repeating-linear-gradient(90deg, var(--signal-strong) 0 5px, transparent 5px 8px);
+}

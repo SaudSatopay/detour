@@ -204,6 +204,28 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
     return new Set(ranked.map((s) => s.id));
   }, [model, k]);
 
+  // Labels placed greedily in priority order (the step's evidence first, then by ridership); a label whose
+  // box would overlap one already placed is skipped, so names never print over each other.
+  const labels = useMemo(() => {
+    const candidates = [...model.stations.values()]
+      .filter((s) => majorLabels.has(s.id) || emphasized.has(s.id))
+      .sort((a, b) => Number(emphasized.has(b.id)) - Number(emphasized.has(a.id)) || b.entries - a.entries);
+    const placed: { x0: number; y0: number; x1: number; y1: number }[] = [];
+    const out: { s: MapStation; size: number }[] = [];
+    const pad = 2 * unit;
+    for (const s of candidates) {
+      const size = emphasized.has(s.id) ? 13 : 11;
+      const x0 = s.x + 5 * unit;
+      const base = s.y - 4 * unit;
+      // Barlow Condensed runs about half an em per character.
+      const box = { x0, x1: x0 + s.name.length * size * 0.5 * unit, y0: base - 0.8 * size * unit, y1: base + 0.25 * size * unit };
+      if (placed.some((p) => box.x0 - pad < p.x1 && box.x1 + pad > p.x0 && box.y0 - pad < p.y1 && box.y1 + pad > p.y0)) continue;
+      placed.push(box);
+      out.push({ s, size });
+    }
+    return out;
+  }, [model, majorLabels, emphasized, unit]);
+
   return (
     <div className={`relative ${className}`}>
       <svg
@@ -342,14 +364,12 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
           {/* Labels: busiest stations at this zoom, plus anything emphasized. */}
           {showLabels === "major" ? (
             <g style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-              {[...model.stations.values()]
-                .filter((s) => majorLabels.has(s.id) || emphasized.has(s.id))
-                .map((s) => (
+              {labels.map(({ s, size }) => (
                   <text
                     key={`t${s.id}`}
                     x={s.x + sw(5)}
                     y={s.y - sw(4)}
-                    fontSize={sw(emphasized.has(s.id) ? 13 : 11)}
+                    fontSize={sw(size)}
                     fill={emphasized.has(s.id) ? "var(--ink-900)" : "var(--ink-700)"}
                     stroke="var(--paper)"
                     strokeWidth={sw(3)}

@@ -223,7 +223,7 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
                       {r.advisory ? <span className="label text-signal-strong">Advised</span> : null}
                     </span>
                     <span className="text-xs text-ink-500">{r.persona}</span>
-                    <span className="truncate text-xs text-ink-700">
+                    <span className="w-full truncate text-xs text-ink-700" title={`${nameOf(r.from)} → ${nameOf(r.to)}`}>
                       {nameOf(r.from)} → {nameOf(r.to)}
                     </span>
                   </button>

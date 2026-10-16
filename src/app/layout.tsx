@@ -11,16 +11,21 @@ const display = Barlow_Condensed({
   display: "swap",
 });
 
+// Next has no metrics for the Atkinson faces, so it cannot size-adjust a fallback; name the fallbacks instead.
 const sans = Atkinson_Hyperlegible_Next({
   variable: "--font-atkinson",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: false,
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
 });
 
 const mono = Atkinson_Hyperlegible_Mono({
   variable: "--font-atkinson-mono",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: false,
+  fallback: ["ui-monospace", "Consolas", "monospace"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://detour-orpin.vercel.app";

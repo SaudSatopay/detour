@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CypherBlock } from "@/components/cypher-block";
 import { TOOL_TITLE } from "@/lib/tool-titles";
 import { BriefLines, OutcomeChip } from "./bits";
@@ -10,12 +10,12 @@ import type { Item, RunState, ToolStep } from "./run-state";
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;
 
-function StepCard({ step, n, active, onSelect }: { step: ToolStep; n: number; active: boolean; onSelect: () => void }) {
+function StepCard({ step, n, active, onSelect, enter }: { step: ToolStep; n: number; active: boolean; onSelect: () => void; enter: string }) {
   const r = step.result;
   const ms = r ? Math.round(r.trace.reduce((s, t) => s + t.ms, 0)) : 0;
   const drawable = Boolean(r?.highlight);
   return (
-    <article className={`rise rounded-md border bg-panel transition-colors duration-150 ${active ? "border-signal shadow-lift" : "border-line"}`}>
+    <article className={`${enter} rounded-md border bg-panel transition-colors duration-150 ${active ? "border-signal shadow-lift" : "border-line"}`}>
       <button
         type="button"
         onClick={onSelect}
@@ -77,7 +77,7 @@ function StepCard({ step, n, active, onSelect }: { step: ToolStep; n: number; ac
   );
 }
 
-function Say({ agent, text }: { agent: string; text: string }) {
+function Say({ agent, text, enter }: { agent: string; text: string; enter: string }) {
   const paras = text
     .replace(/\*\*/g, "")
     .split(/\n{2,}/)
@@ -85,7 +85,7 @@ function Say({ agent, text }: { agent: string; text: string }) {
     .filter(Boolean);
   if (!paras.length) return null;
   return (
-    <div className="rise flex flex-col gap-1.5 px-1">
+    <div className={`${enter} flex flex-col gap-1.5 px-1`}>
       <span className="label text-signal-strong">{agentName(agent)}</span>
       {paras.map((p, i) => (
         <p key={i} className="whitespace-pre-line text-sm leading-relaxed text-ink-700">
@@ -96,15 +96,15 @@ function Say({ agent, text }: { agent: string; text: string }) {
   );
 }
 
-function Row({ item, index, n, selected, onSelect }: { item: Item; index: number; n: number; selected: number; onSelect: (i: number) => void }) {
+function Row({ item, index, n, selected, onSelect, enter }: { item: Item; index: number; n: number; selected: number; onSelect: (i: number) => void; enter: string }) {
   switch (item.kind) {
     case "say":
-      return <Say agent={item.agent} text={item.text} />;
+      return <Say agent={item.agent} text={item.text} enter={enter} />;
     case "tool":
-      return <StepCard step={item} n={n} active={selected === index} onSelect={() => onSelect(index)} />;
+      return <StepCard step={item} n={n} active={selected === index} onSelect={() => onSelect(index)} enter={enter} />;
     case "handoff":
       return (
-        <div className="rise flex flex-col gap-1 rounded-md border border-dashed border-line-strong px-3 py-2">
+        <div className={`${enter} flex flex-col gap-1 rounded-md border border-dashed border-line-strong px-3 py-2`}>
           <span className="label text-ink-900">
             Handoff · {agentName(item.from)} → {agentName(item.to)}
           </span>
@@ -113,7 +113,7 @@ function Row({ item, index, n, selected, onSelect }: { item: Item; index: number
       );
     case "approval":
       return (
-        <div className="rise flex items-center gap-2 rounded-md bg-sign px-3 py-2 text-sign-ink">
+        <div className={`${enter} flex items-center gap-2 rounded-md bg-sign px-3 py-2 text-sign-ink`}>
           <span className="label">Dispatcher approved</span>
           <span className="font-mono text-sm">{item.planId}</span>
         </div>
@@ -140,12 +140,14 @@ export function Trace({ state, selected, onSelect }: { state: RunState; selected
     if (near) scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
   }, [count, state.brief]);
 
+  // Only items that arrive while the trace is on screen get the entrance; a remount (a phone tab switch) shows the rest at rest.
+  const [firstCount] = useState(state.items.length);
   let n = 0;
   return (
     <div className="flex flex-col gap-3" aria-live="polite" aria-busy={state.status === "running"}>
       {state.items.map((item, i) => {
         if (item.kind === "tool") n++;
-        return <Row key={i} item={item} index={i} n={n} selected={selected} onSelect={onSelect} />;
+        return <Row key={i} item={item} index={i} n={n} selected={selected} onSelect={onSelect} enter={i < firstCount ? "" : "rise"} />;
       })}
       {state.status === "running" ? (
         <p className="flex items-center gap-2 px-1 text-sm text-ink-500">

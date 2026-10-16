@@ -34,12 +34,12 @@ function ModeBadge({ state }: { state: RunState }) {
 function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] }) {
   const items: { key: string; label: string; swatch: React.ReactNode }[] = [];
   if (overlay.closedEids?.length)
-    items.push({ key: "closed", label: "Closed", swatch: <span className="block h-1 w-5 rounded-full bg-[repeating-linear-gradient(90deg,var(--crit)_0_4px,transparent_4px_7px)]" /> });
+    items.push({ key: "closed", label: "Closed", swatch: <span className="swatch-closed block h-1 w-5 rounded-full" /> });
   if (overlay.flows?.length) items.push({ key: "flow", label: "Displaced riders", swatch: <span className="block h-1 w-5 rounded-full bg-signal" /> });
   if (overlay.overloaded?.length) items.push({ key: "over", label: "Over capacity", swatch: <span className="block h-1 w-5 rounded-full bg-crit" /> });
-  if (overlay.cut?.length) items.push({ key: "cut", label: "Bottleneck", swatch: <span className="block h-1.5 w-5 bg-[repeating-linear-gradient(45deg,var(--crit)_0_2px,var(--crit-wash)_2px_4px)]" /> });
+  if (overlay.cut?.length) items.push({ key: "cut", label: "Bottleneck", swatch: <span className="swatch-cut block h-1.5 w-5" /> });
   if (overlay.shuttles?.length)
-    items.push({ key: "bus", label: "Shuttle bus", swatch: <span className="block h-1 w-5 rounded-full bg-[repeating-linear-gradient(90deg,var(--signal-strong)_0_5px,transparent_5px_8px)]" /> });
+    items.push({ key: "bus", label: "Shuttle bus", swatch: <span className="swatch-bus block h-1 w-5 rounded-full" /> });
   if (overlay.depth) items.push({ key: "depth", label: "Where hit riders board", swatch: <span className="block size-2.5 rounded-full bg-crit" /> });
   if (overlay.path?.length) items.push({ key: "path", label: "Rider's route", swatch: <span className="block h-1 w-5 rounded-full bg-ink-900" /> });
   if (!items.length) return null;
@@ -95,8 +95,12 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
   const rail = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!autoRun || autoRan.current) return;
-    autoRan.current = true;
-    start();
+    // Deferred, so a Strict Mode remount (which aborts streams on unmount) cancels the timer, not the run.
+    const timer = setTimeout(() => {
+      autoRan.current = true;
+      start();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [autoRun, start]);
 
   // When the rider desk starts, bring its advisories into view in the right rail.
@@ -304,13 +308,31 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
         </aside>
 
         <div className="min-w-0 lg:hidden">
-          <div role="tablist" aria-label="Run details" className="sticky top-12 z-10 grid grid-cols-3 border-b border-line bg-paper">
+          <div
+            role="tablist"
+            aria-label="Run details"
+            className="sticky top-12 z-10 grid grid-cols-3 border-b border-line bg-paper"
+            onKeyDown={(e) => {
+              // The tabs pattern: arrows move between tabs, Home and End jump to the ends.
+              const order = ["trace", "impact", "riders"] as const;
+              const at = order.indexOf(tab);
+              const next =
+                e.key === "ArrowRight" ? order[(at + 1) % 3] : e.key === "ArrowLeft" ? order[(at + 2) % 3] : e.key === "Home" ? order[0] : e.key === "End" ? order[2] : null;
+              if (!next) return;
+              e.preventDefault();
+              setTab(next);
+              document.getElementById(`tab-${next}`)?.focus();
+            }}
+          >
             {(["trace", "impact", "riders"] as const).map((t) => (
               <button
                 key={t}
+                id={`tab-${t}`}
                 role="tab"
                 type="button"
                 aria-selected={tab === t}
+                aria-controls="run-tabpanel"
+                tabIndex={tab === t ? 0 : -1}
                 onClick={() => setTab(t)}
                 className={`label py-3 transition-colors duration-150 ${tab === t ? "border-b-2 border-ink-900 text-ink-900" : "text-ink-500"}`}
               >
@@ -318,7 +340,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
               </button>
             ))}
           </div>
-          <div role="tabpanel" className={tab === "trace" ? "p-4" : ""}>
+          <div role="tabpanel" id="run-tabpanel" aria-labelledby={`tab-${tab}`} className={tab === "trace" ? "p-4" : ""}>
             {tab === "trace" ? tracePane : <ImpactPanel {...impactProps} part={tab === "impact" ? "impact" : "riders"} />}
           </div>
         </div>

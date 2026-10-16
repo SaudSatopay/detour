@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/control", label: "Control room" },
-  { href: "/riders", label: "Riders" },
-  { href: "/memory", label: "Memory" },
-  { href: "/proof", label: "Proof" },
+  { href: "/control", label: "Control room", short: "Control" },
+  { href: "/riders", label: "Riders", short: "Riders" },
+  { href: "/memory", label: "Memory", short: "Memory" },
+  { href: "/proof", label: "Proof", short: "Proof" },
 ] as const;
 
 export function DetourMark({ className = "" }: { className?: string }) {
@@ -28,9 +28,9 @@ export function SiteHeader() {
       <div className="mx-auto flex h-12 max-w-[1440px] items-center gap-4 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-display text-xl font-bold tracking-wide" aria-label="Detour home">
           <DetourMark className="size-6" />
-          Detour
+          <span className="hidden min-[400px]:inline">Detour</span>
         </Link>
-        <nav aria-label="Primary" className="ml-auto flex items-center gap-1 overflow-x-auto sm:ml-6">
+        <nav aria-label="Primary" className="ml-auto flex items-center gap-0.5 sm:ml-6 sm:gap-1">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -38,11 +38,12 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`label whitespace-nowrap rounded-sm px-2.5 py-1.5 transition-colors duration-150 ${
+                className={`label whitespace-nowrap rounded-sm px-2 py-1.5 transition-colors duration-150 sm:px-2.5 ${
                   active ? "bg-sign-ink text-sign" : "text-sign-ink/80 hover:text-sign-ink"
                 }`}
               >
-                {item.label}
+                <span className="sm:hidden">{item.short}</span>
+                <span className="hidden sm:inline">{item.label}</span>
               </Link>
             );
           })}
