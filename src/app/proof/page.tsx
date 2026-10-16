@@ -70,7 +70,7 @@ export default function ProofPage() {
             .
           </p>
         </SectionHead>
-        <div className="overflow-x-auto rounded-md border border-line">
+        <div tabIndex={0} role="region" aria-label="FalkorDB and NetworkX results" className="scroll-x-cue overflow-x-auto rounded-md border border-line">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <caption className="sr-only">Riders an hour to move and max flow, FalkorDB against NetworkX</caption>
             <thead className="bg-sunk text-left">

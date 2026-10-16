@@ -159,7 +159,7 @@ function Plan({
       <header className="flex flex-wrap items-baseline gap-2">
         <h3 className="font-display text-lg font-semibold leading-tight text-ink-900">{plan.kind === "steer" ? "Steer riders, no buses" : "Shuttle bridge"}</h3>
         <span className="font-mono text-xs text-ink-500">{plan.id}</span>
-        {recommended ? <span className="label ml-auto rounded-sm bg-signal px-1.5 text-signal-ink">Recommended</span> : null}
+        {recommended ? <span className="label ml-auto rounded-sm bg-signal-strong px-1.5 text-signal-ink">Recommended</span> : null}
       </header>
       {plan.legs.length ? (
         <ul className="flex flex-col gap-1 text-sm text-ink-700">

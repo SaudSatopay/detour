@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
 import { useMapModel } from "../map/use-map-model";
@@ -18,7 +18,7 @@ function ModeBadge({ state }: { state: RunState }) {
   if (!state.mode) return null;
   const tone =
     state.mode === "live"
-      ? "bg-signal text-signal-ink"
+      ? "bg-signal-strong text-signal-ink"
       : state.mode === "scripted"
         ? "bg-warn-wash text-ink-900 border border-warn"
         : "bg-sunk text-ink-900 border border-line-strong";
@@ -55,10 +55,16 @@ function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] 
   );
 }
 
-export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios: Scenario[]; initialScenario: string | null; autoRun: boolean }) {
-  const initial = scenarios.find((s) => s.id === initialScenario) ?? scenarios[0];
-  const [scenarioId, setScenarioId] = useState(initial.id);
-  const [message, setMessage] = useState(initial.report);
+const noSubscribe = () => () => {};
+
+export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
+  // The page is static; the URL's ?scenario and ?run are read on the client (empty during prerender).
+  const search = useSyncExternalStore(noSubscribe, () => window.location.search, () => "");
+  const params = useMemo(() => new URLSearchParams(search), [search]);
+  const autoRun = params.get("run") === "1";
+  const [picked, setPicked] = useState<string | null>(null);
+  const [edited, setEdited] = useState<string | null>(null);
+  const scenarioId = picked ?? scenarios.find((s) => s.id === params.get("scenario"))?.id ?? scenarios[0].id;
   const [pinned, setPinned] = useState<number | null>(null);
   const [tab, setTab] = useState<"trace" | "impact" | "riders">("trace");
   const [status, setStatus] = useState<SandboxStatus | null>(null);
@@ -80,6 +86,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
   useEffect(loadStatus, [loadStatus]);
 
   const scenario = scenarios.find((s) => s.id === scenarioId) ?? null;
+  const message = edited ?? scenario?.report ?? "";
   const custom = !scenario || message.trim() !== scenario.report;
   const running = state.status === "running";
 
@@ -192,8 +199,8 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
                 value={s.id}
                 checked={active}
                 onChange={() => {
-                  setScenarioId(s.id);
-                  setMessage(s.report);
+                  setPicked(s.id);
+                  setEdited(null);
                 }}
                 className="mt-1 accent-[var(--ink-900)]"
               />
@@ -209,7 +216,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
         <span className="label text-ink-500">Dispatcher&apos;s report</span>
         <textarea
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => setEdited(e.target.value)}
           rows={3}
           maxLength={600}
           className="resize-none rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:border-signal"
@@ -270,7 +277,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
       <div className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(300px,370px)_minmax(0,1fr)_minmax(320px,400px)]">
         <aside className="flex min-w-0 flex-col lg:min-h-0 lg:border-r lg:border-line">
           {intake}
-          <div data-scroll className="hidden flex-1 overflow-y-auto p-4 lg:block">
+          <div data-scroll tabIndex={0} role="region" aria-label="Agent trace" className="hidden flex-1 overflow-y-auto p-4 lg:block">
             {tracePane}
           </div>
         </aside>
@@ -303,7 +310,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
           <Legend overlay={overlay} />
         </section>
 
-        <aside ref={rail} data-scroll className="relative hidden min-w-0 overflow-y-auto lg:block lg:border-l lg:border-line">
+        <aside ref={rail} data-scroll tabIndex={0} aria-label="Impact, plans and rider advisories" className="relative hidden min-w-0 overflow-y-auto lg:block lg:border-l lg:border-line">
           <ImpactPanel {...impactProps} />
         </aside>
 

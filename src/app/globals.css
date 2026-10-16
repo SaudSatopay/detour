@@ -23,7 +23,7 @@
   --crit-wash: oklch(0.94 0.035 25);
   --warn: oklch(0.72 0.15 75);
   --warn-wash: oklch(0.95 0.05 85);
-  --ok: oklch(0.56 0.12 155);
+  --ok: oklch(0.5 0.12 155);
   --ok-wash: oklch(0.95 0.035 155);
   --map-base: oklch(0.86 0.006 250);
   --map-station: oklch(0.995 0.001 250);
@@ -253,6 +253,13 @@ p {
 
 .paused .flow {
   animation-play-state: paused;
+}
+
+/* Phones: horizontally scrolling tables and code fade at the right edge, so it is clear they scroll. */
+@media (max-width: 639px) {
+  .scroll-x-cue {
+    mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+  }
 }
 
 /* Map legend swatches: the same strokes the map draws. */

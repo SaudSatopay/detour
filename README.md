@@ -164,7 +164,7 @@ On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), Aisha 
 | Riders hit by distance from the L closure | agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit and end-to-end tests | 18 Vitest tests (including the control room's state on recorded runs); 8 Playwright tests on desktop and phone |
+| Unit and end-to-end tests | 22 Vitest tests (including the control room's state on recorded runs and the eval grader); 7 Playwright tests run on desktop and phone, including axe accessibility checks after a run and after approval, in light and dark |
 | Lighthouse, mobile (home, control room, proof) | performance 98 to 99; accessibility, best practices and SEO 100 |
 
 ![The proof page: FalkorDB and NetworkX side by side for every closure.](docs/images/proof.png)
