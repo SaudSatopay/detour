@@ -1,0 +1,23 @@
+[
+  {
+    "id": "l-canarsie",
+    "title": "L train: Canarsie Tube closed",
+    "report": "Signal fire in the Canarsie Tube. No L service between Bedford Av and 8 Av in either direction until further notice.",
+    "routes": ["L"],
+    "stations": ["120", "119", "118", "602", "601", "618"]
+  },
+  {
+    "id": "lex-express",
+    "title": "Lexington Ave express suspended",
+    "report": "Track condition near 14 St-Union Sq. No 4 or 5 trains between Grand Central-42 St and Brooklyn Bridge-City Hall. 6 local trains are running.",
+    "routes": ["4", "5"],
+    "stations": ["610", "602", "622"]
+  },
+  {
+    "id": "cranberry",
+    "title": "A and C: Cranberry Street Tunnel closed",
+    "report": "Water condition in the Cranberry Street Tunnel. No A or C trains between High St and Fulton St.",
+    "routes": ["A", "C"],
+    "stations": ["173", "628"]
+  }
+]
