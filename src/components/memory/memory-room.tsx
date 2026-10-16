@@ -65,11 +65,11 @@ function Finding({ f, successor }: { f: FindingRow; successor?: FindingRow }) {
 export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; cypher: string }[] }) {
   const { state, error, loading, reload, refreshing } = useSandbox();
 
-  if (loading) return <div className="mx-auto h-[70vh] w-full max-w-[1180px] animate-pulse bg-sunk" aria-busy="true" aria-label="Loading memory" />;
+  if (loading) return <div className="min-h-[100dvh] w-full animate-pulse rounded-md bg-sunk" aria-busy="true" aria-label="Loading memory" />;
   if (!state) {
     return (
-      <div className="mx-auto flex max-w-[60ch] flex-col gap-3 px-4 py-16">
-        <h1 className="font-display text-3xl font-bold">Memory could not load.</h1>
+      <div className="flex min-h-[60dvh] max-w-[60ch] flex-col gap-3 py-6">
+        <h2 className="font-display text-3xl font-bold">Memory could not load.</h2>
         <p className="text-ink-700">{error}</p>
         <button type="button" onClick={reload} className="w-fit rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold text-paper">
           Try again
@@ -86,14 +86,9 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
   const handoffs = state.handoffs ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-14 px-4 pb-24 pt-10 sm:px-6">
+    <div className="flex flex-col gap-14">
       <header className="flex max-w-[70ch] flex-col gap-4">
-        <p className="label text-ink-500">Memory</p>
-        <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">Memory is part of the graph, not a log beside it.</h1>
-        <p className="text-lg text-ink-700">
-          Agents read what earlier runs learned before they act, write what they find with a date and its source, and close facts that stop being
-          true instead of deleting them. Everything on this page lives in your own sandbox graph{state.recorded ? "" : `, ${state.visitor.sandbox}`}.
-        </p>
+        {state.recorded ? null : <p className="text-ink-700">Everything below lives in your own sandbox graph, {state.visitor.sandbox}.</p>}
         <div className="flex flex-wrap items-center gap-3 text-sm">
           {state.recorded ? (
             <span className="rounded-sm border border-line-strong bg-sunk px-2 py-1 text-ink-700">
