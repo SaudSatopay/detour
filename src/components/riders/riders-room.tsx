@@ -190,7 +190,8 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
   const hit = (r: Rider) => r.usualEids?.some((e) => closed.has(e));
 
   return (
-    <div className="flex flex-col lg:h-[calc(100dvh-3rem)]">
+    // A different element from the loading placeholder, so React mounts it fresh (no layout shift).
+    <article className="flex flex-col lg:h-[calc(100dvh-3rem)]">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-4 py-2">
         <h1 className="font-display text-xl font-bold tracking-wide">Riders</h1>
         <p className="min-w-0 flex-1 text-xs text-ink-500">
@@ -364,6 +365,6 @@ export function RidersRoom({ initialRider }: { initialRider: string | null }) {
           </aside>
         ) : null}
       </div>
-    </div>
+    </article>
   );
 }
