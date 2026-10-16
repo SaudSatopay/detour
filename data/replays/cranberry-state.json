@@ -5,7 +5,7 @@
   "copyMs": 0
  },
  "incident": {
-  "id": "INC-MVB8WBBH",
+  "id": "INC-MVB9OYF8",
   "title": "A and C: Cranberry Street Tunnel closed",
   "report": "Water condition in the Cranberry Street Tunnel. No A or C trains between High St and Fulton St.",
   "routes": [
@@ -23,11 +23,11 @@
    711
   ],
   "status": "open",
-  "openedMs": 1792171935054
+  "openedMs": 1792173271364
  },
  "plans": [
   {
-   "id": "PLAN-MVB8WBXI",
+   "id": "PLAN-MVB9OZ0D",
    "label": "No extra buses: steer riders onto open lines",
    "status": "published",
    "legs": [],
@@ -38,9 +38,9 @@
    "unmetAfter": 0,
    "strandedBefore": 0,
    "strandedAfter": 0,
-   "createdMs": 1792171935846,
-   "publishedMs": 1792171935855,
-   "incident": "INC-MVB8WBBH"
+   "createdMs": 1792173272126,
+   "publishedMs": 1792173272136,
+   "incident": "INC-MVB9OYF8"
   }
  ],
  "riders": [
@@ -136,7 +136,7 @@
    "advisory": {
     "rider": "grace",
     "text": "Walk to Hoyt St, then take the 2 to Fulton St. About 19 minutes.",
-    "atMs": 1792171935863,
+    "atMs": 1792173272143,
     "minutes": 19.3,
     "route": [
      "636",
@@ -302,10 +302,10 @@
  ],
  "findings": [
   {
-   "id": "F-MVB8WBXI",
+   "id": "F-MVB9OZ0E",
    "text": "During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses were needed.",
    "kind": "capacity",
-   "validFromMs": 1792171935847,
+   "validFromMs": 1792173272127,
    "validToMs": null,
    "example": null,
    "about": [
@@ -396,7 +396,7 @@
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Grace: about 19 min, 0 transfers: walk Jay St-MetroTech → Hoyt St, then 2 Hoyt St → Fulton St (4 stops).",
-   "atMs": 1792171935862,
+   "atMs": 1792173272143,
    "agent": "rider-desk",
    "queries": 3,
    "ms": 4
@@ -404,74 +404,74 @@
   {
    "tool": "publish_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB8WBXI published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
-   "atMs": 1792171935856,
+   "summary": "PLAN-MVB9OZ0D published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
+   "atMs": 1792173272136,
    "agent": "controller",
    "queries": 5,
-   "ms": 3
+   "ms": 4
   },
   {
    "tool": "remember",
    "outcome": "answered",
-   "summary": "Remembered F-MVB8WBXI: During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses ",
-   "atMs": 1792171935852,
+   "summary": "Remembered F-MVB9OZ0E: During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses ",
+   "atMs": 1792173272132,
    "agent": "controller",
    "queries": 4,
-   "ms": 3
+   "ms": 4
   },
   {
    "tool": "propose_steering",
    "outcome": "answered",
-   "summary": "PLAN-MVB8WBXI: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
-   "atMs": 1792171935847,
+   "summary": "PLAN-MVB9OZ0D: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
+   "atMs": 1792173272126,
    "agent": "controller",
    "queries": 3,
-   "ms": 2
+   "ms": 3
   },
   {
    "tool": "measure_capacity",
    "outcome": "answered",
    "summary": "16,268 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 14,267 of 14,267 (100%); 0 cannot move.",
-   "atMs": 1792171935845,
+   "atMs": 1792173272124,
    "agent": "controller",
    "queries": 19,
-   "ms": 704
+   "ms": 678
   },
   {
    "tool": "affected_riders",
    "outcome": "answered",
    "summary": "16,268 riders an hour had trips crossing the closure (1,308 origin-destination pairs). Within 1 stop of it: 2,400 riders at 5 stations; within 4 stops: 9,993 at 42 stations; 2,051 more start further out. Largest origin: Nostrand Av (1,703).",
-   "atMs": 1792171935130,
+   "atMs": 1792173271433,
    "agent": "controller",
    "queries": 10,
-   "ms": 131
+   "ms": 116
   },
   {
    "tool": "close_line",
    "outcome": "answered",
-   "summary": "Opened INC-MVB8WBBH. Closed 4 A/C segments across 2 stations (High St → Fulton St). At 8 a.m. the busiest closed segment carried 11,103 riders an hour.",
-   "atMs": 1792171935055,
+   "summary": "Opened INC-MVB9OYF8. Closed 4 A/C segments across 2 stations (High St → Fulton St). At 8 a.m. the busiest closed segment carried 11,103 riders an hour.",
+   "atMs": 1792173271365,
    "agent": "controller",
    "queries": 6,
-   "ms": 11
+   "ms": 7
+  },
+  {
+   "tool": "recall",
+   "outcome": "memory",
+   "summary": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1,680, carried 1,560 riders an hour",
+   "atMs": 1792173271358,
+   "agent": "controller",
+   "queries": 3,
+   "ms": 4
   },
   {
    "tool": "resolve_places",
    "outcome": "answered",
    "summary": "Resolved: High St → High St (A,C) [173]; Fulton St → Fulton St (2,3,4,5,A,C,J,Z) [628]; A → route A; C → route C.",
-   "atMs": 1792171935042,
+   "atMs": 1792173271357,
    "agent": "controller",
    "queries": 2,
-   "ms": 4
-  },
-  {
-   "tool": "recall",
-   "outcome": "memory",
-   "summary": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1680, carried 1560",
-   "atMs": 1792171935042,
-   "agent": "controller",
-   "queries": 3,
-   "ms": 5
+   "ms": 3
   }
  ],
  "handoffs": [
@@ -479,7 +479,7 @@
    "from": "controller",
    "to": "rider-desk",
    "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-   "atMs": 1792171935855
+   "atMs": 1792173272136
   }
  ],
  "playbooks": [

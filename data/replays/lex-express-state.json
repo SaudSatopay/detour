@@ -5,7 +5,7 @@
   "copyMs": 0
  },
  "incident": {
-  "id": "INC-MVB8WAE4",
+  "id": "INC-MVB9OXK5",
   "title": "Lexington Ave express suspended",
   "report": "Track condition near 14 St-Union Sq. No 4 or 5 trains between Grand Central-42 St and Brooklyn Bridge-City Hall. 6 local trains are running.",
   "routes": [
@@ -28,11 +28,11 @@
    361
   ],
   "status": "open",
-  "openedMs": 1792171933853
+  "openedMs": 1792173270245
  },
  "plans": [
   {
-   "id": "PLAN-MVB8WB73",
+   "id": "PLAN-MVB9OYAW",
    "label": "No extra buses: steer riders onto open lines",
    "status": "published",
    "legs": [],
@@ -43,9 +43,9 @@
    "unmetAfter": 0,
    "strandedBefore": 0,
    "strandedAfter": 0,
-   "createdMs": 1792171934895,
-   "publishedMs": 1792171934904,
-   "incident": "INC-MVB8WAE4"
+   "createdMs": 1792173271208,
+   "publishedMs": 1792173271215,
+   "incident": "INC-MVB9OXK5"
   }
  ],
  "riders": [
@@ -252,7 +252,7 @@
    "advisory": {
     "rider": "sam",
     "text": "Take the 6 to Brooklyn Bridge-City Hall/Chambers St. About 19 minutes.",
-    "atMs": 1792171934911,
+    "atMs": 1792173271221,
     "minutes": 19.2,
     "route": [
      "610",
@@ -311,10 +311,10 @@
  ],
  "findings": [
   {
-   "id": "F-MVB8WB73",
+   "id": "F-MVB9OYAW",
    "text": "During Lexington Ave express suspended, the open network absorbed all 31,347 displaced riders an hour at 8 a.m. without overloading a segment; no buses were needed.",
    "kind": "capacity",
-   "validFromMs": 1792171934896,
+   "validFromMs": 1792173271209,
    "validToMs": null,
    "example": null,
    "about": [
@@ -405,7 +405,7 @@
    "tool": "route_rider",
    "outcome": "answered",
    "summary": "Sam: about 19 min, 0 transfers: 6 Grand Central-42 St → Brooklyn Bridge-City Hall/Chambers St (9 stops).",
-   "atMs": 1792171934911,
+   "atMs": 1792173271220,
    "agent": "rider-desk",
    "queries": 3,
    "ms": 3
@@ -413,74 +413,74 @@
   {
    "tool": "publish_plan",
    "outcome": "answered",
-   "summary": "PLAN-MVB8WB73 published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
-   "atMs": 1792171934905,
+   "summary": "PLAN-MVB9OYAW published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
+   "atMs": 1792173271215,
    "agent": "controller",
    "queries": 5,
-   "ms": 4
+   "ms": 3
   },
   {
    "tool": "remember",
    "outcome": "answered",
-   "summary": "Remembered F-MVB8WB73: During Lexington Ave express suspended, the open network absorbed all 31,347 displaced riders an hour at 8 a.m. without overloading a segment; no buses were nee",
-   "atMs": 1792171934901,
+   "summary": "Remembered F-MVB9OYAW: During Lexington Ave express suspended, the open network absorbed all 31,347 displaced riders an hour at 8 a.m. without overloading a segment; no buses were nee",
+   "atMs": 1792173271212,
    "agent": "controller",
    "queries": 4,
-   "ms": 3
+   "ms": 2
   },
   {
    "tool": "propose_steering",
    "outcome": "answered",
-   "summary": "PLAN-MVB8WB73: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
-   "atMs": 1792171934896,
+   "summary": "PLAN-MVB9OYAW: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
+   "atMs": 1792173271209,
    "agent": "controller",
    "queries": 3,
-   "ms": 2
+   "ms": 1
   },
   {
    "tool": "measure_capacity",
    "outcome": "answered",
    "summary": "31,347 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 15,022 of 15,022 (100%); 0 cannot move.",
-   "atMs": 1792171934894,
+   "atMs": 1792173271207,
    "agent": "controller",
    "queries": 19,
-   "ms": 950
+   "ms": 868
   },
   {
    "tool": "affected_riders",
    "outcome": "answered",
    "summary": "31,347 riders an hour had trips crossing the closure (1,786 origin-destination pairs). Within 1 stop of it: 11,197 riders at 14 stations; within 4 stops: 22,135 at 100 stations; 2,476 more start further out. Largest origin: Grand Central-42 St (4,718).",
-   "atMs": 1792171933931,
+   "atMs": 1792173270327,
    "agent": "controller",
    "queries": 10,
-   "ms": 131
+   "ms": 143
   },
   {
    "tool": "close_line",
    "outcome": "answered",
-   "summary": "Opened INC-MVB8WAE4. Closed 8 4/5 segments across 3 stations (Grand Central-42 St → 14 St-Union Sq → Brooklyn Bridge-City Hall/Chambers St). At 8 a.m. the busiest closed segment carried 12,260 riders an hour.",
-   "atMs": 1792171933853,
+   "summary": "Opened INC-MVB9OXK5. Closed 8 4/5 segments across 3 stations (Grand Central-42 St → 14 St-Union Sq → Brooklyn Bridge-City Hall/Chambers St). At 8 a.m. the busiest closed segment carried 12,260 riders an hour.",
+   "atMs": 1792173270246,
    "agent": "controller",
    "queries": 6,
-   "ms": 10
+   "ms": 7
   },
   {
    "tool": "resolve_places",
    "outcome": "answered",
    "summary": "Resolved: Grand Central-42 St → Grand Central-42 St (4,5,6,7,S) [610]; Brooklyn Bridge-City Hall/Chambers St → Brooklyn Bridge-City Hall/Chambers St (4,5,6,J,Z) [622]; 4 → route 4; 5 → route 5.",
-   "atMs": 1792171933844,
+   "atMs": 1792173270239,
    "agent": "controller",
    "queries": 2,
-   "ms": 5
+   "ms": 3
   },
   {
    "tool": "recall",
    "outcome": "not_in_graph",
    "summary": "Nothing remembered about these stations or routes yet.",
-   "atMs": 1792171933844,
+   "atMs": 1792173270239,
    "agent": "controller",
    "queries": 3,
-   "ms": 5
+   "ms": 3
   }
  ],
  "handoffs": [
@@ -488,7 +488,7 @@
    "from": "controller",
    "to": "rider-desk",
    "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-   "atMs": 1792171934905
+   "atMs": 1792173271215
   }
  ],
  "playbooks": [

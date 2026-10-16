@@ -22,21 +22,44 @@ export function ensureBase(): Promise<void> {
   return baseReady;
 }
 
-export async function ensureSandbox(visitorId: string): Promise<{ graph: string; created: boolean; copyMs: number }> {
+type Sandbox = { graph: string; created: boolean; copyMs: number };
+const pending = new Map<string, Promise<Sandbox>>();
+
+/**
+ * A new visitor's first page load fires several requests at once (state, an auto-started run); they
+ * share one copy here, and a copy that loses a race with another server instance (the graph already
+ * exists when GRAPH.COPY runs) counts as done.
+ */
+export function ensureSandbox(visitorId: string): Promise<Sandbox> {
+  let job = pending.get(visitorId);
+  if (!job) {
+    job = createSandbox(visitorId).finally(() => pending.delete(visitorId));
+    pending.set(visitorId, job);
+  }
+  return job;
+}
+
+async function createSandbox(visitorId: string): Promise<Sandbox> {
   await ensureBase();
   const graph = sandboxGraph(visitorId);
   const db = await connect();
   const redis = await db.connection;
   const exists = (await redis.exists(graph)) === 1;
   let copyMs = 0;
+  let created = false;
   if (!exists) {
     await evictIfFull(redis);
     const started = performance.now();
-    await copyGraph(TEMPLATE_GRAPH, graph);
+    try {
+      await copyGraph(TEMPLATE_GRAPH, graph);
+      created = true;
+    } catch (error) {
+      if ((await redis.exists(graph)) !== 1) throw error;
+    }
     copyMs = performance.now() - started;
   }
   await redis.hSet(REGISTRY, visitorId, String(Date.now()));
-  return { graph, created: !exists, copyMs };
+  return { graph, created, copyMs };
 }
 
 export async function resetSandbox(visitorId: string): Promise<void> {
