@@ -27,7 +27,7 @@ const FINDINGS = [
   {
     n: "03",
     title: "Even spread perfectly, some riders cannot move.",
-    body: `Max flow over every line's spare capacity moves ${fmt(L.absorbed)} of the ${fmt(L.required)} riders an hour headed into Manhattan. The min cut sits at 1 Av and 3 Av, where no other line runs. A ${L.shuttleBuses}-bus-an-hour 14 St shuttle cuts the shortfall from ${fmt(
+    body: `Max flow over every line's spare capacity moves ${fmt(L.absorbed)} of the ${fmt(L.required)} riders an hour headed into Manhattan. The min cut sits at ${L.cutStations.join(" and ")}, where the closed L is the only line. A ${L.shuttleBuses}-bus-an-hour 14 St shuttle cuts the shortfall from ${fmt(
       L.unmet,
     )} to ${fmt(L.unmetAfterShuttle)}.`,
     stat: `${Math.round((L.absorbed / L.required) * 100)}%`,
@@ -43,20 +43,30 @@ const STEPS = [
   },
   {
     title: "Who rides through the break",
-    body: "Stations upstream of the closure by hop count, joined to the 2025 origin-destination flows whose path crosses it.",
-    cypher: "MATCH p = (o:Station)-[:RUNS*0..8]->(t:Station)\nWHERE t.id IN $stretch\nRETURN o.id AS id, min(length(p)) AS hops",
+    body: "Every 2025 origin-destination flow whose 8 a.m. path used a closed segment, then the stations one, two, three stops upstream, hop by hop.",
+    cypher: `MATCH (o:Station)-[d:DEMAND]->(x:Station)
+WHERE any(e IN d.via WHERE e IN $closed)
+RETURN o.id AS o, x.id AS d, d.riders AS riders`,
   },
   {
     title: "What the rest can absorb",
-    body: "A fork of your graph without the closed segments, a super source and sink sized to the displaced riders, and FalkorDB's max flow over spare capacity.",
+    body: "A fork of your graph without the closed segments, spare capacity summed per corridor, a super source and sink sized to the displaced riders, and FalkorDB's max flow.",
     cypher:
-      "MATCH (src:Hub {id: 'SRC_F'}), (snk:Hub {id: 'SNK_F'})\nCALL algo.maxFlow({sourceNodes: [src], targetNodes: [snk],\n  relationshipTypes: ['RUNS', 'WALK', 'FEED_F'],\n  capacityProperty: 'spare'})\nYIELD maxFlow, edges, edgeFlows",
+      `MATCH (src:Hub {id: $src}), (snk:Hub {id: $snk})
+CALL algo.maxFlow({sourceNodes: [src], targetNodes: [snk],
+  relationshipTypes: ['FLOW'], capacityProperty: 'spare'})
+YIELD maxFlow, edges, edgeFlows`,
   },
   {
     title: "Test the fix before anyone acts",
-    body: "Each shuttle plan gets its own fork with bus links added; riders are rerouted and max flow runs again. A person approves before a plan reaches riders.",
+    body: "Each shuttle plan gets its own fork with bus links added; every displaced trip is rerouted through platforms, transfers and walks, and max flow runs again. A person approves before a plan reaches riders.",
     cypher:
-      "UNWIND $rows AS row\nMATCH (o:Station {id: row.o})\nCALL algo.SSpaths({sourceNode: o,\n  relTypes: ['RUNS', 'WALK', 'BUS'], weightProp: 'minutes'})\nYIELD path, pathWeight",
+      `UNWIND $pairs AS p
+MATCH (a:Station {id: p.o}), (b:Station {id: p.d})
+CALL algo.SPpaths({sourceNode: a, targetNode: b,
+  relTypes: ['BOARD', 'RIDE', 'ALIGHT', 'WALK', 'BUS'],
+  weightProp: 'minutes'})
+YIELD path, pathWeight`,
   },
 ];
 
@@ -76,7 +86,7 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/control?scenario=l-canarsie"
+              href="/control?scenario=l-canarsie&run=1"
               className="rounded-md bg-ink-900 px-5 py-3 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out hover:-translate-y-px"
             >
               Break the L train

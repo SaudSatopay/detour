@@ -1,0 +1,69 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import type { AgentEvent } from "@/lib/agent/catalog";
+import { capacityOf, impactOf, initialRun, lastDrawable, overlayAt, plansOf, recommendedPlan, reduce, ridersOf, type RunState } from "./run-state";
+
+const events = (file: string) =>
+  readFileSync(`data/replays/${file}`, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => (JSON.parse(l) as { event: AgentEvent }).event);
+
+const play = (state: RunState, file: string, scenarioId?: string) => events(file).reduce((s, event) => reduce(s, { type: "event", event, scenarioId }), state);
+
+describe("control room state on the recorded L closure", () => {
+  const control = play(reduce(initialRun, { type: "start", stage: "control" }), "l-canarsie-control.ndjson");
+
+  it("finishes with a brief that is not repeated in the narration", () => {
+    expect(control.status).toBe("done");
+    expect(control.mode).toBe("scripted");
+    expect(control.brief).toMatch(/^\*\*What broke\*\*/);
+    const said = control.items.filter((i) => i.kind === "say").map((i) => (i.kind === "say" ? i.text : ""));
+    expect(said.some((t) => t.includes("**What broke**"))).toBe(false);
+  });
+
+  it("reads impact, capacity and the recommended plan from the tool results", () => {
+    expect(impactOf(control.items)?.totalRiders).toBe(23445);
+    expect(capacityOf(control.items)?.reroute.stranded).toBe(4689);
+    const plans = plansOf(control.items);
+    expect(plans).toHaveLength(2);
+    const rec = recommendedPlan(control.brief, plans);
+    expect(rec).toBe(plans[0].id);
+    expect(plans[0].after.stranded).toBeLessThan(plans[0].before.stranded);
+  });
+
+  it("draws the closure with the latest step's evidence", () => {
+    const { overlay, focus } = overlayAt(control.items, lastDrawable(control.items));
+    expect(overlay.closedEids).toHaveLength(10);
+    expect(focus).toContain("120");
+    const capStep = control.items.findIndex((i) => i.kind === "tool" && i.tool === "measure_capacity");
+    const atCap = overlayAt(control.items, capStep).overlay;
+    expect(atCap.flows?.length).toBeGreaterThan(0);
+    expect(atCap.overloaded?.[0].pct).toBe(244);
+  });
+
+  it("hands off to the rider desk on approval and collects one advisory per affected rider", () => {
+    const planId = recommendedPlan(control.brief, plansOf(control.items))!;
+    const desk = play(reduce(control, { type: "start", stage: "desk", planId }), "l-canarsie-publish.ndjson");
+    expect(desk.status).toBe("done");
+    expect(desk.published).toBe(planId);
+    expect(desk.items.some((i) => i.kind === "handoff")).toBe(true);
+    const riders = ridersOf(desk);
+    expect(riders.map((r) => r.profile.id).sort()).toEqual(["aisha", "dev", "maya", "tomas"]);
+    const aisha = riders.find((r) => r.profile.id === "aisha")!;
+    expect(aisha.advisory).toMatch(/step-free/);
+    expect(aisha.answer?.legs.every((l) => l.route !== "L")).toBe(true);
+    const shuttle = overlayAt(desk.items, desk.items.length - 1).overlay.shuttles;
+    expect(shuttle?.[0]).toMatchObject({ from: expect.any(String), to: expect.any(String) });
+  });
+});
+
+describe("control room state on a closure the network absorbs", () => {
+  it("proposes steering instead of buses", () => {
+    const control = play(reduce(initialRun, { type: "start", stage: "control" }), "lex-express-control.ndjson");
+    const plans = plansOf(control.items);
+    expect(plans).toHaveLength(1);
+    expect(plans[0].kind).toBe("steer");
+    expect(plans[0].vehicles).toBe(0);
+  });
+});

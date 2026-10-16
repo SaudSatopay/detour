@@ -48,3 +48,7 @@ ci-out/
 
 .vercel
 .env*
+
+# Playwright
+/test-results/
+/playwright-report/

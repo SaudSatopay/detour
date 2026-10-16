@@ -46,6 +46,8 @@ export const FACTS = {
     overloadMin: Math.min(...heroL.overloaded.map((o) => o.pct)),
     overloadMax: Math.max(...heroL.overloaded.map((o) => o.pct)),
     overloadRoutes: [...new Set(heroL.overloaded.map((o) => segs.get(o.id)?.route ?? ""))].filter(Boolean),
+    // Stations whose only rail links are the closed segments: the min cut NetworkX and FalkorDB agree on.
+    cutStations: [...new Set(fwd.cut.bottlenecks.runs.map((r) => names.get(r.from) ?? r.from))],
   },
 };
 
