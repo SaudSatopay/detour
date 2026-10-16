@@ -1,0 +1,1768 @@
+{
+  "scenario": {
+    "id": "l-canarsie",
+    "title": "L train: Canarsie Tube closed",
+    "routes": [
+      "L"
+    ],
+    "stations": [
+      "120",
+      "119",
+      "118",
+      "602",
+      "601",
+      "618"
+    ]
+  },
+  "verifier": {
+    "implementation": "scripts/verify/verify.py",
+    "spec": "docs/model.md",
+    "networkx": "3.7",
+    "maxFlow": "networkx.algorithms.flow.edmonds_karp",
+    "minCut": "own residual reachability, cross-checked with networkx.minimum_cut (networkx.algorithms.flow.edmonds_karp)",
+    "tolerance": 1e-06
+  },
+  "closedEids": [
+    1025,
+    1026,
+    1027,
+    1028,
+    1029,
+    1060,
+    1061,
+    1062,
+    1063,
+    1064
+  ],
+  "closedCount": 10,
+  "closedByDirection": {
+    "forward": [
+      1026,
+      1027,
+      1029,
+      1061,
+      1063
+    ],
+    "backward": [
+      1025,
+      1028,
+      1060,
+      1062,
+      1064
+    ]
+  },
+  "displaced": {
+    "forward": {
+      "pairs": 1549,
+      "riders": 20247.4
+    },
+    "backward": {
+      "pairs": 472,
+      "riders": 3197.6
+    }
+  },
+  "depthCounts": [
+    {
+      "k": 0,
+      "pairs": 357,
+      "riders": 7823.2
+    },
+    {
+      "k": 1,
+      "pairs": 525,
+      "riders": 10142.4
+    },
+    {
+      "k": 2,
+      "pairs": 726,
+      "riders": 12291.6
+    },
+    {
+      "k": 3,
+      "pairs": 853,
+      "riders": 13399.8
+    },
+    {
+      "k": 4,
+      "pairs": 1004,
+      "riders": 14713.0
+    },
+    {
+      "k": 5,
+      "pairs": 1155,
+      "riders": 15975.3
+    },
+    {
+      "k": 6,
+      "pairs": 1314,
+      "riders": 17272.3
+    }
+  ],
+  "depthCountsByDirection": {
+    "forward": [
+      {
+        "k": 0,
+        "pairs": 233,
+        "riders": 6557.1
+      },
+      {
+        "k": 1,
+        "pairs": 330,
+        "riders": 8331.4
+      },
+      {
+        "k": 2,
+        "pairs": 473,
+        "riders": 10127.6
+      },
+      {
+        "k": 3,
+        "pairs": 568,
+        "riders": 11013.6
+      },
+      {
+        "k": 4,
+        "pairs": 677,
+        "riders": 12098.5
+      },
+      {
+        "k": 5,
+        "pairs": 783,
+        "riders": 13170.5
+      },
+      {
+        "k": 6,
+        "pairs": 908,
+        "riders": 14313.1
+      }
+    ],
+    "backward": [
+      {
+        "k": 0,
+        "pairs": 124,
+        "riders": 1266.1
+      },
+      {
+        "k": 1,
+        "pairs": 195,
+        "riders": 1811.0
+      },
+      {
+        "k": 2,
+        "pairs": 253,
+        "riders": 2164.0
+      },
+      {
+        "k": 3,
+        "pairs": 285,
+        "riders": 2386.2
+      },
+      {
+        "k": 4,
+        "pairs": 327,
+        "riders": 2614.5
+      },
+      {
+        "k": 5,
+        "pairs": 372,
+        "riders": 2804.8
+      },
+      {
+        "k": 6,
+        "pairs": 406,
+        "riders": 2959.2
+      }
+    ]
+  },
+  "peakDirection": "forward",
+  "flow": {
+    "forward": {
+      "pairs": 1549,
+      "riders": 20247.4,
+      "required": 18432.4,
+      "absorbed": 17166.7,
+      "unmet": 1265.7,
+      "requiredExact": 18432.4,
+      "absorbedExact": 17166.7,
+      "unmetExact": 1265.7,
+      "sources": 130,
+      "sinks": 109,
+      "cut": {
+        "capacity": 17166.7,
+        "networkxCapacity": 17166.7,
+        "maxFlow": 17166.7,
+        "networkSpare": 0.0,
+        "feedCapacity": 17166.7,
+        "check": "cut capacity == max flow and networkx partition capacity == max flow (|diff| <= 1e-6); residual source side is a subset of networkx's (maximal) source side",
+        "sourceSideStations": 1,
+        "networkxSourceSideStations": 22,
+        "sourceSideInsideNetworkx": true,
+        "bottlenecks": {
+          "runs": [
+            {
+              "eid": 1027,
+              "route": "L",
+              "from": "119",
+              "to": "118",
+              "spare": 0.0,
+              "flow": 0.0,
+              "closed": true
+            },
+            {
+              "eid": 1028,
+              "route": "L",
+              "from": "119",
+              "to": "120",
+              "spare": 0.0,
+              "flow": 0.0,
+              "closed": true
+            }
+          ],
+          "walks": [],
+          "bus": []
+        },
+        "bottleneckEids": [
+          1027,
+          1028
+        ],
+        "bottleneckWids": [],
+        "bottleneckEidsWithSpare": [],
+        "feeds": [
+          {
+            "station": "101",
+            "side": "source",
+            "capacity": 11.5
+          },
+          {
+            "station": "108",
+            "side": "source",
+            "capacity": 78.9
+          },
+          {
+            "station": "109",
+            "side": "source",
+            "capacity": 217.1
+          },
+          {
+            "station": "110",
+            "side": "source",
+            "capacity": 164.6
+          },
+          {
+            "station": "111",
+            "side": "source",
+            "capacity": 49.7
+          },
+          {
+            "station": "113",
+            "side": "source",
+            "capacity": 43.4
+          },
+          {
+            "station": "114",
+            "side": "source",
+            "capacity": 23.6
+          },
+          {
+            "station": "120",
+            "side": "source",
+            "capacity": 4038.2
+          },
+          {
+            "station": "122",
+            "side": "source",
+            "capacity": 1339.9
+          },
+          {
+            "station": "123",
+            "side": "source",
+            "capacity": 450.7
+          },
+          {
+            "station": "124",
+            "side": "source",
+            "capacity": 771.1
+          },
+          {
+            "station": "125",
+            "side": "source",
+            "capacity": 593.9
+          },
+          {
+            "station": "126",
+            "side": "source",
+            "capacity": 711.9
+          },
+          {
+            "station": "127",
+            "side": "source",
+            "capacity": 1249.7
+          },
+          {
+            "station": "129",
+            "side": "source",
+            "capacity": 680.7
+          },
+          {
+            "station": "130",
+            "side": "source",
+            "capacity": 289.6
+          },
+          {
+            "station": "131",
+            "side": "source",
+            "capacity": 118.5
+          },
+          {
+            "station": "133",
+            "side": "source",
+            "capacity": 42.0
+          },
+          {
+            "station": "134",
+            "side": "source",
+            "capacity": 36.4
+          },
+          {
+            "station": "135",
+            "side": "source",
+            "capacity": 34.6
+          },
+          {
+            "station": "136",
+            "side": "source",
+            "capacity": 76.8
+          },
+          {
+            "station": "137",
+            "side": "source",
+            "capacity": 71.9
+          },
+          {
+            "station": "138",
+            "side": "source",
+            "capacity": 578.8
+          },
+          {
+            "station": "177",
+            "side": "source",
+            "capacity": 2.2
+          },
+          {
+            "station": "181",
+            "side": "source",
+            "capacity": 4.8
+          },
+          {
+            "station": "182",
+            "side": "source",
+            "capacity": 4.0
+          },
+          {
+            "station": "183",
+            "side": "source",
+            "capacity": 22.1
+          },
+          {
+            "station": "186",
+            "side": "source",
+            "capacity": 19.8
+          },
+          {
+            "station": "187",
+            "side": "source",
+            "capacity": 12.9
+          },
+          {
+            "station": "188",
+            "side": "source",
+            "capacity": 34.0
+          },
+          {
+            "station": "189",
+            "side": "source",
+            "capacity": 38.1
+          },
+          {
+            "station": "190",
+            "side": "source",
+            "capacity": 26.5
+          },
+          {
+            "station": "191",
+            "side": "source",
+            "capacity": 15.1
+          },
+          {
+            "station": "192",
+            "side": "source",
+            "capacity": 24.2
+          },
+          {
+            "station": "193",
+            "side": "source",
+            "capacity": 12.1
+          },
+          {
+            "station": "195",
+            "side": "source",
+            "capacity": 20.9
+          },
+          {
+            "station": "209",
+            "side": "source",
+            "capacity": 3.5
+          },
+          {
+            "station": "221",
+            "side": "source",
+            "capacity": 2.3
+          },
+          {
+            "station": "222",
+            "side": "source",
+            "capacity": 8.0
+          },
+          {
+            "station": "237",
+            "side": "source",
+            "capacity": 3.7
+          },
+          {
+            "station": "240",
+            "side": "source",
+            "capacity": 2.7
+          },
+          {
+            "station": "241",
+            "side": "source",
+            "capacity": 2.0
+          },
+          {
+            "station": "243",
+            "side": "source",
+            "capacity": 2.2
+          },
+          {
+            "station": "254",
+            "side": "source",
+            "capacity": 7.7
+          },
+          {
+            "station": "255",
+            "side": "source",
+            "capacity": 3.6
+          },
+          {
+            "station": "258",
+            "side": "source",
+            "capacity": 2.8
+          },
+          {
+            "station": "26",
+            "side": "source",
+            "capacity": 21.9
+          },
+          {
+            "station": "260",
+            "side": "source",
+            "capacity": 6.8
+          },
+          {
+            "station": "271",
+            "side": "source",
+            "capacity": 13.8
+          },
+          {
+            "station": "283",
+            "side": "source",
+            "capacity": 288.3
+          },
+          {
+            "station": "284",
+            "side": "source",
+            "capacity": 187.3
+          },
+          {
+            "station": "286",
+            "side": "source",
+            "capacity": 29.5
+          },
+          {
+            "station": "287",
+            "side": "source",
+            "capacity": 17.3
+          },
+          {
+            "station": "288",
+            "side": "source",
+            "capacity": 177.3
+          },
+          {
+            "station": "289",
+            "side": "source",
+            "capacity": 338.3
+          },
+          {
+            "station": "290",
+            "side": "source",
+            "capacity": 198.9
+          },
+          {
+            "station": "291",
+            "side": "source",
+            "capacity": 108.3
+          },
+          {
+            "station": "32",
+            "side": "source",
+            "capacity": 1.8
+          },
+          {
+            "station": "329",
+            "side": "source",
+            "capacity": 6.3
+          },
+          {
+            "station": "345",
+            "side": "source",
+            "capacity": 14.5
+          },
+          {
+            "station": "346",
+            "side": "source",
+            "capacity": 2.6
+          },
+          {
+            "station": "348",
+            "side": "source",
+            "capacity": 19.2
+          },
+          {
+            "station": "349",
+            "side": "source",
+            "capacity": 3.8
+          },
+          {
+            "station": "35",
+            "side": "source",
+            "capacity": 17.9
+          },
+          {
+            "station": "350",
+            "side": "source",
+            "capacity": 7.4
+          },
+          {
+            "station": "351",
+            "side": "source",
+            "capacity": 11.7
+          },
+          {
+            "station": "352",
+            "side": "source",
+            "capacity": 37.7
+          },
+          {
+            "station": "36",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "362",
+            "side": "source",
+            "capacity": 2.4
+          },
+          {
+            "station": "364",
+            "side": "source",
+            "capacity": 2.8
+          },
+          {
+            "station": "366",
+            "side": "source",
+            "capacity": 6.3
+          },
+          {
+            "station": "368",
+            "side": "source",
+            "capacity": 2.3
+          },
+          {
+            "station": "369",
+            "side": "source",
+            "capacity": 4.7
+          },
+          {
+            "station": "371",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "374",
+            "side": "source",
+            "capacity": 2.3
+          },
+          {
+            "station": "375",
+            "side": "source",
+            "capacity": 2.7
+          },
+          {
+            "station": "376",
+            "side": "source",
+            "capacity": 4.6
+          },
+          {
+            "station": "377",
+            "side": "source",
+            "capacity": 6.3
+          },
+          {
+            "station": "38",
+            "side": "source",
+            "capacity": 2.9
+          },
+          {
+            "station": "386",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "387",
+            "side": "source",
+            "capacity": 2.6
+          },
+          {
+            "station": "388",
+            "side": "source",
+            "capacity": 3.3
+          },
+          {
+            "station": "39",
+            "side": "source",
+            "capacity": 3.2
+          },
+          {
+            "station": "393",
+            "side": "source",
+            "capacity": 12.5
+          },
+          {
+            "station": "394",
+            "side": "source",
+            "capacity": 5.2
+          },
+          {
+            "station": "41",
+            "side": "source",
+            "capacity": 27.6
+          },
+          {
+            "station": "42",
+            "side": "source",
+            "capacity": 16.3
+          },
+          {
+            "station": "426",
+            "side": "source",
+            "capacity": 2.5
+          },
+          {
+            "station": "43",
+            "side": "source",
+            "capacity": 13.5
+          },
+          {
+            "station": "430",
+            "side": "source",
+            "capacity": 2.4
+          },
+          {
+            "station": "436",
+            "side": "source",
+            "capacity": 2.7
+          },
+          {
+            "station": "44",
+            "side": "source",
+            "capacity": 23.8
+          },
+          {
+            "station": "440",
+            "side": "source",
+            "capacity": 6.6
+          },
+          {
+            "station": "441",
+            "side": "source",
+            "capacity": 4.6
+          },
+          {
+            "station": "45",
+            "side": "source",
+            "capacity": 2.3
+          },
+          {
+            "station": "46",
+            "side": "source",
+            "capacity": 13.2
+          },
+          {
+            "station": "48",
+            "side": "source",
+            "capacity": 2.3
+          },
+          {
+            "station": "50",
+            "side": "source",
+            "capacity": 2.9
+          },
+          {
+            "station": "52",
+            "side": "source",
+            "capacity": 3.6
+          },
+          {
+            "station": "53",
+            "side": "source",
+            "capacity": 2.2
+          },
+          {
+            "station": "58",
+            "side": "source",
+            "capacity": 2.2
+          },
+          {
+            "station": "606",
+            "side": "source",
+            "capacity": 4.3
+          },
+          {
+            "station": "615",
+            "side": "source",
+            "capacity": 4.9
+          },
+          {
+            "station": "617",
+            "side": "source",
+            "capacity": 15.4
+          },
+          {
+            "station": "621",
+            "side": "source",
+            "capacity": 66.3
+          },
+          {
+            "station": "629",
+            "side": "source",
+            "capacity": 1643.2
+          },
+          {
+            "station": "630",
+            "side": "source",
+            "capacity": 1594.1
+          },
+          {
+            "station": "71",
+            "side": "source",
+            "capacity": 5.7
+          },
+          {
+            "station": "72",
+            "side": "source",
+            "capacity": 6.7
+          },
+          {
+            "station": "74",
+            "side": "source",
+            "capacity": 4.5
+          },
+          {
+            "station": "76",
+            "side": "source",
+            "capacity": 3.5
+          },
+          {
+            "station": "80",
+            "side": "source",
+            "capacity": 2.5
+          },
+          {
+            "station": "81",
+            "side": "source",
+            "capacity": 2.2
+          },
+          {
+            "station": "82",
+            "side": "source",
+            "capacity": 8.4
+          },
+          {
+            "station": "83",
+            "side": "source",
+            "capacity": 14.7
+          },
+          {
+            "station": "84",
+            "side": "source",
+            "capacity": 11.0
+          },
+          {
+            "station": "85",
+            "side": "source",
+            "capacity": 10.8
+          },
+          {
+            "station": "87",
+            "side": "source",
+            "capacity": 12.2
+          },
+          {
+            "station": "88",
+            "side": "source",
+            "capacity": 6.8
+          },
+          {
+            "station": "89",
+            "side": "source",
+            "capacity": 10.6
+          },
+          {
+            "station": "90",
+            "side": "source",
+            "capacity": 11.1
+          },
+          {
+            "station": "91",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "93",
+            "side": "source",
+            "capacity": 13.9
+          },
+          {
+            "station": "94",
+            "side": "source",
+            "capacity": 16.0
+          },
+          {
+            "station": "95",
+            "side": "source",
+            "capacity": 10.1
+          },
+          {
+            "station": "96",
+            "side": "source",
+            "capacity": 7.0
+          },
+          {
+            "station": "97",
+            "side": "source",
+            "capacity": 8.3
+          },
+          {
+            "station": "98",
+            "side": "source",
+            "capacity": 3.2
+          },
+          {
+            "station": "99",
+            "side": "source",
+            "capacity": 8.8
+          }
+        ]
+      }
+    },
+    "backward": {
+      "pairs": 472,
+      "riders": 3197.6,
+      "required": 2423.1,
+      "absorbed": 2033.4,
+      "unmet": 389.7,
+      "requiredExact": 2423.1,
+      "absorbedExact": 2033.4,
+      "unmetExact": 389.7,
+      "sources": 152,
+      "sinks": 47,
+      "cut": {
+        "capacity": 2033.4,
+        "networkxCapacity": 2033.4,
+        "maxFlow": 2033.4,
+        "networkSpare": 0.0,
+        "feedCapacity": 2033.4,
+        "check": "cut capacity == max flow and networkx partition capacity == max flow (|diff| <= 1e-6); residual source side is a subset of networkx's (maximal) source side",
+        "sourceSideStations": 422,
+        "networkxSourceSideStations": 443,
+        "sourceSideInsideNetworkx": true,
+        "bottlenecks": {
+          "runs": [
+            {
+              "eid": 1029,
+              "route": "L",
+              "from": "120",
+              "to": "119",
+              "spare": 0.0,
+              "flow": 0.0,
+              "closed": true
+            },
+            {
+              "eid": 1062,
+              "route": "L",
+              "from": "602",
+              "to": "118",
+              "spare": 0.0,
+              "flow": 0.0,
+              "closed": true
+            }
+          ],
+          "walks": [],
+          "bus": []
+        },
+        "bottleneckEids": [
+          1029,
+          1062
+        ],
+        "bottleneckWids": [],
+        "bottleneckEidsWithSpare": [],
+        "feeds": [
+          {
+            "station": "101",
+            "side": "sink",
+            "capacity": 3.0
+          },
+          {
+            "station": "109",
+            "side": "sink",
+            "capacity": 2.5
+          },
+          {
+            "station": "120",
+            "side": "sink",
+            "capacity": 817.7
+          },
+          {
+            "station": "122",
+            "side": "sink",
+            "capacity": 68.8
+          },
+          {
+            "station": "123",
+            "side": "sink",
+            "capacity": 41.8
+          },
+          {
+            "station": "124",
+            "side": "sink",
+            "capacity": 31.3
+          },
+          {
+            "station": "125",
+            "side": "sink",
+            "capacity": 52.5
+          },
+          {
+            "station": "126",
+            "side": "sink",
+            "capacity": 54.7
+          },
+          {
+            "station": "127",
+            "side": "sink",
+            "capacity": 60.6
+          },
+          {
+            "station": "129",
+            "side": "sink",
+            "capacity": 14.8
+          },
+          {
+            "station": "130",
+            "side": "sink",
+            "capacity": 8.0
+          },
+          {
+            "station": "133",
+            "side": "sink",
+            "capacity": 2.1
+          },
+          {
+            "station": "136",
+            "side": "sink",
+            "capacity": 4.2
+          },
+          {
+            "station": "137",
+            "side": "sink",
+            "capacity": 2.6
+          },
+          {
+            "station": "138",
+            "side": "sink",
+            "capacity": 47.3
+          },
+          {
+            "station": "17",
+            "side": "sink",
+            "capacity": 3.3
+          },
+          {
+            "station": "192",
+            "side": "sink",
+            "capacity": 2.3
+          },
+          {
+            "station": "222",
+            "side": "sink",
+            "capacity": 2.0
+          },
+          {
+            "station": "225",
+            "side": "sink",
+            "capacity": 37.6
+          },
+          {
+            "station": "236",
+            "side": "sink",
+            "capacity": 2.3
+          },
+          {
+            "station": "282",
+            "side": "sink",
+            "capacity": 2.1
+          },
+          {
+            "station": "283",
+            "side": "sink",
+            "capacity": 28.1
+          },
+          {
+            "station": "284",
+            "side": "sink",
+            "capacity": 21.6
+          },
+          {
+            "station": "287",
+            "side": "sink",
+            "capacity": 6.0
+          },
+          {
+            "station": "289",
+            "side": "sink",
+            "capacity": 4.5
+          },
+          {
+            "station": "290",
+            "side": "sink",
+            "capacity": 5.0
+          },
+          {
+            "station": "291",
+            "side": "sink",
+            "capacity": 4.0
+          },
+          {
+            "station": "292",
+            "side": "sink",
+            "capacity": 4.4
+          },
+          {
+            "station": "333",
+            "side": "sink",
+            "capacity": 2.8
+          },
+          {
+            "station": "396",
+            "side": "sink",
+            "capacity": 3.6
+          },
+          {
+            "station": "397",
+            "side": "sink",
+            "capacity": 1.8
+          },
+          {
+            "station": "398",
+            "side": "sink",
+            "capacity": 10.8
+          },
+          {
+            "station": "399",
+            "side": "sink",
+            "capacity": 11.9
+          },
+          {
+            "station": "404",
+            "side": "sink",
+            "capacity": 3.9
+          },
+          {
+            "station": "407",
+            "side": "sink",
+            "capacity": 14.6
+          },
+          {
+            "station": "409",
+            "side": "sink",
+            "capacity": 5.0
+          },
+          {
+            "station": "602",
+            "side": "sink",
+            "capacity": 324.3
+          },
+          {
+            "station": "606",
+            "side": "sink",
+            "capacity": 16.2
+          },
+          {
+            "station": "610",
+            "side": "sink",
+            "capacity": 101.3
+          },
+          {
+            "station": "613",
+            "side": "sink",
+            "capacity": 39.0
+          },
+          {
+            "station": "621",
+            "side": "sink",
+            "capacity": 8.8
+          },
+          {
+            "station": "622",
+            "side": "sink",
+            "capacity": 9.1
+          },
+          {
+            "station": "623",
+            "side": "sink",
+            "capacity": 3.9
+          },
+          {
+            "station": "629",
+            "side": "sink",
+            "capacity": 79.7
+          },
+          {
+            "station": "630",
+            "side": "sink",
+            "capacity": 61.6
+          }
+        ]
+      }
+    }
+  },
+  "topEdgesByFlow": {
+    "direction": "forward",
+    "edges": [
+      {
+        "eid": 635,
+        "route": "B",
+        "from": "619",
+        "to": "167",
+        "spare": 8661.0,
+        "flow": 8248.4
+      },
+      {
+        "eid": 1085,
+        "route": "M",
+        "from": "114",
+        "to": "97",
+        "spare": 6862.0,
+        "flow": 6862.0
+      },
+      {
+        "eid": 1082,
+        "route": "M",
+        "from": "113",
+        "to": "114",
+        "spare": 8499.0,
+        "flow": 6838.4
+      },
+      {
+        "eid": 1134,
+        "route": "M",
+        "from": "630",
+        "to": "113",
+        "spare": 8858.0,
+        "flow": 6795.0
+      },
+      {
+        "eid": 1074,
+        "route": "M",
+        "from": "101",
+        "to": "625",
+        "spare": 6607.0,
+        "flow": 6607.0
+      },
+      {
+        "eid": 1132,
+        "route": "M",
+        "from": "625",
+        "to": "619",
+        "spare": 5594.0,
+        "flow": 5594.0
+      },
+      {
+        "eid": 1071,
+        "route": "M",
+        "from": "100",
+        "to": "101",
+        "spare": 8372.0,
+        "flow": 4963.8
+      },
+      {
+        "eid": 952,
+        "route": "G",
+        "from": "629",
+        "to": "286",
+        "spare": 4908.2,
+        "flow": 4908.2
+      },
+      {
+        "eid": 1042,
+        "route": "L",
+        "from": "127",
+        "to": "630",
+        "spare": 20604.2,
+        "flow": 4861.7
+      },
+      {
+        "eid": 1179,
+        "route": "N",
+        "from": "623",
+        "to": "602",
+        "spare": 7974.2,
+        "flow": 4815.1
+      },
+      {
+        "eid": 1458,
+        "route": "Z",
+        "from": "97",
+        "to": "101",
+        "spare": 5800.0,
+        "flow": 4222.5
+      },
+      {
+        "eid": 1030,
+        "route": "L",
+        "from": "120",
+        "to": "629",
+        "spare": 21910.8,
+        "flow": 4038.2
+      },
+      {
+        "eid": 585,
+        "route": "B",
+        "from": "167",
+        "to": "607",
+        "spare": 9262.0,
+        "flow": 3659.7
+      },
+      {
+        "eid": 1040,
+        "route": "L",
+        "from": "126",
+        "to": "127",
+        "spare": 21860.8,
+        "flow": 3612.0
+      },
+      {
+        "eid": 966,
+        "route": "J",
+        "from": "103",
+        "to": "623",
+        "spare": 3176.0,
+        "flow": 3176.0
+      }
+    ]
+  },
+  "referencePaths": {
+    "direction": "forward",
+    "weight": "minutes over open RUNS + WALK (no waits, no transfer penalty)",
+    "pairs": [
+      {
+        "origin": "120",
+        "destination": "602",
+        "riders": 442.7,
+        "baselineJourneyMinutes": 7.4,
+        "minutes": 19.5,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "602"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 353,
+            "route": "5"
+          }
+        ]
+      },
+      {
+        "origin": "120",
+        "destination": "610",
+        "riders": 394.4,
+        "baselineJourneyMinutes": 16.9,
+        "minutes": 15.0,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          }
+        ]
+      },
+      {
+        "origin": "119",
+        "destination": "610",
+        "riders": 212.0,
+        "baselineJourneyMinutes": 13.4,
+        "minutes": null,
+        "stations": null,
+        "edges": null
+      },
+      {
+        "origin": "120",
+        "destination": "164",
+        "riders": 185.1,
+        "baselineJourneyMinutes": 17.8,
+        "minutes": 17.5,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "611",
+          "164"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 953,
+            "route": "GS"
+          },
+          {
+            "eid": 551,
+            "route": "A"
+          }
+        ]
+      },
+      {
+        "origin": "120",
+        "destination": "618",
+        "riders": 180.3,
+        "baselineJourneyMinutes": 9.9,
+        "minutes": 21.0,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "611",
+          "164",
+          "618"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 953,
+            "route": "GS"
+          },
+          {
+            "eid": 551,
+            "route": "A"
+          },
+          {
+            "eid": 500,
+            "route": "A"
+          }
+        ]
+      },
+      {
+        "origin": "629",
+        "destination": "610",
+        "riders": 179.5,
+        "baselineJourneyMinutes": 18.4,
+        "minutes": 13.5,
+        "stations": [
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610"
+        ],
+        "edges": [
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          }
+        ]
+      },
+      {
+        "origin": "120",
+        "destination": "611",
+        "riders": 175.5,
+        "baselineJourneyMinutes": 17.9,
+        "minutes": 16.5,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "611"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 953,
+            "route": "GS"
+          }
+        ]
+      },
+      {
+        "origin": "120",
+        "destination": "607",
+        "riders": 164.6,
+        "baselineJourneyMinutes": 16.4,
+        "minutes": 18.0,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "609",
+          "607"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          }
+        ]
+      },
+      {
+        "origin": "629",
+        "destination": "602",
+        "riders": 163.3,
+        "baselineJourneyMinutes": 8.9,
+        "minutes": 18.0,
+        "stations": [
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "610",
+          "602"
+        ],
+        "edges": [
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 435,
+            "route": "6"
+          },
+          {
+            "eid": 353,
+            "route": "5"
+          }
+        ]
+      },
+      {
+        "origin": "120",
+        "destination": "225",
+        "riders": 154.0,
+        "baselineJourneyMinutes": 20.9,
+        "minutes": 17.0,
+        "stations": [
+          "120",
+          "629",
+          "284",
+          "283",
+          "282",
+          "606",
+          "612",
+          "276",
+          "225"
+        ],
+        "edges": [
+          {
+            "eid": 1030,
+            "route": "L"
+          },
+          {
+            "eid": 951,
+            "route": "G"
+          },
+          {
+            "eid": 932,
+            "route": "G"
+          },
+          {
+            "eid": 930,
+            "route": "G"
+          },
+          {
+            "eid": 929,
+            "route": "G"
+          },
+          {
+            "eid": 809,
+            "route": "E"
+          },
+          {
+            "eid": 812,
+            "route": "E"
+          },
+          {
+            "eid": 882,
+            "route": "F"
+          }
+        ]
+      }
+    ]
+  }
+}

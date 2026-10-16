@@ -1,0 +1,49 @@
+{
+  "scenario": "l-canarsie",
+  "maxFlow": "networkx.algorithms.flow.edmonds_karp",
+  "buses": [
+    {
+      "from": "119",
+      "to": "602",
+      "busesPerHour": 30,
+      "capacityEachWay": 2100.0,
+      "minutes": 6.6
+    }
+  ],
+  "directions": {
+    "forward": {
+      "required": 18432.4,
+      "absorbedBefore": 17166.7,
+      "absorbedAfter": 18117.4,
+      "gain": 950.7,
+      "unmetBefore": 1265.7,
+      "unmetAfter": 315.0,
+      "cutCheckAfter": {
+        "capacity": 18117.4,
+        "maxFlow": 18117.4
+      },
+      "bottleneckEidsAfter": [
+        1027,
+        1062
+      ],
+      "busEdgesInCutAfter": []
+    },
+    "backward": {
+      "required": 2423.1,
+      "absorbedBefore": 2033.4,
+      "absorbedAfter": 2389.8,
+      "gain": 356.4,
+      "unmetBefore": 389.7,
+      "unmetAfter": 33.3,
+      "cutCheckAfter": {
+        "capacity": 2389.8,
+        "maxFlow": 2389.8
+      },
+      "bottleneckEidsAfter": [
+        1027,
+        1062
+      ],
+      "busEdgesInCutAfter": []
+    }
+  }
+}

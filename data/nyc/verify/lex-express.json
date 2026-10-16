@@ -1,0 +1,2266 @@
+{
+  "scenario": {
+    "id": "lex-express",
+    "title": "Lexington Ave express suspended",
+    "routes": [
+      "4",
+      "5"
+    ],
+    "stations": [
+      "610",
+      "602",
+      "622"
+    ]
+  },
+  "verifier": {
+    "implementation": "scripts/verify/verify.py",
+    "spec": "docs/model.md",
+    "networkx": "3.7",
+    "maxFlow": "networkx.algorithms.flow.edmonds_karp",
+    "minCut": "own residual reachability, cross-checked with networkx.minimum_cut (networkx.algorithms.flow.edmonds_karp)",
+    "tolerance": 1e-06
+  },
+  "closedEids": [
+    273,
+    274,
+    280,
+    288,
+    349,
+    350,
+    353,
+    361
+  ],
+  "closedCount": 8,
+  "closedByDirection": {
+    "forward": [
+      274,
+      280,
+      350,
+      353
+    ],
+    "backward": [
+      273,
+      288,
+      349,
+      361
+    ]
+  },
+  "displaced": {
+    "forward": {
+      "pairs": 884,
+      "riders": 15805.1
+    },
+    "backward": {
+      "pairs": 902,
+      "riders": 15542.0
+    }
+  },
+  "depthCounts": [
+    {
+      "k": 0,
+      "pairs": 146,
+      "riders": 6876.7
+    },
+    {
+      "k": 1,
+      "pairs": 277,
+      "riders": 11197.1
+    },
+    {
+      "k": 2,
+      "pairs": 439,
+      "riders": 14936.8
+    },
+    {
+      "k": 3,
+      "pairs": 642,
+      "riders": 18652.3
+    },
+    {
+      "k": 4,
+      "pairs": 870,
+      "riders": 22134.6
+    },
+    {
+      "k": 5,
+      "pairs": 1074,
+      "riders": 24537.1
+    },
+    {
+      "k": 6,
+      "pairs": 1253,
+      "riders": 26552.0
+    }
+  ],
+  "depthCountsByDirection": {
+    "forward": [
+      {
+        "k": 0,
+        "pairs": 60,
+        "riders": 5268.7
+      },
+      {
+        "k": 1,
+        "pairs": 121,
+        "riders": 6812.7
+      },
+      {
+        "k": 2,
+        "pairs": 196,
+        "riders": 8630.9
+      },
+      {
+        "k": 3,
+        "pairs": 272,
+        "riders": 9690.1
+      },
+      {
+        "k": 4,
+        "pairs": 377,
+        "riders": 10915.5
+      },
+      {
+        "k": 5,
+        "pairs": 499,
+        "riders": 12333.4
+      },
+      {
+        "k": 6,
+        "pairs": 596,
+        "riders": 13425.2
+      }
+    ],
+    "backward": [
+      {
+        "k": 0,
+        "pairs": 86,
+        "riders": 1608.0
+      },
+      {
+        "k": 1,
+        "pairs": 156,
+        "riders": 4384.4
+      },
+      {
+        "k": 2,
+        "pairs": 243,
+        "riders": 6305.9
+      },
+      {
+        "k": 3,
+        "pairs": 370,
+        "riders": 8962.2
+      },
+      {
+        "k": 4,
+        "pairs": 493,
+        "riders": 11219.1
+      },
+      {
+        "k": 5,
+        "pairs": 575,
+        "riders": 12203.7
+      },
+      {
+        "k": 6,
+        "pairs": 657,
+        "riders": 13126.8
+      }
+    ]
+  },
+  "peakDirection": "forward",
+  "flow": {
+    "forward": {
+      "pairs": 884,
+      "riders": 15805.1,
+      "required": 15021.7,
+      "absorbed": 15021.7,
+      "unmet": 0.0,
+      "requiredExact": 15021.7,
+      "absorbedExact": 15021.7,
+      "unmetExact": 0.0,
+      "sources": 141,
+      "sinks": 62,
+      "cut": {
+        "capacity": 15021.7,
+        "networkxCapacity": 15021.7,
+        "maxFlow": 15021.7,
+        "networkSpare": 0.0,
+        "feedCapacity": 15021.7,
+        "check": "cut capacity == max flow and networkx partition capacity == max flow (|diff| <= 1e-6); residual source side is a subset of networkx's (maximal) source side",
+        "sourceSideStations": 0,
+        "networkxSourceSideStations": 445,
+        "sourceSideInsideNetworkx": true,
+        "bottlenecks": {
+          "runs": [],
+          "walks": [],
+          "bus": []
+        },
+        "bottleneckEids": [],
+        "bottleneckWids": [],
+        "bottleneckEidsWithSpare": [],
+        "feeds": [
+          {
+            "station": "1",
+            "side": "source",
+            "capacity": 239.1
+          },
+          {
+            "station": "10",
+            "side": "source",
+            "capacity": 9.8
+          },
+          {
+            "station": "119",
+            "side": "source",
+            "capacity": 106.5
+          },
+          {
+            "station": "120",
+            "side": "source",
+            "capacity": 148.8
+          },
+          {
+            "station": "122",
+            "side": "source",
+            "capacity": 100.0
+          },
+          {
+            "station": "123",
+            "side": "source",
+            "capacity": 20.8
+          },
+          {
+            "station": "124",
+            "side": "source",
+            "capacity": 56.1
+          },
+          {
+            "station": "125",
+            "side": "source",
+            "capacity": 26.8
+          },
+          {
+            "station": "126",
+            "side": "source",
+            "capacity": 34.0
+          },
+          {
+            "station": "127",
+            "side": "source",
+            "capacity": 71.0
+          },
+          {
+            "station": "129",
+            "side": "source",
+            "capacity": 27.7
+          },
+          {
+            "station": "13",
+            "side": "source",
+            "capacity": 12.1
+          },
+          {
+            "station": "14",
+            "side": "source",
+            "capacity": 17.4
+          },
+          {
+            "station": "2",
+            "side": "source",
+            "capacity": 149.6
+          },
+          {
+            "station": "216",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "217",
+            "side": "source",
+            "capacity": 5.1
+          },
+          {
+            "station": "218",
+            "side": "source",
+            "capacity": 14.5
+          },
+          {
+            "station": "220",
+            "side": "source",
+            "capacity": 2.7
+          },
+          {
+            "station": "221",
+            "side": "source",
+            "capacity": 42.1
+          },
+          {
+            "station": "222",
+            "side": "source",
+            "capacity": 37.9
+          },
+          {
+            "station": "223",
+            "side": "source",
+            "capacity": 23.4
+          },
+          {
+            "station": "254",
+            "side": "source",
+            "capacity": 7.2
+          },
+          {
+            "station": "259",
+            "side": "source",
+            "capacity": 20.7
+          },
+          {
+            "station": "261",
+            "side": "source",
+            "capacity": 36.7
+          },
+          {
+            "station": "262",
+            "side": "source",
+            "capacity": 27.4
+          },
+          {
+            "station": "263",
+            "side": "source",
+            "capacity": 45.6
+          },
+          {
+            "station": "264",
+            "side": "source",
+            "capacity": 29.8
+          },
+          {
+            "station": "265",
+            "side": "source",
+            "capacity": 41.3
+          },
+          {
+            "station": "266",
+            "side": "source",
+            "capacity": 22.1
+          },
+          {
+            "station": "268",
+            "side": "source",
+            "capacity": 20.5
+          },
+          {
+            "station": "269",
+            "side": "source",
+            "capacity": 38.7
+          },
+          {
+            "station": "270",
+            "side": "source",
+            "capacity": 73.5
+          },
+          {
+            "station": "271",
+            "side": "source",
+            "capacity": 69.0
+          },
+          {
+            "station": "272",
+            "side": "source",
+            "capacity": 13.6
+          },
+          {
+            "station": "273",
+            "side": "source",
+            "capacity": 33.2
+          },
+          {
+            "station": "278",
+            "side": "source",
+            "capacity": 7.4
+          },
+          {
+            "station": "283",
+            "side": "source",
+            "capacity": 9.1
+          },
+          {
+            "station": "284",
+            "side": "source",
+            "capacity": 8.3
+          },
+          {
+            "station": "3",
+            "side": "source",
+            "capacity": 187.6
+          },
+          {
+            "station": "320",
+            "side": "source",
+            "capacity": 3.1
+          },
+          {
+            "station": "360",
+            "side": "source",
+            "capacity": 72.9
+          },
+          {
+            "station": "361",
+            "side": "source",
+            "capacity": 44.5
+          },
+          {
+            "station": "362",
+            "side": "source",
+            "capacity": 32.9
+          },
+          {
+            "station": "363",
+            "side": "source",
+            "capacity": 29.8
+          },
+          {
+            "station": "364",
+            "side": "source",
+            "capacity": 25.6
+          },
+          {
+            "station": "365",
+            "side": "source",
+            "capacity": 76.4
+          },
+          {
+            "station": "366",
+            "side": "source",
+            "capacity": 220.2
+          },
+          {
+            "station": "367",
+            "side": "source",
+            "capacity": 36.3
+          },
+          {
+            "station": "368",
+            "side": "source",
+            "capacity": 63.5
+          },
+          {
+            "station": "369",
+            "side": "source",
+            "capacity": 59.7
+          },
+          {
+            "station": "370",
+            "side": "source",
+            "capacity": 12.5
+          },
+          {
+            "station": "371",
+            "side": "source",
+            "capacity": 99.5
+          },
+          {
+            "station": "372",
+            "side": "source",
+            "capacity": 18.5
+          },
+          {
+            "station": "373",
+            "side": "source",
+            "capacity": 41.3
+          },
+          {
+            "station": "374",
+            "side": "source",
+            "capacity": 15.3
+          },
+          {
+            "station": "375",
+            "side": "source",
+            "capacity": 18.8
+          },
+          {
+            "station": "376",
+            "side": "source",
+            "capacity": 45.4
+          },
+          {
+            "station": "377",
+            "side": "source",
+            "capacity": 114.1
+          },
+          {
+            "station": "378",
+            "side": "source",
+            "capacity": 51.6
+          },
+          {
+            "station": "379",
+            "side": "source",
+            "capacity": 58.0
+          },
+          {
+            "station": "380",
+            "side": "source",
+            "capacity": 35.7
+          },
+          {
+            "station": "381",
+            "side": "source",
+            "capacity": 85.1
+          },
+          {
+            "station": "382",
+            "side": "source",
+            "capacity": 104.0
+          },
+          {
+            "station": "383",
+            "side": "source",
+            "capacity": 52.6
+          },
+          {
+            "station": "384",
+            "side": "source",
+            "capacity": 89.0
+          },
+          {
+            "station": "385",
+            "side": "source",
+            "capacity": 60.1
+          },
+          {
+            "station": "386",
+            "side": "source",
+            "capacity": 56.9
+          },
+          {
+            "station": "387",
+            "side": "source",
+            "capacity": 104.6
+          },
+          {
+            "station": "388",
+            "side": "source",
+            "capacity": 135.7
+          },
+          {
+            "station": "391",
+            "side": "source",
+            "capacity": 43.2
+          },
+          {
+            "station": "392",
+            "side": "source",
+            "capacity": 384.7
+          },
+          {
+            "station": "393",
+            "side": "source",
+            "capacity": 67.2
+          },
+          {
+            "station": "394",
+            "side": "source",
+            "capacity": 65.1
+          },
+          {
+            "station": "395",
+            "side": "source",
+            "capacity": 84.7
+          },
+          {
+            "station": "396",
+            "side": "source",
+            "capacity": 113.8
+          },
+          {
+            "station": "397",
+            "side": "source",
+            "capacity": 1011.3
+          },
+          {
+            "station": "398",
+            "side": "source",
+            "capacity": 214.4
+          },
+          {
+            "station": "399",
+            "side": "source",
+            "capacity": 107.3
+          },
+          {
+            "station": "4",
+            "side": "source",
+            "capacity": 114.0
+          },
+          {
+            "station": "403",
+            "side": "source",
+            "capacity": 316.3
+          },
+          {
+            "station": "404",
+            "side": "source",
+            "capacity": 222.7
+          },
+          {
+            "station": "405",
+            "side": "source",
+            "capacity": 204.3
+          },
+          {
+            "station": "416",
+            "side": "source",
+            "capacity": 2.0
+          },
+          {
+            "station": "417",
+            "side": "source",
+            "capacity": 5.8
+          },
+          {
+            "station": "418",
+            "side": "source",
+            "capacity": 4.2
+          },
+          {
+            "station": "419",
+            "side": "source",
+            "capacity": 5.1
+          },
+          {
+            "station": "420",
+            "side": "source",
+            "capacity": 8.5
+          },
+          {
+            "station": "421",
+            "side": "source",
+            "capacity": 12.1
+          },
+          {
+            "station": "422",
+            "side": "source",
+            "capacity": 4.8
+          },
+          {
+            "station": "423",
+            "side": "source",
+            "capacity": 11.9
+          },
+          {
+            "station": "424",
+            "side": "source",
+            "capacity": 26.7
+          },
+          {
+            "station": "425",
+            "side": "source",
+            "capacity": 12.3
+          },
+          {
+            "station": "426",
+            "side": "source",
+            "capacity": 104.4
+          },
+          {
+            "station": "427",
+            "side": "source",
+            "capacity": 29.4
+          },
+          {
+            "station": "428",
+            "side": "source",
+            "capacity": 18.9
+          },
+          {
+            "station": "429",
+            "side": "source",
+            "capacity": 11.7
+          },
+          {
+            "station": "430",
+            "side": "source",
+            "capacity": 10.8
+          },
+          {
+            "station": "431",
+            "side": "source",
+            "capacity": 7.3
+          },
+          {
+            "station": "432",
+            "side": "source",
+            "capacity": 24.0
+          },
+          {
+            "station": "433",
+            "side": "source",
+            "capacity": 16.0
+          },
+          {
+            "station": "434",
+            "side": "source",
+            "capacity": 200.4
+          },
+          {
+            "station": "442",
+            "side": "source",
+            "capacity": 54.9
+          },
+          {
+            "station": "443",
+            "side": "source",
+            "capacity": 35.0
+          },
+          {
+            "station": "444",
+            "side": "source",
+            "capacity": 65.5
+          },
+          {
+            "station": "445",
+            "side": "source",
+            "capacity": 42.8
+          },
+          {
+            "station": "446",
+            "side": "source",
+            "capacity": 69.1
+          },
+          {
+            "station": "447",
+            "side": "source",
+            "capacity": 143.5
+          },
+          {
+            "station": "448",
+            "side": "source",
+            "capacity": 3.4
+          },
+          {
+            "station": "449",
+            "side": "source",
+            "capacity": 17.4
+          },
+          {
+            "station": "450",
+            "side": "source",
+            "capacity": 27.0
+          },
+          {
+            "station": "451",
+            "side": "source",
+            "capacity": 33.8
+          },
+          {
+            "station": "452",
+            "side": "source",
+            "capacity": 40.7
+          },
+          {
+            "station": "453",
+            "side": "source",
+            "capacity": 31.7
+          },
+          {
+            "station": "455",
+            "side": "source",
+            "capacity": 8.4
+          },
+          {
+            "station": "456",
+            "side": "source",
+            "capacity": 125.3
+          },
+          {
+            "station": "457",
+            "side": "source",
+            "capacity": 33.8
+          },
+          {
+            "station": "458",
+            "side": "source",
+            "capacity": 152.0
+          },
+          {
+            "station": "459",
+            "side": "source",
+            "capacity": 115.7
+          },
+          {
+            "station": "460",
+            "side": "source",
+            "capacity": 7.2
+          },
+          {
+            "station": "461",
+            "side": "source",
+            "capacity": 109.1
+          },
+          {
+            "station": "463",
+            "side": "source",
+            "capacity": 22.2
+          },
+          {
+            "station": "464",
+            "side": "source",
+            "capacity": 250.7
+          },
+          {
+            "station": "471",
+            "side": "source",
+            "capacity": 5.8
+          },
+          {
+            "station": "475",
+            "side": "source",
+            "capacity": 66.1
+          },
+          {
+            "station": "476",
+            "side": "source",
+            "capacity": 130.9
+          },
+          {
+            "station": "477",
+            "side": "source",
+            "capacity": 98.0
+          },
+          {
+            "station": "5",
+            "side": "source",
+            "capacity": 78.7
+          },
+          {
+            "station": "6",
+            "side": "source",
+            "capacity": 35.1
+          },
+          {
+            "station": "603",
+            "side": "source",
+            "capacity": 97.7
+          },
+          {
+            "station": "604",
+            "side": "source",
+            "capacity": 213.2
+          },
+          {
+            "station": "606",
+            "side": "source",
+            "capacity": 73.7
+          },
+          {
+            "station": "607",
+            "side": "source",
+            "capacity": 19.0
+          },
+          {
+            "station": "609",
+            "side": "source",
+            "capacity": 4.0
+          },
+          {
+            "station": "610",
+            "side": "source",
+            "capacity": 4717.7
+          },
+          {
+            "station": "612",
+            "side": "source",
+            "capacity": 163.6
+          },
+          {
+            "station": "613",
+            "side": "source",
+            "capacity": 551.9
+          },
+          {
+            "station": "616",
+            "side": "source",
+            "capacity": 30.5
+          },
+          {
+            "station": "629",
+            "side": "source",
+            "capacity": 86.1
+          },
+          {
+            "station": "630",
+            "side": "source",
+            "capacity": 76.3
+          },
+          {
+            "station": "8",
+            "side": "source",
+            "capacity": 5.5
+          },
+          {
+            "station": "9",
+            "side": "source",
+            "capacity": 10.6
+          }
+        ]
+      }
+    },
+    "backward": {
+      "pairs": 902,
+      "riders": 15542.0,
+      "required": 14486.6,
+      "absorbed": 14486.6,
+      "unmet": 0.0,
+      "requiredExact": 14486.6,
+      "absorbedExact": 14486.6,
+      "unmetExact": 0.0,
+      "sources": 156,
+      "sinks": 93,
+      "cut": {
+        "capacity": 14486.6,
+        "networkxCapacity": 14486.6,
+        "maxFlow": 14486.6,
+        "networkSpare": 0.0,
+        "feedCapacity": 14486.6,
+        "check": "cut capacity == max flow and networkx partition capacity == max flow (|diff| <= 1e-6); residual source side is a subset of networkx's (maximal) source side",
+        "sourceSideStations": 0,
+        "networkxSourceSideStations": 445,
+        "sourceSideInsideNetworkx": true,
+        "bottlenecks": {
+          "runs": [],
+          "walks": [],
+          "bus": []
+        },
+        "bottleneckEids": [],
+        "bottleneckWids": [],
+        "bottleneckEidsWithSpare": [],
+        "feeds": [
+          {
+            "station": "107",
+            "side": "source",
+            "capacity": 3.0
+          },
+          {
+            "station": "108",
+            "side": "source",
+            "capacity": 11.8
+          },
+          {
+            "station": "109",
+            "side": "source",
+            "capacity": 20.9
+          },
+          {
+            "station": "110",
+            "side": "source",
+            "capacity": 16.8
+          },
+          {
+            "station": "111",
+            "side": "source",
+            "capacity": 4.5
+          },
+          {
+            "station": "113",
+            "side": "source",
+            "capacity": 8.7
+          },
+          {
+            "station": "119",
+            "side": "source",
+            "capacity": 250.0
+          },
+          {
+            "station": "120",
+            "side": "source",
+            "capacity": 484.6
+          },
+          {
+            "station": "122",
+            "side": "source",
+            "capacity": 134.6
+          },
+          {
+            "station": "123",
+            "side": "source",
+            "capacity": 47.2
+          },
+          {
+            "station": "124",
+            "side": "source",
+            "capacity": 70.5
+          },
+          {
+            "station": "125",
+            "side": "source",
+            "capacity": 76.3
+          },
+          {
+            "station": "126",
+            "side": "source",
+            "capacity": 81.5
+          },
+          {
+            "station": "127",
+            "side": "source",
+            "capacity": 142.0
+          },
+          {
+            "station": "129",
+            "side": "source",
+            "capacity": 74.5
+          },
+          {
+            "station": "130",
+            "side": "source",
+            "capacity": 34.7
+          },
+          {
+            "station": "131",
+            "side": "source",
+            "capacity": 15.4
+          },
+          {
+            "station": "133",
+            "side": "source",
+            "capacity": 8.1
+          },
+          {
+            "station": "134",
+            "side": "source",
+            "capacity": 3.7
+          },
+          {
+            "station": "135",
+            "side": "source",
+            "capacity": 4.7
+          },
+          {
+            "station": "136",
+            "side": "source",
+            "capacity": 6.3
+          },
+          {
+            "station": "137",
+            "side": "source",
+            "capacity": 15.4
+          },
+          {
+            "station": "138",
+            "side": "source",
+            "capacity": 87.1
+          },
+          {
+            "station": "141",
+            "side": "source",
+            "capacity": 20.7
+          },
+          {
+            "station": "169",
+            "side": "source",
+            "capacity": 2.8
+          },
+          {
+            "station": "17",
+            "side": "source",
+            "capacity": 4.1
+          },
+          {
+            "station": "173",
+            "side": "source",
+            "capacity": 138.8
+          },
+          {
+            "station": "175",
+            "side": "source",
+            "capacity": 47.3
+          },
+          {
+            "station": "176",
+            "side": "source",
+            "capacity": 11.2
+          },
+          {
+            "station": "177",
+            "side": "source",
+            "capacity": 173.7
+          },
+          {
+            "station": "179",
+            "side": "source",
+            "capacity": 276.3
+          },
+          {
+            "station": "180",
+            "side": "source",
+            "capacity": 94.8
+          },
+          {
+            "station": "181",
+            "side": "source",
+            "capacity": 194.5
+          },
+          {
+            "station": "182",
+            "side": "source",
+            "capacity": 45.7
+          },
+          {
+            "station": "183",
+            "side": "source",
+            "capacity": 22.7
+          },
+          {
+            "station": "186",
+            "side": "source",
+            "capacity": 6.0
+          },
+          {
+            "station": "187",
+            "side": "source",
+            "capacity": 3.9
+          },
+          {
+            "station": "188",
+            "side": "source",
+            "capacity": 41.2
+          },
+          {
+            "station": "189",
+            "side": "source",
+            "capacity": 31.1
+          },
+          {
+            "station": "190",
+            "side": "source",
+            "capacity": 20.2
+          },
+          {
+            "station": "191",
+            "side": "source",
+            "capacity": 14.8
+          },
+          {
+            "station": "192",
+            "side": "source",
+            "capacity": 18.7
+          },
+          {
+            "station": "193",
+            "side": "source",
+            "capacity": 4.6
+          },
+          {
+            "station": "194",
+            "side": "source",
+            "capacity": 5.6
+          },
+          {
+            "station": "195",
+            "side": "source",
+            "capacity": 16.8
+          },
+          {
+            "station": "198",
+            "side": "source",
+            "capacity": 4.1
+          },
+          {
+            "station": "20",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "204",
+            "side": "source",
+            "capacity": 3.0
+          },
+          {
+            "station": "22",
+            "side": "source",
+            "capacity": 14.8
+          },
+          {
+            "station": "26",
+            "side": "source",
+            "capacity": 93.0
+          },
+          {
+            "station": "28",
+            "side": "source",
+            "capacity": 58.7
+          },
+          {
+            "station": "286",
+            "side": "source",
+            "capacity": 2.5
+          },
+          {
+            "station": "289",
+            "side": "source",
+            "capacity": 4.7
+          },
+          {
+            "station": "290",
+            "side": "source",
+            "capacity": 2.1
+          },
+          {
+            "station": "30",
+            "side": "source",
+            "capacity": 50.0
+          },
+          {
+            "station": "31",
+            "side": "source",
+            "capacity": 16.2
+          },
+          {
+            "station": "32",
+            "side": "source",
+            "capacity": 38.3
+          },
+          {
+            "station": "323",
+            "side": "source",
+            "capacity": 10.8
+          },
+          {
+            "station": "324",
+            "side": "source",
+            "capacity": 3.8
+          },
+          {
+            "station": "327",
+            "side": "source",
+            "capacity": 4.4
+          },
+          {
+            "station": "328",
+            "side": "source",
+            "capacity": 23.4
+          },
+          {
+            "station": "329",
+            "side": "source",
+            "capacity": 16.4
+          },
+          {
+            "station": "33",
+            "side": "source",
+            "capacity": 29.8
+          },
+          {
+            "station": "333",
+            "side": "source",
+            "capacity": 43.7
+          },
+          {
+            "station": "334",
+            "side": "source",
+            "capacity": 49.3
+          },
+          {
+            "station": "336",
+            "side": "source",
+            "capacity": 14.3
+          },
+          {
+            "station": "337",
+            "side": "source",
+            "capacity": 285.2
+          },
+          {
+            "station": "339",
+            "side": "source",
+            "capacity": 43.8
+          },
+          {
+            "station": "34",
+            "side": "source",
+            "capacity": 22.9
+          },
+          {
+            "station": "340",
+            "side": "source",
+            "capacity": 98.7
+          },
+          {
+            "station": "341",
+            "side": "source",
+            "capacity": 42.0
+          },
+          {
+            "station": "343",
+            "side": "source",
+            "capacity": 21.9
+          },
+          {
+            "station": "344",
+            "side": "source",
+            "capacity": 38.7
+          },
+          {
+            "station": "345",
+            "side": "source",
+            "capacity": 708.5
+          },
+          {
+            "station": "346",
+            "side": "source",
+            "capacity": 66.9
+          },
+          {
+            "station": "347",
+            "side": "source",
+            "capacity": 59.2
+          },
+          {
+            "station": "348",
+            "side": "source",
+            "capacity": 10.7
+          },
+          {
+            "station": "35",
+            "side": "source",
+            "capacity": 49.0
+          },
+          {
+            "station": "350",
+            "side": "source",
+            "capacity": 7.5
+          },
+          {
+            "station": "351",
+            "side": "source",
+            "capacity": 8.1
+          },
+          {
+            "station": "352",
+            "side": "source",
+            "capacity": 19.4
+          },
+          {
+            "station": "353",
+            "side": "source",
+            "capacity": 88.9
+          },
+          {
+            "station": "354",
+            "side": "source",
+            "capacity": 145.2
+          },
+          {
+            "station": "355",
+            "side": "source",
+            "capacity": 166.9
+          },
+          {
+            "station": "356",
+            "side": "source",
+            "capacity": 206.6
+          },
+          {
+            "station": "357",
+            "side": "source",
+            "capacity": 76.5
+          },
+          {
+            "station": "358",
+            "side": "source",
+            "capacity": 179.0
+          },
+          {
+            "station": "359",
+            "side": "source",
+            "capacity": 362.7
+          },
+          {
+            "station": "36",
+            "side": "source",
+            "capacity": 32.6
+          },
+          {
+            "station": "37",
+            "side": "source",
+            "capacity": 25.2
+          },
+          {
+            "station": "38",
+            "side": "source",
+            "capacity": 34.0
+          },
+          {
+            "station": "39",
+            "side": "source",
+            "capacity": 33.5
+          },
+          {
+            "station": "41",
+            "side": "source",
+            "capacity": 70.3
+          },
+          {
+            "station": "413",
+            "side": "source",
+            "capacity": 964.5
+          },
+          {
+            "station": "414",
+            "side": "source",
+            "capacity": 881.3
+          },
+          {
+            "station": "42",
+            "side": "source",
+            "capacity": 46.2
+          },
+          {
+            "station": "43",
+            "side": "source",
+            "capacity": 32.6
+          },
+          {
+            "station": "44",
+            "side": "source",
+            "capacity": 68.2
+          },
+          {
+            "station": "45",
+            "side": "source",
+            "capacity": 18.7
+          },
+          {
+            "station": "46",
+            "side": "source",
+            "capacity": 35.1
+          },
+          {
+            "station": "47",
+            "side": "source",
+            "capacity": 12.0
+          },
+          {
+            "station": "48",
+            "side": "source",
+            "capacity": 12.7
+          },
+          {
+            "station": "49",
+            "side": "source",
+            "capacity": 15.8
+          },
+          {
+            "station": "50",
+            "side": "source",
+            "capacity": 17.5
+          },
+          {
+            "station": "51",
+            "side": "source",
+            "capacity": 14.7
+          },
+          {
+            "station": "52",
+            "side": "source",
+            "capacity": 18.3
+          },
+          {
+            "station": "53",
+            "side": "source",
+            "capacity": 13.6
+          },
+          {
+            "station": "54",
+            "side": "source",
+            "capacity": 13.0
+          },
+          {
+            "station": "55",
+            "side": "source",
+            "capacity": 6.2
+          },
+          {
+            "station": "56",
+            "side": "source",
+            "capacity": 5.1
+          },
+          {
+            "station": "57",
+            "side": "source",
+            "capacity": 3.3
+          },
+          {
+            "station": "58",
+            "side": "source",
+            "capacity": 11.8
+          },
+          {
+            "station": "59",
+            "side": "source",
+            "capacity": 14.5
+          },
+          {
+            "station": "60",
+            "side": "source",
+            "capacity": 7.2
+          },
+          {
+            "station": "601",
+            "side": "source",
+            "capacity": 193.5
+          },
+          {
+            "station": "608",
+            "side": "source",
+            "capacity": 16.4
+          },
+          {
+            "station": "61",
+            "side": "source",
+            "capacity": 3.1
+          },
+          {
+            "station": "615",
+            "side": "source",
+            "capacity": 16.4
+          },
+          {
+            "station": "617",
+            "side": "source",
+            "capacity": 309.3
+          },
+          {
+            "station": "618",
+            "side": "source",
+            "capacity": 23.5
+          },
+          {
+            "station": "619",
+            "side": "source",
+            "capacity": 5.6
+          },
+          {
+            "station": "620",
+            "side": "source",
+            "capacity": 745.5
+          },
+          {
+            "station": "621",
+            "side": "source",
+            "capacity": 8.7
+          },
+          {
+            "station": "622",
+            "side": "source",
+            "capacity": 660.8
+          },
+          {
+            "station": "624",
+            "side": "source",
+            "capacity": 30.4
+          },
+          {
+            "station": "625",
+            "side": "source",
+            "capacity": 7.6
+          },
+          {
+            "station": "626",
+            "side": "source",
+            "capacity": 594.7
+          },
+          {
+            "station": "627",
+            "side": "source",
+            "capacity": 47.9
+          },
+          {
+            "station": "628",
+            "side": "source",
+            "capacity": 2554.9
+          },
+          {
+            "station": "629",
+            "side": "source",
+            "capacity": 229.7
+          },
+          {
+            "station": "630",
+            "side": "source",
+            "capacity": 162.2
+          },
+          {
+            "station": "635",
+            "side": "source",
+            "capacity": 50.9
+          },
+          {
+            "station": "636",
+            "side": "source",
+            "capacity": 67.7
+          },
+          {
+            "station": "64",
+            "side": "source",
+            "capacity": 3.6
+          },
+          {
+            "station": "65",
+            "side": "source",
+            "capacity": 4.2
+          },
+          {
+            "station": "66",
+            "side": "source",
+            "capacity": 7.5
+          },
+          {
+            "station": "67",
+            "side": "source",
+            "capacity": 5.9
+          },
+          {
+            "station": "68",
+            "side": "source",
+            "capacity": 6.0
+          },
+          {
+            "station": "71",
+            "side": "source",
+            "capacity": 26.8
+          },
+          {
+            "station": "72",
+            "side": "source",
+            "capacity": 24.6
+          },
+          {
+            "station": "74",
+            "side": "source",
+            "capacity": 10.6
+          },
+          {
+            "station": "75",
+            "side": "source",
+            "capacity": 15.2
+          },
+          {
+            "station": "76",
+            "side": "source",
+            "capacity": 27.4
+          },
+          {
+            "station": "77",
+            "side": "source",
+            "capacity": 30.8
+          },
+          {
+            "station": "78",
+            "side": "source",
+            "capacity": 8.5
+          },
+          {
+            "station": "79",
+            "side": "source",
+            "capacity": 4.0
+          },
+          {
+            "station": "85",
+            "side": "source",
+            "capacity": 4.4
+          },
+          {
+            "station": "87",
+            "side": "source",
+            "capacity": 5.1
+          },
+          {
+            "station": "88",
+            "side": "source",
+            "capacity": 3.8
+          },
+          {
+            "station": "89",
+            "side": "source",
+            "capacity": 7.0
+          },
+          {
+            "station": "90",
+            "side": "source",
+            "capacity": 4.8
+          },
+          {
+            "station": "93",
+            "side": "source",
+            "capacity": 8.5
+          },
+          {
+            "station": "94",
+            "side": "source",
+            "capacity": 33.3
+          },
+          {
+            "station": "95",
+            "side": "source",
+            "capacity": 58.9
+          },
+          {
+            "station": "96",
+            "side": "source",
+            "capacity": 44.3
+          },
+          {
+            "station": "97",
+            "side": "source",
+            "capacity": 13.2
+          }
+        ]
+      }
+    }
+  },
+  "topEdgesByFlow": {
+    "direction": "forward",
+    "edges": [
+      {
+        "eid": 70,
+        "route": "1",
+        "from": "611",
+        "to": "318",
+        "spare": 11731.0,
+        "flow": 7994.5
+      },
+      {
+        "eid": 167,
+        "route": "2",
+        "from": "624",
+        "to": "628",
+        "spare": 7552.4,
+        "flow": 7552.4
+      },
+      {
+        "eid": 283,
+        "route": "4",
+        "from": "613",
+        "to": "610",
+        "spare": 12247.7,
+        "flow": 6912.0
+      },
+      {
+        "eid": 953,
+        "route": "GS",
+        "from": "610",
+        "to": "611",
+        "spare": 8237.1,
+        "flow": 6766.8
+      },
+      {
+        "eid": 177,
+        "route": "3",
+        "from": "318",
+        "to": "601",
+        "spare": 9881.0,
+        "flow": 5815.5
+      },
+      {
+        "eid": 630,
+        "route": "B",
+        "from": "609",
+        "to": "607",
+        "spare": 7231.0,
+        "flow": 5386.2
+      },
+      {
+        "eid": 481,
+        "route": "7",
+        "from": "610",
+        "to": "609",
+        "spare": 27303.3,
+        "flow": 5382.2
+      },
+      {
+        "eid": 226,
+        "route": "3",
+        "from": "601",
+        "to": "327",
+        "spare": 8949.0,
+        "flow": 5359.0
+      },
+      {
+        "eid": 81,
+        "route": "2",
+        "from": "327",
+        "to": "624",
+        "spare": 5017.4,
+        "flow": 5017.4
+      },
+      {
+        "eid": 268,
+        "route": "4",
+        "from": "397",
+        "to": "613",
+        "spare": 11790.7,
+        "flow": 4089.9
+      },
+      {
+        "eid": 1168,
+        "route": "N",
+        "from": "607",
+        "to": "602",
+        "spare": 9519.8,
+        "flow": 3622.0
+      },
+      {
+        "eid": 1167,
+        "route": "N",
+        "from": "602",
+        "to": "623",
+        "spare": 9602.5,
+        "flow": 2860.2
+      },
+      {
+        "eid": 157,
+        "route": "2",
+        "from": "601",
+        "to": "327",
+        "spare": 2586.0,
+        "flow": 2586.0
+      },
+      {
+        "eid": 265,
+        "route": "4",
+        "from": "392",
+        "to": "397",
+        "spare": 10920.7,
+        "flow": 2468.7
+      },
+      {
+        "eid": 180,
+        "route": "3",
+        "from": "327",
+        "to": "624",
+        "spare": 9122.0,
+        "flow": 2379.9
+      }
+    ]
+  },
+  "referencePaths": {
+    "direction": "forward",
+    "weight": "minutes over open RUNS + WALK (no waits, no transfer penalty)",
+    "pairs": [
+      {
+        "origin": "610",
+        "destination": "628",
+        "riders": 1830.0,
+        "baselineJourneyMinutes": 15.2,
+        "minutes": 12.0,
+        "stations": [
+          "610",
+          "609",
+          "607",
+          "167",
+          "169",
+          "624",
+          "628"
+        ],
+        "edges": [
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 627,
+            "route": "B"
+          },
+          {
+            "eid": 501,
+            "route": "A"
+          },
+          {
+            "eid": 504,
+            "route": "A"
+          },
+          {
+            "eid": 560,
+            "route": "A"
+          }
+        ]
+      },
+      {
+        "origin": "610",
+        "destination": "602",
+        "riders": 697.1,
+        "baselineJourneyMinutes": 7.2,
+        "minutes": 6.0,
+        "stations": [
+          "610",
+          "609",
+          "607",
+          "602"
+        ],
+        "edges": [
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 1168,
+            "route": "N"
+          }
+        ]
+      },
+      {
+        "origin": "610",
+        "destination": "622",
+        "riders": 613.8,
+        "baselineJourneyMinutes": 13.2,
+        "minutes": 11.5,
+        "stations": [
+          "610",
+          "609",
+          "607",
+          "602",
+          "623",
+          "622"
+        ],
+        "edges": [
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 1168,
+            "route": "N"
+          },
+          {
+            "eid": 1167,
+            "route": "N"
+          },
+          {
+            "eid": 979,
+            "route": "J"
+          }
+        ]
+      },
+      {
+        "origin": "610",
+        "destination": "414",
+        "riders": 540.5,
+        "baselineJourneyMinutes": 18.2,
+        "minutes": 15.0,
+        "stations": [
+          "610",
+          "609",
+          "607",
+          "167",
+          "169",
+          "624",
+          "628",
+          "413",
+          "414"
+        ],
+        "edges": [
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 627,
+            "route": "B"
+          },
+          {
+            "eid": 501,
+            "route": "A"
+          },
+          {
+            "eid": 504,
+            "route": "A"
+          },
+          {
+            "eid": 560,
+            "route": "A"
+          },
+          {
+            "eid": 292,
+            "route": "4"
+          },
+          {
+            "eid": 269,
+            "route": "4"
+          }
+        ]
+      },
+      {
+        "origin": "610",
+        "destination": "413",
+        "riders": 462.1,
+        "baselineJourneyMinutes": 16.7,
+        "minutes": 13.5,
+        "stations": [
+          "610",
+          "609",
+          "607",
+          "167",
+          "169",
+          "624",
+          "628",
+          "413"
+        ],
+        "edges": [
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 627,
+            "route": "B"
+          },
+          {
+            "eid": 501,
+            "route": "A"
+          },
+          {
+            "eid": 504,
+            "route": "A"
+          },
+          {
+            "eid": 560,
+            "route": "A"
+          },
+          {
+            "eid": 292,
+            "route": "4"
+          }
+        ]
+      },
+      {
+        "origin": "397",
+        "destination": "628",
+        "riders": 376.2,
+        "baselineJourneyMinutes": 24.2,
+        "minutes": 21.0,
+        "stations": [
+          "397",
+          "613",
+          "610",
+          "609",
+          "607",
+          "167",
+          "169",
+          "624",
+          "628"
+        ],
+        "edges": [
+          {
+            "eid": 268,
+            "route": "4"
+          },
+          {
+            "eid": 356,
+            "route": "5"
+          },
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 627,
+            "route": "B"
+          },
+          {
+            "eid": 501,
+            "route": "A"
+          },
+          {
+            "eid": 504,
+            "route": "A"
+          },
+          {
+            "eid": 560,
+            "route": "A"
+          }
+        ]
+      },
+      {
+        "origin": "602",
+        "destination": "628",
+        "riders": 248.9,
+        "baselineJourneyMinutes": 10.5,
+        "minutes": 7.0,
+        "stations": [
+          "602",
+          "623",
+          "622",
+          "628"
+        ],
+        "edges": [
+          {
+            "eid": 1167,
+            "route": "N"
+          },
+          {
+            "eid": 979,
+            "route": "J"
+          },
+          {
+            "eid": 977,
+            "route": "J"
+          }
+        ]
+      },
+      {
+        "origin": "403",
+        "destination": "628",
+        "riders": 211.0,
+        "baselineJourneyMinutes": 19.6,
+        "minutes": 11.5,
+        "stations": [
+          "403",
+          "404",
+          "405",
+          "602",
+          "623",
+          "622",
+          "628"
+        ],
+        "edges": [
+          {
+            "eid": 421,
+            "route": "6"
+          },
+          {
+            "eid": 424,
+            "route": "6"
+          },
+          {
+            "eid": 426,
+            "route": "6"
+          },
+          {
+            "eid": 1167,
+            "route": "N"
+          },
+          {
+            "eid": 979,
+            "route": "J"
+          },
+          {
+            "eid": 977,
+            "route": "J"
+          }
+        ]
+      },
+      {
+        "origin": "613",
+        "destination": "628",
+        "riders": 190.7,
+        "baselineJourneyMinutes": 18.5,
+        "minutes": 15.5,
+        "stations": [
+          "613",
+          "610",
+          "609",
+          "607",
+          "167",
+          "169",
+          "624",
+          "628"
+        ],
+        "edges": [
+          {
+            "eid": 356,
+            "route": "5"
+          },
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 627,
+            "route": "B"
+          },
+          {
+            "eid": 501,
+            "route": "A"
+          },
+          {
+            "eid": 504,
+            "route": "A"
+          },
+          {
+            "eid": 560,
+            "route": "A"
+          }
+        ]
+      },
+      {
+        "origin": "397",
+        "destination": "602",
+        "riders": 148.7,
+        "baselineJourneyMinutes": 16.2,
+        "minutes": 15.0,
+        "stations": [
+          "397",
+          "613",
+          "610",
+          "609",
+          "607",
+          "602"
+        ],
+        "edges": [
+          {
+            "eid": 268,
+            "route": "4"
+          },
+          {
+            "eid": 356,
+            "route": "5"
+          },
+          {
+            "eid": 481,
+            "route": "7"
+          },
+          {
+            "eid": 630,
+            "route": "B"
+          },
+          {
+            "eid": 1168,
+            "route": "N"
+          }
+        ]
+      }
+    ]
+  }
+}
