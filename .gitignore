@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# env
+.env
+.env*.local
+.env.production
+
+# vercel
+.vercel
+
+# misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# python
+__pycache__/
+.venv/
+
+# missile sensor output
+.missile/
+
+# playwright
+test-results/
+playwright-report/
+.playwright-cli/
