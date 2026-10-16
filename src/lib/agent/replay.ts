@@ -6,7 +6,7 @@ import type { AgentEvent, Emit } from "./catalog";
  * Recorded runs, played back when no model key is configured or the free quota is spent.
  * A recording is a real live run captured with RECORD_REPLAYS=1; the UI labels it as a replay.
  */
-const dir = () => join(process.cwd(), "data", "replays");
+const dir = () => join(/* turbopackIgnore: true */ process.cwd(), "data", "replays");
 const fileFor = (scenarioId: string, mode: string) => join(dir(), `${scenarioId}-${mode}.ndjson`);
 
 interface Recorded {

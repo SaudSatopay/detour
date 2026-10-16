@@ -42,3 +42,6 @@ data/raw/
 
 # agent worktrees
 .claude/worktrees/
+
+# ci outputs
+ci-out/

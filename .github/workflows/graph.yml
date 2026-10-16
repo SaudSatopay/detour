@@ -1,0 +1,70 @@
+name: graph
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  scenarios:
+    # Every graph tool on the three demo closures, against both FalkorDB engines,
+    # with max flow cross-checked against the independent NetworkX results.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        falkordb: ["6.0.2", "v4.22.1"]
+    services:
+      falkordb:
+        image: falkordb/falkordb:${{ matrix.falkordb }}
+        ports:
+          - 6379:6379
+        env:
+          FALKORDB_ARGS: "TIMEOUT_MAX 60000 TIMEOUT_DEFAULT 30000 RESULTSET_SIZE 200000 MAX_QUEUED_QUERIES 500"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Probe procedure shapes
+        run: pnpm tsx scripts/ci/probe.ts
+        env:
+          FALKORDB_URL: falkor://localhost:6379
+      - name: Run scenarios
+        run: pnpm tsx scripts/ci/run-scenarios.ts
+        env:
+          FALKORDB_URL: falkor://localhost:6379
+      - name: Concurrency benchmark
+        run: pnpm tsx scripts/ci/bench.ts
+        env:
+          FALKORDB_URL: falkor://localhost:6379
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-out-${{ matrix.falkordb }}
+          path: ci-out/
+
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run --with networkx python scripts/verify/test_verify.py

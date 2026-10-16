@@ -6,7 +6,7 @@ import type { Demand, Network, NetworkMeta } from "./types";
  * Server-side access to the built network files in data/nyc. They ship with every deployment
  * (see outputFileTracingIncludes in next.config.ts) so an empty FalkorDB can be re-seeded.
  */
-const dataDir = () => join(process.cwd(), "data", "nyc");
+const dataDir = () => join(/* turbopackIgnore: true */ process.cwd(), "data", "nyc");
 
 const cache = new Map<string, Promise<unknown>>();
 
@@ -33,7 +33,7 @@ export interface Scenario {
 }
 
 export function loadScenarios(): Promise<Scenario[]> {
-  const file = join(process.cwd(), "data", "scenarios.json");
+  const file = join(/* turbopackIgnore: true */ process.cwd(), "data", "scenarios.json");
   let hit = cache.get(file) as Promise<Scenario[]> | undefined;
   if (!hit) {
     hit = readFile(file, "utf8").then((text) => JSON.parse(text) as Scenario[]);
