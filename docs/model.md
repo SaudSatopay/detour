@@ -55,7 +55,3 @@ A plan adds `BUS` edges in both directions between two stations: `capacity = bus
 ## Rider routing
 
 Weighted shortest path on the platform layer plus `WALK` and the `BUS` edges of a published plan, weight `minutes`: `algo.SPpaths({sourceNode, targetNode, relTypes:['BOARD','RIDE','ALIGHT','WALK','BUS'], weightProp:'minutes', pathCount: k})`. Step-free riders take the first of the k fastest paths whose every boarding and exit is at a station with `ada = 1` and whose platform has no elevator outage remembered as current (an outage tagged with a route blocks only that route's platform).
-
-## Station criticality
-
-Harmonic centrality over open `RUNS` edges (`algo.HarmonicCentrality`). A station's drop in harmonic centrality after a closure shows how cut off it became.
