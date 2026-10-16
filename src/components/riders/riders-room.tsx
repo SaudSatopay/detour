@@ -201,16 +201,17 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
     <article className="flex flex-col lg:h-[calc(100dvh-3rem)]">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-4 py-2">
         <h1 className="font-display text-xl font-bold tracking-wide">Riders</h1>
-        <p className="min-w-0 flex-1 text-xs text-ink-500">
+        {/* Two short lines reserved, so the status can change without moving the rooms below. */}
+        <p className="min-h-[2.2rem] min-w-0 flex-1 text-xs text-ink-500 sm:min-h-0">
           {loading
             ? "Remembered riders and their usual trips. Loading your sandbox graph…"
             : !state
-              ? `Your sandbox could not load (${error}). These are the remembered riders as seeded.`
+              ? "Your sandbox could not load, so these are the riders as seeded."
               : recorded
-            ? "The graph database is unreachable, so this is the state recorded after the L closure run; routing and memory writes are paused."
-            : state.incident
-              ? `${state.incident.id} is open in your sandbox (${state.incident.routes.join("/")} closed)${published ? `; ${published.id} is published` : ""}. Routes below account for it.`
-              : "No closure is open in your sandbox, so these are everyday routes. Break a line in the control room to see them change."}
+                ? "Database unreachable: the recorded L-closure state. Routing and memory writes are paused."
+                : state.incident
+                  ? `${state.incident.id} is open (${state.incident.routes.join("/")} closed)${published ? `, ${published.id} published` : ""}. Routes account for it.`
+                  : "No closure is open, so these are everyday routes. Break a line in the control room."}
         </p>
       </div>
       <div className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(340px,420px)]">

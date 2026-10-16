@@ -75,7 +75,7 @@ export default function Home() {
     <>
       {/* Phones: claim, then the broken L, then the rest. Desktop: text left, map right across both rows. */}
       <section className="mx-auto grid w-full max-w-page gap-6 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-center lg:gap-x-12 lg:gap-y-6 lg:pb-16 lg:pt-12">
-        <div className="rise flex flex-col gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
+        <div className="lift flex flex-col gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="label text-ink-500">Graph Hacks · FalkorDB · Tracks 1 and 2</p>
           <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">
             When a subway line breaks, Detour measures what the city can still carry.

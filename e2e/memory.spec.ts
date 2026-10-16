@@ -7,6 +7,8 @@ test("reporting the elevator fixed supersedes the outage fact and changes Aisha'
   await page.goto("/riders?rider=aisha");
   const route = page.getByRole("button", { name: "Route Aisha now" });
   await expect(route).toBeVisible();
+  // The seeded riders render before the sandbox loads; wait for it, then skip if the database is down.
+  await expect(seen(page, /Loading your sandbox graph/)).toHaveCount(0, { timeout: 30_000 });
   test.skip(await route.isDisabled(), "Routing needs the graph database; this deployment is serving a recording.");
 
   await route.click();

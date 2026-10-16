@@ -239,6 +239,20 @@ p {
   animation: rise 360ms var(--ease-out) both;
 }
 
+@keyframes lift {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* For the largest text on a page: moves but is never invisible, so it counts as the first paint. */
+.lift {
+  animation: lift 360ms var(--ease-out) both;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
