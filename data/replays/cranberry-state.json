@@ -1,0 +1,485 @@
+{
+ "visitor": {
+  "sandbox": "detour:sbx:recordercranberry",
+  "created": false,
+  "copyMs": 0
+ },
+ "incident": {
+  "id": "INC-MVB3FBUE",
+  "title": "A and C: Cranberry Street Tunnel closed",
+  "report": "Water condition in the Cranberry Street Tunnel. No A or C trains between High St and Fulton St.",
+  "routes": [
+   "A",
+   "C"
+  ],
+  "stretch": [
+   "173",
+   "628"
+  ],
+  "closedEids": [
+   505,
+   561,
+   673,
+   711
+  ],
+  "status": "open",
+  "openedMs": 1792162744503
+ },
+ "plans": [
+  {
+   "id": "PLAN-MVB3FCKP",
+   "label": "No extra buses: steer riders onto open lines",
+   "status": "published",
+   "legs": [],
+   "vehicles": 0,
+   "overflowBefore": 0,
+   "overflowAfter": 0,
+   "unmetBefore": 0,
+   "unmetAfter": 0,
+   "strandedBefore": 0,
+   "strandedAfter": 0,
+   "createdMs": 1792162745449,
+   "publishedMs": 1792162745460,
+   "incident": "INC-MVB3FBUE"
+  }
+ ],
+ "riders": [
+  {
+   "id": "aisha",
+   "name": "Aisha",
+   "persona": "Architect, uses a wheelchair",
+   "departs": "08:10",
+   "stepFree": true,
+   "from": "630",
+   "to": "601",
+   "usualEids": [
+    1069,
+    1041,
+    1039,
+    1037,
+    1035,
+    1033,
+    1032,
+    1067,
+    1029,
+    1027,
+    1026,
+    1063
+   ],
+   "usualStations": [
+    "630",
+    "601"
+   ],
+   "usualMinutes": 23.9,
+   "preferences": [
+    {
+     "key": "needs",
+     "value": "step-free stations only",
+     "sinceMs": 1773446400000
+    }
+   ],
+   "advisory": null
+  },
+  {
+   "id": "dev",
+   "name": "Dev",
+   "persona": "Line cook, breakfast service",
+   "departs": "08:05",
+   "stepFree": false,
+   "from": "120",
+   "to": "618",
+   "usualEids": [
+    1029,
+    1027,
+    1026,
+    1063,
+    1061
+   ],
+   "usualStations": [
+    "120",
+    "618"
+   ],
+   "usualMinutes": 12.9,
+   "preferences": [
+    {
+     "key": "prefers",
+     "value": "fewest transfers",
+     "sinceMs": 1787184000000
+    }
+   ],
+   "advisory": null
+  },
+  {
+   "id": "grace",
+   "name": "Grace",
+   "persona": "Paralegal, downtown",
+   "departs": "08:20",
+   "stepFree": false,
+   "from": "636",
+   "to": "628",
+   "usualEids": [
+    563,
+    505
+   ],
+   "usualStations": [
+    "636",
+    "628"
+   ],
+   "usualMinutes": 10.4,
+   "preferences": [
+    {
+     "key": "prefers",
+     "value": "walking over buses",
+     "sinceMs": 1782864000000
+    }
+   ],
+   "advisory": {
+    "rider": "grace",
+    "text": "Walk to Hoyt St, then take the 2 to Fulton St. About 19 minutes.",
+    "atMs": 1792162745468,
+    "minutes": 19.3,
+    "route": [
+     "636",
+     "336",
+     "620",
+     "334",
+     "333",
+     "628"
+    ],
+    "stepFree": false
+   }
+  },
+  {
+   "id": "kwame",
+   "name": "Kwame",
+   "persona": "Bank operations lead",
+   "departs": "07:45",
+   "stepFree": false,
+   "from": "345",
+   "to": "628",
+   "usualEids": [
+    241,
+    291,
+    284,
+    240,
+    287,
+    271,
+    270
+   ],
+   "usualStations": [
+    "345",
+    "628"
+   ],
+   "usualMinutes": 26.7,
+   "preferences": [
+    {
+     "key": "prefers",
+     "value": "express trains",
+     "sinceMs": 1778457600000
+    }
+   ],
+   "advisory": null
+  },
+  {
+   "id": "lena",
+   "name": "Lena",
+   "persona": "Graduate student",
+   "departs": "08:00",
+   "stepFree": false,
+   "from": "1",
+   "to": "611",
+   "usualEids": [
+    1143,
+    1147,
+    1151,
+    1155,
+    1164,
+    1181,
+    1157,
+    1174,
+    1200,
+    1203
+   ],
+   "usualStations": [
+    "1",
+    "611"
+   ],
+   "usualMinutes": 29.3,
+   "preferences": [],
+   "advisory": null
+  },
+  {
+   "id": "maya",
+   "name": "Maya",
+   "persona": "ICU nurse, day shift",
+   "departs": "07:50",
+   "stepFree": false,
+   "from": "125",
+   "to": "602",
+   "usualEids": [
+    1037,
+    1035,
+    1033,
+    1032,
+    1067,
+    1029,
+    1027,
+    1026
+   ],
+   "usualStations": [
+    "125",
+    "602"
+   ],
+   "usualMinutes": 17.5,
+   "preferences": [
+    {
+     "key": "avoid",
+     "value": "crowded transfers",
+     "sinceMs": 1788307200000
+    }
+   ],
+   "advisory": null
+  },
+  {
+   "id": "sam",
+   "name": "Sam",
+   "persona": "Analyst, Financial District",
+   "departs": "08:15",
+   "stepFree": false,
+   "from": "610",
+   "to": "622",
+   "usualEids": [
+    353,
+    350
+   ],
+   "usualStations": [
+    "610",
+    "622"
+   ],
+   "usualMinutes": 16.2,
+   "preferences": [],
+   "advisory": null
+  },
+  {
+   "id": "tomas",
+   "name": "Tomás",
+   "persona": "High-school teacher",
+   "departs": "07:35",
+   "stepFree": false,
+   "from": "138",
+   "to": "602",
+   "usualEids": [
+    1059,
+    1057,
+    1055,
+    1053,
+    1051,
+    1050,
+    1065,
+    1047,
+    1045,
+    1044,
+    1069,
+    1041,
+    1039,
+    1037,
+    1035,
+    1033,
+    1032,
+    1067,
+    1029,
+    1027,
+    1026
+   ],
+   "usualStations": [
+    "138",
+    "602"
+   ],
+   "usualMinutes": 39.7,
+   "preferences": [],
+   "advisory": null
+  }
+ ],
+ "findings": [
+  {
+   "id": "F-MVB3FCKP",
+   "text": "During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses were needed.",
+   "kind": "capacity",
+   "validFromMs": 1792162745450,
+   "validToMs": null,
+   "example": null,
+   "about": [
+    "A",
+    "Fulton St",
+    "High St",
+    "C"
+   ],
+   "agent": "Control desk",
+   "supersedes": null
+  },
+  {
+   "id": "F-ELEV-2",
+   "text": "Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.",
+   "kind": "accessibility",
+   "validFromMs": 1791956700000,
+   "validToMs": null,
+   "example": true,
+   "about": [
+    "L",
+    "Myrtle-Wyckoff Avs"
+   ],
+   "agent": "Rider desk",
+   "supersedes": null
+  },
+  {
+   "id": "F-ELEV-1",
+   "text": "Elevator to the L platform at 14 St-Union Sq out of service.",
+   "kind": "accessibility",
+   "validFromMs": 1790920800000,
+   "validToMs": 1791559200000,
+   "example": true,
+   "about": [
+    "L",
+    "14 St-Union Sq"
+   ],
+   "agent": "Rider desk",
+   "supersedes": null
+  },
+  {
+   "id": "F-0903-1",
+   "text": "The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane.",
+   "kind": "capacity",
+   "validFromMs": 1788429600000,
+   "validToMs": null,
+   "example": true,
+   "about": [
+    "C",
+    "A",
+    "Jay St-MetroTech",
+    "Fulton St"
+   ],
+   "agent": "Scribe",
+   "supersedes": null
+  },
+  {
+   "id": "F-0612-1",
+   "text": "The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach.",
+   "kind": "capacity",
+   "validFromMs": 1781260200000,
+   "validToMs": null,
+   "example": true,
+   "about": [
+    "L",
+    "Bedford Av",
+    "Marcy Av"
+   ],
+   "agent": "Scribe",
+   "supersedes": null
+  },
+  {
+   "id": "F-0612-2",
+   "text": "During the L closure, Metropolitan Av/Lorimer St G platform crowding hit the safety limit 26 minutes in; the G needed 2 more trains an hour.",
+   "kind": "crowding",
+   "validFromMs": 1781260200000,
+   "validToMs": null,
+   "example": true,
+   "about": [
+    "G",
+    "Metropolitan Av/Lorimer St"
+   ],
+   "agent": "Scribe",
+   "supersedes": null
+  }
+ ],
+ "episodes": [
+  {
+   "tool": "route_rider",
+   "outcome": "answered",
+   "summary": "Grace: about 19 min, 0 transfers: walk Jay St-MetroTech → Hoyt St, then 2 Hoyt St → Fulton St (4 stops).",
+   "atMs": 1792162745467,
+   "agent": "rider-desk",
+   "queries": 3,
+   "ms": 4
+  },
+  {
+   "tool": "publish_plan",
+   "outcome": "answered",
+   "summary": "PLAN-MVB3FCKP published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
+   "atMs": 1792162745460,
+   "agent": "controller",
+   "queries": 5,
+   "ms": 5
+  },
+  {
+   "tool": "remember",
+   "outcome": "answered",
+   "summary": "Remembered F-MVB3FCKP: During A and C: Cranberry Street Tunnel closed, the open network absorbed all 16,268 displaced riders an hour at 8 a.m. without overloading a segment; no buses ",
+   "atMs": 1792162745456,
+   "agent": "controller",
+   "queries": 4,
+   "ms": 3
+  },
+  {
+   "tool": "propose_steering",
+   "outcome": "answered",
+   "summary": "PLAN-MVB3FCKP: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
+   "atMs": 1792162745450,
+   "agent": "controller",
+   "queries": 3,
+   "ms": 2
+  },
+  {
+   "tool": "measure_capacity",
+   "outcome": "answered",
+   "summary": "16,268 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 14,268 of 14,267 (100%); 0 cannot move.",
+   "atMs": 1792162745447,
+   "agent": "controller",
+   "queries": 19,
+   "ms": 826
+  },
+  {
+   "tool": "affected_riders",
+   "outcome": "answered",
+   "summary": "16,268 riders an hour had trips crossing the closure (1,308 origin-destination pairs). Within 1 stop of it: 2,400 riders at 5 stations; within 4 stops: 9,993 at 42 stations; 2,051 more start further out. Largest origin: Nostrand Av (1,703).",
+   "atMs": 1792162744605,
+   "agent": "controller",
+   "queries": 10,
+   "ms": 182
+  },
+  {
+   "tool": "close_line",
+   "outcome": "answered",
+   "summary": "Opened INC-MVB3FBUE. Closed 4 A/C segments across 2 stations (High St → Fulton St). At 8 a.m. the busiest closed segment carried 11,103 riders an hour.",
+   "atMs": 1792162744503,
+   "agent": "controller",
+   "queries": 6,
+   "ms": 9
+  },
+  {
+   "tool": "recall",
+   "outcome": "memory",
+   "summary": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1680, carried 1560",
+   "atMs": 1792162744494,
+   "agent": "controller",
+   "queries": 3,
+   "ms": 5
+  },
+  {
+   "tool": "resolve_places",
+   "outcome": "answered",
+   "summary": "Resolved: High St → High St (A,C) [173]; Fulton St → Fulton St (2,3,4,5,A,C,J,Z) [628]; A → route A; C → route C.",
+   "atMs": 1792162744493,
+   "agent": "controller",
+   "queries": 2,
+   "ms": 4
+  }
+ ],
+ "handoffs": [
+  {
+   "from": "controller",
+   "to": "rider-desk",
+   "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
+   "atMs": 1792162745460
+  }
+ ]
+}

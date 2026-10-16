@@ -5,7 +5,9 @@ import { hasLiveModel } from "@/lib/agent/models";
 import { ASK_INSTRUCTIONS, CONTROLLER_INSTRUCTIONS } from "@/lib/agent/prompts";
 import { recorder, replayRun } from "@/lib/agent/replay";
 import { runAgent } from "@/lib/agent/run";
+import { scriptedControl } from "@/lib/agent/scripted";
 import { ensureSandbox } from "@/lib/graph/tenancy";
+import { loadScenarios } from "@/lib/network/data";
 import { allow, ndjson, visitorId } from "@/lib/server/http";
 
 export const maxDuration = 300;
@@ -21,6 +23,13 @@ const Body = z.object({
   replay: z.boolean().optional(),
 });
 
+/**
+ * Runs an agent on the visitor's sandbox graph and streams its events as NDJSON. Three modes, named
+ * in the stream's first event:
+ *   live      a free model chooses the tools (Gemini, then Groq)
+ *   scripted  no model quota left: the controller's standard procedure, same tools, templated words
+ *   replay    the graph database is unreachable: a recorded run of a preset scenario
+ */
 export async function POST(request: Request) {
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -29,22 +38,51 @@ export async function POST(request: Request) {
   const body = parsed.data;
   const visitor = await visitorId();
   const agent = body.mode === "control" ? "controller" : "rider-desk";
+  const scenario = body.scenarioId ? (await loadScenarios()).find((s) => s.id === body.scenarioId) : undefined;
 
   return ndjson<AgentEvent>(
     async (send) => {
       let emit = send;
       const runId = `run-${Date.now().toString(36)}`;
-      const live = !body.replay && hasLiveModel() && (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30));
-      if (!live) {
-        emit({ type: "run", runId, agent, mode: "replay" });
+      const replay = async (note: string) => {
+        emit({ type: "run", runId, agent, mode: "replay", note });
         await replayRun(body.scenarioId, body.mode, emit, request.signal);
+      };
+      if (body.replay) return replay("A recorded run of this scenario.");
+
+      const sandbox = await ensureSandbox(visitor).catch(() => null);
+      if (!sandbox) return replay("The graph database is unreachable, so this is a recorded run of the same scenario.");
+      const base = { visitorId: visitor, sandbox: sandbox.graph, agentId: agent };
+
+      const quota = hasLiveModel() && (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false));
+      if (!quota) {
+        if (body.mode === "control" && scenario) {
+          emit({
+            type: "run",
+            runId,
+            agent,
+            mode: "scripted",
+            note: hasLiveModel()
+              ? "Your free model runs for this hour are used up, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
+              : "No model is configured, so the controller follows its standard procedure without one: the same tools on your own graph, with templated wording.",
+          });
+          const out = await scriptedControl(base, scenario, emit);
+          emit({ type: "done", agent, text: out.brief, steps: out.steps, model: null });
+          return;
+        }
+        emit({
+          type: "error",
+          agent,
+          message:
+            "Free-text questions need a live model, and the free quota is used up for now. Pick a preset scenario or a rider instead; those run on the graph without a model.",
+        });
         return;
       }
+
       const rec = recorder(body.scenarioId, body.mode, emit);
       emit = rec.emit;
       emit({ type: "run", runId, agent, mode: "live" });
-      const sandbox = await ensureSandbox(visitor);
-      const tools = buildTools({ visitorId: visitor, sandbox: sandbox.graph, agentId: agent }, emit, agent);
+      const tools = buildTools(base, emit, agent);
       const messages: ModelMessage[] = [
         ...(body.history ?? []).map((m) => ({ role: m.role, content: m.content }) as ModelMessage),
         { role: "user", content: body.message },

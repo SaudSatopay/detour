@@ -1,5 +1,5 @@
 {
-  "seedMs": 1267,
+  "seedMs": 837,
   "l-canarsie": {
     "displaced": 23445,
     "overflow": 24078,
@@ -20,7 +20,7 @@
         "cut": 0
       }
     ],
-    "queries": 145
+    "queries": 148
   },
   "lex-express": {
     "displaced": 31347,
@@ -42,17 +42,17 @@
         "cut": 0
       }
     ],
-    "queries": 136
+    "queries": 139
   },
   "cranberry": {
     "displaced": 16268,
-    "overflow": 24,
+    "overflow": 0,
     "stranded": 0,
     "directions": [
       {
         "direction": "forward",
         "required": 14267,
-        "absorbed": 14268,
+        "absorbed": 14267,
         "unmet": 0,
         "cut": 0
       },
@@ -64,6 +64,6 @@
         "cut": 0
       }
     ],
-    "queries": 135
+    "queries": 138
   }
 }

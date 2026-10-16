@@ -5,13 +5,14 @@ import { affectedRiders } from "../graph/tools/impact";
 import { closeLine } from "../graph/tools/incident";
 import { measureCapacity, shuttleCandidates, simulatePlan } from "../graph/tools/capacity";
 import { recall, remember } from "../graph/tools/memory";
+import { proposeSteering } from "../graph/tools/plan";
 import { resolvePlaces } from "../graph/tools/places";
 import { ridersAffected, routeRider } from "../graph/tools/riders";
 import type { ToolContext, ToolResult } from "../graph/tools/types";
 import { run } from "../graph/db";
 
 export type AgentEvent =
-  | { type: "run"; runId: string; agent: string; mode: "live" | "replay" }
+  | { type: "run"; runId: string; agent: string; mode: "live" | "scripted" | "replay"; note?: string }
   | { type: "model"; agent: string; model: string; reason?: string }
   | { type: "text"; agent: string; delta: string }
   | { type: "tool-call"; agent: string; id: string; tool: string; input: unknown }
@@ -61,7 +62,7 @@ function forModel(r: ToolResult): unknown {
 }
 
 /** Persists each tool call as an Episode in the visitor's graph: the incident's history is graph state. */
-async function recordEpisode(ctx: ToolContext, r: ToolResult) {
+export async function recordEpisode(ctx: ToolContext, r: ToolResult) {
   try {
     await run(
       ctx.sandbox,
@@ -162,6 +163,12 @@ export function buildTools(base: Omit<ToolContext, "tracer">, emit: Emit, agent:
       execute: wrap("simulate_plan", (ctx, i: { shuttles: { from_station_id: string; to_station_id: string; buses_per_hour: number }[]; label?: string }) =>
         simulatePlan(ctx, { shuttles: i.shuttles.map((s) => ({ from: s.from_station_id, to: s.to_station_id, busesPerHour: s.buses_per_hour })), label: i.label }),
       ),
+    }),
+    propose_steering: tool({
+      description:
+        "Record a plan with no buses, for when measure_capacity shows nobody stranded and no max-flow shortfall: riders are steered onto open lines. Publishable like a shuttle plan.",
+      inputSchema: z.object({}),
+      execute: wrap("propose_steering", (ctx) => proposeSteering(ctx)),
     }),
     riders_affected: tool({
       description: "Which remembered riders' usual trips cross the open closure, with their needs and preferences.",

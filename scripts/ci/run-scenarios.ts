@@ -16,7 +16,7 @@ import { closeLine } from "../../src/lib/graph/tools/incident";
 import { measureCapacity, shuttleCandidates, simulatePlan, type CapacityData, type Candidate } from "../../src/lib/graph/tools/capacity";
 import { recall, remember } from "../../src/lib/graph/tools/memory";
 import { resolvePlaces } from "../../src/lib/graph/tools/places";
-import { listPlans, publishPlan, resolveIncident } from "../../src/lib/graph/tools/plan";
+import { listPlans, proposeSteering, publishPlan, resolveIncident } from "../../src/lib/graph/tools/plan";
 import { ridersAffected, routeRider } from "../../src/lib/graph/tools/riders";
 import type { ToolContext, ToolResult } from "../../src/lib/graph/tools/types";
 
@@ -117,6 +117,7 @@ async function main() {
 
     const plans = await listPlans(ctx());
     if (plans[0]) keep("publish", await publishPlan(ctx(), { planId: plans[plans.length - 1].id, approvedBy: "ci" }));
+    keep("steer", await proposeSteering(ctx()));
     const affected = keep("riders-affected", await ridersAffected(ctx()));
     for (const r of (affected.data as { affected: { id: string; stepFree: boolean }[] }).affected) {
       keep(`route-${r.id}`, await routeRider(ctx(), { riderId: r.id, stepFree: r.stepFree }));

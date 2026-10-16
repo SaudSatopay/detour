@@ -228,9 +228,10 @@ async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: S
 
   return {
     direction: group.direction,
+    // Float noise can put max flow a hair above supply; it never moves more riders than there are.
     required: Math.round(group.required),
-    absorbed: Math.round(absorbed),
-    unmet: Math.round(group.required - absorbed),
+    absorbed: Math.round(Math.min(absorbed, group.required)),
+    unmet: Math.round(group.required - Math.min(absorbed, group.required)),
     flows,
     cut: cutNet,
     strandedAt,
@@ -241,7 +242,8 @@ export interface RerouteRun {
   rerouted: number;
   stranded: number;
   strandedPairs: number;
-  overloaded: { kind: "RUNS" | "BUS"; id: number; route: string; from: string; to: string; load: number; capacity: number; pct: number }[];
+  /** Segments the closure pushes over capacity; baseline is the load at 8 a.m. before it. */
+  overloaded: { kind: "RUNS" | "BUS"; id: number; route: string; from: string; to: string; load: number; baseline: number; capacity: number; pct: number }[];
   overflow: number;
   flows: FlowHighlight[];
 }
@@ -293,8 +295,19 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
     const s = segs.get(eid);
     if (!s) continue;
     const load = s.load - (prepared.freed.get(eid) ?? 0) + n;
-    if (load > s.capacity) {
-      overloaded.push({ kind: "RUNS", id: eid, route: s.route, from: s.from, to: s.to, load: Math.round(load), capacity: s.capacity, pct: Math.round((load / s.capacity) * 100) });
+    // Only overload the closure causes: a segment already over capacity at 8 a.m. counts only for what it adds.
+    if (load > s.capacity && load > s.load) {
+      overloaded.push({
+        kind: "RUNS",
+        id: eid,
+        route: s.route,
+        from: s.from,
+        to: s.to,
+        load: Math.round(load),
+        baseline: Math.round(s.load),
+        capacity: s.capacity,
+        pct: Math.round((load / s.capacity) * 100),
+      });
     }
   }
   if (withBus && busAdded.size) {
@@ -307,10 +320,11 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
     );
     for (const bus of buses.rows) {
       const load = busAdded.get(bus.bid) ?? 0;
-      if (load > bus.cap) overloaded.push({ kind: "BUS", id: bus.bid, route: "BUS", from: bus.a, to: bus.b, load: Math.round(load), capacity: bus.cap, pct: Math.round((load / bus.cap) * 100) });
+      if (load > bus.cap) overloaded.push({ kind: "BUS", id: bus.bid, route: "BUS", from: bus.a, to: bus.b, load: Math.round(load), baseline: 0, capacity: bus.cap, pct: Math.round((load / bus.cap) * 100) });
     }
   }
-  overloaded.sort((a, b) => b.load - b.capacity - (a.load - a.capacity));
+  const excess = (o: RerouteRun["overloaded"][number]) => o.load - Math.max(o.capacity, o.baseline);
+  overloaded.sort((a, b) => excess(b) - excess(a));
 
   const flows: FlowHighlight[] = [
     ...[...added].map(([id, flow]) => ({ kind: "RUNS" as const, id, from: segs.get(id)?.from ?? "", to: segs.get(id)?.to ?? "", flow: Math.round(flow) })),
@@ -327,7 +341,7 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
     stranded: Math.round(strandedList.reduce((s, p) => s + p.riders, 0)),
     strandedPairs: strandedList.length,
     overloaded,
-    overflow: Math.round(overloaded.reduce((s, o) => s + (o.load - o.capacity), 0)),
+    overflow: Math.round(overloaded.reduce((s, o) => s + excess(o), 0)),
     flows,
   };
 }

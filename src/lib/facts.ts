@@ -42,6 +42,10 @@ export const FACTS = {
     worstFrom: names.get(worstSeg?.from ?? "") ?? "",
     worstTo: names.get(worstSeg?.to ?? "") ?? "",
     stranded: heroL.stranded,
+    overloadedCount: heroL.overloaded.length,
+    overloadMin: Math.min(...heroL.overloaded.map((o) => o.pct)),
+    overloadMax: Math.max(...heroL.overloaded.map((o) => o.pct)),
+    overloadRoutes: [...new Set(heroL.overloaded.map((o) => segs.get(o.id)?.route ?? ""))].filter(Boolean),
   },
 };
 

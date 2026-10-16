@@ -4,7 +4,7 @@ import { Tracer } from "../graph/trace";
 import { ridersAffected, routeRider, type RiderProfile, type RouteAnswer } from "../graph/tools/riders";
 import { writeAdvisory } from "../graph/tools/plan";
 import type { ToolContext } from "../graph/tools/types";
-import type { Emit } from "./catalog";
+import { recordEpisode, type Emit } from "./catalog";
 import { isRetryable, modelChain } from "./models";
 import { RIDER_ADVISORY_INSTRUCTIONS } from "./prompts";
 
@@ -35,9 +35,9 @@ async function pool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>
 function templateAdvisory(rider: RiderProfile, answer: RouteAnswer | null, names: Map<string, string>): string {
   if (!answer) return `No open route reaches ${names.get(rider.to)} right now${rider.stepFree ? " step-free" : ""}; the control desk is adding shuttle buses.`;
   const legs = answer.legs
-    .map((l) => (l.kind === "WALK" ? `walk to ${names.get(l.to)}` : l.kind === "BUS" ? `the shuttle bus to ${names.get(l.to)}` : `the ${l.route} to ${names.get(l.to)}`))
+    .map((l) => (l.kind === "WALK" ? `walk to ${names.get(l.to)}` : l.kind === "BUS" ? `take the shuttle bus to ${names.get(l.to)}` : `take the ${l.route} to ${names.get(l.to)}`))
     .join(", then ");
-  return `Take ${legs}. About ${Math.round(answer.minutes)} minutes${rider.stepFree ? ", step-free" : ""}.`;
+  return `${legs[0].toUpperCase()}${legs.slice(1)}. About ${Math.round(answer.minutes)} minutes${rider.stepFree ? ", step-free" : ""}.`;
 }
 
 /**
@@ -60,6 +60,7 @@ export async function runRiderDesk(base: Omit<ToolContext, "tracer" | "agentId">
     const ctx: ToolContext = { ...base, agentId: "rider-desk", tracer: new Tracer() };
     emit({ type: "tool-call", agent, id: `route-${rider.id}`, tool: "route_rider", input: { rider_id: rider.id, step_free: rider.stepFree } });
     const routed = await routeRider(ctx, { riderId: rider.id, stepFree: rider.stepFree });
+    void recordEpisode(ctx, routed);
     emit({ type: "tool-result", agent, id: `route-${rider.id}`, result: routed });
     const answer = routed.data.answer;
 

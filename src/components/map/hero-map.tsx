@@ -63,7 +63,7 @@ export function HeroMap({ className = "" }: { className?: string }) {
           overlay={overlay}
           focus={FOCUS}
           className="h-full w-full"
-          label="The L train closed between Bedford Av and 8 Av. Displaced riders' fastest alternatives overload the G train and the J and M lines; the overflow reaches the E train in Queens."
+          label="The L train closed between Bedford Av and 8 Av. Displaced riders' fastest alternatives overload the G train between Metropolitan Av and Court Sq."
           showLabels="major"
         />
       ) : (

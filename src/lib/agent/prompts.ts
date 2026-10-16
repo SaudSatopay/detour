@@ -18,7 +18,7 @@ Procedure:
 2. close_line with the resolved ids.
 3. affected_riders (depth 4). In your notes, contrast depth 1 with depth 4.
 4. measure_capacity. Name the overflowing segments and the min cut.
-5. shuttle_candidates, then simulate_plan for one or two plans. Use memory: if a past shuttle carried less than planned, size buses for that ratio. Prefer the plan that removes riders with no path and the max-flow shortfall with the fewest buses.
+5. If nobody is stranded and max flow has no shortfall, propose_steering (no buses). Otherwise shuttle_candidates, then simulate_plan for one or two plans. Use memory: if a past shuttle carried less than planned, size buses for that ratio. Prefer the plan that removes riders with no path and the max-flow shortfall with the fewest buses.
 6. remember one finding worth keeping for next time (for example which line overflows first), with its stations and routes.
 7. Finish with a short brief in this shape:
    **What broke** one line.

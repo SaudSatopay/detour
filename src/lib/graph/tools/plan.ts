@@ -78,6 +78,65 @@ export async function publishPlan(ctx: ToolContext, input: { planId: string; app
   });
 }
 
+const fmt = (n: number) => (Math.round(n) || 0).toLocaleString("en-US");
+
+/**
+ * A plan with no buses, for closures the open network can absorb: riders are steered onto the lines
+ * max flow uses. Recorded and published like a shuttle plan, so the rider desk still gets the handoff.
+ */
+export async function proposeSteering(ctx: ToolContext): Promise<ToolResult<{ plan: PlanRecord | null }>> {
+  const incident = await openIncident(ctx);
+  if (!incident) return result(ctx, "propose_steering", "not_in_graph", "No closure is open. Close a line first.", { plan: null });
+  const measured = await ctx.tracer.run<{ overflow: number | null; stranded: number | null; unmet: number | null }>(
+    "the measured capacity picture",
+    ctx.sandbox,
+    "MATCH (i:Incident {id: $id}) RETURN i.overflow AS overflow, i.stranded AS stranded, i.unmet AS unmet",
+    { id: incident.id },
+    { readOnly: true },
+  );
+  const m = measured.rows[0];
+  if (m?.overflow === null || m?.overflow === undefined) {
+    return result(ctx, "propose_steering", "not_in_graph", "Measure capacity first: a steering plan rests on the capacity picture.", { plan: null });
+  }
+  const overflow = m.overflow ?? 0;
+  const stranded = m.stranded ?? 0;
+  const unmet = m.unmet ?? 0;
+  const id = `PLAN-${Date.now().toString(36).toUpperCase()}`;
+  const label = "No extra buses: steer riders onto open lines";
+  await ctx.tracer.run(
+    "record the plan",
+    ctx.sandbox,
+    `MATCH (i:Incident {id: $incident}), (ag:Agent {id: $agent})
+     CREATE (ag)-[:PROPOSED {atMs: timestamp()}]->(p:Plan {id: $id, label: $label, status: 'simulated', legs: '[]',
+       vehicles: 0, overflowBefore: $o, overflowAfter: $o, unmetBefore: $u, unmetAfter: $u,
+       strandedBefore: $s, strandedAfter: $s, createdMs: timestamp()})-[:FOR]->(i)`,
+    { incident: incident.id, agent: ctx.agentId, id, label, o: overflow, u: unmet, s: stranded },
+  );
+  const why =
+    !overflow && !stranded
+      ? "Every displaced rider has an open path and nothing overflows on the fastest paths"
+      : !unmet
+        ? `Fastest paths overflow by ${fmt(overflow)} riders an hour, but max flow carries every displaced rider if they are spread onto other lines`
+        : `This leaves ${fmt(unmet)} riders an hour the network cannot carry and ${fmt(stranded)} with no open path; a shuttle would do better`;
+  const plan: PlanRecord = {
+    id,
+    label,
+    status: "simulated",
+    legs: [],
+    vehicles: 0,
+    overflowBefore: overflow,
+    overflowAfter: overflow,
+    unmetBefore: unmet,
+    unmetAfter: unmet,
+    strandedBefore: stranded,
+    strandedAfter: stranded,
+    createdMs: Date.now(),
+    publishedMs: null,
+    incident: incident.id,
+  };
+  return result(ctx, "propose_steering", "answered", `${id}: no extra buses. ${why}. Once published, the rider desk routes each remembered rider.`, { plan });
+}
+
 export async function writeAdvisory(
   ctx: ToolContext,
   input: { riderId: string; text: string; minutes: number | null; stations: string[]; stepFree: boolean },

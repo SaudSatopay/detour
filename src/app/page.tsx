@@ -17,8 +17,10 @@ const FINDINGS = [
   },
   {
     n: "02",
-    title: "Their fastest way around overloads the G.",
-    body: "Left to pick their own fastest path, displaced riders crowd onto the G between Metropolitan Av and Court Sq, and the overflow carries on to the E in Queens, three hops from the closure.",
+    title: `Their fastest way around overloads the ${L.overloadRoutes.join(" and ")}.`,
+    body: `Left to pick their own fastest route, displaced riders transfer at Metropolitan Av/Lorimer St and pile onto the ${L.overloadRoutes.join(
+      " and ",
+    )}: ${L.overloadedCount} segments run at ${L.overloadMin} to ${L.overloadMax}% of capacity. A short train with a lot of spare seats elsewhere on the network is still a short train.`,
     stat: `${L.worstPct}%`,
     unit: `of capacity on the ${L.worstRoute}, ${L.worstFrom} to ${L.worstTo}`,
   },

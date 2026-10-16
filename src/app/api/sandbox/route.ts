@@ -1,64 +1,34 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { z } from "zod";
-import { run } from "@/lib/graph/db";
+import { sandboxState } from "@/lib/graph/state";
 import { Tracer } from "@/lib/graph/trace";
 import { ensureSandbox, resetSandbox } from "@/lib/graph/tenancy";
-import { openIncident } from "@/lib/graph/tools/incident";
-import { listPlans, resolveIncident } from "@/lib/graph/tools/plan";
-import { listRiders } from "@/lib/graph/tools/riders";
+import { resolveIncident } from "@/lib/graph/tools/plan";
 import { friendlyError, visitorId } from "@/lib/server/http";
 
 export const maxDuration = 60;
 
-/** The visitor's sandbox: open incident, plans, remembered riders with their latest advisory, memory. */
-export async function GET() {
+const SCENARIO = /^[a-z0-9-]{1,40}$/;
+
+/**
+ * The visitor's sandbox: open incident, plans, remembered riders with their latest advisory, memory.
+ * When the database is unreachable and the page is showing a recorded run, serves the state recorded
+ * with it (labeled as recorded).
+ */
+export async function GET(request: Request) {
+  const recorded = new URL(request.url).searchParams.get("recorded");
   try {
-    const visitor = await visitorId();
-    const sandbox = await ensureSandbox(visitor);
-    const ctx = { visitorId: visitor, sandbox: sandbox.graph, agentId: "controller", tracer: new Tracer() };
-    const [incident, riders, advisories, findings, episodes] = await Promise.all([
-      openIncident(ctx),
-      listRiders(ctx),
-      run<{ rider: string; text: string; atMs: number; minutes: number; route: string[]; stepFree: boolean }>(
-        sandbox.graph,
-        `MATCH (a:Advisory)-[:FOR]->(r:Rider)
-         RETURN r.id AS rider, a.text AS text, a.atMs AS atMs, a.minutes AS minutes, a.route AS route, a.stepFree AS stepFree
-         ORDER BY atMs DESC`,
-        {},
-        { readOnly: true },
-      ),
-      run<{ id: string; text: string; kind: string; validFromMs: number; validToMs: number | null; example: boolean | null; about: string[]; agent: string | null; supersedes: string | null }>(
-        sandbox.graph,
-        `MATCH (f:Finding)
-         OPTIONAL MATCH (f)-[:ABOUT]->(n)
-         OPTIONAL MATCH (ag:Agent)-[:WROTE]->(f)
-         OPTIONAL MATCH (f)-[:SUPERSEDES]->(old:Finding)
-         RETURN f.id AS id, f.text AS text, f.kind AS kind, f.validFromMs AS validFromMs, f.validToMs AS validToMs,
-                f.example AS example, collect(DISTINCT coalesce(n.name, n.id)) AS about, ag.name AS agent, old.id AS supersedes
-         ORDER BY validFromMs DESC`,
-        {},
-        { readOnly: true },
-      ),
-      run<{ tool: string; outcome: string; summary: string; atMs: number; agent: string; queries: number; ms: number }>(
-        sandbox.graph,
-        `MATCH (ag:Agent)-[:ACTED]->(e:Episode)
-         RETURN e.tool AS tool, e.outcome AS outcome, e.summary AS summary, e.atMs AS atMs, ag.id AS agent, e.queries AS queries, e.ms AS ms
-         ORDER BY atMs DESC LIMIT 40`,
-        {},
-        { readOnly: true },
-      ),
-    ]);
-    const plans = incident ? await listPlans(ctx, incident.id) : [];
-    const latest = new Map<string, (typeof advisories.rows)[number]>();
-    for (const a of advisories.rows) if (!latest.has(a.rider)) latest.set(a.rider, a);
-    return Response.json({
-      visitor: { sandbox: sandbox.graph, created: sandbox.created, copyMs: Math.round(sandbox.copyMs) },
-      incident,
-      plans,
-      riders: riders.map((r) => ({ ...r, advisory: latest.get(r.id) ?? null })),
-      findings: findings.rows,
-      episodes: episodes.rows,
-    });
+    return Response.json(await sandboxState(await visitorId()));
   } catch (error) {
+    if (recorded && SCENARIO.test(recorded)) {
+      try {
+        const file = join(/* turbopackIgnore: true */ process.cwd(), "data", "replays", `${recorded}-state.json`);
+        return Response.json({ ...JSON.parse(await readFile(file, "utf8")), recorded });
+      } catch {
+        // fall through to the error
+      }
+    }
     return Response.json({ error: friendlyError(error) }, { status: 503 });
   }
 }

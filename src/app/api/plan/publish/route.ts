@@ -1,34 +1,34 @@
 import { z } from "zod";
 import type { AgentEvent } from "@/lib/agent/catalog";
-import { runRiderDesk } from "@/lib/agent/riders";
-import { Tracer } from "@/lib/graph/trace";
+import { publishAndAdvise } from "@/lib/agent/publish";
+import { replayRun } from "@/lib/agent/replay";
 import { ensureSandbox } from "@/lib/graph/tenancy";
-import { publishPlan } from "@/lib/graph/tools/plan";
 import { ndjson, visitorId } from "@/lib/server/http";
 
 export const maxDuration = 120;
 
-const Body = z.object({ planId: z.string().regex(/^PLAN-[A-Z0-9]+$/) });
+const Body = z.object({
+  planId: z.string().regex(/^PLAN-[A-Z0-9]+$/),
+  /** Set when the plan came from a recorded run: plays the recorded approval instead of writing to the graph. */
+  recorded: z.string().regex(/^[a-z0-9-]{1,40}$/).optional(),
+});
 
 /** Human approval: publishes the plan into the graph, hands off to the rider desk, runs one agent per affected rider. */
 export async function POST(request: Request) {
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Send { planId: 'PLAN-…' }." }, { status: 400 });
-  const visitor = await visitorId();
+  const body = parsed.data;
 
   return ndjson<AgentEvent>(
     async (emit) => {
-      const sandbox = await ensureSandbox(visitor);
-      const base = { visitorId: visitor, sandbox: sandbox.graph };
-      const published = await publishPlan({ ...base, agentId: "controller", tracer: new Tracer() }, { planId: parsed.data.planId, approvedBy: "dispatcher" });
-      emit({ type: "tool-result", agent: "controller", id: "publish", result: published });
-      if (published.outcome !== "answered") {
-        emit({ type: "error", agent: "controller", message: published.summary });
+      if (body.recorded) {
+        emit({ type: "run", runId: `run-${Date.now().toString(36)}`, agent: "rider-desk", mode: "replay" });
+        await replayRun(body.recorded, "publish", emit, request.signal);
         return;
       }
-      emit({ type: "handoff", from: "controller", to: "rider-desk", note: "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead." });
-      const advisories = await runRiderDesk(base, emit);
-      emit({ type: "done", agent: "rider-desk", text: `${advisories.length} advisories written.`, steps: advisories.length, model: null });
+      const visitor = await visitorId();
+      const sandbox = await ensureSandbox(visitor);
+      await publishAndAdvise({ visitorId: visitor, sandbox: sandbox.graph }, body.planId, emit);
     },
     (message) => ({ type: "error", agent: "rider-desk", message }),
   );

@@ -21,6 +21,12 @@ export interface RememberedIncident {
   shuttles: { from: string; to: string; bph: number; planned: number; observed: number }[];
 }
 
+export interface RecallData {
+  findings: RememberedFinding[];
+  incidents: RememberedIncident[];
+  playbooks: RememberedPlaybook[];
+}
+
 export interface RememberedPlaybook {
   id: string;
   title: string;
@@ -36,7 +42,7 @@ const day = (ms: number) =>
 export async function recall(
   ctx: ToolContext,
   input: { stations?: string[]; routes?: string[] },
-): Promise<ToolResult<{ findings: RememberedFinding[]; incidents: RememberedIncident[]; playbooks: RememberedPlaybook[] }>> {
+): Promise<ToolResult<RecallData>> {
   const stations = input.stations ?? [];
   const routes = (input.routes ?? []).map((r) => r.toUpperCase());
 
