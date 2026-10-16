@@ -7,17 +7,13 @@ import { FalkorDB } from "falkordb";
  */
 type GlobalWithFalkor = typeof globalThis & { __falkor?: Promise<FalkorDB> };
 
-export class GraphConfigError extends Error {
+class GraphConfigError extends Error {
   constructor() {
     super(
       "FALKORDB_URL is not set. Copy .env.example to .env.local and point it at a FalkorDB instance (falkor://default:<password>@<host>:<port>).",
     );
     this.name = "GraphConfigError";
   }
-}
-
-export function hasGraphConfig(): boolean {
-  return Boolean(process.env.FALKORDB_URL);
 }
 
 export function connect(): Promise<FalkorDB> {

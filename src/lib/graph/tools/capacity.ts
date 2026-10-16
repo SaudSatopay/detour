@@ -2,7 +2,7 @@ import { loadNetwork } from "../../network/data";
 import type { Network } from "../../network/types";
 import { copyGraph, deleteGraph, listGraphs } from "../db";
 import { busLeg, BUS_FLEET, directionOf, freedLoad, haversineMeters, minCut, netBalance, type Direction, type DisplacedPair, type FlowEdge } from "../flow";
-import { TEMPLATE_GRAPH, forkGraph } from "../names";
+import { forkGraph } from "../names";
 import { displacedPairs } from "./impact";
 import { openIncident, type Incident } from "./incident";
 import { result, type CutHighlight, type FlowHighlight, type ToolContext, type ToolResult } from "./types";
@@ -624,20 +624,4 @@ export async function simulatePlan(
     await ctx.tracer.command("drop the plan fork", planFork, `GRAPH.DELETE ${planFork}`, () => deleteGraph(planFork));
   }
   });
-}
-
-/** Baseline times on the untouched network, used to report how much longer rerouted trips take. */
-export async function baselineMinutes(ctx: ToolContext, pairs: { o: string; d: string }[]): Promise<Map<string, number>> {
-  const res = await ctx.tracer.run<{ o: string; d: string; minutes: number }>(
-    "baseline fastest paths",
-    TEMPLATE_GRAPH,
-    `UNWIND $pairs AS p
-     MATCH (a:Station {id: p.o}), (b:Station {id: p.d})
-     CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['BOARD', 'RIDE', 'ALIGHT', 'WALK'], weightProp: 'minutes'})
-     YIELD pathWeight
-     RETURN p.o AS o, p.d AS d, pathWeight AS minutes`,
-    { pairs },
-    { readOnly: true, timeoutMs: 30_000 },
-  );
-  return new Map(res.rows.map((r) => [`${r.o}>${r.d}`, r.minutes]));
 }

@@ -4,7 +4,7 @@ import type { DisplacedPair } from "../flow";
 import { openIncident, type Incident } from "./incident";
 import { result, type ToolContext, type ToolResult } from "./types";
 
-export const MAX_DEPTH = 8;
+const MAX_DEPTH = 8;
 
 /** Origin-destination pairs whose baseline path crosses a closed segment (shared demand graph). */
 export async function displacedPairs(ctx: ToolContext, closedEids: number[]): Promise<DisplacedPair[]> {
@@ -25,7 +25,7 @@ export async function displacedPairs(ctx: ToolContext, closedEids: number[]): Pr
  * MAX_DEPTH: one frontier query per hop, which stays linear where a variable-length pattern
  * would enumerate every parallel route path.
  */
-export async function hopsToStretch(ctx: ToolContext, incident: Incident): Promise<Map<string, number>> {
+async function hopsToStretch(ctx: ToolContext, incident: Incident): Promise<Map<string, number>> {
   const hops = new Map<string, number>(incident.stretch.map((id) => [id, 0]));
   let frontier = [...incident.stretch];
   for (let k = 1; k <= MAX_DEPTH && frontier.length; k++) {

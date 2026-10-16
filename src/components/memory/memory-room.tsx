@@ -69,7 +69,7 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
   if (loading) return <div className="min-h-[100dvh] w-full animate-pulse rounded-md bg-sunk" aria-busy="true" aria-label="Loading memory" />;
   if (!state) {
     return (
-      <div className="flex min-h-[60dvh] max-w-[60ch] flex-col gap-3 py-6">
+      <div className="flex min-h-[60dvh] max-w-prose flex-col gap-3 py-6">
         <h2 className="font-display text-3xl font-bold">Memory could not load.</h2>
         <p className="text-ink-700">{error}</p>
         <button type="button" onClick={reload} className="w-fit rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold text-paper">
@@ -89,7 +89,7 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
   return (
     // A different element from the placeholder, so React mounts it fresh instead of resizing one node (a layout shift).
     <article className="flex flex-col gap-14">
-      <header className="flex max-w-[70ch] flex-col gap-4">
+      <header className="flex max-w-prose flex-col gap-4">
         {state.recorded ? null : <p className="text-ink-700">Everything below lives in your own sandbox graph, {state.visitor.sandbox}.</p>}
         <div className="flex flex-wrap items-center gap-3 text-sm">
           {state.recorded ? (
@@ -135,7 +135,7 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
       </section>
 
       <section className="flex flex-col gap-4" aria-label="Episodes">
-        <div className="flex max-w-[68ch] flex-col gap-2">
+        <div className="flex max-w-prose flex-col gap-2">
           <h2 className="font-display text-2xl font-bold">What the agents did</h2>
           <p className="text-sm text-ink-700">
             Every tool call is written back as an episode: who acted, the answer shape, how many queries it took. This is the history a later run
@@ -153,7 +153,22 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
                 </span>
                 <span className="min-w-0">
                   <OutcomeChip outcome={e.outcome as Outcome} />
-                  <span className="mt-1 line-clamp-2 block text-xs text-ink-700">{e.summary}</span>
+                  {e.summary.includes(" | ") ? (
+                    // A recall lists several facts: show the first few whole, one per line.
+                    <span className="mt-1 flex flex-col gap-0.5 text-xs text-ink-700">
+                      {e.summary
+                        .split(" | ")
+                        .slice(0, 3)
+                        .map((fact) => (
+                          <span key={fact} className="line-clamp-1 block">
+                            {fact}
+                          </span>
+                        ))}
+                      {e.summary.split(" | ").length > 3 ? <span className="text-ink-500">and {e.summary.split(" | ").length - 3} more</span> : null}
+                    </span>
+                  ) : (
+                    <span className="mt-1 line-clamp-2 block text-xs text-ink-700">{e.summary}</span>
+                  )}
                 </span>
                 <span className="tabular font-mono text-xs text-ink-500 sm:text-right">
                   {e.queries}q · {e.ms} ms
@@ -244,7 +259,7 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
       </section>
 
       <section className="flex flex-col gap-4" aria-label="How memory is stored">
-        <div className="flex max-w-[68ch] flex-col gap-2">
+        <div className="flex max-w-prose flex-col gap-2">
           <h2 className="font-display text-2xl font-bold">How memory is stored</h2>
           <p className="text-sm text-ink-700">Eleven relationship types in the same graph as the network. Recall is a match from the stations and routes an agent is about to touch.</p>
         </div>

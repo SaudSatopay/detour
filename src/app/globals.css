@@ -134,8 +134,14 @@
   --text-5xl: 3.815rem;
   --text-5xl--line-height: 3.7rem;
 
-  /* The column long pages, the footer and the hero share. */
+  /* The column long pages, the footer and the hero share; reading measures for prose and short headings. */
   --container-page: 73.75rem;
+  --container-prose: 65ch;
+  --container-heading: 40ch;
+  --container-tight: 24ch;
+
+  --leading-display: 0.98;
+  --text-code: 0.8125rem;
 
   --radius-sm: 2px;
   --radius-md: 4px;

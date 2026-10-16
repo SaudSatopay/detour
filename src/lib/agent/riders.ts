@@ -8,7 +8,7 @@ import { recordEpisode, type Emit } from "./catalog";
 import { isRetryable, modelChain } from "./models";
 import { RIDER_ADVISORY_INSTRUCTIONS } from "./prompts";
 
-export interface Advisory {
+interface Advisory {
   riderId: string;
   name: string;
   text: string;

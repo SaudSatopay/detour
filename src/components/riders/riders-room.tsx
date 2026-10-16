@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import type { AgentEvent } from "@/lib/agent/catalog";
 import { readNdjson } from "@/lib/client/ndjson";
 import type { SandboxState } from "@/lib/graph/state";
@@ -94,7 +94,7 @@ function RouteCard({ title, result, colorOf, nameOf, tone }: { title: string; re
 
 const noSubscribe = () => () => {};
 
-export interface ElevatorSeed {
+interface ElevatorSeed {
   text: string;
   kind: string;
   validFromMs: number;
@@ -119,6 +119,7 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
   const [question, setQuestion] = useState("");
   const [ask, dispatch] = useReducer(reduce, initialRun);
   const askAbort = useRef<AbortController | null>(null);
+  const strip = useRef<HTMLUListElement>(null);
 
   const recorded = Boolean(state?.recorded);
   // Live controls need the visitor's graph: not while it loads, not when the database is down.
@@ -195,6 +196,14 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
   }, [askPath, current, published, rider, state?.incident?.closedEids]);
   const focus = overlay.path?.length ? overlay.path : rider ? [rider.from, rider.to, ...(rider.usualStations ?? [])] : undefined;
 
+  // Keep the selected rider's card in view (the strip scrolls sideways on phones).
+  useEffect(() => {
+    const list = strip.current;
+    const card = list?.querySelector<HTMLElement>('[aria-current="true"]');
+    // Sideways only, inside the strip: never move the page.
+    if (list && card) list.scrollTo({ left: card.offsetLeft - list.clientWidth / 2 + card.clientWidth / 2 });
+  }, [selected]);
+
   const hit = (r: Rider) => r.usualEids?.some((e) => closed.has(e));
 
   return (
@@ -206,7 +215,14 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
           {loading
             ? "Remembered riders and their usual trips. Loading your sandbox graph…"
             : !state
-              ? "Your sandbox could not load, so these are the riders as seeded."
+              ? (
+                <>
+                  <span title={error ?? undefined}>Your sandbox could not load, so these are the riders as seeded.</span>{" "}
+                  <button type="button" onClick={reload} className="underline decoration-line-strong underline-offset-2 hover:text-ink-900">
+                    Try again
+                  </button>
+                </>
+              )
               : recorded
                 ? "Database unreachable: the recorded L-closure state. Routing and memory writes are paused."
                 : state.incident
@@ -216,7 +232,7 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
       </div>
       <div className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(340px,420px)]">
         <nav aria-label="Remembered riders" className="min-w-0 border-b border-line lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-r">
-          <ul className="flex gap-2 overflow-x-auto p-3 lg:flex-col lg:overflow-x-visible">
+          <ul ref={strip} className="relative flex gap-2 overflow-x-auto p-3 lg:flex-col lg:overflow-x-visible">
             {riders.map((r) => {
               const active = r.id === rider?.id;
               return (

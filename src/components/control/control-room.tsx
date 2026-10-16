@@ -34,8 +34,10 @@ function ModeBadge({ state }: { state: RunState }) {
 
 // The step caption (top-left) and the legend (bottom-left) sit over the map; no station labels under them.
 const MAP_OVERLAYS: LabelExclusion[] = [
-  { anchor: "tl", w: 470, h: 52 },
-  { anchor: "bl", w: 620, h: 52 },
+  { anchor: "tl", w: 430, h: 52 },
+  { anchor: "bl", w: 540, h: 56, minWidth: 640 },
+  // On phones the legend wraps across the full width.
+  { anchor: "bl", w: 640, h: 88, maxWidth: 639 },
 ];
 
 function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] }) {

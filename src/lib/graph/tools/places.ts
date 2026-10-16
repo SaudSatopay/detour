@@ -1,7 +1,7 @@
 import { loadNetwork } from "../../network/data";
 import { result, type ToolContext, type ToolResult } from "./types";
 
-export interface StationMatch {
+interface StationMatch {
   id: string;
   name: string;
   label: string;
@@ -10,7 +10,7 @@ export interface StationMatch {
   score: number;
 }
 
-export interface PlaceMatch {
+interface PlaceMatch {
   query: string;
   kind: "station" | "route" | "unknown";
   stations?: StationMatch[];
@@ -21,7 +21,7 @@ export interface PlaceMatch {
 const ROUTE_WORDS = /^(?:the\s+)?([a-z0-9]{1,2})(?:\s*(?:train|trains|line|service))?$/i;
 
 /** RediSearch query text: words only, every term required, short numbers kept. */
-export function fulltextQuery(name: string, fuzzy = false): string {
+function fulltextQuery(name: string, fuzzy = false): string {
   const terms = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")

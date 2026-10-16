@@ -29,7 +29,7 @@ const PROOF: Record<string, Proof> = { "l-canarsie": proofL as Proof, "lex-expre
 const VERIFY: Record<string, Verify> = { "l-canarsie": verifyL as Verify, "lex-express": verifyLex as Verify, cranberry: verifyCranberry as Verify };
 const SUMMARY = summary as unknown as Summary;
 
-export interface AgreementRow {
+interface AgreementRow {
   scenario: string;
   title: string;
   direction: string;
@@ -64,7 +64,7 @@ export function depthAgreement(scenario: string): { k: number; falkor: number; n
   });
 }
 
-export interface ToolCost {
+interface ToolCost {
   key: string;
   tool: string;
   queries: number;
@@ -83,7 +83,7 @@ export function toolCosts(): ToolCost[] {
   }));
 }
 
-export interface CatalogEntry {
+interface CatalogEntry {
   tool: string;
   queries: { label: string; graph: string; cypher: string }[];
 }
@@ -112,4 +112,3 @@ export function cypherCatalog(): CatalogEntry[] {
 
 export const BENCH = bench;
 export const META = meta;
-export const SCENARIO_SUMMARY = SUMMARY;

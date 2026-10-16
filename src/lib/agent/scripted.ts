@@ -158,13 +158,13 @@ export async function scriptedControl(
   const cut = peak?.unmet ? peak.cut.slice(0, 3) : [];
   const past = shuttleRatio(memory);
   const remembered = [
-    ...(memory?.findings ?? []).filter((f) => f.validToMs === null || f.validToMs === undefined).slice(0, 2).map((f) => `${f.text} (since ${day(f.validFromMs)})`),
+    ...(memory?.findings ?? []).filter((f) => f.validToMs === null || f.validToMs === undefined).slice(0, 2).map((f) => `Since ${day(f.validFromMs)}: ${f.text}`),
     ...(past ? [`${past.note[0].toUpperCase()}${past.note.slice(1)}.`] : []),
   ];
   const overloads = cap?.reroute.overloaded.length ?? 0;
 
   const brief = [
-    `**What broke** ${scenario.title}: ${lines} closed from ${name(first)} to ${name(last)}.`,
+    `**What broke** No ${lines} service between ${name(first)} and ${name(last)}.`,
     `**Who it hits** ${fmt(imp?.totalRiders ?? 0)} riders an hour; ${fmt(d1?.riders ?? 0)} board within one stop of the closure and ${fmt(d4?.riders ?? 0)} within four.`,
     `**What the network can take** ${
       worst

@@ -2,7 +2,7 @@ import { isStepCount, streamText, type ModelMessage, type ToolSet } from "ai";
 import { isRetryable, modelChain, type ChainedModel } from "./models";
 import type { Emit } from "./catalog";
 
-export interface RunOptions {
+interface RunOptions {
   agent: string;
   instructions: string;
   messages: ModelMessage[];
@@ -12,7 +12,7 @@ export interface RunOptions {
   abortSignal?: AbortSignal;
 }
 
-export interface RunResult {
+interface RunResult {
   text: string;
   steps: number;
   model: string | null;
@@ -49,7 +49,7 @@ export async function runAgent({ agent, instructions, messages, tools, emit, max
   return { text: finalText, steps: maxSteps, model: chain[current].id };
 }
 
-export class NoModelError extends Error {
+class NoModelError extends Error {
   constructor() {
     super("No LLM key is configured (GOOGLE_GENERATIVE_AI_API_KEY or GROQ_API_KEY).");
     this.name = "NoModelError";

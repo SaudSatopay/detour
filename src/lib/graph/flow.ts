@@ -12,7 +12,7 @@ export interface DisplacedPair {
   via: number[];
 }
 
-export interface SegmentEnds {
+interface SegmentEnds {
   from: string;
   to: string;
 }
@@ -113,7 +113,7 @@ export function haversineMeters(aLat: number, aLon: number, bLat: number, bLon: 
 }
 
 /** Bus planning numbers from docs/model.md: 70 riders per bus, 4 min + 3 min per km of street running. */
-export const BUS_RIDERS = 70;
+const BUS_RIDERS = 70;
 export const BUS_FLEET = 120;
 
 export function busLeg(meters: number, busesPerHour: number) {

@@ -14,10 +14,10 @@ interface Hero {
   peak: { required: number; absorbed: number; unmet: number };
 }
 
-// The numbers card: bottom-left on phones, top-left from the sm breakpoint.
+// The numbers card (242 x 145 px at a 12 px inset, measured): bottom-left on phones, top-left from the sm breakpoint.
 const CARD: LabelExclusion[] = [
-  { anchor: "bl", w: 300, h: 160, maxWidth: 639 },
-  { anchor: "tl", w: 372, h: 160, minWidth: 640 },
+  { anchor: "bl", w: 264, h: 166, maxWidth: 639 },
+  { anchor: "tl", w: 264, h: 166, minWidth: 640 },
 ];
 
 const FOCUS = ["120", "119", "118", "602", "601", "618", "629", "283", "282", "606", "612", "625", "101", "630", "621"];

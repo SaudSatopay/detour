@@ -15,7 +15,7 @@ const REPO = "https://github.com/SaudSatopay/detour/blob/main";
 
 function SectionHead({ id, kicker, title, children }: { id: string; kicker: string; title: string; children?: React.ReactNode }) {
   return (
-    <header className="flex max-w-[68ch] flex-col gap-2">
+    <header className="flex max-w-prose flex-col gap-2">
       <p className="label text-ink-500">{kicker}</p>
       <h2 id={id} className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
         {title}
@@ -36,9 +36,9 @@ export default function ProofPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-page flex-col gap-16 px-4 pb-24 pt-10 sm:px-6">
-      <header className="flex max-w-[70ch] flex-col gap-4">
+      <header className="flex max-w-prose flex-col gap-4">
         <p className="label text-ink-500">Proof</p>
-        <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">Every number is computed twice, by two different programs.</h1>
+        <h1 className="font-display text-4xl font-bold leading-display tracking-tight sm:text-5xl">Every number is computed twice, by two different programs.</h1>
         <p className="text-lg text-ink-700">
           FalkorDB does the work: the agents&apos; tools run Cypher and graph algorithms on your copy of the subway graph. A separate Python program
           built on NetworkX reads the same data files, follows the same written spec, and recomputes the answers. Where they meet, the numbers

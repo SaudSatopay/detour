@@ -3,7 +3,7 @@
  * clearly labeled as such in the UI; the network itself is real MTA data.
  */
 
-export interface SeedRider {
+interface SeedRider {
   id: string;
   name: string;
   persona: string;
@@ -15,7 +15,7 @@ export interface SeedRider {
   preferences: { key: string; value: string; since: string }[];
 }
 
-export interface SeedFinding {
+interface SeedFinding {
   id: string;
   text: string;
   kind: "observation" | "capacity" | "accessibility" | "crowding";
@@ -27,7 +27,7 @@ export interface SeedFinding {
   agent: string;
 }
 
-export interface SeedIncident {
+interface SeedIncident {
   id: string;
   title: string;
   report: string;
@@ -38,7 +38,7 @@ export interface SeedIncident {
   shuttles: { from: string; to: string; busesPerHour: number; planned: number; observed: number }[];
 }
 
-export interface SeedPlaybook {
+interface SeedPlaybook {
   id: string;
   title: string;
   routes: string[];

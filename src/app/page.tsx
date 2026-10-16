@@ -77,13 +77,13 @@ export default function Home() {
       <section className="mx-auto grid w-full max-w-page gap-6 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-center lg:gap-x-12 lg:gap-y-6 lg:pb-16 lg:pt-12">
         <div className="lift flex flex-col gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="label text-ink-500">Graph Hacks · FalkorDB · Tracks 1 and 2</p>
-          <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">
+          <h1 className="font-display text-4xl font-bold leading-display tracking-tight sm:text-5xl">
             When a subway line breaks, Detour measures what the city can still carry.
           </h1>
         </div>
         <HeroMap className="aspect-square w-full rounded-lg border border-line bg-panel max-h-[60vh] sm:max-h-none lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:aspect-[6/5] lg:self-center" />
         <div className="rise flex flex-col gap-6 lg:col-start-1 lg:row-start-2 lg:self-start">
-          <p className="max-w-[58ch] text-lg text-ink-700">
+          <p className="max-w-prose text-lg text-ink-700">
             The real New York subway, built from the MTA&apos;s own data, lives in FalkorDB. Agents find whose trips a closure breaks, measure what
             the rest of the network can absorb with max flow, test shuttle bridges on forked copies of the graph, and tell every remembered rider
             what to take instead.
@@ -121,7 +121,7 @@ export default function Home() {
 
       <section aria-labelledby="findings" className="border-t border-line bg-panel">
         <div className="mx-auto w-full max-w-page px-4 py-12 sm:px-6 lg:py-24">
-          <h2 id="findings" className="max-w-[24ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
+          <h2 id="findings" className="max-w-tight font-display text-3xl font-bold leading-tight sm:text-4xl">
             What the graph found when the Canarsie Tube closed at 8 a.m.
           </h2>
           <ol className="mt-10 grid gap-8 lg:grid-cols-3 lg:gap-10">
@@ -135,7 +135,7 @@ export default function Home() {
               </li>
             ))}
           </ol>
-          <p className="mt-10 max-w-[70ch] text-sm text-ink-500">
+          <p className="mt-10 max-w-prose text-sm text-ink-500">
             Weekday 8 a.m. capacity from MTA GTFS (trains per hour × planning load per train); demand from the MTA&apos;s 2025 origin-destination
             estimates ({fmt(FACTS.pairsKept)} of {fmt(FACTS.pairsTotal)} station pairs, {FACTS.ridersKeptPct}% of riders). The max-flow numbers are
             computed in FalkorDB and checked by a separate NetworkX implementation.
@@ -145,10 +145,10 @@ export default function Home() {
 
       <section aria-labelledby="how" className="border-t border-line">
         <div className="mx-auto w-full max-w-page px-4 py-12 sm:px-6 lg:py-24">
-          <h2 id="how" className="max-w-[24ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
+          <h2 id="how" className="max-w-tight font-display text-3xl font-bold leading-tight sm:text-4xl">
             The agents choose the tools. The graph does the work.
           </h2>
-          <p className="mt-4 max-w-[64ch] text-ink-700">
+          <p className="mt-4 max-w-prose text-ink-700">
             The model never writes Cypher. It picks from a fixed catalogue of graph tools, each a parameterized query with its row count and
             latency shown in the trace, and every answer is a path, a flow, a dated memory, or an honest &ldquo;not in the graph&rdquo;.
           </p>
@@ -170,10 +170,10 @@ export default function Home() {
       <section aria-labelledby="memory" className="border-t border-line bg-panel">
         <div className="mx-auto grid w-full max-w-page gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
-            <h2 id="memory" className="max-w-[22ch] font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <h2 id="memory" className="max-w-tight font-display text-3xl font-bold leading-tight sm:text-4xl">
               Agents that remember, and hand off through the graph.
             </h2>
-            <p className="mt-4 max-w-[60ch] text-ink-700">
+            <p className="mt-4 max-w-prose text-ink-700">
               When a dispatcher approves a plan, the control agent hands off to the rider desk as graph state. One agent per remembered rider
               checks whether their usual trip crosses the closure and writes them an advisory. Facts carry dates and close when they stop being
               true, so an elevator outage remembered last week changes a wheelchair user&apos;s route today.
@@ -197,7 +197,7 @@ export default function Home() {
 
       <section className="border-t border-line">
         <div className="mx-auto flex w-full max-w-page flex-col items-start gap-5 px-4 py-12 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-16">
-          <p className="max-w-[40ch] font-display text-2xl font-semibold leading-snug sm:text-3xl">
+          <p className="max-w-heading font-display text-2xl font-semibold leading-snug sm:text-3xl">
             Close a line yourself and watch the agents measure it.
           </p>
           <div className="flex flex-wrap gap-3">

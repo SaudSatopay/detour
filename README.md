@@ -10,12 +10,7 @@ Agents work on a FalkorDB graph of the real subway, built from MTA open data. Th
 
 ![The control room after closing the L: displaced riders' fastest paths overload the G (red), max flow moves 17,167 of 18,432 riders an hour, and the trace shows every tool call with its Cypher.](docs/images/control-room.png)
 
-<details>
-<summary>Watch a 20-second run (GIF)</summary>
-
 ![A run of the L closure: the controller's tool calls stream in, the map shows each step's evidence, and the G overload and max flow appear with their numbers.](docs/images/control-room.gif)
-
-</details>
 
 ## What it finds on the L train
 

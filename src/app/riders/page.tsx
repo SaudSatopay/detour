@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 };
 
 // Static: the seeded riders paint at once; the visitor's sandbox state replaces them on the client.
-const seedRiders = SEED_RIDERS.map((r) => ({
+// Sorted by name, as the sandbox returns them, so the list does not reorder when it loads.
+const seedRiders = [...SEED_RIDERS].sort((a, b) => a.name.localeCompare(b.name)).map((r) => ({
   id: r.id,
   name: r.name,
   persona: r.persona,

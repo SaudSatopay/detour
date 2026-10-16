@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapModel, MapStation } from "@/lib/network/map";
 import type { CutHighlight, FlowHighlight } from "@/lib/graph/tools/types";
 
@@ -28,7 +28,7 @@ export interface LabelExclusion {
   anchor: "tl" | "tr" | "bl" | "br";
   w: number;
   h: number;
-  /** Only when the map is at least / at most this many pixels wide (overlays that move between breakpoints). */
+  /** Only when the viewport (not the map) is at least / at most this wide: overlays move at CSS breakpoints. */
   minWidth?: number;
   maxWidth?: number;
 }
@@ -50,7 +50,7 @@ interface Props {
 
 type View = { k: number; x: number; y: number };
 
-/** The view that fits the given stations (the incident), or the network without Staten Island. */
+/** The view that fits the given stations (the incident), or the whole network. */
 function computeFit(model: MapModel, ids?: string[]): View {
   const pts: MapStation[] = [];
   if (ids?.length) {
@@ -59,7 +59,8 @@ function computeFit(model: MapModel, ids?: string[]): View {
       if (s) pts.push(s);
     }
   }
-  if (!pts.length) for (const s of model.stations.values()) if (s.borough !== "SI") pts.push(s);
+  // No focus: the whole network, Staten Island included, so no line is cut at the pane edge.
+  if (!pts.length) for (const s of model.stations.values()) pts.push(s);
   const xs = pts.map((p) => p.x);
   const ys = pts.map((p) => p.y);
   const pad = ids?.length ? 60 : 12;
@@ -73,6 +74,86 @@ function computeFit(model: MapModel, ids?: string[]): View {
   return { k, x: model.width / 2 - cx * k, y: model.height / 2 - cy * k };
 }
 
+type Line = { key: string; route: string; x1: number; y1: number; x2: number; y2: number };
+
+/*
+ * The heavy layers are memoized: a new trace step changes the overlay (flows, cut, shuttles), not
+ * the network, so about 1,500 base lines and 445 stations are not re-rendered on every step.
+ */
+const BaseLines = memo(function BaseLines({ lines, model, width, faded }: { lines: Line[]; model: MapModel; width: number; faded: boolean }) {
+  return (
+    <g opacity={faded ? 0.32 : 0.9} style={{ transition: "opacity 280ms var(--ease-out)" }}>
+      {lines.map((l) => (
+        <line key={l.key} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={`#${model.routes.get(l.route)?.color ?? "808183"}`} strokeWidth={width} strokeLinecap="round" />
+      ))}
+    </g>
+  );
+});
+
+const Stations = memo(function Stations({
+  model,
+  depth,
+  emphasized,
+  unit,
+  onSelect,
+}: {
+  model: MapModel;
+  depth: Record<string, number> | undefined;
+  emphasized: Set<string>;
+  unit: number;
+  onSelect?: (id: string) => void;
+}) {
+  const sw = (px: number) => px * unit;
+  return (
+    <g>
+      {[...model.stations.values()].map((s) => {
+        const hop = depth?.[s.id];
+        const em = emphasized.has(s.id);
+        const r = sw(em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9);
+        return (
+          <circle
+            key={s.id}
+            cx={s.x}
+            cy={s.y}
+            r={hop !== undefined ? sw(2.4 + Math.max(0, 4 - hop) * 0.7) : r}
+            fill={hop !== undefined ? "var(--crit)" : em ? "var(--signal)" : "var(--map-station)"}
+            fillOpacity={hop !== undefined ? Math.max(0.3, 1 - hop * 0.11) : 1}
+            stroke={em ? "var(--ink-900)" : "var(--ink-700)"}
+            strokeWidth={sw(em ? 1.4 : 0.8)}
+            onClick={onSelect ? () => onSelect(s.id) : undefined}
+            className={onSelect ? "cursor-pointer" : undefined}
+          >
+            <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>
+          </circle>
+        );
+      })}
+    </g>
+  );
+});
+
+const Labels = memo(function Labels({ labels, emphasized, unit }: { labels: { s: MapStation; size: number }[]; emphasized: Set<string>; unit: number }) {
+  const sw = (px: number) => px * unit;
+  return (
+    <g style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+      {labels.map(({ s, size }) => (
+        <text
+          key={`t${s.id}`}
+          x={s.x + sw(5)}
+          y={s.y - sw(4)}
+          fontSize={sw(size)}
+          fill={emphasized.has(s.id) ? "var(--ink-900)" : "var(--ink-700)"}
+          stroke="var(--paper)"
+          strokeWidth={sw(3)}
+          paintOrder="stroke"
+          pointerEvents="none"
+        >
+          {s.name}
+        </text>
+      ))}
+    </g>
+  );
+});
+
 const SPACING = 2.4;
 
 const ZOOM_CONTROLS: LabelExclusion = { anchor: "br", w: 56, h: 136 };
@@ -82,7 +163,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const [view, setView] = useState<View>(() => computeFit(model, focus));
   const [hidden, setHidden] = useState(false);
   const [scalePx, setScalePx] = useState(2);
-  const [box, setBox] = useState({ w: 0, h: 0 });
+  const [box, setBox] = useState({ w: 0, h: 0, vw: 0 });
   const drag = useRef<{ x: number; y: number; vx: number; vy: number; id: number } | null>(null);
   const hasOverlay = Boolean(overlay.closedEids?.length || overlay.flows?.length || overlay.path?.length || overlay.depth);
 
@@ -153,7 +234,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
       const { width, height } = entry.contentRect;
       if (width && height) {
         setScalePx(Math.max(model.width / width, model.height / height));
-        setBox({ w: width, h: height });
+        setBox({ w: width, h: height, vw: window.innerWidth });
       }
     });
     ro.observe(el);
@@ -238,7 +319,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
     const toModel = (sx: number, sy: number) => ({ x: (sx * scalePx - offX - view.x) / view.k, y: (sy * scalePx - offY - view.y) / view.k });
     const seen0 = toModel(0, 0);
     const seen1 = toModel(box.w, box.h);
-    const active = [...exclude, ...(interactive ? [ZOOM_CONTROLS] : [])].filter((e) => box.w >= (e.minWidth ?? 0) && box.w <= (e.maxWidth ?? Infinity));
+    const active = [...exclude, ...(interactive ? [ZOOM_CONTROLS] : [])].filter((e) => box.vw >= (e.minWidth ?? 0) && box.vw <= (e.maxWidth ?? Infinity));
     const blocked = (box.w ? active : []).map((e) => {
       const x0 = e.anchor.endsWith("l") ? 0 : box.w - e.w;
       const y0 = e.anchor.startsWith("t") ? 0 : box.h - e.h;
@@ -284,20 +365,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
         </defs>
         <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
           {/* Base network: every route in its GTFS color, side by side on shared track. */}
-          <g opacity={hasOverlay ? 0.32 : 0.9} style={{ transition: "opacity 280ms var(--ease-out)" }}>
-            {geometry.lines.map((l) => (
-              <line
-                key={l.key}
-                x1={l.x1}
-                y1={l.y1}
-                x2={l.x2}
-                y2={l.y2}
-                stroke={`#${model.routes.get(l.route)?.color ?? "808183"}`}
-                strokeWidth={sw(2.2)}
-                strokeLinecap="round"
-              />
-            ))}
-          </g>
+          <BaseLines lines={geometry.lines} model={model} width={sw(2.2)} faded={hasOverlay} />
 
           {/* Closed segments. */}
           {[...closed].map((eid) => {
@@ -373,50 +441,10 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
           ) : null}
 
           {/* Stations. */}
-          <g>
-            {[...model.stations.values()].map((s) => {
-              const hop = overlay.depth?.[s.id];
-              const em = emphasized.has(s.id);
-              const r = sw(em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9);
-              return (
-                <circle
-                  key={s.id}
-                  cx={s.x}
-                  cy={s.y}
-                  r={hop !== undefined ? sw(2.4 + Math.max(0, 4 - hop) * 0.7) : r}
-                  fill={hop !== undefined ? "var(--crit)" : em ? "var(--signal)" : "var(--map-station)"}
-                  fillOpacity={hop !== undefined ? Math.max(0.3, 1 - hop * 0.11) : 1}
-                  stroke={em ? "var(--ink-900)" : "var(--ink-700)"}
-                  strokeWidth={sw(em ? 1.4 : 0.8)}
-                  onClick={onSelect ? () => onSelect(s.id) : undefined}
-                  className={onSelect ? "cursor-pointer" : undefined}
-                >
-                  <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>
-                </circle>
-              );
-            })}
-          </g>
+          <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={unit} onSelect={onSelect} />
 
           {/* Labels: busiest stations at this zoom, plus anything emphasized. */}
-          {showLabels === "major" ? (
-            <g style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-              {labels.map(({ s, size }) => (
-                  <text
-                    key={`t${s.id}`}
-                    x={s.x + sw(5)}
-                    y={s.y - sw(4)}
-                    fontSize={sw(size)}
-                    fill={emphasized.has(s.id) ? "var(--ink-900)" : "var(--ink-700)"}
-                    stroke="var(--paper)"
-                    strokeWidth={sw(3)}
-                    paintOrder="stroke"
-                    pointerEvents="none"
-                  >
-                    {s.name}
-                  </text>
-                ))}
-            </g>
-          ) : null}
+          {showLabels === "major" ? <Labels labels={labels} emphasized={emphasized} unit={unit} /> : null}
         </g>
       </svg>
 

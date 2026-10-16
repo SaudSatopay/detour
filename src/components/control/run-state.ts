@@ -2,7 +2,6 @@ import type { AgentEvent } from "@/lib/agent/catalog";
 import type { CapacityData, PlanData } from "@/lib/graph/tools/capacity";
 import type { ImpactData } from "@/lib/graph/tools/impact";
 import type { Incident } from "@/lib/graph/tools/incident";
-import type { RecallData } from "@/lib/graph/tools/memory";
 import type { PlanRecord } from "@/lib/graph/tools/plan";
 import type { RiderProfile, RouteAnswer } from "@/lib/graph/tools/riders";
 import type { Highlight, ToolResult } from "@/lib/graph/tools/types";
@@ -46,7 +45,7 @@ export interface RunState {
   stage: "control" | "desk";
 }
 
-export type Action =
+type Action =
   | { type: "start"; stage: "control" | "desk"; planId?: string }
   | { type: "event"; event: AgentEvent; scenarioId?: string }
   | { type: "fail"; message: string }
@@ -156,9 +155,9 @@ function findStep(items: Item[], id: string, agent: string): number {
 
 /* Selectors */
 
-export const steps = (items: Item[]) => items.filter((i): i is ToolStep => i.kind === "tool");
+const steps = (items: Item[]) => items.filter((i): i is ToolStep => i.kind === "tool");
 
-export function latest<T>(items: Item[], tool: string): ToolResult<T> | undefined {
+function latest<T>(items: Item[], tool: string): ToolResult<T> | undefined {
   for (let i = items.length - 1; i >= 0; i--) {
     const it = items[i];
     if (it.kind === "tool" && it.tool === tool && it.result) return it.result as ToolResult<T>;
@@ -169,11 +168,6 @@ export function latest<T>(items: Item[], tool: string): ToolResult<T> | undefine
 export const incidentOf = (items: Item[]) => (latest<{ incident: Incident | null }>(items, "close_line")?.data?.incident ?? null);
 export const impactOf = (items: Item[]) => latest<ImpactData | null>(items, "affected_riders")?.data ?? null;
 export const capacityOf = (items: Item[]) => latest<CapacityData | null>(items, "measure_capacity")?.data ?? null;
-export const memoryOf = (items: Item[]) => {
-  const r = latest<RecallData>(items, "recall_memory") ?? latest<RecallData>(items, "recall");
-  return r?.outcome === "memory" ? r.data : null;
-};
-
 export interface PlanCard {
   id: string;
   kind: "shuttle" | "steer";

@@ -46,7 +46,7 @@ export class Tracer {
 const round = (n: number) => Math.round(n * 100) / 100;
 
 /** Collapses indentation so queries read cleanly in the trace panel. */
-export function tidy(cypher: string): string {
+function tidy(cypher: string): string {
   return cypher
     .split("\n")
     .map((line) => line.trim())
@@ -55,7 +55,7 @@ export function tidy(cypher: string): string {
 }
 
 /** Keeps traces small: long lists are shortened to their length and first items. */
-export function summarizeParams(params: GraphParams): GraphParams {
+function summarizeParams(params: GraphParams): GraphParams {
   const out: GraphParams = {};
   for (const [key, value] of Object.entries(params)) {
     if (Array.isArray(value) && value.length > 8) {

@@ -19,7 +19,7 @@ export default function OgCard() {
         </div>
         <div className="grid min-h-0 flex-1 grid-cols-[540px_1fr]">
           <div className="flex flex-col justify-between px-10 pb-9 pt-8">
-            <h1 className="font-display text-[3.4rem] font-bold leading-[0.98] tracking-tight">When a subway line breaks, measure what the city can still carry.</h1>
+            <h1 className="font-display text-[3.4rem] font-bold leading-display tracking-tight">When a subway line breaks, measure what the city can still carry.</h1>
             <dl className="grid grid-cols-3 gap-5 border-t border-line pt-5">
               <div>
                 <dt className="label text-ink-500">Displaced</dt>

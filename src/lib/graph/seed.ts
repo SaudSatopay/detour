@@ -4,7 +4,7 @@ import { loadDemand, loadMeta, loadNetwork } from "../network/data";
 import { SEED_AGENTS, SEED_FINDINGS, SEED_INCIDENTS, SEED_PLAYBOOKS, SEED_RIDERS } from "./seed-memory";
 
 /** Bump when the graph model or seed data changes; an older graph is rebuilt. */
-export const SEED_VERSION = 4;
+const SEED_VERSION = 4;
 
 const BATCH = 1500;
 /** Same rider costs as the baseline assignment in scripts/build-network.ts. */

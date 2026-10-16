@@ -156,9 +156,14 @@ function Plan({
 }) {
   return (
     <article data-recommended={recommended ? "" : undefined} className={`flex flex-col gap-2.5 rounded-md border p-3 ${recommended ? "border-signal bg-panel shadow-lift" : "border-line bg-panel"}`}>
-      <header className="flex flex-wrap items-baseline gap-2">
-        <h3 className="font-display text-lg font-semibold leading-tight text-ink-900">{plan.kind === "steer" ? "Steer riders, no buses" : "Shuttle bridge"}</h3>
-        <span className="font-mono text-xs text-ink-500">{plan.id}</span>
+      <header className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span className="label w-full text-ink-500">
+          {plan.kind === "steer" ? "Steer riders" : `Shuttle bridge${plan.legs.length > 1 ? `, ${plan.legs.length} legs` : ""}`} · <span className="font-mono normal-case tracking-normal">{plan.id}</span>
+        </span>
+        {/* Named by its bridges, so two plans never share a heading. */}
+        <h3 className="font-display text-lg font-semibold leading-tight text-ink-900">
+          {plan.kind === "steer" ? "No extra buses" : plan.legs.map((l) => `${nameOf(l.from)} ↔ ${nameOf(l.to)}`).join(" + ")}
+        </h3>
         {recommended ? <span className="label ml-auto rounded-sm bg-signal-strong px-1.5 text-signal-ink">Recommended</span> : null}
       </header>
       {plan.legs.length ? (
@@ -251,7 +256,7 @@ function Riders({ riders, nameOf, colorOf, running }: { riders: RiderCard[]; nam
   );
 }
 
-export interface ImpactProps {
+interface ImpactProps {
   incident: Incident | null;
   impact: ImpactData | null;
   capacity: CapacityData | null;
