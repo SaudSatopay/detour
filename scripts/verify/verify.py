@@ -483,7 +483,7 @@ def main(argv: list[str] | None = None) -> int:
         text = json.dumps(result, indent=2)
         if args.plan_out:
             args.plan_out.parent.mkdir(parents=True, exist_ok=True)
-            args.plan_out.write_text(text + "\n", encoding="utf-8")
+            args.plan_out.write_text(text + "\n", encoding="utf-8", newline="\n")
         print(text)
         return 0
 
@@ -491,7 +491,7 @@ def main(argv: list[str] | None = None) -> int:
     for scenario in scenarios:
         out = evaluate_scenario(Model(network, pairs, scenario))
         path = args.out_dir / f"{scenario['id']}.json"
-        path.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8", newline="\n")
         print("\n".join(summary_lines(out)))
         print(f"  wrote {path.as_posix()}")
     return 0
