@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { startTransition, useCallback, useEffect, useReducer, useRef } from "react";
 import type { AgentEvent } from "@/lib/agent/catalog";
 import { readNdjson } from "@/lib/client/ndjson";
 import { initialRun, reduce } from "./run-state";
@@ -30,7 +30,8 @@ export function useControlRun() {
         dispatch({ type: "fail", message: message ?? `The server answered ${res.status}. Try again in a moment.` });
         return;
       }
-      await readNdjson<AgentEvent>(res, (event) => dispatch({ type: "event", event, scenarioId }));
+      // Streamed events render as transitions, so React can split a big step (a capacity result) across frames.
+      await readNdjson<AgentEvent>(res, (event) => startTransition(() => dispatch({ type: "event", event, scenarioId })));
       dispatch({ type: "settle" });
     } catch {
       if (ctrl.signal.aborted) return;

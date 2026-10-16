@@ -280,7 +280,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   );
 
   const tracePane = state.items.length ? (
-    <Trace state={state} selected={selected} onSelect={(i) => setPinned(i === latestIndex ? null : i)} onJumpToPlan={plans.length ? jumpToPlan : undefined} />
+    <Trace state={state} selected={selected} onSelect={setPinned} onJumpToPlan={plans.length ? jumpToPlan : undefined} />
   ) : (
     <div className="flex flex-col gap-2 text-sm text-ink-700">
       <p className="font-display text-xl font-semibold text-ink-900">The agents&apos; work shows here.</p>

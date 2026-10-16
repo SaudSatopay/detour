@@ -7,7 +7,7 @@ import { recall, remember, type RecallData } from "../graph/tools/memory";
 import { resolvePlaces } from "../graph/tools/places";
 import { proposeSteering } from "../graph/tools/plan";
 import type { ToolContext, ToolResult } from "../graph/tools/types";
-import { recordEpisode, type Emit } from "./catalog";
+import { forClient, recordEpisode, type Emit } from "./catalog";
 
 const fmt = (n: number) => (Math.round(n) || 0).toLocaleString("en-US");
 const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
@@ -48,7 +48,7 @@ export async function scriptedControl(
     emit({ type: "tool-call", agent, id, tool, input });
     const ctx: ToolContext = { ...base, tracer: new Tracer() };
     const r = await fn(ctx);
-    emit({ type: "tool-result", agent, id, result: r });
+    emit({ type: "tool-result", agent, id, result: forClient(r) });
     void recordEpisode(ctx, r);
     return r;
   };

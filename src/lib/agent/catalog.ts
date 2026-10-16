@@ -61,6 +61,15 @@ function forModel(r: ToolResult): unknown {
   }
 }
 
+/**
+ * What the browser needs from a tool result. Per-edge flow lists in the data (hundreds of kilobytes for
+ * a capacity run) stay on the server; the map draws the highlight's top flows, which are kept.
+ */
+export function forClient(r: ToolResult): ToolResult {
+  if (r.tool !== "measure_capacity" && r.tool !== "simulate_plan") return r;
+  return { ...r, data: JSON.parse(JSON.stringify(r.data, (key, value) => (key === "flows" ? undefined : value))) };
+}
+
 /** Shortens text at a word boundary, with an ellipsis, so stored summaries never end mid-word. */
 export function clip(text: string, max: number): string {
   if (text.length <= max) return text;
@@ -101,7 +110,7 @@ export function buildTools(base: Omit<ToolContext, "tracer">, emit: Emit, agent:
       const ctx: ToolContext = { ...base, tracer: new Tracer() };
       try {
         const r = await fn(ctx, input);
-        emit({ type: "tool-result", agent, id, result: r });
+        emit({ type: "tool-result", agent, id, result: forClient(r) });
         void recordEpisode(ctx, r);
         return forModel(r);
       } catch (error) {

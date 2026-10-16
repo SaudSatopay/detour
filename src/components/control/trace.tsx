@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { CypherBlock } from "@/components/cypher-block";
 import { TOOL_TITLE } from "@/lib/tool-titles";
 import { BriefLines, OutcomeChip } from "./bits";
@@ -10,15 +10,34 @@ import type { Item, RunState, ToolStep } from "./run-state";
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;
 
-function StepCard({ step, n, active, onSelect, enter }: { step: ToolStep; n: number; active: boolean; onSelect: () => void; enter: string }) {
+/*
+ * Memoized: a new event re-renders only the steps it changed. The Cypher list renders only while its
+ * disclosure is open, so a run with a few hundred queries does not keep thousands of spans in the tree.
+ */
+const StepCard = memo(function StepCard({
+  step,
+  n,
+  index,
+  active,
+  onSelect,
+  enter,
+}: {
+  step: ToolStep;
+  n: number;
+  index: number;
+  active: boolean;
+  onSelect: (index: number) => void;
+  enter: string;
+}) {
   const r = step.result;
+  const [showCypher, setShowCypher] = useState(false);
   const ms = r ? Math.round(r.trace.reduce((s, t) => s + t.ms, 0)) : 0;
   const drawable = Boolean(r?.highlight);
   return (
     <article className={`${enter} rounded-md border bg-panel transition-colors duration-150 ${active ? "border-signal shadow-lift" : "border-line"}`}>
       <button
         type="button"
-        onClick={onSelect}
+        onClick={() => onSelect(index)}
         disabled={!drawable}
         aria-pressed={drawable ? active : undefined}
         className="block w-full p-3 text-left enabled:cursor-pointer enabled:hover:bg-sunk/60"
@@ -61,13 +80,14 @@ function StepCard({ step, n, active, onSelect, enter }: { step: ToolStep; n: num
         )}
       </button>
       {r?.trace.length ? (
-        <details className="group border-t border-line">
+        <details className="group border-t border-line" onToggle={(e) => setShowCypher(e.currentTarget.open)}>
           <summary className="label flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-ink-500 hover:text-ink-900">
             <span aria-hidden="true" className="inline-block transition-transform duration-150 group-open:rotate-90">
               ›
             </span>
             Cypher · {r.trace.length}
           </summary>
+          {showCypher ? (
           <ol className="flex flex-col gap-3 px-3 pb-3">
             {r.trace.map((t, j) => (
               <li key={j} className="min-w-0">
@@ -82,11 +102,12 @@ function StepCard({ step, n, active, onSelect, enter }: { step: ToolStep; n: num
               </li>
             ))}
           </ol>
+          ) : null}
         </details>
       ) : null}
     </article>
   );
-}
+});
 
 function Say({ agent, text, enter }: { agent: string; text: string; enter: string }) {
   const paras = text
@@ -112,7 +133,7 @@ function Row({ item, index, n, selected, onSelect, enter }: { item: Item; index:
     case "say":
       return <Say agent={item.agent} text={item.text} enter={enter} />;
     case "tool":
-      return <StepCard step={item} n={n} active={selected === index} onSelect={() => onSelect(index)} enter={enter} />;
+      return <StepCard step={item} n={n} index={index} active={selected === index} onSelect={onSelect} enter={enter} />;
     case "handoff":
       return (
         <div className={`${enter} flex flex-col gap-1 rounded-md border border-dashed border-line-strong px-3 py-2`}>

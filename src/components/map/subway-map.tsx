@@ -154,6 +154,23 @@ const Labels = memo(function Labels({ labels, emphasized, unit }: { labels: { s:
   );
 });
 
+/** Whether every focus station is already inside the visible frame, away from its edges. */
+function inFrame(model: MapModel, ids: string[], view: View, box: { w: number; h: number }, scalePx: number): boolean {
+  if (!box.w || !box.h) return false;
+  const offX = (box.w * scalePx - model.width) / 2;
+  const offY = (box.h * scalePx - model.height) / 2;
+  const x0 = (-offX - view.x) / view.k;
+  const x1 = (box.w * scalePx - offX - view.x) / view.k;
+  const y0 = (-offY - view.y) / view.k;
+  const y1 = (box.h * scalePx - offY - view.y) / view.k;
+  const mx = (x1 - x0) * 0.08;
+  const my = (y1 - y0) * 0.08;
+  return ids.every((id) => {
+    const st = model.stations.get(id);
+    return !st || (st.x > x0 + mx && st.x < x1 - mx && st.y > y0 + my && st.y < y1 - my);
+  });
+}
+
 const SPACING = 2.4;
 
 const ZOOM_CONTROLS: LabelExclusion = { anchor: "br", w: 56, h: 136 };
@@ -219,11 +236,13 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
 
   const focusKey = focus?.join(",") ?? "";
   const fitTo = useCallback((ids?: string[]) => setView(computeFit(model, ids)), [model]);
-  // Refit when the focus changes (derived during render, not in an effect).
+  // Refit when the focus changes (derived during render, not in an effect), unless the new focus already
+  // sits well inside the frame: a new zoom re-renders every line, so the map holds still when it can.
   const [fitKey, setFitKey] = useState(focusKey);
   if (fitKey !== focusKey) {
     setFitKey(focusKey);
-    setView(computeFit(model, focusKey ? focusKey.split(",") : undefined));
+    const ids = focusKey ? focusKey.split(",") : undefined;
+    if (!ids || !inFrame(model, ids, view, box, scalePx)) setView(computeFit(model, ids));
   }
 
   // Viewbox units per screen pixel, so strokes, labels and offsets stay a constant size on screen.
