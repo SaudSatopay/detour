@@ -37,14 +37,16 @@ Computed separately for each direction group, because trains in opposite directi
 
 1. Net balance per station: `net(x) = Σ riders of the group's pairs starting at x − Σ riders ending at x`.
 2. A super source `SRC` feeds every station with `net > 0` (capacity `net`); every station with `net < 0` feeds a super sink `SNK` (capacity `−net`). This nets out riders who would only swap places, so the flow problem never counts a trip that uses no network.
-3. Max flow from `SRC` to `SNK` over `RUNS` (spare), `WALK` and the feed edges. In FalkorDB: `CALL algo.maxFlow({sourceNodes:[src], targetNodes:[snk], relationshipTypes:['RUNS','WALK','FEED'], capacityProperty:'spare'})`.
+3. Max flow from `SRC` to `SNK` over `RUNS` (spare), `WALK` and the feed edges, on the flow network described below. In FalkorDB: `CALL algo.maxFlow({sourceNodes:[src], targetNodes:[snk], relationshipTypes:['FLOW'], capacityProperty:'spare'})`.
 4. **Required** = Σ positive net. **Absorbed** = max flow. **Unmet** = required − absorbed.
+
+**The flow network.** `algo.maxFlow` takes one relationship type and no parallel edges, so the FalkorDB fork sums the spare capacity of every open `RUNS` and `WALK` edge between the same two stations (plus `BUS` legs on a plan's fork) into one `FLOW {kind: 'NET', spare, refs}` edge, where `refs` names the edges it stands for (`R<eid>`, `W<wid>`, `B<bid>`). `SRC` and `SNK` are `Hub` nodes per direction group (`SRC_F` and `SNK_F`, `SRC_B` and `SNK_B`), and the feed edges are `FLOW` edges of kind `FEED_F` or `FEED_B`. Summing parallel capacities does not change the max flow. The NetworkX checker keeps parallel edges apart instead: it splits each edge `u→v` into `u→(kind, id)→v`, with the capacity on the first arc.
 
 This is a single-commodity relaxation with no detour limit: an upper bound on how many displaced riders the open network could carry if they spread perfectly. Read the two results together. The reroute shows what happens when everyone takes their fastest alternative (lines that overflow); the max flow shows what is possible if riders are steered (its edge flows are the steering plan the rider agents follow); the gap the max flow cannot close needs extra service.
 
 ## Bottleneck (min cut)
 
-From the max-flow residual graph, collect the nodes reachable from `SRC` through edges with `flow < spare` (forward) or `flow > 0` (backward). The min cut is every edge from a reachable node to an unreachable one. The bottlenecks shown to users are the `RUNS` and `WALK` edges in the cut. Their summed spare equals the absorbed flow minus any cut feed edges, which is how the checker verifies the cut.
+From the max-flow residual graph, collect the nodes reachable from `SRC` through edges with `flow < spare` (forward) or `flow > 0` (backward). The min cut is every edge from a reachable node to an unreachable one. The bottlenecks shown to users are the `RUNS` and `WALK` edges in the cut (and `BUS` legs on a plan's fork); in FalkorDB they are the `refs` of each cut `NET` edge. Their summed spare equals the absorbed flow minus any cut feed edges, which is how the checker verifies the cut.
 
 ## Shuttle plans
 
