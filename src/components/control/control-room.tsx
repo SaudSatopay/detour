@@ -71,9 +71,10 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
   const colorOf = useCallback((route: string) => model?.routes.get(route)?.color ?? "", [model]);
 
   const loadStatus = useCallback(() => {
-    fetch("/api/sandbox", { cache: "no-store" })
-      .then((r) => r.json() as Promise<SandboxStatus>)
-      .then(setStatus)
+    // With ?recorded the server answers 200 even when the database is down, marking the state as recorded.
+    fetch("/api/sandbox?recorded=l-canarsie", { cache: "no-store" })
+      .then((r) => r.json() as Promise<SandboxStatus & { recorded?: string }>)
+      .then((s) => setStatus(s.recorded ? { incident: null, error: "unreachable" } : s))
       .catch(() => setStatus({ incident: null, error: "unreachable" }));
   }, []);
   useEffect(loadStatus, [loadStatus]);
