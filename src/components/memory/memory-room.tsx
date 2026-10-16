@@ -86,7 +86,8 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
   const handoffs = state.handoffs ?? [];
 
   return (
-    <div className="flex flex-col gap-14">
+    // A different element from the placeholder, so React mounts it fresh instead of resizing one node (a layout shift).
+    <article className="flex flex-col gap-14">
       <header className="flex max-w-[70ch] flex-col gap-4">
         {state.recorded ? null : <p className="text-ink-700">Everything below lives in your own sandbox graph, {state.visitor.sandbox}.</p>}
         <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -277,6 +278,6 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
           </details>
         ) : null}
       </section>
-    </div>
+    </article>
   );
 }
