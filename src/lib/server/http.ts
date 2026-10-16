@@ -1,0 +1,72 @@
+import { cookies } from "next/headers";
+import { connect } from "../graph/db";
+import { isVisitorId } from "../graph/names";
+
+const COOKIE = "detour_vid";
+
+/** Anonymous visitor id (one sandbox graph each), kept in an httpOnly cookie for a week. */
+export async function visitorId(): Promise<string> {
+  const store = await cookies();
+  const existing = store.get(COOKIE)?.value;
+  if (existing && isVisitorId(existing)) return existing;
+  const bytes = crypto.getRandomValues(new Uint8Array(12));
+  const id = Array.from(bytes, (b) => (b % 36).toString(36)).join("") + Date.now().toString(36).slice(-4);
+  store.set(COOKIE, id, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 7 * 24 * 3600, path: "/" });
+  return id;
+}
+
+/** Streams newline-delimited JSON events; errors become a final error event instead of a broken stream. */
+export function ndjson<E>(run: (emit: (event: E) => void) => Promise<void>, onError: (message: string) => E): Response {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      let open = true;
+      const emit = (event: E) => {
+        if (!open) return;
+        try {
+          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+        } catch {
+          open = false;
+        }
+      };
+      try {
+        await run(emit);
+      } catch (error) {
+        emit(onError(friendlyError(error)));
+      } finally {
+        open = false;
+        controller.close();
+      }
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store, no-transform",
+      "X-Accel-Buffering": "no",
+    },
+  });
+}
+
+export function friendlyError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/FALKORDB_URL/.test(message)) return message;
+  if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT|Socket closed|connect/i.test(message)) {
+    return "Can't reach the graph database right now. If the free FalkorDB instance went to sleep, it wakes on the next try; retry in a few seconds.";
+  }
+  if (/rate|quota|429/i.test(message)) return "Every free model is rate limited at the moment. Retry in a minute, or play a recorded run.";
+  return message;
+}
+
+/**
+ * A fixed-window limiter in the same FalkorDB instance (it is a Redis server too): keeps one
+ * visitor from spending the shared free model quota.
+ */
+export async function allow(visitorId: string, bucket: string, perHour: number): Promise<boolean> {
+  const db = await connect();
+  const redis = await db.connection;
+  const key = `detour:rl:${bucket}:${visitorId}:${Math.floor(Date.now() / 3_600_000)}`;
+  const n = await redis.incr(key);
+  if (n === 1) await redis.expire(key, 3700);
+  return n <= perHour;
+}

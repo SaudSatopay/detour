@@ -39,3 +39,6 @@ playwright-report/
 
 # raw MTA downloads (re-fetch with scripts/fetch-mta.sh)
 data/raw/
+
+# agent worktrees
+.claude/worktrees/

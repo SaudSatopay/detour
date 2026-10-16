@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // The built network ships with the server functions so an empty FalkorDB can be re-seeded.
+  outputFileTracingIncludes: {
+    "/api/**": ["./data/nyc/*.json", "./data/scenarios.json", "./data/replays/**"],
+  },
+  serverExternalPackages: ["falkordb"],
   turbopack: {
     rules: {
       "*.css": {

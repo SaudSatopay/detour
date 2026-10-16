@@ -26,6 +26,10 @@ Displaced riders vacate their whole baseline path. For every open `RUNS` edge:
 
 where `displacedLoad` is the riders per hour of all displaced pairs (both directions) whose path used that edge. Closed edges get `spare = 0`. `WALK` edges keep capacity 3,000.
 
+## Where displaced riders go if nothing is done (fastest-path reroute)
+
+On the closure fork (closed segments deleted), every displaced pair takes the fastest open path by scheduled minutes over `RUNS` and `WALK`: one `algo.SSpaths` call per origin, all origins in a single `UNWIND` query. New segment load = `load − displacedLoad + rerouted riders`. A segment is **overloaded** when its new load exceeds its capacity; the overflow is `newLoad − capacity`. Pairs with no open path are **stranded**. Path times here are pure in-vehicle and walking minutes (no waits or transfer penalties), compared against the same metric on the open network.
+
 ## How many displaced riders can still get through (max flow)
 
 Computed separately for each direction group, because trains in opposite directions do not share capacity.
@@ -35,7 +39,7 @@ Computed separately for each direction group, because trains in opposite directi
 3. Max flow from `SRC` to `SNK` over `RUNS` (spare), `WALK` and the feed edges. In FalkorDB: `CALL algo.maxFlow({sourceNodes:[src], targetNodes:[snk], relationshipTypes:['RUNS','WALK','FEED'], capacityProperty:'spare'})`.
 4. **Required** = Σ positive net. **Absorbed** = max flow. **Unmet** = required − absorbed.
 
-This is a single-commodity relaxation: it is an upper bound on how many displaced riders the open network could carry. If even the upper bound falls short, extra service is needed.
+This is a single-commodity relaxation with no detour limit: an upper bound on how many displaced riders the open network could carry if they spread perfectly. Read the two results together. The reroute shows what happens when everyone takes their fastest alternative (lines that overflow); the max flow shows what is possible if riders are steered (its edge flows are the steering plan the rider agents follow); the gap the max flow cannot close needs extra service.
 
 ## Bottleneck (min cut)
 

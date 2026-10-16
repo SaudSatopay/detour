@@ -1,0 +1,572 @@
+import { loadNetwork } from "../../network/data";
+import type { Network } from "../../network/types";
+import { copyGraph, deleteGraph, listGraphs } from "../db";
+import { busLeg, BUS_FLEET, directionOf, freedLoad, haversineMeters, minCut, netBalance, type Direction, type DisplacedPair, type FlowEdge } from "../flow";
+import { TEMPLATE_GRAPH, forkGraph } from "../names";
+import { displacedPairs } from "./impact";
+import { openIncident, type Incident } from "./incident";
+import { result, type CutHighlight, type FlowHighlight, type ToolContext, type ToolResult } from "./types";
+
+const DIRECTIONS: Direction[] = ["forward", "backward"];
+const FEED: Record<Direction, string> = { forward: "FEED_F", backward: "FEED_B" };
+const HUB: Record<Direction, { src: string; snk: string }> = {
+  forward: { src: "SRC_F", snk: "SNK_F" },
+  backward: { src: "SRC_B", snk: "SNK_B" },
+};
+
+interface Group {
+  direction: Direction;
+  pairs: DisplacedPair[];
+  riders: number;
+  required: number;
+  sources: number;
+  sinks: number;
+}
+
+interface Prepared {
+  fork: string;
+  incident: Incident;
+  pairs: DisplacedPair[];
+  groups: Group[];
+  freed: Map<number, number>;
+}
+
+const fmt = (n: number) => Math.round(n).toLocaleString("en-US");
+
+function names(network: Network) {
+  return new Map(network.stations.map((s) => [s.id, s.name]));
+}
+
+function segmentsById(network: Network) {
+  return new Map(network.segments.map((s) => [s.eid, s]));
+}
+
+/**
+ * Runs `fn` on a private fork of the sandbox with the closure applied. Every call gets its own
+ * fork (tools may run in parallel) and the fork is deleted afterwards to stay inside 100 MB.
+ */
+async function withClosureFork<T>(ctx: ToolContext, incident: Incident, fn: (prepared: Prepared) => Promise<T>): Promise<T> {
+  const fork = forkGraph(ctx.visitorId, `${incident.id.toLowerCase()}-${Math.random().toString(36).slice(2, 8)}`);
+  try {
+    return await fn(await prepareClosureFork(ctx, incident, fork));
+  } finally {
+    await ctx.tracer.command("drop the fork", fork, `GRAPH.DELETE ${fork}`, async () => {
+      if ((await listGraphs()).includes(fork)) await deleteGraph(fork);
+    });
+  }
+}
+
+/** Copies the sandbox into the fork, deletes the closed segments, and frees displaced riders' capacity. */
+async function prepareClosureFork(ctx: ToolContext, incident: Incident, fork: string): Promise<Prepared> {
+  const network = await loadNetwork();
+  await ctx.tracer.command("fork the sandbox", fork, `GRAPH.COPY ${ctx.sandbox} ${fork}`, () => copyGraph(ctx.sandbox, fork));
+  await ctx.tracer.run("drop closed segments in the fork", fork, "MATCH ()-[r:RUNS {closed: true}]->() DELETE r");
+
+  const pairs = await displacedPairs(ctx, incident.closedEids);
+  const closed = new Set(incident.closedEids);
+  const freed = freedLoad(pairs, closed);
+  await ctx.tracer.run(
+    "free displaced riders' capacity",
+    fork,
+    `UNWIND $freed AS f
+     MATCH ()-[r:RUNS {eid: f.eid}]->()
+     SET r.freed = f.riders,
+         r.spare = CASE WHEN r.capacity - r.load + f.riders > 0 THEN r.capacity - r.load + f.riders ELSE 0 END`,
+    { freed: [...freed.entries()].map(([eid, riders]) => ({ eid, riders })) },
+  );
+
+  const stretchIndex = new Map(incident.stretch.map((id, i) => [id, i]));
+  const segs = segmentsById(network);
+  const groups: Group[] = [];
+  for (const direction of DIRECTIONS) {
+    const groupPairs = pairs.filter((p) => directionOf(p.via, closed, stretchIndex, segs) === direction);
+    const net = netBalance(groupPairs);
+    const sources = [...net].filter(([, v]) => v > 0).map(([id, v]) => ({ id, cap: v }));
+    const sinks = [...net].filter(([, v]) => v < 0).map(([id, v]) => ({ id, cap: -v }));
+    const required = sources.reduce((s, x) => s + x.cap, 0);
+    groups.push({ direction, pairs: groupPairs, riders: groupPairs.reduce((s, p) => s + p.riders, 0), required, sources: sources.length, sinks: sinks.length });
+    if (!required) continue;
+    await ctx.tracer.run(
+      `${direction} source and sink`,
+      fork,
+      `CREATE (src:Hub {id: $src}), (snk:Hub {id: $snk})
+       WITH src, snk
+       UNWIND $sources AS s
+       MATCH (x:Station {id: s.id})
+       CREATE (src)-[:${FEED[direction]} {spare: s.cap}]->(x)`,
+      { src: HUB[direction].src, snk: HUB[direction].snk, sources },
+    );
+    await ctx.tracer.run(
+      `${direction} sinks`,
+      fork,
+      `MATCH (snk:Hub {id: $snk})
+       UNWIND $sinks AS s
+       MATCH (x:Station {id: s.id})
+       CREATE (x)-[:${FEED[direction]} {spare: s.cap}]->(snk)`,
+      { snk: HUB[direction].snk, sinks },
+    );
+  }
+  return { fork, incident, pairs, groups, freed };
+}
+
+export interface FlowRun {
+  direction: Direction;
+  required: number;
+  absorbed: number;
+  unmet: number;
+  flows: FlowHighlight[];
+  cut: CutHighlight[];
+  /** Feed edges in the cut: stations whose riders the network cannot move at all. */
+  strandedAt: { id: string; riders: number }[];
+}
+
+/** algo.maxFlow from the direction's super source to its super sink, then the min cut from the residual graph. */
+async function maxFlow(ctx: ToolContext, graph: string, group: Group, withBus: boolean): Promise<FlowRun> {
+  const types = ["RUNS", "WALK", FEED[group.direction], ...(withBus ? ["BUS"] : [])];
+  const { src, snk } = HUB[group.direction];
+  type Row = { maxFlow: number; es: [string, number, string, string, number][]; flows: number[] };
+  const res = await ctx.tracer.run<Row>(
+    `${group.direction} max flow`,
+    graph,
+    `MATCH (src:Hub {id: $src}), (snk:Hub {id: $snk})
+     CALL algo.maxFlow({sourceNodes: [src], targetNodes: [snk], relationshipTypes: $types, capacityProperty: 'spare'})
+     YIELD maxFlow, edges, edgeFlows
+     RETURN maxFlow,
+            [e IN edges | [type(e), coalesce(e.eid, e.wid, e.bid, -1), startNode(e).id, endNode(e).id, e.spare]] AS es,
+            edgeFlows AS flows`,
+    { src, snk, types },
+    { readOnly: true, timeoutMs: 30_000 },
+  );
+  const row = res.rows[0];
+  const absorbed = row?.maxFlow ?? 0;
+  const flowByKey = new Map<string, number>();
+  (row?.es ?? []).forEach(([t, id, a, b], i) => flowByKey.set(`${t}:${id}:${a}>${b}`, row.flows[i] ?? 0));
+
+  const all = await ctx.tracer.run<{ t: string; id: number; a: string; b: string; cap: number }>(
+    `${group.direction} residual graph`,
+    graph,
+    `MATCH (a)-[r]->(b) WHERE type(r) IN $types
+     RETURN type(r) AS t, coalesce(r.eid, r.wid, r.bid, -1) AS id, a.id AS a, b.id AS b, r.spare AS cap`,
+    { types },
+    { readOnly: true },
+  );
+  const edges: FlowEdge[] = all.rows.map((r) => {
+    const key = `${r.t}:${r.id}:${r.a}>${r.b}`;
+    return { key, from: r.a, to: r.b, capacity: r.cap ?? 0, flow: flowByKey.get(key) ?? 0 };
+  });
+  const { cut } = minCut(edges, src);
+
+  const kindOf = (key: string) => key.split(":")[0];
+  const flows: FlowHighlight[] = edges
+    .filter((e) => e.flow > 0.5 && ["RUNS", "WALK", "BUS"].includes(kindOf(e.key)))
+    .map((e) => ({ kind: kindOf(e.key) as FlowHighlight["kind"], id: Number(e.key.split(":")[1]), from: e.from, to: e.to, flow: Math.round(e.flow) }))
+    .sort((a, b) => b.flow - a.flow);
+  const network = await loadNetwork();
+  const segs = segmentsById(network);
+  const cutNet: CutHighlight[] = cut
+    .filter((e) => ["RUNS", "WALK", "BUS"].includes(kindOf(e.key)))
+    .map((e) => {
+      const kind = kindOf(e.key) as CutHighlight["kind"];
+      const id = Number(e.key.split(":")[1]);
+      return { kind, id, from: e.from, to: e.to, spare: Math.round(e.capacity), route: kind === "RUNS" ? segs.get(id)?.route : undefined };
+    });
+  const strandedAt = cut
+    .filter((e) => kindOf(e.key) === FEED[group.direction] && e.from === src)
+    .map((e) => ({ id: e.to, riders: Math.round(e.capacity - e.flow) }))
+    .filter((s) => s.riders > 0)
+    .sort((a, b) => b.riders - a.riders);
+
+  return {
+    direction: group.direction,
+    required: Math.round(group.required),
+    absorbed: Math.round(absorbed),
+    unmet: Math.round(group.required - absorbed),
+    flows,
+    cut: cutNet,
+    strandedAt,
+  };
+}
+
+export interface RerouteRun {
+  rerouted: number;
+  stranded: number;
+  strandedPairs: number;
+  overloaded: { kind: "RUNS" | "BUS"; id: number; route: string; from: string; to: string; load: number; capacity: number; pct: number }[];
+  overflow: number;
+  flows: FlowHighlight[];
+}
+
+/** Every displaced pair takes its fastest open path: one algo.SSpaths per origin, all origins in one query. */
+async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, withBus: boolean): Promise<RerouteRun> {
+  const network = await loadNetwork();
+  const segs = segmentsById(network);
+  const byOrigin = new Map<string, Set<string>>();
+  for (const p of prepared.pairs) (byOrigin.get(p.o) ?? byOrigin.set(p.o, new Set()).get(p.o)!).add(p.d);
+  const rows = [...byOrigin].map(([o, ds]) => ({ o, ds: [...ds] }));
+  const types = ["RUNS", "WALK", ...(withBus ? ["BUS"] : [])];
+
+  const res = await ctx.tracer.run<{ o: string; d: string; minutes: number; eids: number[]; bids: number[]; walks: number[] }>(
+    "reroute displaced riders on fastest open paths",
+    graph,
+    `UNWIND $rows AS row
+     MATCH (o:Station {id: row.o})
+     CALL algo.SSpaths({sourceNode: o, relTypes: $types, weightProp: 'minutes'})
+     YIELD path, pathWeight
+     WITH row, path, pathWeight, nodes(path)[size(nodes(path)) - 1] AS t
+     WHERE t.id IN row.ds
+     RETURN row.o AS o, t.id AS d, pathWeight AS minutes,
+            [r IN relationships(path) WHERE type(r) = 'RUNS' | r.eid] AS eids,
+            [r IN relationships(path) WHERE type(r) = 'BUS' | r.bid] AS bids,
+            [r IN relationships(path) WHERE type(r) = 'WALK' | r.wid] AS walks`,
+    { rows, types },
+    { readOnly: true, timeoutMs: 45_000 },
+  );
+
+  const riders = new Map(prepared.pairs.map((p) => [`${p.o}>${p.d}`, p.riders]));
+  const added = new Map<number, number>();
+  const busAdded = new Map<number, number>();
+  const walkAdded = new Map<number, number>();
+  let rerouted = 0;
+  const reached = new Set<string>();
+  for (const r of res.rows) {
+    const key = `${r.o}>${r.d}`;
+    const n = riders.get(key) ?? 0;
+    if (!n || reached.has(key)) continue;
+    reached.add(key);
+    rerouted += n;
+    for (const eid of r.eids) added.set(eid, (added.get(eid) ?? 0) + n);
+    for (const bid of r.bids) busAdded.set(bid, (busAdded.get(bid) ?? 0) + n);
+    for (const wid of r.walks) walkAdded.set(wid, (walkAdded.get(wid) ?? 0) + n);
+  }
+  const strandedList = prepared.pairs.filter((p) => !reached.has(`${p.o}>${p.d}`));
+
+  const overloaded: RerouteRun["overloaded"] = [];
+  for (const [eid, n] of added) {
+    const s = segs.get(eid);
+    if (!s) continue;
+    const load = s.load - (prepared.freed.get(eid) ?? 0) + n;
+    if (load > s.capacity) {
+      overloaded.push({ kind: "RUNS", id: eid, route: s.route, from: s.from, to: s.to, load: Math.round(load), capacity: s.capacity, pct: Math.round((load / s.capacity) * 100) });
+    }
+  }
+  if (withBus && busAdded.size) {
+    const buses = await ctx.tracer.run<{ bid: number; a: string; b: string; cap: number }>(
+      "bus legs",
+      graph,
+      "MATCH (a)-[r:BUS]->(b) RETURN r.bid AS bid, a.id AS a, b.id AS b, r.capacity AS cap",
+      {},
+      { readOnly: true },
+    );
+    for (const bus of buses.rows) {
+      const load = busAdded.get(bus.bid) ?? 0;
+      if (load > bus.cap) overloaded.push({ kind: "BUS", id: bus.bid, route: "BUS", from: bus.a, to: bus.b, load: Math.round(load), capacity: bus.cap, pct: Math.round((load / bus.cap) * 100) });
+    }
+  }
+  overloaded.sort((a, b) => b.load - b.capacity - (a.load - a.capacity));
+
+  const flows: FlowHighlight[] = [
+    ...[...added].map(([id, flow]) => ({ kind: "RUNS" as const, id, from: segs.get(id)?.from ?? "", to: segs.get(id)?.to ?? "", flow: Math.round(flow) })),
+    ...[...walkAdded].map(([id, flow]) => {
+      const w = network.walks[id];
+      return { kind: "WALK" as const, id, from: w?.from ?? "", to: w?.to ?? "", flow: Math.round(flow) };
+    }),
+  ]
+    .filter((f) => f.flow > 0)
+    .sort((a, b) => b.flow - a.flow);
+
+  return {
+    rerouted: Math.round(rerouted),
+    stranded: Math.round(strandedList.reduce((s, p) => s + p.riders, 0)),
+    strandedPairs: strandedList.length,
+    overloaded,
+    overflow: Math.round(overloaded.reduce((s, o) => s + (o.load - o.capacity), 0)),
+    flows,
+  };
+}
+
+function describeSegment(n: Map<string, string>, x: { route?: string; from: string; to: string; kind: string }) {
+  const label = x.kind === "WALK" ? "walk" : x.kind === "BUS" ? "shuttle bus" : `${x.route}`;
+  return `${label} ${n.get(x.from) ?? x.from} → ${n.get(x.to) ?? x.to}`;
+}
+
+export interface CapacityData {
+  incidentId: string;
+  displacedRiders: number;
+  reroute: RerouteRun;
+  directions: FlowRun[];
+  peak: Direction;
+}
+
+/** The incident's capacity picture: fastest-path reroute (what happens) and max flow + min cut (what is possible). */
+export async function measureCapacity(ctx: ToolContext): Promise<ToolResult<CapacityData | null>> {
+  const incident = await openIncident(ctx);
+  if (!incident) return result(ctx, "measure_capacity", "not_in_graph", "No closure is open in this sandbox. Close a line first.", null);
+  const network = await loadNetwork();
+  const n = names(network);
+  const { runs, re, displacedRiders } = await withClosureFork(ctx, incident, async (prepared) => {
+    const runs: FlowRun[] = [];
+    for (const g of prepared.groups) if (g.required > 0) runs.push(await maxFlow(ctx, prepared.fork, g, false));
+    const re = await reroute(ctx, prepared.fork, prepared, false);
+    return { runs, re, displacedRiders: Math.round(prepared.pairs.reduce((s, p) => s + p.riders, 0)) };
+  });
+  const peak = runs.slice().sort((a, b) => b.required - a.required)[0];
+
+  await ctx.tracer.run(
+    "remember the capacity picture",
+    ctx.sandbox,
+    `MATCH (i:Incident {id: $id})
+     SET i.displaced = $displaced, i.overflow = $overflow, i.stranded = $stranded,
+         i.required = $required, i.absorbed = $absorbed, i.unmet = $unmet, i.measuredMs = timestamp()`,
+    {
+      id: incident.id,
+      displaced: displacedRiders,
+      overflow: re.overflow,
+      stranded: re.stranded,
+      required: peak?.required ?? 0,
+      absorbed: peak?.absorbed ?? 0,
+      unmet: peak?.unmet ?? 0,
+    },
+  );
+
+  const worst = re.overloaded.slice(0, 3).map((o) => `${describeSegment(n, o)} at ${o.pct}%`);
+  const bottlenecks = peak?.cut.slice(0, 3).map((c) => describeSegment(n, c)) ?? [];
+  const stranded = peak?.strandedAt.slice(0, 3).map((s) => `${n.get(s.id) ?? s.id} (${fmt(s.riders)})`) ?? [];
+  const summary = [
+    `${fmt(displacedRiders)} displaced riders an hour.`,
+    `If each takes the fastest open path, ${re.overloaded.length} segments overflow by ${fmt(re.overflow)} riders an hour${worst.length ? `: ${worst.join("; ")}` : ""}${re.stranded ? `; ${fmt(re.stranded)} have no open path` : ""}.`,
+    peak
+      ? `If riders are spread perfectly (max flow, ${peak.direction} peak direction), the open network can carry ${fmt(peak.absorbed)} of ${fmt(peak.required)} (${Math.round((peak.absorbed / Math.max(1, peak.required)) * 100)}%); ${fmt(peak.unmet)} cannot move.`
+      : "",
+    bottlenecks.length ? `Min cut: ${bottlenecks.join("; ")}.` : stranded.length ? `Min cut is at the riders' own stations: ${stranded.join(", ")} have no open alternative.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return result(
+    ctx,
+    "measure_capacity",
+    "answered",
+    summary,
+    { incidentId: incident.id, displacedRiders, reroute: re, directions: runs, peak: peak?.direction ?? "forward" },
+    {
+      closedEids: incident.closedEids,
+      flows: re.flows.slice(0, 160),
+      cut: peak?.cut ?? [],
+      stations: peak?.strandedAt.map((s) => s.id) ?? [],
+    },
+  );
+}
+
+export interface Candidate {
+  fromId: string;
+  fromName: string;
+  toId: string;
+  toName: string;
+  lines: string[];
+  supply: number;
+  meters: number;
+  outSpare: number;
+  suggestedBusesPerHour: number;
+}
+
+/** Shuttle-bridge candidates: stations whose riders cannot move, paired with nearby stations on open lines with spare capacity. */
+export async function shuttleCandidates(ctx: ToolContext, input: { maxKm?: number; limit?: number }): Promise<ToolResult<{ candidates: Candidate[] } | null>> {
+  const incident = await openIncident(ctx);
+  if (!incident) return result(ctx, "shuttle_candidates", "not_in_graph", "No closure is open. Close a line first.", null);
+  const maxMeters = Math.min(4, Math.max(0.5, input.maxKm ?? 2)) * 1000;
+  const res = await withClosureFork(ctx, incident, async (prepared) => {
+    const peakGroup = prepared.groups.slice().sort((a, b) => b.required - a.required)[0];
+    const net = netBalance(peakGroup?.pairs ?? []);
+    const sources = [...net]
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([id, v]) => ({ id, net: Math.round(v) }));
+    return ctx.tracer.run<Omit<Candidate, "suggestedBusesPerHour">>(
+      "shuttle candidates within reach",
+      prepared.fork,
+      `UNWIND $sources AS s
+       MATCH (a:Station {id: s.id}), (b:Station)
+       WHERE b.id <> a.id AND NOT b.id IN $stretch AND distance(a.loc, b.loc) <= $maxMeters
+       WITH a, b, s, distance(a.loc, b.loc) AS meters
+       MATCH (b)-[r:RUNS]->()
+       WITH a, b, s, meters, sum(r.spare) AS outSpare, collect(DISTINCT r.route) AS lines
+       WHERE size([x IN lines WHERE NOT x IN $closedRoutes]) > 0
+       RETURN a.id AS fromId, a.name AS fromName, b.id AS toId, b.name AS toName, lines,
+              s.net AS supply, meters, outSpare
+       ORDER BY supply DESC, outSpare DESC`,
+      { sources, stretch: incident.stretch, maxMeters, closedRoutes: incident.routes },
+      { readOnly: true },
+    );
+  });
+  const bestPerSource = new Map<string, Omit<Candidate, "suggestedBusesPerHour">[]>();
+  for (const r of res.rows) {
+    const list = bestPerSource.get(r.fromId) ?? [];
+    if (list.length < 2) list.push(r);
+    bestPerSource.set(r.fromId, list);
+  }
+  const candidates: Candidate[] = [...bestPerSource.values()]
+    .flat()
+    .slice(0, Math.min(12, input.limit ?? 8))
+    .map((c) => ({ ...c, meters: Math.round(c.meters), outSpare: Math.round(c.outSpare), suggestedBusesPerHour: Math.min(60, Math.max(6, Math.ceil(c.supply / 70))) }));
+
+  const summary = candidates.length
+    ? `Top shuttle candidates: ${candidates
+        .slice(0, 4)
+        .map((c) => `${c.fromName} → ${c.toName} (${(c.meters / 1000).toFixed(1)} km, ${fmt(c.supply)} riders an hour waiting, ${c.lines.join("/")} with ${fmt(c.outSpare)} spare)`)
+        .join("; ")}.`
+    : `No station on an open line lies within ${(maxMeters / 1000).toFixed(1)} km of the stranded riders; widen the radius.`;
+  return result(ctx, "shuttle_candidates", candidates.length ? "answered" : "not_in_graph", summary, { candidates }, {
+    stations: candidates.flatMap((c) => [c.fromId, c.toId]),
+  });
+}
+
+export interface PlanData {
+  planId: string;
+  shuttles: { from: string; to: string; busesPerHour: number; capacity: number; minutes: number; vehicles: number; meters: number }[];
+  vehicles: number;
+  before: { overflow: number; stranded: number; absorbed: number; unmet: number };
+  after: { overflow: number; stranded: number; absorbed: number; unmet: number };
+  reroute: RerouteRun;
+  direction: FlowRun | null;
+}
+
+/** Tests a shuttle plan on its own fork of the closure graph: adds BUS edges, reroutes riders, reruns max flow. */
+export async function simulatePlan(
+  ctx: ToolContext,
+  input: { shuttles: { from: string; to: string; busesPerHour: number }[]; label?: string },
+): Promise<ToolResult<PlanData | null>> {
+  const incident = await openIncident(ctx);
+  if (!incident) return result(ctx, "simulate_plan", "not_in_graph", "No closure is open. Close a line first.", null);
+  const network = await loadNetwork();
+  const n = names(network);
+  const byId = new Map(network.stations.map((s) => [s.id, s]));
+  const unknown = input.shuttles.flatMap((s) => [s.from, s.to]).filter((id) => !byId.has(id));
+  if (unknown.length) {
+    return result(ctx, "simulate_plan", "unknown_entity", `Unknown station ids: ${unknown.join(", ")}. Resolve names first.`, null);
+  }
+
+  const legs = input.shuttles.slice(0, 4).map((s, i) => {
+    const a = byId.get(s.from)!;
+    const b = byId.get(s.to)!;
+    const meters = haversineMeters(a.lat, a.lon, b.lat, b.lon);
+    const bph = Math.min(60, Math.max(1, Math.round(s.busesPerHour)));
+    return { bid: i, from: s.from, to: s.to, busesPerHour: bph, meters: Math.round(meters), ...busLeg(meters, bph) };
+  });
+  const vehicles = legs.reduce((s, l) => s + l.vehicles, 0);
+  if (vehicles > BUS_FLEET) {
+    return result(
+      ctx,
+      "simulate_plan",
+      "not_in_graph",
+      `That plan needs ${vehicles} buses on the road; only ${BUS_FLEET} are available for bridges. Cut buses per hour or drop a leg.`,
+      null,
+    );
+  }
+
+  return withClosureFork(ctx, incident, async (prepared) => {
+  const peakGroup = prepared.groups.slice().sort((a, b) => b.required - a.required)[0];
+  const beforeFlow = peakGroup?.required ? await maxFlow(ctx, prepared.fork, peakGroup, false) : null;
+  const beforeRe = await reroute(ctx, prepared.fork, prepared, false);
+
+  const planId = `PLAN-${Date.now().toString(36).toUpperCase()}`;
+  const planFork = forkGraph(ctx.visitorId, `p-${planId.toLowerCase()}`);
+  await ctx.tracer.command("fork for this plan", planFork, `GRAPH.COPY ${prepared.fork} ${planFork}`, () => copyGraph(prepared.fork, planFork));
+  try {
+    await ctx.tracer.run(
+      "add shuttle legs",
+      planFork,
+      `UNWIND $legs AS l
+       MATCH (a:Station {id: l.from}), (b:Station {id: l.to})
+       CREATE (a)-[:BUS {bid: l.bid, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour}]->(b),
+              (b)-[:BUS {bid: l.bid, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour}]->(a)`,
+      { legs: legs.map((l) => ({ bid: l.bid, from: l.from, to: l.to, capacity: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour })) },
+    );
+    const afterFlow = peakGroup?.required ? await maxFlow(ctx, planFork, peakGroup, true) : null;
+    const afterRe = await reroute(ctx, planFork, prepared, true);
+
+    const before = {
+      overflow: beforeRe.overflow,
+      stranded: beforeRe.stranded,
+      absorbed: beforeFlow?.absorbed ?? 0,
+      unmet: beforeFlow?.unmet ?? 0,
+    };
+    const after = {
+      overflow: afterRe.overflow,
+      stranded: afterRe.stranded,
+      absorbed: afterFlow?.absorbed ?? 0,
+      unmet: afterFlow?.unmet ?? 0,
+    };
+    await ctx.tracer.run(
+      "record the plan",
+      ctx.sandbox,
+      `MATCH (i:Incident {id: $incident}), (ag:Agent {id: $agent})
+       CREATE (ag)-[:PROPOSED {atMs: timestamp()}]->(p:Plan {id: $id, label: $label, status: 'simulated', legs: $legsJson,
+         vehicles: $vehicles, overflowBefore: $ob, overflowAfter: $oa, unmetBefore: $ub, unmetAfter: $ua,
+         strandedBefore: $sb, strandedAfter: $sa, createdMs: timestamp()})-[:FOR]->(i)`,
+      {
+        incident: incident.id,
+        agent: ctx.agentId,
+        id: planId,
+        label: input.label ?? legs.map((l) => `${n.get(l.from)} ↔ ${n.get(l.to)}`).join(" + "),
+        legsJson: JSON.stringify(legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity, minutes: l.minutes, meters: l.meters }))),
+        vehicles,
+        ob: before.overflow,
+        oa: after.overflow,
+        ub: before.unmet,
+        ua: after.unmet,
+        sb: before.stranded,
+        sa: after.stranded,
+      },
+    );
+
+    const summary =
+      `${planId}: ${legs.map((l) => `${n.get(l.from)} ↔ ${n.get(l.to)} at ${l.busesPerHour} buses an hour (${fmt(l.capacity)} riders)`).join("; ")}; ${vehicles} buses on the road. ` +
+      `Fastest-path overflow ${fmt(before.overflow)} → ${fmt(after.overflow)} riders an hour; riders with no path ${fmt(before.stranded)} → ${fmt(after.stranded)}; ` +
+      `max-flow shortfall ${fmt(before.unmet)} → ${fmt(after.unmet)}.`;
+    return result(
+      ctx,
+      "simulate_plan",
+      "answered",
+      summary,
+      {
+        planId,
+        shuttles: legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity, minutes: l.minutes, vehicles: l.vehicles, meters: l.meters })),
+        vehicles,
+        before,
+        after,
+        reroute: afterRe,
+        direction: afterFlow,
+      },
+      {
+        closedEids: incident.closedEids,
+        flows: afterRe.flows.slice(0, 160),
+        cut: afterFlow?.cut ?? [],
+        shuttles: legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity })),
+      },
+    );
+  } finally {
+    await ctx.tracer.command("drop the plan fork", planFork, `GRAPH.DELETE ${planFork}`, () => deleteGraph(planFork));
+  }
+  });
+}
+
+/** Baseline times on the untouched network, used to report how much longer rerouted trips take. */
+export async function baselineMinutes(ctx: ToolContext, pairs: { o: string; d: string }[]): Promise<Map<string, number>> {
+  const byOrigin = new Map<string, Set<string>>();
+  for (const p of pairs) (byOrigin.get(p.o) ?? byOrigin.set(p.o, new Set()).get(p.o)!).add(p.d);
+  const res = await ctx.tracer.run<{ o: string; d: string; minutes: number }>(
+    "baseline fastest paths",
+    TEMPLATE_GRAPH,
+    `UNWIND $rows AS row
+     MATCH (o:Station {id: row.o})
+     CALL algo.SSpaths({sourceNode: o, relTypes: ['RUNS', 'WALK'], weightProp: 'minutes'})
+     YIELD path, pathWeight
+     WITH row, pathWeight, nodes(path)[size(nodes(path)) - 1] AS t
+     WHERE t.id IN row.ds
+     RETURN row.o AS o, t.id AS d, pathWeight AS minutes`,
+    { rows: [...byOrigin].map(([o, ds]) => ({ o, ds: [...ds] })) },
+    { readOnly: true, timeoutMs: 30_000 },
+  );
+  return new Map(res.rows.map((r) => [`${r.o}>${r.d}`, r.minutes]));
+}
