@@ -1,0 +1,34 @@
+{
+  "engine": "FalkorDB 4.22.1 module on Redis 8.0.5, Vercel Sandbox, 4 vCPU",
+  "seconds": 15,
+  "tenants": 6,
+  "readers": 48,
+  "writers": 6,
+  "connections": 12,
+  "reads": {
+    "count": 107961,
+    "perSecond": 7195,
+    "p50": 5.4,
+    "p95": 15.5,
+    "p99": 21.4
+  },
+  "writes": {
+    "count": 10795,
+    "perSecond": 719,
+    "p50": 7.4,
+    "p95": 17.1,
+    "p99": 22.6
+  },
+  "errors": 0,
+  "isolation": {
+    "closedSegmentsPerTenant": [
+      10,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ok": true
+  }
+}

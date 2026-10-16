@@ -7,6 +7,7 @@ This is the exact computation both implementations follow: the FalkorDB tools in
 - Nodes are station complexes (MTA complex ids).
 - `RUNS` edges are directed route segments: one per (route, from, to) that has scheduled weekday service departing between 08:00 and 08:59. Each has `capacity` (trains per hour × planning capacity per train), `load` (baseline riders per hour) and `minutes`.
 - `WALK` edges join complexes less than 400 m apart, in both directions, with capacity 3,000 riders per hour.
+- **Platform layer** (for routing riders): a `Platform` node per station and route; `RIDE` edges along each scheduled segment (same `eid` as its `RUNS` edge); `BOARD` edges from the station to each of its platforms costing a 3-minute transfer penalty plus half the headway (capped at 30 minutes); free `ALIGHT` edges back to the station. A weighted shortest path over `BOARD`, `RIDE`, `ALIGHT` and `WALK` prices transfers the way the baseline assignment does.
 
 ## Closure
 
@@ -28,7 +29,7 @@ where `displacedLoad` is the riders per hour of all displaced pairs (both direct
 
 ## Where displaced riders go if nothing is done (fastest-path reroute)
 
-On the closure fork (closed segments deleted), every displaced pair takes the fastest open path by scheduled minutes over `RUNS` and `WALK`: one `algo.SSpaths` call per origin, all origins in a single `UNWIND` query. New segment load = `load − displacedLoad + rerouted riders`. A segment is **overloaded** when its new load exceeds its capacity; the overflow is `newLoad − capacity`. Pairs with no open path are **stranded**. Path times here are pure in-vehicle and walking minutes (no waits or transfer penalties), compared against the same metric on the open network.
+On the closure fork (closed segments and their rides deleted), every displaced pair takes its fastest open path on the platform layer (riding, boarding with wait and transfer penalty, walking): one `algo.SPpaths` call per pair, all pairs in a single `UNWIND` query. New segment load = `load − displacedLoad + rerouted riders` on each `RIDE`'s segment. A segment is **overloaded** when its new load exceeds its capacity; the overflow is `newLoad − capacity`. Pairs with no open path are **stranded**.
 
 ## How many displaced riders can still get through (max flow)
 
@@ -51,7 +52,7 @@ A plan adds `BUS` edges in both directions between two stations: `capacity = bus
 
 ## Rider routing
 
-Weighted shortest path over open `RUNS` and `WALK` edges (and `BUS` edges of a published plan), weight `minutes`. Step-free riders may only start, end and change at stations with `ada = 1`. In FalkorDB: `algo.SPpaths({sourceNode, targetNode, relTypes:['RUNS','WALK','BUS'], weightProp:'minutes'})`.
+Weighted shortest path on the platform layer plus `WALK` and the `BUS` edges of a published plan, weight `minutes`: `algo.SPpaths({sourceNode, targetNode, relTypes:['BOARD','RIDE','ALIGHT','WALK','BUS'], weightProp:'minutes', pathCount: k})`. Step-free riders take the first of the k fastest paths whose every boarding and exit is at a station with `ada = 1` and whose platform has no elevator outage remembered as current (an outage tagged with a route blocks only that route's platform).
 
 ## Station criticality
 

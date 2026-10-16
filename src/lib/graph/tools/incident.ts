@@ -41,6 +41,11 @@ export async function reopenAll(ctx: ToolContext, status: "resolved" | "supersed
      RETURN count(r) AS n`,
   );
   await ctx.tracer.run(
+    "reopen platform rides",
+    ctx.sandbox,
+    "MATCH ()-[r:RIDE {closed: true}]->() SET r.closed = false, r.minutes = r.baseMinutes",
+  );
+  await ctx.tracer.run(
     "close out incident",
     ctx.sandbox,
     "MATCH (i:Incident {status: 'open'}) SET i.status = $status, i.closedMs = timestamp()",
@@ -92,6 +97,12 @@ export async function closeLine(
     { routes, stretch, closedMinutes: CLOSED_MINUTES },
   );
   const closed = closedRes.rows;
+  await ctx.tracer.run(
+    "close the same rides on the platform layer",
+    ctx.sandbox,
+    "MATCH ()-[r:RIDE]->() WHERE r.eid IN $eids SET r.closed = true, r.minutes = $closedMinutes",
+    { eids: closed.map((c) => c.eid), closedMinutes: CLOSED_MINUTES },
+  );
   const id = `INC-${Date.now().toString(36).toUpperCase()}`;
   const title = input.title?.trim() || `${routes.join("/")}: ${names.get(stretch[0])} to ${names.get(stretch[stretch.length - 1])}`;
   await ctx.tracer.run(

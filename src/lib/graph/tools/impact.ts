@@ -20,18 +20,28 @@ export async function displacedPairs(ctx: ToolContext, closedEids: number[]): Pr
   return res.rows;
 }
 
-/** Hops (following train direction) from every station that can reach the closed stretch within MAX_DEPTH. */
+/**
+ * Hops (following train direction) from every station that reaches the closed stretch within
+ * MAX_DEPTH: one frontier query per hop, which stays linear where a variable-length pattern
+ * would enumerate every parallel route path.
+ */
 export async function hopsToStretch(ctx: ToolContext, incident: Incident): Promise<Map<string, number>> {
-  const res = await ctx.tracer.run<{ id: string; hops: number }>(
-    "stations upstream of the closure",
-    ctx.sandbox,
-    `MATCH p = (o:Station)-[:RUNS*0..${MAX_DEPTH}]->(t:Station)
-     WHERE t.id IN $stretch
-     RETURN o.id AS id, min(length(p)) AS hops`,
-    { stretch: incident.stretch },
-    { readOnly: true, timeoutMs: 20_000 },
-  );
-  return new Map(res.rows.map((r) => [r.id, r.hops]));
+  const hops = new Map<string, number>(incident.stretch.map((id) => [id, 0]));
+  let frontier = [...incident.stretch];
+  for (let k = 1; k <= MAX_DEPTH && frontier.length; k++) {
+    const res = await ctx.tracer.run<{ id: string }>(
+      `stations ${k} stop${k > 1 ? "s" : ""} upstream`,
+      ctx.sandbox,
+      `MATCH (o:Station)-[:RUNS]->(t:Station)
+       WHERE t.id IN $frontier AND NOT o.id IN $seen
+       RETURN DISTINCT o.id AS id`,
+      { frontier, seen: [...hops.keys()] },
+      { readOnly: true },
+    );
+    frontier = res.rows.map((r) => r.id).filter((id) => !hops.has(id));
+    for (const id of frontier) hops.set(id, k);
+  }
+  return hops;
 }
 
 export interface ImpactData {

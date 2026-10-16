@@ -42,6 +42,11 @@ export async function resolvePlaces(
 ): Promise<ToolResult<{ matches: PlaceMatch[] }>> {
   const network = await loadNetwork();
   const matches: PlaceMatch[] = [];
+  // A route named alongside the stations ("Bedford Av", "8 Av", "L") disambiguates them.
+  const namedRoutes = input.names
+    .map((n) => n.trim().match(ROUTE_WORDS)?.[1]?.toUpperCase())
+    .filter((r): r is string => Boolean(r && network.routes.some((x) => x.id === r)));
+  const hints = [input.routeHint?.toUpperCase(), ...namedRoutes].filter((r): r is string => Boolean(r));
 
   for (const raw of input.names.slice(0, 8)) {
     const name = raw.trim();
@@ -69,9 +74,8 @@ export async function resolvePlaces(
       if (stations.length) break;
     }
 
-    if (input.routeHint) {
-      const hint = input.routeHint.toUpperCase();
-      const withHint = stations.filter((s) => s.routes.includes(hint));
+    if (hints.length) {
+      const withHint = stations.filter((s) => s.routes.some((r) => hints.includes(r)));
       if (withHint.length) stations = withHint;
     }
     if (!stations.length) {

@@ -30,14 +30,14 @@ async function main() {
     [
       "maxFlow raw",
       `MATCH (s:Hub {id:'S'}), (t:Hub {id:'T'})
-       CALL algo.maxFlow({sourceNodes: [s], targetNodes: [t], relationshipTypes: ['FEED','RUNS'], capacityProperty: 'spare'})
+       CALL algo.maxFlow({sourceNodes: [s], targetNodes: [t], relationshipTypes: ['RUNS'], capacityProperty: 'spare'})
        YIELD nodes, edges, edgeFlows, maxFlow
        RETURN maxFlow, edgeFlows, size(edges) AS ne, size(nodes) AS nn`,
     ],
     [
       "maxFlow projected",
       `MATCH (s:Hub {id:'S'}), (t:Hub {id:'T'})
-       CALL algo.maxFlow({sourceNodes: [s], targetNodes: [t], relationshipTypes: ['FEED','RUNS'], capacityProperty: 'spare'})
+       CALL algo.maxFlow({sourceNodes: [s], targetNodes: [t], relationshipTypes: ['RUNS'], capacityProperty: 'spare'})
        YIELD maxFlow, edges, edgeFlows
        RETURN maxFlow, [e IN edges | [type(e), coalesce(e.eid, e.wid, e.bid, -1), startNode(e).id, endNode(e).id, e.spare]] AS es, edgeFlows AS flows`,
     ],

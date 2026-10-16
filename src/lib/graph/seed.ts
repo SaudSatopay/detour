@@ -4,9 +4,12 @@ import { loadDemand, loadMeta, loadNetwork } from "../network/data";
 import { SEED_AGENTS, SEED_FINDINGS, SEED_INCIDENTS, SEED_PLAYBOOKS, SEED_RIDERS } from "./seed-memory";
 
 /** Bump when the graph model or seed data changes; an older graph is rebuilt. */
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 const BATCH = 1500;
+/** Same rider costs as the baseline assignment in scripts/build-network.ts. */
+const TRANSFER_PENALTY_MINUTES = 3;
+const MAX_WAIT_MINUTES = 30;
 
 async function batched<T>(rows: T[], size: number, write: (chunk: T[]) => Promise<unknown>) {
   for (let i = 0; i < rows.length; i += size) await write(rows.slice(i, i + size));
@@ -105,6 +108,41 @@ async function seedTemplate(log: (msg: string) => void) {
     ),
   );
   await run(g, "CREATE INDEX FOR ()-[e:RUNS]-() ON (e.eid)");
+
+  // Platform layer for rider routing: a node per station and route, RIDE edges along the route,
+  // BOARD edges that cost a transfer penalty plus half the headway, free ALIGHT edges. Weighted
+  // shortest paths over it price transfers the way riders do.
+  const platformTph = new Map<string, number>();
+  for (const e of network.segments) {
+    for (const key of [`${e.from}:${e.route}`, `${e.to}:${e.route}`]) if (!platformTph.has(key)) platformTph.set(key, 0);
+    platformTph.set(`${e.from}:${e.route}`, Math.max(platformTph.get(`${e.from}:${e.route}`) ?? 0, e.tph));
+  }
+  const platforms = [...platformTph].map(([id, tph]) => {
+    const [station, route] = id.split(":");
+    const board = Math.round((TRANSFER_PENALTY_MINUTES + Math.min(MAX_WAIT_MINUTES, 30 / Math.max(1, tph))) * 10) / 10;
+    return { id, station, route, board };
+  });
+  await batched(platforms, BATCH, (chunk) =>
+    run(
+      g,
+      `UNWIND $platforms AS p
+       MATCH (s:Station {id: p.station})
+       CREATE (s)-[:BOARD {minutes: p.board}]->(pl:Platform {id: p.id, station: p.station, route: p.route}),
+              (pl)-[:ALIGHT {minutes: 0}]->(s)`,
+      { platforms: chunk },
+    ),
+  );
+  await run(g, "CREATE INDEX FOR (p:Platform) ON (p.id)");
+  await batched(network.segments, BATCH, (chunk) =>
+    run(
+      g,
+      `UNWIND $segs AS e
+       MATCH (a:Platform {id: e.a}), (b:Platform {id: e.b})
+       CREATE (a)-[:RIDE {eid: e.eid, minutes: e.minutes, baseMinutes: e.minutes, closed: false}]->(b)`,
+      { segs: chunk.map((e) => ({ eid: e.eid, minutes: e.minutes, a: `${e.from}:${e.route}`, b: `${e.to}:${e.route}` })) },
+    ),
+  );
+  await run(g, "CREATE INDEX FOR ()-[r:RIDE]-() ON (r.eid)");
   await run(
     g,
     `UNWIND $walks AS w
@@ -226,11 +264,11 @@ async function seedTemplate(log: (msg: string) => void) {
     await run(
       g,
       `MATCH (rider:Rider {id: $id})-[:STARTS_AT]->(a:Station), (rider)-[:ENDS_AT]->(b:Station)
-       CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['RUNS', 'WALK'], weightProp: 'minutes'})
+       CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['BOARD', 'RIDE', 'ALIGHT', 'WALK'], weightProp: 'minutes'})
        YIELD path, pathWeight
        WITH rider, path, pathWeight LIMIT 1
-       SET rider.usualEids = [r IN relationships(path) WHERE type(r) = 'RUNS' | r.eid],
-           rider.usualStations = [n IN nodes(path) | n.id],
+       SET rider.usualEids = [r IN relationships(path) WHERE type(r) = 'RIDE' | r.eid],
+           rider.usualStations = [n IN nodes(path) WHERE hasLabels(n, ['Station']) | n.id],
            rider.usualMinutes = pathWeight`,
       { id: r.id },
     );
