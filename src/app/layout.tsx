@@ -23,7 +23,7 @@ const mono = Atkinson_Hyperlegible_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://detour-nyc.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://detour-orpin.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -39,8 +39,16 @@ export const metadata: Metadata = {
     siteName: "Detour",
     title: "Detour: subway disruption agents on a FalkorDB graph",
     description: "Max flow, min cut and forked graphs on the real NYC subway. Built for Graph Hacks.",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Detour: with the L closed, displaced riders' fastest paths overload the G at 244%, and max flow says 93% can still move.",
+      },
+    ],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: ["/og.png"] },
 };
 
 export const viewport: Viewport = {

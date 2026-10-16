@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  devIndicators: false,
   partialPrefetching: true,
   // The built network ships with the server functions so an empty FalkorDB can be re-seeded.
   outputFileTracingIncludes: {

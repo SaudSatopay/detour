@@ -31,6 +31,6 @@ test("the memory page shows current and closed facts with their windows", async 
   await page.goto("/memory");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Memory is part of the graph");
   await expect(seen(page, "Known now")).toBeVisible();
-  await expect(seen(page, /Elevator to the L platform at 14 St-Union Sq out of service/)).toBeVisible();
+  await expect(seen(page, /Elevator to the L platform at 14 St-Union Sq out of service/).first()).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}memory-${info.project.name}.png`, fullPage: true });
 });
