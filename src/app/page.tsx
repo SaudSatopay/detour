@@ -73,12 +73,16 @@ YIELD path, pathWeight`,
 export default function Home() {
   return (
     <>
-      <section className="mx-auto grid w-full max-w-[1180px] items-center gap-8 px-4 pb-12 pt-8 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12 lg:pb-16 lg:pt-12">
-        <div className="rise flex flex-col gap-6">
+      {/* Phones: claim, then the broken L, then the rest. Desktop: text left, map right across both rows. */}
+      <section className="mx-auto grid w-full max-w-[1180px] gap-6 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:content-center lg:gap-x-12 lg:gap-y-6 lg:pb-16 lg:pt-12">
+        <div className="rise flex flex-col gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="label text-ink-500">Graph Hacks · FalkorDB · Tracks 1 and 2</p>
           <h1 className="font-display text-4xl font-bold leading-[0.98] tracking-tight sm:text-5xl">
             When a subway line breaks, Detour measures what the city can still carry.
           </h1>
+        </div>
+        <HeroMap className="aspect-square w-full rounded-lg border border-line bg-panel max-h-[60vh] sm:max-h-none lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:aspect-[6/5] lg:self-center" />
+        <div className="rise flex flex-col gap-6 lg:col-start-1 lg:row-start-2 lg:self-start">
           <p className="max-w-[58ch] text-lg text-ink-700">
             The real New York subway, built from the MTA&apos;s own data, lives in FalkorDB. Agents find whose trips a closure breaks, measure what
             the rest of the network can absorb with max flow, test shuttle bridges on forked copies of the graph, and tell every remembered rider
@@ -98,7 +102,7 @@ export default function Home() {
               See the proof
             </Link>
           </div>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-5 sm:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-5 sm:grid-cols-4 lg:grid-cols-2">
             {[
               [fmt(FACTS.ridersAt8), "riders in the 8 a.m. hour"],
               [fmt(FACTS.stations), "station complexes"],
@@ -113,7 +117,6 @@ export default function Home() {
             ))}
           </dl>
         </div>
-        <HeroMap className="aspect-[4/5] w-full rounded-lg border border-line bg-panel sm:aspect-square lg:aspect-[6/5]" />
       </section>
 
       <section aria-labelledby="findings" className="border-t border-line bg-panel">

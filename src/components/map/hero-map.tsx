@@ -69,7 +69,7 @@ export function HeroMap({ className = "" }: { className?: string }) {
       ) : (
         <div className="absolute inset-0 animate-pulse bg-sunk" aria-busy="true" />
       )}
-      <figcaption className="pointer-events-none absolute left-3 top-3 max-w-[min(22rem,calc(100%-1.5rem))] rounded-md border border-line bg-panel/95 p-3 shadow-lift">
+      <figcaption className="pointer-events-none absolute bottom-3 left-3 max-w-[min(22rem,calc(100%-4.5rem))] rounded-md border border-line bg-panel/95 p-3 shadow-lift sm:bottom-auto sm:top-3">
         <p className="label text-crit">L closed · Bedford Av to 8 Av · 8 a.m.</p>
         {hero ? (
           <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
