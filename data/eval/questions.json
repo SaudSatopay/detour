@@ -1,0 +1,194 @@
+[
+ {
+  "id": "l-displaced",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 23445,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "l-depth1",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "expect": {
+   "kind": "number",
+   "value": 10142,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "l-fits",
+  "category": "capacity",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "l-maxflow",
+  "category": "capacity",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour traveling in the direction of the peak demand could the open network carry?",
+  "expect": {
+   "kind": "number",
+   "value": 17167,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "l-unmet",
+  "category": "capacity",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction still could not move?",
+  "expect": {
+   "kind": "number",
+   "value": 1266,
+   "tolerance": 0.05
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "l-cut",
+  "category": "bottleneck",
+  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Which station's riders have no open alternative at all, so that no amount of spare capacity elsewhere can move them (the minimum cut of the max flow)?",
+  "expect": {
+   "kind": "contains",
+   "any": [
+    "1 Av"
+   ]
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "lex-displaced",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 31347,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "lex-depth1",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "expect": {
+   "kind": "number",
+   "value": 11197,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "lex-fits",
+  "category": "capacity",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "ac-displaced",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 16268,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "ac-depth1",
+  "category": "impact",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "expect": {
+   "kind": "number",
+   "value": 2400,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "ac-fits",
+  "category": "capacity",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "NetworkX verifier, data/nyc/verify"
+ },
+ {
+  "id": "mem-elevator-since",
+  "category": "memory",
+  "question": "Is the elevator to the L platform at Myrtle-Wyckoff Avs working? If not, since what date has it been out?",
+  "expect": {
+   "kind": "contains",
+   "any": [
+    "Oct 14",
+    "October 14"
+   ]
+  },
+  "source": "seeded memory, F-ELEV-2"
+ },
+ {
+  "id": "mem-june-shuttle",
+  "category": "memory",
+  "question": "During the June 12, 2026 Canarsie Tube incident, what share of its planned riders did the Bedford Av to Marcy Av shuttle actually carry? Give a percentage.",
+  "expect": {
+   "kind": "number",
+   "value": 79,
+   "tolerance": 0.02
+  },
+  "source": "seeded memory, INC-0612"
+ },
+ {
+  "id": "mem-union-sq-elevator",
+  "category": "memory",
+  "question": "Is the elevator to the L platform at 14 St-Union Sq out of service right now?",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "seeded memory, F-ELEV-1 (closed Oct 9, 2026)"
+ },
+ {
+  "id": "nig-staten-island",
+  "category": "not_in_graph",
+  "question": "Can a rider get from St George on Staten Island to Times Sq-42 St using only subway trains and the walking transfers in the subway network? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over data/nyc/network.json"
+ },
+ {
+  "id": "unk-hogwarts",
+  "category": "unknown_entity",
+  "question": "How many riders an hour are displaced if the Hogwarts Express is suspended between Kings Cross and Hogsmeade?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no such route or stations in the network"
+ },
+ {
+  "id": "unk-penny-lane",
+  "category": "unknown_entity",
+  "question": "What is the fastest subway route from Penny Lane station to Times Sq-42 St?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no such station in the network"
+ }
+]

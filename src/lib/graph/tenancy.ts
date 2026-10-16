@@ -48,6 +48,15 @@ export async function resetSandbox(visitorId: string): Promise<void> {
   await ensureSandbox(visitorId);
 }
 
+/** Deletes a visitor's sandbox and forks and forgets it (used by the eval harness). */
+export async function dropSandbox(visitorId: string): Promise<void> {
+  await dropForks(visitorId);
+  const db = await connect();
+  const redis = await db.connection;
+  if ((await redis.exists(sandboxGraph(visitorId))) === 1) await deleteGraph(sandboxGraph(visitorId));
+  await redis.hDel(REGISTRY, visitorId);
+}
+
 export async function dropForks(visitorId: string): Promise<void> {
   const prefix = `${FORK_PREFIX}${visitorId}:`;
   for (const name of await listGraphs()) {

@@ -38,3 +38,13 @@ You are the rider desk. You answer riders' and planners' questions about getting
 
 export const RIDER_ADVISORY_INSTRUCTIONS = `You write one advisory for one subway rider whose usual trip is broken by a closure.
 Use only the facts given. Two sentences, under 45 words, second person, plain words. Lead with what to take instead and how long it takes; mention step-free access only if the rider needs it; mention the shuttle if the route uses one. No greeting, no apology, no emoji.`;
+
+/** The eval's graph agent: the same rules and tools as the product, asked one question at a time. */
+export const EVAL_INSTRUCTIONS = `${SHARED}
+
+Answer one question about the New York City subway using the tools. Close a line in this sandbox when the question describes a closure, then measure what it asks about. Use as few tool calls as the question needs.
+End with one line in the form "Answer: <value>": a number (riders an hour or a percentage), yes or no, a station name, a date, or "unknown" if a name in the question is not in the graph.`;
+
+/** The eval's baseline: the same model and question with no tools and no graph. */
+export const BASELINE_INSTRUCTIONS = `Answer one question about the New York City subway from what you know. You have no tools and no database. If a name in the question does not exist, say so.
+End with one line in the form "Answer: <value>": a number, yes or no, a station name, a date, or "unknown". If you cannot know exactly, give your best estimate.`;
