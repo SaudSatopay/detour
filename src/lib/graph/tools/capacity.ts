@@ -482,7 +482,7 @@ export async function shuttleCandidates(ctx: ToolContext, input: { maxKm?: numbe
     .map((c) => ({ ...c, meters: Math.round(c.meters), outSpare: Math.round(c.outSpare), suggestedBusesPerHour: Math.min(60, Math.max(6, Math.ceil(c.supply / 70))) }));
 
   const describe = (c: Candidate) =>
-    `${c.fromName} → ${c.toName} (${c.reason === "stranded" ? `${fmt(c.supply)} riders an hour with no open line` : `relief for ${fmt(c.supply)} riders an hour`}, ${(c.meters / 1000).toFixed(1)} km, ${c.lines.join("/")})`;
+    `${c.fromName} → ${c.toName} (${c.reason === "stranded" ? `${fmt(c.supply)} riders an hour with no open line` : `relief for ${fmt(c.supply)} riders an hour`}, ${(c.meters / 1000).toFixed(1)} km away, ${c.lines.length === 1 ? "line" : "lines"} ${c.lines.join("/")})`;
   const summary = candidates.length
     ? `Shuttle candidates: ${candidates.slice(0, 5).map(describe).join("; ")}.`
     : `No station on an open line lies within ${(maxMeters / 1000).toFixed(1)} km of the stranded riders; widen the radius.`;

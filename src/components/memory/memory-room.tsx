@@ -48,7 +48,7 @@ function Finding({ f, successor }: { f: FindingRow; successor?: FindingRow }) {
         <span className="label text-ink-500">{KIND[f.kind] ?? f.kind}</span>
         <span className="font-mono text-xs text-ink-500">{f.id}</span>
         {f.example ? <span className="label rounded-sm bg-sunk px-1.5 text-ink-500">Example</span> : null}
-        <span className="tabular ml-auto font-mono text-xs text-ink-700">
+        <span className="tabular w-full font-mono text-xs text-ink-700 sm:ml-auto sm:w-auto">
           {live ? `since ${day(f.validFromMs)}` : `${day(f.validFromMs)} → ${day(f.validToMs!)}`}
         </span>
       </div>

@@ -125,7 +125,7 @@ function NetworkCan({ cap, nameOf, colorOf, incident }: { cap: CapacityData; nam
   );
 }
 
-function Delta({ label, before, after }: { label: string; before: number; after: number }) {
+function Delta({ label, before, after, neutral = false }: { label: string; before: number; after: number; neutral?: boolean }) {
   const better = after < before;
   return (
     <div className="flex items-baseline gap-2 text-sm">
@@ -134,9 +134,29 @@ function Delta({ label, before, after }: { label: string; before: number; after:
       <span aria-hidden="true" className="text-ink-500">
         →
       </span>
-      <span className={`tabular font-mono font-semibold ${better ? "text-ok" : after > before ? "text-crit" : "text-ink-900"}`}>{fmt(after)}</span>
+      <span className={`tabular font-mono font-semibold ${neutral ? "text-ink-900" : better ? "text-ok" : after > before ? "text-crit" : "text-ink-900"}`}>{fmt(after)}</span>
     </div>
   );
+}
+
+/** Two plans whose riders-with-no-path and max-flow shortfall land within 1% of each other count as the same result. */
+function sameResult(a: PlanCard, b: PlanCard): boolean {
+  const close = (x: number, y: number, scale: number) => Math.abs(x - y) <= Math.max(5, 0.01 * scale);
+  return close(a.after.stranded, b.after.stranded, a.before.stranded) && close(a.after.unmet, b.after.unmet, a.before.unmet);
+}
+
+/** Why the recommended plan wins, or what a rejected plan would cost on top of it. */
+function compare(plan: PlanCard, plans: PlanCard[], recommended: string | null): string | null {
+  const rec = plans.find((x) => x.id === recommended);
+  if (!rec) return null;
+  if (plan.id === rec.id) {
+    const costlier = plans.filter((x) => x.id !== rec.id && sameResult(x, rec) && x.vehicles > rec.vehicles);
+    if (!costlier.length) return null;
+    const most = costlier.reduce((a, b) => (b.vehicles > a.vehicles ? b : a));
+    return `Why this one: the ${most.legs.length}-leg plan reaches the same result with ${most.vehicles - rec.vehicles} more buses.`;
+  }
+  if (sameResult(plan, rec) && plan.vehicles > rec.vehicles) return `The same result as the recommended plan, with ${plan.vehicles - rec.vehicles} more buses.`;
+  return null;
 }
 
 function Plan({
@@ -146,6 +166,7 @@ function Plan({
   busy,
   nameOf,
   onApprove,
+  comparison,
 }: {
   plan: PlanCard;
   recommended: boolean;
@@ -153,7 +174,11 @@ function Plan({
   busy: boolean;
   nameOf: Lookup;
   onApprove: () => void;
+  comparison: string | null;
 }) {
+  // Riders who had no path now travel; their fastest paths add load further on. That is the cost of serving them.
+  const nowTravel = plan.before.stranded - plan.after.stranded;
+  const overflowFromNewRiders = plan.kind === "shuttle" && plan.after.overflow > plan.before.overflow && nowTravel > 0;
   return (
     <article data-recommended={recommended ? "" : undefined} className={`flex flex-col gap-2.5 rounded-md border p-3 ${recommended ? "border-signal bg-panel shadow-lift" : "border-line bg-panel"}`}>
       <header className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -186,11 +211,14 @@ function Plan({
       <div className="flex flex-col gap-1 border-t border-line pt-2">
         <Delta label="No open path" before={plan.before.stranded} after={plan.after.stranded} />
         <Delta label="Max-flow shortfall" before={plan.before.unmet} after={plan.after.unmet} />
-        <Delta label="Fastest-path overflow" before={plan.before.overflow} after={plan.after.overflow} />
+        <Delta label="Fastest-path overflow" before={plan.before.overflow} after={plan.after.overflow} neutral={overflowFromNewRiders} />
       </div>
-      {plan.kind === "shuttle" && plan.after.overflow > plan.before.overflow ? (
-        <p className="text-xs text-ink-500">Overflow rises because riders who had no path now travel and add load further on.</p>
+      {overflowFromNewRiders ? (
+        <p className="text-xs text-ink-500">
+          Overflow rises because {fmt(nowTravel)} riders who had no path can now travel. The rider desk steers them onto the lines max flow says have room.
+        </p>
       ) : null}
+      {comparison ? <p className="text-sm font-semibold text-ink-900">{comparison}</p> : null}
       {published ? (
         <p className="label flex items-center gap-2 text-ok">
           <span aria-hidden="true">✓</span> Published to riders
@@ -315,6 +343,7 @@ export function ImpactPanel(p: ImpactProps) {
                       busy={p.running || Boolean(p.published)}
                       nameOf={p.nameOf}
                       onApprove={() => p.onApprove(plan.id)}
+                      comparison={compare(plan, p.plans, p.recommended)}
                     />
                   ))}
               </div>

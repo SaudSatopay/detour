@@ -194,7 +194,7 @@ export default function ProofPage() {
         </SectionHead>
         <ol className="flex flex-col gap-2">
           {costs.map((c) => (
-            <li key={c.key} className="grid grid-cols-[minmax(0,11rem)_minmax(0,1fr)_5.5rem] items-center gap-3 text-sm sm:grid-cols-[14rem_minmax(0,1fr)_6rem]">
+            <li key={c.key} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_7.5rem] items-center gap-3 text-sm sm:grid-cols-[14rem_minmax(0,1fr)_7.5rem]">
               <span className="truncate text-ink-900" title={c.summary}>
                 {TOOL_TITLE[c.tool] ?? c.tool}
                 <span className="ml-1.5 font-mono text-xs text-ink-500">{c.key.startsWith("route-") ? c.key.slice(6) : ""}</span>
@@ -202,7 +202,7 @@ export default function ProofPage() {
               <span className="block h-2 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
                 <span className="block h-full rounded-full bg-signal" style={{ width: `${Math.max(1, (c.ms / maxMs) * 100)}%` }} />
               </span>
-              <span className="tabular text-right font-mono text-xs text-ink-700">
+              <span className="tabular whitespace-nowrap text-right font-mono text-xs text-ink-700">
                 {c.ms < 1000 ? `${c.ms} ms` : `${(c.ms / 1000).toFixed(1)} s`} · {c.queries}q
               </span>
             </li>

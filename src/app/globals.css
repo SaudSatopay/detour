@@ -27,6 +27,7 @@
   --ok-wash: oklch(0.95 0.035 155);
   --map-base: oklch(0.86 0.006 250);
   --map-station: oklch(0.995 0.001 250);
+  --map-fade: 0.32;
   --shadow-lift: 0 1px 1px oklch(0.2 0.01 260 / 0.05), 0 8px 24px oklch(0.2 0.01 260 / 0.08);
   color-scheme: light;
 }
@@ -55,6 +56,7 @@
     --ok-wash: oklch(0.31 0.05 155);
     --map-base: oklch(0.36 0.014 255);
     --map-station: oklch(0.24 0.016 255);
+    --map-fade: 0.5;
     --shadow-lift: 0 1px 1px oklch(0 0 0 / 0.3), 0 10px 28px oklch(0 0 0 / 0.35);
     color-scheme: dark;
   }
@@ -83,6 +85,7 @@
   --ok-wash: oklch(0.31 0.05 155);
   --map-base: oklch(0.36 0.014 255);
   --map-station: oklch(0.24 0.016 255);
+  --map-fade: 0.5;
   --shadow-lift: 0 1px 1px oklch(0 0 0 / 0.3), 0 10px 28px oklch(0 0 0 / 0.35);
   color-scheme: dark;
 }

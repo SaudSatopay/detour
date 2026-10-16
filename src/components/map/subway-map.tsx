@@ -82,7 +82,7 @@ type Line = { key: string; route: string; x1: number; y1: number; x2: number; y2
  */
 const BaseLines = memo(function BaseLines({ lines, model, width, faded }: { lines: Line[]; model: MapModel; width: number; faded: boolean }) {
   return (
-    <g opacity={faded ? 0.32 : 0.9} style={{ transition: "opacity 280ms var(--ease-out)" }}>
+    <g style={{ opacity: faded ? "var(--map-fade)" : 0.9, transition: "opacity 280ms var(--ease-out)" }}>
       {lines.map((l) => (
         <line key={l.key} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={`#${model.routes.get(l.route)?.color ?? "808183"}`} strokeWidth={width} strokeLinecap="round" />
       ))}
@@ -242,7 +242,9 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   if (fitKey !== focusKey) {
     setFitKey(focusKey);
     const ids = focusKey ? focusKey.split(",") : undefined;
-    if (!ids || !inFrame(model, ids, view, box, scalePx)) setView(computeFit(model, ids));
+    const ideal = computeFit(model, ids);
+    // Zoom in when the evidence would sit small in the current frame; otherwise hold if it is all in view.
+    if (!ids || ideal.k > view.k * 1.35 || !inFrame(model, ids, view, box, scalePx)) setView(ideal);
   }
 
   // Viewbox units per screen pixel, so strokes, labels and offsets stay a constant size on screen.

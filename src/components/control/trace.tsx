@@ -7,6 +7,9 @@ import { BriefLines, OutcomeChip } from "./bits";
 import type { Item, RunState, ToolStep } from "./run-state";
 
 
+/** Station ids like "[120]" are there for the agents, which pass them to the next tool; people read names. */
+const forPeople = (text: string) => text.replace(/ \[\d{1,4}\]/g, "");
+
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;
 
@@ -60,14 +63,14 @@ const StepCard = memo(function StepCard({
             {r.summary.includes(" | ") ? (
               // Memory recalls several facts; one per line (spans: a button may only hold phrasing content).
               <span className="mt-1.5 flex flex-col gap-1 text-sm leading-relaxed text-ink-700">
-                {r.summary.split(" | ").map((fact) => (
+                {forPeople(r.summary).split(" | ").map((fact) => (
                   <span key={fact} className="block border-l-2 border-line pl-2">
                     {fact}
                   </span>
                 ))}
               </span>
             ) : (
-              <span className="mt-1.5 block text-sm leading-relaxed text-ink-700">{r.summary}</span>
+              <span className="mt-1.5 block text-sm leading-relaxed text-ink-700">{forPeople(r.summary)}</span>
             )}
           </>
         ) : step.error ? (

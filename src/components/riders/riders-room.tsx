@@ -189,7 +189,8 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
     return {
       closedEids: state?.incident?.closedEids,
       shuttles: published?.legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity })),
-      path: h?.path,
+      // With no live route yet, draw the route the rider desk last advised.
+      path: h?.path ?? (rider?.advisory?.route?.length ? rider.advisory.route : undefined),
       pathEids: h?.pathEids,
       stations: h?.stations ?? (rider ? [rider.from, rider.to] : undefined),
     };

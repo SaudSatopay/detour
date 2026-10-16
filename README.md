@@ -22,7 +22,7 @@ Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday. Every number bel
 | Where they go if nobody steers them | 4 G segments run at **190 to 244%** of capacity; 4,689 have no open path |
 | What the open network can carry if riders are spread perfectly (max flow) | **17,167 of 18,432** toward Manhattan (93%) |
 | The bottleneck (min cut) | **1 Av**: its only rail links are the closed L, so no spare capacity elsewhere reaches its riders |
-| Shuttle 1 Av ↔ Astor Pl, tested on a fork | riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315 |
+| Shuttle 1 Av ↔ Astor Pl, tested on a fork | riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315. Fastest-path overflow rises (24,078 → 28,762) because 4,066 more riders can now travel, so the rider desk steers them onto lines with room. A two-leg plan does no better with 18 more buses |
 | Memory that changed the plan | the June bus bridge carried 79% of plan, so the controller adds 27% more buses |
 
 The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.

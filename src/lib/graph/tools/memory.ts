@@ -96,7 +96,7 @@ export async function recall(
     ...closed.slice(0, 2).map((x) => `No longer true (${day(x.validFromMs)} to ${day(x.validToMs!)}): ${x.text}`),
     ...inc.slice(0, 2).map(
       (i) =>
-        `${i.id} on ${day(i.openedMs)} (${i.title})${i.shuttles.length ? `: ${i.shuttles.map((s) => `${s.from} ↔ ${s.to} planned ${s.planned}, carried ${s.observed}`).join("; ")}` : ""}`,
+        `${i.id} on ${day(i.openedMs)} (${i.title})${i.shuttles.length ? `: ${i.shuttles.map((s) => `${s.from} ↔ ${s.to} planned ${s.planned.toLocaleString("en-US")}, carried ${s.observed.toLocaleString("en-US")} riders an hour`).join("; ")}` : ""}`,
     ),
     ...pb.slice(0, 1).map((p) => `Playbook "${p.title}" used ${p.uses} time(s): ${p.steps.join(" ")}`),
   ];
