@@ -260,9 +260,10 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
                 {rider.stepFree ? <span className="label rounded-sm border border-line-strong px-1.5 text-ink-900">Step-free</span> : null}
               </div>
               <p className="text-sm text-ink-700">
-                Usually {nameOf(rider.from)} → {nameOf(rider.to)}, leaves {rider.departs}
-                {rider.usualMinutes ? `, about ${Math.round(rider.usualMinutes)} min` : ""}.
+                Usually {nameOf(rider.from)} → {nameOf(rider.to)}, leaves {rider.departs}.
               </p>
+              {/* Its own line, reserved before the sandbox loads, so arriving data does not reflow the card. */}
+              <p className="text-sm text-ink-500">{rider.usualMinutes ? `About ${Math.round(rider.usualMinutes)} minutes on a normal day.` : "\u00a0"}</p>
               {rider.preferences.length ? (
                 <ul className="flex flex-wrap gap-1.5 pt-1">
                   {rider.preferences.map((p) => (
