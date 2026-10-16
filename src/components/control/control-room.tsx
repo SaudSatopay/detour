@@ -63,6 +63,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
   const [tab, setTab] = useState<"trace" | "impact" | "riders">("trace");
   const [status, setStatus] = useState<SandboxStatus | null>(null);
   const [resetting, setResetting] = useState(false);
+  const [editing, setEditing] = useState(false);
   const { state, run, approve, clear } = useControlRun();
   const { model } = useMapModel();
 
@@ -83,6 +84,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
 
   const start = useCallback(() => {
     setPinned(null);
+    setEditing(false);
     setTab("trace");
     void run({ message: message.trim(), scenarioId: custom ? undefined : scenarioId }).then(loadStatus);
   }, [custom, loadStatus, message, run, scenarioId]);
@@ -149,6 +151,8 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
     onApprove,
   };
 
+  // On phones the intake folds to one line once a run exists, so the map and its evidence come first.
+  const compact = state.items.length > 0 && !editing;
   const intake = (
     <form
       className="flex flex-col gap-3 border-b border-line p-4"
@@ -157,7 +161,16 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
         if (!running && message.trim().length >= 2) start();
       }}
     >
-      <fieldset className="flex min-w-0 flex-col gap-1.5">
+      {compact ? (
+        <div className="flex items-baseline gap-2 lg:hidden">
+          <span className="label text-ink-500">Disruption</span>
+          <span className="min-w-0 flex-1 truncate font-display text-base font-semibold">{custom ? message : scenario?.title}</span>
+          <button type="button" onClick={() => setEditing(true)} className="label shrink-0 text-ink-700 underline decoration-line-strong underline-offset-4">
+            Change
+          </button>
+        </div>
+      ) : null}
+      <fieldset className={`flex min-w-0 flex-col gap-1.5 ${compact ? "max-lg:hidden" : ""}`}>
         <legend className="label mb-1.5 text-ink-500">Report a disruption</legend>
         {scenarios.map((s) => {
           const active = s.id === scenarioId && !custom;
@@ -187,7 +200,7 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
           );
         })}
       </fieldset>
-      <label className="flex flex-col gap-1">
+      <label className={`flex flex-col gap-1 ${compact ? "max-lg:hidden" : ""}`}>
         <span className="label text-ink-500">Dispatcher&apos;s report</span>
         <textarea
           value={message}
@@ -203,9 +216,9 @@ export function ControlRoom({ scenarios, initialScenario, autoRun }: { scenarios
         <button
           type="submit"
           disabled={running || message.trim().length < 2}
-          className="rounded-md bg-ink-900 px-4 py-2.5 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+          className="shrink-0 whitespace-nowrap rounded-md bg-ink-900 px-4 py-2.5 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {running ? "Running…" : "Run the controller"}
+          {running ? "Running…" : state.items.length ? "Run again" : "Run the controller"}
         </button>
         <span className="text-xs leading-snug text-ink-500">On your own copy of the graph. Nothing reaches riders until you approve.</span>
       </div>

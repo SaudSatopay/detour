@@ -8,14 +8,6 @@ const nextConfig: NextConfig = {
     "/api/**": ["./data/nyc/*.json", "./data/scenarios.json", "./data/replays/**"],
   },
   serverExternalPackages: ["falkordb"],
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;

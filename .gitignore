@@ -52,3 +52,6 @@ ci-out/
 # Playwright
 /test-results/
 /playwright-report/
+
+# pnpm may put its store inside the project on CI (Vercel)
+.pnpm-store/

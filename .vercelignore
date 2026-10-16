@@ -1,0 +1,10 @@
+# Local-only and test artifacts; the app needs data/nyc, data/replays, data/proof and public/.
+data/raw
+.missile
+ci-out
+test-results
+playwright-report
+e2e
+docs/images
+.claude
+scripts/verify/__pycache__
