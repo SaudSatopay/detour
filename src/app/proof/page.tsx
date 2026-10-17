@@ -16,7 +16,8 @@ const REPO = "https://github.com/SaudSatopay/detour/blob/main";
 function SectionHead({ id, kicker, title, children }: { id: string; kicker: string; title: string; children?: React.ReactNode }) {
   return (
     <header className="flex max-w-prose flex-col gap-2">
-      <p className="label text-ink-500">{kicker}</p>
+      {/* A small station sign over each check, so the paper half keeps the night stage's signage. */}
+      <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">{kicker}</p>
       <h2 id={id} className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
         {title}
       </h2>
@@ -59,7 +60,7 @@ export default function ProofPage() {
               <a
                 key={id}
                 href={`#${id}`}
-                className="rounded-full border border-line-strong px-3 py-1 text-sm text-ink-700 transition-colors duration-150 hover:border-signal hover:text-ink-900"
+                className="sign-band sign-rule label rounded-sm px-3 pb-1.5 pt-3.5 transition-colors duration-150 hover:bg-signal hover:text-sign"
               >
                 {label}
               </a>
@@ -206,7 +207,7 @@ export default function ProofPage() {
           <ol className="flex flex-col gap-2">
             {costs.map((c) => (
               <li key={c.key} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_7.5rem] items-center gap-3 text-sm sm:grid-cols-[14rem_minmax(0,1fr)_7.5rem]">
-                <span className="truncate text-ink-900" title={c.summary}>
+                <span className="min-w-0 break-words text-ink-900" title={c.summary}>
                   {TOOL_TITLE[c.tool] ?? c.tool}
                   <span className="ml-1.5 font-mono text-xs text-ink-500">{c.key.startsWith("route-") ? c.key.slice(6) : ""}</span>
                 </span>
