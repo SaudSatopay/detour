@@ -327,26 +327,41 @@ export function lastDrawable(items: Item[]): number {
   return -1;
 }
 
+type MapView = { overlay: MapOverlay; focus: string[] };
+
+/** Per step: the closure and published plan it was drawn with, and what was drawn. */
+const drawn = new WeakMap<Item, { closure: ToolResult | null; publish: ToolResult | null; view: MapView }>();
+/** Before any step has something to draw. */
+let blank: MapView | null = null;
+
 /**
  * What the map shows for the step at `index`: the closure in force at that point, plus that
- * step's own evidence (depth, flows and cut, a tested shuttle, a rider's path).
+ * step's own evidence (depth, flows and cut, a tested shuttle, a rider's path). Memoized per step,
+ * so narration streaming in hands the map the same objects and it does not redraw.
  */
-export function overlayAt(items: Item[], index: number): { overlay: MapOverlay; focus: string[] } {
-  let closedEids: number[] | undefined;
-  let stretch: string[] = [];
-  let shuttles: Highlight["shuttles"];
+export function overlayAt(items: Item[], index: number): MapView {
+  let closure: ToolResult | null = null;
+  let publish: ToolResult | null = null;
   for (let i = 0; i <= index && i < items.length; i++) {
     const it = items[i];
     if (it.kind !== "tool" || !it.result) continue;
-    if (it.tool === "close_line" && it.result.highlight?.closedEids) {
-      closedEids = it.result.highlight.closedEids;
-      stretch = it.result.highlight.stations ?? [];
-    }
-    if (it.tool === "publish_plan") {
-      const plan = (it.result.data as { plan: PlanRecord | null } | null)?.plan;
-      shuttles = plan?.legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity }));
-    }
+    if (it.tool === "close_line" && it.result.highlight?.closedEids) closure = it.result;
+    if (it.tool === "publish_plan") publish = it.result;
   }
+  const step = items[index];
+  if (!step && !closure && !publish) return (blank ??= drawOverlay([], -1, null, null));
+  const hit = step ? drawn.get(step) : undefined;
+  if (hit && hit.closure === closure && hit.publish === publish) return hit.view;
+  const view = drawOverlay(items, index, closure, publish);
+  if (step) drawn.set(step, { closure, publish, view });
+  return view;
+}
+
+function drawOverlay(items: Item[], index: number, closure: ToolResult | null, publish: ToolResult | null): MapView {
+  const closedEids = closure?.highlight?.closedEids;
+  const stretch = closure?.highlight?.stations ?? [];
+  const plan = (publish?.data as { plan: PlanRecord | null } | null | undefined)?.plan;
+  const shuttles: Highlight["shuttles"] = plan?.legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity }));
   const it = items[index];
   const h = it?.kind === "tool" ? it.result?.highlight : undefined;
   const overlay: MapOverlay = { closedEids: h?.closedEids ?? closedEids, shuttles: h?.shuttles ?? shuttles };
