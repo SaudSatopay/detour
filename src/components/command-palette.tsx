@@ -71,7 +71,6 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
       <button
         type="button"
         onClick={open}
-        aria-label="Search closures, riders and pages"
         aria-keyshortcuts="Control+K Meta+K"
         className="hidden shrink-0 items-center gap-2 rounded-sm border border-sign-ink/25 px-2.5 py-1 text-sign-ink/80 transition-colors duration-150 hover:border-sign-ink/60 hover:text-sign-ink sm:flex"
       >
@@ -79,8 +78,14 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
           <circle cx="7" cy="7" r="4.6" stroke="currentColor" strokeWidth="1.7" fill="none" />
           <path d="m10.5 10.5 3.6 3.6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
+        {/* The visible word starts the accessible name; the shortcut is announced through aria-keyshortcuts. */}
         <span className="label">Search</span>
-        {keys ? <kbd className="label rounded-sm bg-sign-ink/15 px-1 py-px text-[0.6875rem]">{keys}</kbd> : null}
+        <span className="sr-only"> closures, riders and pages</span>
+        {keys ? (
+          <kbd aria-hidden="true" className="label rounded-sm bg-sign-ink/15 px-1 py-px text-[0.6875rem]">
+            {keys}
+          </kbd>
+        ) : null}
       </button>
 
       <dialog

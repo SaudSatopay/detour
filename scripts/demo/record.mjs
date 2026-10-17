@@ -48,10 +48,22 @@ async function caption(title, detail = "") {
   );
 }
 
-// 1. The claim, over the landing map.
+// 1. The claim on the night stage, then the L closure chapter by chapter on the same sticky map.
 await page.goto(base, { waitUntil: "networkidle" });
+await page.waitForSelector(".night svg[role=img]", { timeout: 30_000 });
 await caption("Detour", "When a New York subway line breaks, agents on a FalkorDB graph measure what the city can still carry.");
-await pause(6);
+await pause(5);
+for (const [chapter, title, detail] of [
+  ["who", "23,445 riders an hour cross the closure", "Only 7,823 board at the closed stations. Riders up to four stops away are hit too."],
+  ["where", "Left alone, they pile onto the G at 244%", "algo.SPpaths reroutes every displaced trip over platforms, transfers and walks, in one query."],
+  ["carry", "Max flow: 93% could still move", "algo.maxFlow over every line's spare capacity, on a fork of the visitor's own graph."],
+  ["cut", "The min cut runs through 1 Av", "1,266 riders an hour have no rail path at all. That is where buses go."],
+  ["fix", "A shuttle, tested on a fork first", "1 Av to Astor Pl: riders with no path 4,689 → 623. Memory said past buses carried 79% of plan."],
+]) {
+  await page.evaluate((id) => document.getElementById(`ch-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), chapter);
+  await caption(title, detail);
+  await pause(4.5);
+}
 
 // 2. The control room: the L closes at 8 a.m.
 await page.goto(`${base}/control?scenario=l-canarsie`, { waitUntil: "networkidle" });
@@ -103,7 +115,21 @@ if (await route.isEnabled()) {
   await pause(4);
 }
 
-// 5. Proof.
+// 5. Memory over time: facts with validity windows, a closed fact and the one that replaced it.
+await page.goto(`${base}/memory`, { waitUntil: "networkidle" });
+await page.getByTestId("memory-timeline").scrollIntoViewIfNeeded();
+await page.evaluate(() => window.scrollBy(0, -160));
+await caption("Memory over time", "Each fact is a node with valid-from and valid-to. A closed fact keeps its window; SUPERSEDES links it to what replaced it.");
+await pause(7);
+
+// 6. Go anywhere from the keyboard.
+await page.keyboard.press("Control+K");
+await page.keyboard.type("cranberry", { delay: 60 });
+await caption("Every closure, rider and check is one search away", "Ctrl K opens the command palette on any page.");
+await pause(3);
+await page.keyboard.press("Escape");
+
+// 7. Proof.
 await page.goto(`${base}/proof`, { waitUntil: "networkidle" });
 await page.locator("#agreement").scrollIntoViewIfNeeded();
 await page.evaluate(() => window.scrollBy(0, -90));
