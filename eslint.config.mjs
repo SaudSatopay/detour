@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Local tooling output (agent worktrees, evidence scripts and screenshots), never part of the app.
     ".claude/**",
     ".missile/**",
+    // The product film is its own Remotion project with its own lint setup.
+    "film/**",
   ]),
 ]);
 

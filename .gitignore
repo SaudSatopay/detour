@@ -45,3 +45,6 @@ docs/blog.md
 .DS_Store
 *.pem
 *.log
+
+# The product film: a separate Remotion project with large captures and renders, kept locally
+/film/

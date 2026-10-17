@@ -16,3 +16,5 @@ PRODUCT.md
 DESIGN.md
 # Local env files: the deployment reads its variables from the Vercel project, never from disk.
 .env*
+# The product film (a separate Remotion project) never ships with the app.
+film
