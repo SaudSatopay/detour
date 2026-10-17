@@ -5,6 +5,7 @@ import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
 import type { LabelExclusion } from "../map/subway-map";
 import { useMapModel } from "../map/use-map-model";
+import { TOOL_TITLE } from "@/lib/tool-titles";
 import { useAfterLoad } from "../use-after-load";
 import { OutcomeChip, RouteTag, Stat } from "./bits";
 import { ImpactPanel } from "./impact-panel";
@@ -278,10 +279,13 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   const latestIndex = lastDrawable(items);
   const selected = pinned !== null && pinned < items.length ? pinned : latestIndex;
   const selectedStep = items[selected]?.kind === "tool" ? items[selected] : null;
+  // The drawn step's number as the playback bar counts steps: the latest step may have nothing to draw, so the
+  // map can be showing an earlier one, and its caption says which.
+  const selectedNumber = useMemo(() => items.slice(0, selected + 1).filter((it) => it.kind === "tool").length, [items, selected]);
   // The map, its caption and its legend, a frame behind the panels (overlayAt hands back the same view per step).
   const drawn = overlayAt(items, selected);
-  const map = useNextFrame(useMemo(() => ({ ...drawn, step: selectedStep }), [drawn, selectedStep]));
-  const { overlay, focus, step: mapStep } = map;
+  const map = useNextFrame(useMemo(() => ({ ...drawn, step: selectedStep, n: selectedNumber }), [drawn, selectedStep, selectedNumber]));
+  const { overlay, focus, step: mapStep, n: mapStepNumber } = map;
   const plans = useMemo(() => plansOf(items), [items]);
   const recommended = recommendedPlan(view.brief, plans);
   const riders = useMemo(() => ridersOf(view), [view]);
@@ -465,7 +469,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
             {mapStep?.kind === "tool" ? (
               <div className="pointer-events-none absolute left-3 right-14 top-3 flex flex-wrap items-center gap-2">
                 <span className="label rounded-sm bg-sign px-2 py-1 text-sign-ink">
-                  {agentName(mapStep.agent)} · {mapStep.tool}
+                  Step {mapStepNumber} · {agentName(mapStep.agent)} · {TOOL_TITLE[mapStep.tool] ?? mapStep.tool}
                 </span>
                 {pinned !== null ? (
                   <button
