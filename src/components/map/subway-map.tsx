@@ -79,17 +79,21 @@ function computeFit(model: MapModel, ids?: string[]): View {
   return { k, x: model.width / 2 - cx * k, y: model.height / 2 - cy * k };
 }
 
-type Line = { key: string; route: string; x1: number; y1: number; x2: number; y2: number };
+/** A run of consecutive base lines in one color, drawn as one path of "M a L b" pieces. */
+type Run = { key: string; color: string; d: string };
 
 /*
  * The heavy layers are memoized: a new trace step changes the overlay (flows, cut, shuttles), not
- * the network, so about 1,500 base lines and 445 stations are not re-rendered on every step.
+ * the network, so about 770 base lines and 445 stations are not re-rendered on every step.
+ * The base lines are drawn as about 170 paths, one per run of a color in drawing order (the same
+ * strokes in the same order), because a zoom moves every line and the browser restyles, lays out
+ * and paints each element it touches.
  */
-const BaseLines = memo(function BaseLines({ lines, model, width, faded }: { lines: Line[]; model: MapModel; width: number; faded: boolean }) {
+const BaseLines = memo(function BaseLines({ runs, width, faded }: { runs: Run[]; width: number; faded: boolean }) {
   return (
     <g style={{ opacity: faded ? "var(--map-fade)" : 0.9, transition: "opacity 280ms var(--ease-out)" }}>
-      {lines.map((l) => (
-        <line key={l.key} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={`#${model.routes.get(l.route)?.color ?? "808183"}`} strokeWidth={width} strokeLinecap="round" />
+      {runs.map((r) => (
+        <path key={r.key} d={r.d} fill="none" stroke={`#${r.color}`} strokeWidth={width} strokeLinecap="round" />
       ))}
     </g>
   );
@@ -195,7 +199,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const unit = scalePx / view.k;
   // Corridor geometry: a perpendicular offset per route so shared track shows every line side by side.
   const geometry = useMemo(() => {
-    const lines: { key: string; route: string; x1: number; y1: number; x2: number; y2: number }[] = [];
+    const runs: Run[] = [];
     const offsetOf = new Map<string, { nx: number; ny: number; o: number }>();
     for (const c of model.corridors) {
       const a = model.stations.get(c.a);
@@ -209,10 +213,14 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
       c.routes.forEach((route, i) => {
         const o = (i - (c.routes.length - 1) / 2) * SPACING * unit;
         offsetOf.set(`${c.key}|${route}`, { nx, ny, o });
-        lines.push({ key: `${c.key}|${route}`, route, x1: a.x + nx * o, y1: a.y + ny * o, x2: b.x + nx * o, y2: b.y + ny * o });
+        const color = model.routes.get(route)?.color ?? "808183";
+        const piece = `M${a.x + nx * o} ${a.y + ny * o}L${b.x + nx * o} ${b.y + ny * o}`;
+        const last = runs[runs.length - 1];
+        if (last?.color === color) last.d += piece;
+        else runs.push({ key: `${c.key}|${route}`, color, d: piece });
       });
     }
-    return { lines, offsetOf };
+    return { runs, offsetOf };
   }, [model, unit]);
 
   const segmentLine = useCallback(
@@ -413,7 +421,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
         </defs>
         <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
           {/* Base network: every route in its GTFS color, side by side on shared track. */}
-          <BaseLines lines={geometry.lines} model={model} width={sw(2.2)} faded={hasOverlay} />
+          <BaseLines runs={geometry.runs} width={sw(2.2)} faded={hasOverlay} />
 
           {/* Closed segments. */}
           {[...closed].map((eid) => {
