@@ -346,7 +346,8 @@ p {
 .flow {
   stroke-dasharray: 3 9;
   stroke-linecap: round;
-  animation: flow-dash var(--flow-speed, 1.4s) linear infinite;
+  /* Each flow sets its own duration inline: heavier flows move slower. */
+  animation: flow-dash 1.4s linear infinite;
 }
 
 @keyframes draw-in {
