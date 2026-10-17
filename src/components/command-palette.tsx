@@ -68,6 +68,18 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
 
   return (
     <>
+      {/* Phones: the same palette from an icon the size of the theme switch beside it. */}
+      <button
+        type="button"
+        onClick={open}
+        aria-label="Search closures, riders and pages"
+        className="grid size-8 shrink-0 place-items-center rounded-sm text-sign-ink/80 transition-colors duration-150 hover:bg-sign-ink/10 hover:text-sign-ink sm:hidden"
+      >
+        <svg viewBox="0 0 16 16" className="size-[18px]" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.6" stroke="currentColor" strokeWidth="1.7" fill="none" />
+          <path d="m10.5 10.5 3.6 3.6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        </svg>
+      </button>
       <button
         type="button"
         onClick={open}

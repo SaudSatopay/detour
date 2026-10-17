@@ -28,7 +28,7 @@ export function SiteHeader({ palette }: { palette: PaletteItem[] }) {
   const pathname = usePathname();
   return (
     <header className="sign-band sign-rule sticky top-0 z-40">
-      <div className="mx-auto flex h-12 max-w-[1440px] items-center gap-3 px-4 pt-1 sm:gap-4 sm:px-6">
+      <div className="mx-auto flex h-12 max-w-[1440px] items-center gap-2 px-3 pt-1 min-[400px]:gap-3 min-[400px]:px-4 sm:gap-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-display text-xl font-bold tracking-wide" aria-label="Detour home">
           <DetourMark className="size-6" />
           <span className="hidden min-[400px]:inline">Detour</span>
@@ -41,7 +41,7 @@ export function SiteHeader({ palette }: { palette: PaletteItem[] }) {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`label whitespace-nowrap rounded-sm px-2 py-1.5 transition-colors duration-150 sm:px-2.5 ${
+                className={`label whitespace-nowrap rounded-sm px-1.5 py-1.5 transition-colors duration-150 min-[400px]:px-2 sm:px-2.5 ${
                   active ? "bg-sign-ink text-sign" : "text-sign-ink/80 hover:text-sign-ink"
                 }`}
               >
@@ -51,7 +51,7 @@ export function SiteHeader({ palette }: { palette: PaletteItem[] }) {
             );
           })}
         </nav>
-        <div className="flex items-center gap-3 sm:ml-auto sm:gap-4">
+        <div className="flex items-center gap-1 sm:ml-auto sm:gap-4">
           <CommandPalette items={palette} />
           <a href="https://github.com/SaudSatopay/detour" className="label hidden text-sign-ink/80 transition-colors duration-150 hover:text-sign-ink sm:block">
             Source

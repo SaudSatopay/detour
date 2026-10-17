@@ -30,3 +30,14 @@ test("the palette's arrows move through the results and Escape closes it", async
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
 });
+
+test("phones open the palette from the header's search icon", async ({ page }, info) => {
+  test.skip(info.project.name !== "phone", "Desktops have the labelled Search button and the shortcut.");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Search closures, riders and pages" }).click();
+  const input = page.getByRole("combobox", { name: /Go to a closure/ });
+  await expect(input).toBeFocused();
+  await input.fill("aisha");
+  await page.getByRole("option", { name: /Aisha's trip/ }).click();
+  await expect(page).toHaveURL(/\/riders\?rider=aisha/);
+});
