@@ -1,4 +1,5 @@
-import { connect, copyGraph, deleteGraph, listGraphs } from "./db";
+import { copyGraph, deleteGraph, listGraphs } from "./db";
+import { dropExpired, forgetSandbox, graphExists, sandboxEntries, touchSandbox } from "./meta";
 import { FORK_PREFIX, SANDBOX_PREFIX, TEMPLATE_GRAPH, sandboxGraph } from "./names";
 import { ensureBaseGraphs } from "./seed";
 
@@ -7,7 +8,6 @@ import { ensureBaseGraphs } from "./seed";
  * plans and memory written during a visit never touch anyone else's graph. The free FalkorDB
  * tier has 100 MB, so sandboxes are capped and the least recently used ones are dropped.
  */
-const REGISTRY = "detour:sandboxes";
 const MAX_SANDBOXES = 24;
 const SANDBOX_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -42,42 +42,35 @@ export function ensureSandbox(visitorId: string): Promise<Sandbox> {
 async function createSandbox(visitorId: string): Promise<Sandbox> {
   await ensureBase();
   const graph = sandboxGraph(visitorId);
-  const db = await connect();
-  const redis = await db.connection;
-  const exists = (await redis.exists(graph)) === 1;
   let copyMs = 0;
   let created = false;
-  if (!exists) {
-    await evictIfFull(redis);
+  if (!(await graphExists(graph))) {
+    await evictIfFull();
     const started = performance.now();
     try {
       await copyGraph(TEMPLATE_GRAPH, graph);
       created = true;
     } catch (error) {
-      if ((await redis.exists(graph)) !== 1) throw error;
+      if (!(await graphExists(graph))) throw error;
     }
     copyMs = performance.now() - started;
   }
-  await redis.hSet(REGISTRY, visitorId, String(Date.now()));
+  await touchSandbox(visitorId);
   return { graph, created, copyMs };
 }
 
 export async function resetSandbox(visitorId: string): Promise<void> {
   const graph = sandboxGraph(visitorId);
   await dropForks(visitorId);
-  const db = await connect();
-  const redis = await db.connection;
-  if ((await redis.exists(graph)) === 1) await deleteGraph(graph);
+  if (await graphExists(graph)) await deleteGraph(graph);
   await ensureSandbox(visitorId);
 }
 
 /** Deletes a visitor's sandbox and forks and forgets it (used by the eval harness). */
 export async function dropSandbox(visitorId: string): Promise<void> {
   await dropForks(visitorId);
-  const db = await connect();
-  const redis = await db.connection;
-  if ((await redis.exists(sandboxGraph(visitorId))) === 1) await deleteGraph(sandboxGraph(visitorId));
-  await redis.hDel(REGISTRY, visitorId);
+  if (await graphExists(sandboxGraph(visitorId))) await deleteGraph(sandboxGraph(visitorId));
+  await forgetSandbox(visitorId);
 }
 
 export async function dropForks(visitorId: string): Promise<void> {
@@ -87,42 +80,37 @@ export async function dropForks(visitorId: string): Promise<void> {
   }
 }
 
-type Redis = Awaited<Awaited<ReturnType<typeof connect>>["connection"]>;
-
-async function evictIfFull(redis: Redis): Promise<void> {
-  const entries = Object.entries(await redis.hGetAll(REGISTRY)).map(([id, seen]) => ({ id, seen: Number(seen) }));
+async function evictIfFull(): Promise<void> {
+  const entries = await sandboxEntries();
   const now = Date.now();
   const stale = entries.filter((e) => now - e.seen > SANDBOX_TTL_MS);
   const live = entries.filter((e) => now - e.seen <= SANDBOX_TTL_MS).sort((a, b) => a.seen - b.seen);
   const overflow = Math.max(0, live.length - (MAX_SANDBOXES - 1));
-  for (const e of [...stale, ...live.slice(0, overflow)]) {
-    await dropForks(e.id);
-    const graph = `${SANDBOX_PREFIX}${e.id}`;
-    if ((await redis.exists(graph)) === 1) await deleteGraph(graph);
-    await redis.hDel(REGISTRY, e.id);
-  }
+  for (const e of [...stale, ...live.slice(0, overflow)]) await dropVisitor(e.id);
 }
 
-/** Cron entry point: removes expired sandboxes and orphaned forks. */
+async function dropVisitor(id: string): Promise<void> {
+  await dropForks(id);
+  const graph = `${SANDBOX_PREFIX}${id}`;
+  if (await graphExists(graph)) await deleteGraph(graph);
+  await forgetSandbox(id);
+}
+
+/** Cron entry point: removes expired sandboxes, orphaned forks, and counters and locks past their time. */
 export async function cleanupSandboxes(): Promise<{ removed: string[] }> {
-  const db = await connect();
-  const redis = await db.connection;
-  const entries = Object.entries(await redis.hGetAll(REGISTRY));
   const removed: string[] = [];
   const now = Date.now();
-  for (const [id, seen] of entries) {
-    if (now - Number(seen) <= SANDBOX_TTL_MS) continue;
-    await dropForks(id);
-    const graph = `${SANDBOX_PREFIX}${id}`;
-    if ((await redis.exists(graph)) === 1) await deleteGraph(graph);
-    await redis.hDel(REGISTRY, id);
+  for (const { id, seen } of await sandboxEntries()) {
+    if (now - seen <= SANDBOX_TTL_MS) continue;
+    await dropVisitor(id);
     removed.push(id);
   }
-  const live = new Set(Object.keys(await redis.hGetAll(REGISTRY)));
+  const live = new Set((await sandboxEntries()).map((e) => e.id));
   for (const name of await listGraphs()) {
     if (!name.startsWith(FORK_PREFIX)) continue;
     const visitor = name.slice(FORK_PREFIX.length).split(":")[0];
     if (!live.has(visitor)) await deleteGraph(name);
   }
+  await dropExpired(now);
   return { removed };
 }

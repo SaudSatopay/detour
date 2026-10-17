@@ -1,4 +1,5 @@
-import { connect, deleteGraph, listGraphs, run, type GraphParams } from "./db";
+import { deleteGraph, listGraphs, run, type GraphParams } from "./db";
+import { releaseLock, takeLock } from "./meta";
 import { DEMAND_GRAPH, TEMPLATE_GRAPH } from "./names";
 import { loadDemand, loadMeta, loadNetwork } from "../network/data";
 import { SEED_AGENTS, SEED_FINDINGS, SEED_INCIDENTS, SEED_PLAYBOOKS, SEED_RIDERS } from "./seed-memory";
@@ -299,25 +300,21 @@ async function graphVersion(name: string): Promise<number | null> {
 
 /** Seeds (or rebuilds) the shared graphs. Safe to call repeatedly; only missing or stale graphs are rebuilt. */
 export async function ensureBaseGraphs(log: (msg: string) => void = () => {}, force = false): Promise<void> {
-  const db = await connect();
   const existing = new Set(await listGraphs());
-  const lockKey = "detour:seed-lock";
+  const owner = crypto.randomUUID();
   for (const [name, seed] of [
     [DEMAND_GRAPH, seedDemand],
     [TEMPLATE_GRAPH, seedTemplate],
   ] as const) {
     const fresh = existing.has(name) && (await graphVersion(name)) === SEED_VERSION;
     if (fresh && !force) continue;
-    const got = await db.connection.then((c) =>
-      c.set(lockKey, name, { condition: "NX", expiration: { type: "PX", value: 120_000 } }),
-    );
-    if (got !== "OK") throw new Error("Another process is seeding the graphs; retry in a minute.");
+    if (!(await takeLock("seed", owner, 120_000))) throw new Error("Another process is seeding the graphs; retry in a minute.");
     try {
       if (existing.has(name)) await deleteGraph(name);
       log(`seeding ${name}`);
       await seed(log);
     } finally {
-      await db.connection.then((c) => c.del(lockKey));
+      await releaseLock("seed", owner);
     }
   }
 }

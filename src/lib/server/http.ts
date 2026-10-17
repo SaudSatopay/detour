@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { connect } from "../graph/db";
+import { bump } from "../graph/meta";
 import { isVisitorId, newVisitorId, VISITOR_COOKIE, VISITOR_MAX_AGE } from "../graph/names";
 
 /**
@@ -59,14 +59,10 @@ export function friendlyError(error: unknown): string {
 }
 
 /**
- * A fixed-window limiter in the same FalkorDB instance (it is a Redis server too): keeps one
- * visitor from spending the shared free model quota.
+ * A fixed-window limiter kept in the graph database's bookkeeping graph: keeps one visitor from spending the
+ * shared free model quota.
  */
 export async function allow(visitorId: string, bucket: string, perHour: number): Promise<boolean> {
-  const db = await connect();
-  const redis = await db.connection;
-  const key = `detour:rl:${bucket}:${visitorId}:${Math.floor(Date.now() / 3_600_000)}`;
-  const n = await redis.incr(key);
-  if (n === 1) await redis.expire(key, 3700);
+  const n = await bump(`rl:${bucket}:${visitorId}:${Math.floor(Date.now() / 3_600_000)}`, 3_700_000);
   return n <= perHour;
 }
