@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapModel, MapStation } from "@/lib/network/map";
 import type { CutHighlight, FlowHighlight } from "@/lib/graph/tools/types";
 
@@ -99,6 +99,15 @@ const BaseLines = memo(function BaseLines({ runs, width, faded }: { runs: Run[];
   );
 });
 
+/*
+ * A station is a dot with a ring, a constant size on screen. Drawn as circles, all 445 would take a new radius
+ * and stroke on every zoom, and the browser restyles and lays out each one. So a station with a solid fill is
+ * two round dots in screen pixels instead: a zero-length path with a round cap and a non-scaling stroke is a
+ * disc as wide as its stroke, the ring's disc under the fill's, the same paint as the circle, and a zoom changes
+ * neither. A station showing depth fades its fill over the map below, which a disc under it would tint: its fill
+ * is the dot, and its ring a circle on top (`unit` is only read for those). Either way the first element is a
+ * path holding the title, so depth coming and going updates it in place and swaps only the second.
+ */
 const Stations = memo(function Stations({
   model,
   depth,
@@ -118,22 +127,31 @@ const Stations = memo(function Stations({
       {[...model.stations.values()].map((s) => {
         const hop = depth?.[s.id];
         const em = emphasized.has(s.id);
-        const r = sw(em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9);
+        const r = em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9;
+        const ring = em ? 1.4 : 0.8;
+        const stroke = em ? "var(--ink-900)" : "var(--ink-700)";
+        const onClick = onSelect ? () => onSelect(s.id) : undefined;
+        const className = onSelect ? "cursor-pointer" : undefined;
+        const title = <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>;
+        const d = `M${s.x} ${s.y}h0`;
+        if (hop !== undefined) {
+          const rd = 2.4 + Math.max(0, 4 - hop) * 0.7;
+          return (
+            <Fragment key={s.id}>
+              <path d={d} stroke="var(--crit)" strokeOpacity={Math.max(0.3, 1 - hop * 0.11)} strokeWidth={2 * rd} strokeLinecap="round" vectorEffect="non-scaling-stroke" onClick={onClick} className={className}>
+                {title}
+              </path>
+              <circle cx={s.x} cy={s.y} r={sw(rd)} fill="none" stroke={stroke} strokeWidth={ring} vectorEffect="non-scaling-stroke" onClick={onClick} className={className} />
+            </Fragment>
+          );
+        }
         return (
-          <circle
-            key={s.id}
-            cx={s.x}
-            cy={s.y}
-            r={hop !== undefined ? sw(2.4 + Math.max(0, 4 - hop) * 0.7) : r}
-            fill={hop !== undefined ? "var(--crit)" : em ? "var(--signal)" : "var(--map-station)"}
-            fillOpacity={hop !== undefined ? Math.max(0.3, 1 - hop * 0.11) : 1}
-            stroke={em ? "var(--ink-900)" : "var(--ink-700)"}
-            strokeWidth={sw(em ? 1.4 : 0.8)}
-            onClick={onSelect ? () => onSelect(s.id) : undefined}
-            className={onSelect ? "cursor-pointer" : undefined}
-          >
-            <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>
-          </circle>
+          <Fragment key={s.id}>
+            <path d={d} stroke={stroke} strokeWidth={2 * r + ring} strokeLinecap="round" vectorEffect="non-scaling-stroke" onClick={onClick} className={className}>
+              {title}
+            </path>
+            <path d={d} stroke={em ? "var(--signal)" : "var(--map-station)"} strokeWidth={2 * r - ring} strokeLinecap="round" vectorEffect="non-scaling-stroke" pointerEvents="none" />
+          </Fragment>
         );
       })}
     </g>
@@ -497,7 +515,8 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
           ) : null}
 
           {/* Stations. */}
-          <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={unit} onSelect={onSelect} />
+          {/* Without depth the layer is drawn in screen pixels, so a zoom does not re-render it. */}
+          <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={overlay.depth ? unit : 0} onSelect={onSelect} />
 
           {/* Stations a story points at. */}
           {marks.map((m) => {
