@@ -10,6 +10,8 @@ const NY = "America/New_York";
 /** Fixed vertical rhythm, shared with the HTML row labels so they line up with the SVG. */
 export const TIMELINE = {
   rowH: 40,
+  /** On a phone a station name may wrap to two lines above the fact's kind. */
+  rowHCompact: 54,
   groupH: 26,
   laneH: 18,
   episodeH: 30,
@@ -47,6 +49,11 @@ interface TimelineInput {
   nowMs: number;
   /** Width available for the plot, in px. Narrower widths are raised to `TIMELINE.minWidth`. */
   width: number;
+  /**
+   * A phone: taller rows so station names can wrap, and incidents marked by number in the plot with their
+   * names listed beside it, since a long caption would run out of the narrow window the chart scrolls in.
+   */
+  compact?: boolean;
 }
 
 export interface TimelineRow {
@@ -81,7 +88,11 @@ interface TimelineLink {
 
 interface TimelineIncidentMark {
   incident: TimelineIncident;
+  /** Its number, in order of opening, and its full caption: a short date and name. */
+  n: number;
+  caption: string;
   x: number;
+  /** What the plot prints beside the marker: the caption, or on a phone the number. */
   label: string;
   lane: number;
   anchor: "start" | "end";
@@ -155,8 +166,9 @@ const LABEL_CHAR = 6.6; // average px per character of the 12 px label type
 const RECENT_MS = 21 * DAY;
 const RECENT_SHARE = 0.32;
 
-export function layoutTimeline({ findings, incidents, episodes, nowMs, width: available }: TimelineInput) {
+export function layoutTimeline({ findings, incidents, episodes, nowMs, width: available, compact = false }: TimelineInput) {
   const T = TIMELINE;
+  const rowH = compact ? T.rowHCompact : T.rowH;
   const width = Math.max(T.minWidth, Math.round(available));
   const times = [...findings.map((f) => f.validFromMs), ...incidents.map((i) => i.openedMs)].filter((t) => t <= nowMs);
   const earliest = times.length ? Math.min(...times) : nowMs - 30 * DAY;
@@ -181,16 +193,17 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
   const marks = [...incidents]
     .filter((i) => i.openedMs <= nowMs)
     .sort((a, b) => a.openedMs - b.openedMs)
-    .map((incident) => {
+    .map((incident, i) => {
       const ix = x(incident.openedMs);
-      const label = `${formatShort(incident.openedMs)} · ${shortTitle(incident.title)}${incident.open ? " (open)" : ""}`;
+      const caption = `${formatShort(incident.openedMs)} · ${shortTitle(incident.title)}${incident.open ? " (open)" : ""}`;
+      const label = compact ? String(i + 1) : caption;
       const w = label.length * LABEL_CHAR + 8;
       const anchor: "start" | "end" = ix + w > width - 4 ? "end" : "start";
       const [from, to] = anchor === "start" ? [ix, ix + w] : [ix - w, ix];
       let lane = laneEnds.findIndex((end) => end + 8 <= from);
       if (lane === -1) lane = laneEnds.push(to) - 1;
       else laneEnds[lane] = to;
-      return { incident, x: ix, label, lane, anchor };
+      return { incident, n: i + 1, caption, x: ix, label, lane, anchor };
     });
   const top = marks.length ? 6 + laneEnds.length * T.laneH + 8 : 8;
   const incidentMarks: TimelineIncidentMark[] = marks.map((m) => ({ ...m, labelY: 6 + m.lane * T.laneH + 12 }));
@@ -237,14 +250,14 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
         group: g.key,
         label: subjects.get(f.id)!.places.join(", "),
         y,
-        cy: y + T.rowH / 2,
+        cy: y + rowH / 2,
         x1,
         x2,
         open,
         hit: { x: hitX, w: hitW },
         incident: incidentFor(f, incidents),
       });
-      y += T.rowH;
+      y += rowH;
     }
   }
   const bodyBottom = y;
@@ -298,6 +311,7 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
 
   return {
     width,
+    rowH,
     height: axisY + T.axisH,
     startMs,
     endMs,
@@ -306,8 +320,15 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
     bodyBottom,
     axisY,
     today: { x: todayX, label: `Today, ${formatShort(nowMs)}` },
-    /** Where the last three weeks start when they are drawn wider than the rest; null when the scale is even. */
-    recent: zoomed ? { x: splitX, ms: split, label: "Last 3 weeks, drawn wider" } : null,
+    /**
+     * Where the last three weeks start when they are drawn wider than the rest; null when the scale is even.
+     * On a phone the chart opens at Today, so the shorter label sits against Today instead of the zone's start.
+     */
+    recent: zoomed
+      ? compact
+        ? { x: splitX, ms: split, label: "Last 3 weeks", labelX: todayX - 6, anchor: "end" as const }
+        : { x: splitX, ms: split, label: "Last 3 weeks, drawn wider", labelX: splitX + 6, anchor: "start" as const }
+      : null,
     ticks,
     groups,
     rows,

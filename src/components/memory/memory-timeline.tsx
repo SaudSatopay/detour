@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type PointerEvent } from "react";
 import { factName, formatDay, layoutTimeline, TIMELINE, type TimelineFact, type TimelineIncident, type TimelineRow } from "@/lib/memory-timeline";
 
 export const KIND: Record<string, string> = {
@@ -12,6 +12,16 @@ export const KIND: Record<string, string> = {
 };
 
 const T = TIMELINE;
+
+// Below the sm breakpoint the chart takes its compact layout: wrapping station names, numbered incidents.
+const PHONE = "(max-width: 639.98px)";
+const onViewport = (change: () => void) => {
+  const mq = window.matchMedia(PHONE);
+  mq.addEventListener("change", change);
+  return () => mq.removeEventListener("change", change);
+};
+const isPhone = () => window.matchMedia(PHONE).matches;
+const notPhone = () => false;
 
 // Bars draw in once: under 600 ms in all, stroke-dashoffset and opacity only. Reduced motion skips the delay
 // (globals.css already shortens the animation itself), so the final state shows at once.
@@ -77,12 +87,12 @@ function Legend({ episodes, example, links }: { episodes: boolean; example: bool
   );
 }
 
-function Bar({ row: r, i, active }: { row: TimelineRow; i: number; active: boolean }) {
+function Bar({ row: r, i, active, rowH }: { row: TimelineRow; i: number; active: boolean; rowH: number }) {
   const end = r.open ? r.x2 - 7 : r.x2;
   const len = end - r.x1;
   return (
     <g>
-      {active ? <rect x={0} y={r.y + 2} width="100%" height={T.rowH - 4} className="fill-sunk" /> : null}
+      {active ? <rect x={0} y={r.y + 2} width="100%" height={rowH - 4} className="fill-sunk" /> : null}
       {len > 0 ? (
         <line
           x1={r.x1}
@@ -158,6 +168,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
   const [scrollLeft, setScrollLeft] = useState(0);
   const [active, setActive] = useState<string | null>(null);
   const cardId = useId();
+  const compact = useSyncExternalStore(onViewport, isPhone, notPhone);
 
   useLayoutEffect(() => {
     const el = scroller.current;
@@ -177,8 +188,8 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
   }, [active]);
 
   const l = useMemo(
-    () => layoutTimeline({ findings, incidents, episodes, nowMs: Math.max(now, ...findings.map((f) => f.validFromMs)), width: box.width }),
-    [findings, incidents, episodes, now, box.width],
+    () => layoutTimeline({ findings, incidents, episodes, nowMs: Math.max(now, ...findings.map((f) => f.validFromMs)), width: box.width, compact }),
+    [findings, incidents, episodes, now, box.width, compact],
   );
 
   // On a screen narrower than the chart, open at Today: the recent weeks are where memory changes.
@@ -199,7 +210,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
     const outer = box.offset + box.width;
     const cardW = Math.min(320, outer);
     const left = Math.min(Math.max(0, box.offset + r.x1 - scrollLeft - 24), outer - cardW);
-    return r.cy > l.height / 2 ? { left, top: r.y + 2, transform: "translateY(-100%)" } : { left, top: r.y + T.rowH - 2 };
+    return r.cy > l.height / 2 ? { left, top: r.y + 2, transform: "translateY(-100%)" } : { left, top: r.y + l.rowH - 2 };
   };
   const leave = (id: string) => (e: PointerEvent<HTMLButtonElement>) => {
     if (e.pointerType === "mouse" && document.activeElement !== e.currentTarget) setActive((cur) => (cur === id ? null : cur));
@@ -209,6 +220,17 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
   return (
     <div className="flex flex-col gap-4">
       <Legend episodes={l.episodes.length > 0} example={findings.some((f) => f.example)} links={l.links.length > 0} />
+      {/* Phones: the plot marks each incident by number; their names read here, where they cannot run out of view. */}
+      {compact && l.incidents.length ? (
+        <ol aria-label="Incidents on the timeline" className="flex flex-col gap-1 text-xs text-ink-700">
+          {l.incidents.map((m) => (
+            <li key={m.incident.id} className="flex items-baseline gap-2">
+              <span className="tabular w-3 shrink-0 font-semibold text-crit">{m.n}</span>
+              {m.caption}
+            </li>
+          ))}
+        </ol>
+      ) : null}
       <div className="relative grid grid-cols-[9.5rem_minmax(0,1fr)] rounded-md border border-line bg-panel sm:grid-cols-[13rem_minmax(0,1fr)]">
         {/* Row labels stay put while the plot scrolls sideways on a phone. */}
         <div className="relative border-r border-line" style={{ height: l.height }} aria-hidden="true">
@@ -218,8 +240,8 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
             </p>
           ))}
           {l.rows.map((r) => (
-            <div key={r.id} className="absolute inset-x-0 flex flex-col justify-center px-3" style={{ top: r.y, height: T.rowH }}>
-              <span title={r.label} className={`truncate text-xs ${r.open ? "text-ink-900" : "text-ink-500"}`}>
+            <div key={r.id} className="absolute inset-x-0 flex flex-col justify-center px-3" style={{ top: r.y, height: l.rowH }}>
+              <span title={r.label} className={`text-xs ${compact ? "line-clamp-2 break-words leading-tight" : "truncate"} ${r.open ? "text-ink-900" : "text-ink-500"}`}>
                 {r.label || "Whole route"}
               </span>
               <span className="flex items-center gap-1.5 text-xs text-ink-500">
@@ -261,7 +283,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
                 <g>
                   <rect x={l.recent.x} y={l.top - 4} width={l.today.x - l.recent.x} height={l.axisY - l.top + 4} className="fill-sunk" opacity="0.6" />
                   <line x1={l.recent.x} y1={l.top - 4} x2={l.recent.x} y2={l.axisY + 6} className="stroke-line-strong" strokeWidth="1" strokeDasharray="2 3" />
-                  <text x={l.recent.x + 6} y={l.top + 15} className="fill-ink-500 text-xs">
+                  <text x={l.recent.labelX} y={l.top + 15} textAnchor={l.recent.anchor} className="fill-ink-500 text-xs">
                     {l.recent.label}
                   </text>
                 </g>
@@ -278,7 +300,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
               ))}
 
               {l.rows.map((r, i) => (
-                <Bar key={r.id} row={r} i={i} active={active === r.id} />
+                <Bar key={r.id} row={r} i={i} active={active === r.id} rowH={l.rowH} />
               ))}
 
               {l.links.map((k) => (
@@ -311,7 +333,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
 
             <ul aria-label="Facts on the timeline">
               {l.rows.map((r) => (
-                <li key={r.id} className="absolute" style={{ left: r.hit.x, top: r.y, width: r.hit.w, height: T.rowH }}>
+                <li key={r.id} className="absolute" style={{ left: r.hit.x, top: r.y, width: r.hit.w, height: l.rowH }}>
                   <button
                     type="button"
                     aria-label={factName(r.fact)}

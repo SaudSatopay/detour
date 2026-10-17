@@ -196,3 +196,25 @@ describe("accessible names", () => {
     );
   });
 });
+
+describe("compact layout (phones)", () => {
+  const compact = () => layoutTimeline({ findings: FACTS, incidents: INCIDENTS, episodes: [], nowMs: NOW, width: 200, compact: true });
+
+  it("numbers incidents in the plot and keeps their full captions for the list beside it", () => {
+    const l = compact();
+    expect(l.incidents.map((i) => i.label)).toEqual(["1", "2"]);
+    expect(l.incidents.map((i) => i.caption)).toEqual(["Jun 12 · Canarsie Tube smoke", "Sep 3 · Cranberry Street Tunnel water"]);
+  });
+
+  it("gives each row room for a station name on two lines", () => {
+    const l = compact();
+    expect(l.rowH).toBe(TIMELINE.rowHCompact);
+    expect(row(l, "F-FIXED").y - row(l, "F-ELEV-2").y).toBe(TIMELINE.rowHCompact);
+  });
+
+  it("sets the recent-weeks label against Today, where the chart opens", () => {
+    const l = compact();
+    expect(l.recent).toMatchObject({ label: "Last 3 weeks", anchor: "end" });
+    expect(l.recent!.labelX).toBeLessThan(l.today.x);
+  });
+});
