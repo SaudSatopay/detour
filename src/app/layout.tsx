@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, Barlow_Condensed } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { paletteItems } from "@/lib/palette";
 import { THEME_BOOT } from "@/lib/theme";
 import "./globals.css";
 
@@ -76,7 +77,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-panel focus:px-3 focus:py-2">
           Skip to content
         </a>
-        <SiteHeader />
+        <SiteHeader palette={paletteItems()} />
         <main id="main" className="flex flex-1 flex-col">
           {children}
         </main>

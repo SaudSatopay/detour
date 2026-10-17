@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { PaletteItem } from "@/lib/palette";
+import { CommandPalette } from "./command-palette";
 import { ThemeSwitch } from "./theme-switch";
 
 const NAV = [
@@ -22,7 +24,7 @@ export function DetourMark({ className = "" }: { className?: string }) {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ palette }: { palette: PaletteItem[] }) {
   const pathname = usePathname();
   return (
     <header className="sign-band sign-rule sticky top-0 z-40">
@@ -49,13 +51,13 @@ export function SiteHeader() {
             );
           })}
         </nav>
-        <a
-          href="https://github.com/SaudSatopay/detour"
-          className="label ml-auto hidden text-sign-ink/80 transition-colors duration-150 hover:text-sign-ink sm:block"
-        >
-          Source
-        </a>
-        <ThemeSwitch />
+        <div className="flex items-center gap-3 sm:ml-auto sm:gap-4">
+          <CommandPalette items={palette} />
+          <a href="https://github.com/SaudSatopay/detour" className="label hidden text-sign-ink/80 transition-colors duration-150 hover:text-sign-ink sm:block">
+            Source
+          </a>
+          <ThemeSwitch />
+        </div>
       </div>
     </header>
   );
