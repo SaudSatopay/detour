@@ -5,6 +5,12 @@ ci-out
 test-results
 playwright-report
 e2e
-docs/images
+docs
 .claude
 scripts/verify/__pycache__
+# Local notes, kept off every deployment like they are kept out of git.
+AGENTS.md
+CLAUDE.md
+MISSILE.md
+PRODUCT.md
+DESIGN.md
