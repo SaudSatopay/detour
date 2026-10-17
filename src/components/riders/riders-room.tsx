@@ -6,6 +6,7 @@ import { readNdjson } from "@/lib/client/ndjson";
 import type { SandboxState } from "@/lib/graph/state";
 import type { RouteAnswer } from "@/lib/graph/tools/riders";
 import type { ToolResult } from "@/lib/graph/tools/types";
+import { readable } from "@/lib/readable";
 import { CypherBlock } from "../cypher-block";
 import { BriefLines, OutcomeChip, RouteTag } from "../control/bits";
 import { initialRun, reduce, type ToolStep } from "../control/run-state";
@@ -121,11 +122,14 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
   const askAbort = useRef<AbortController | null>(null);
   const strip = useRef<HTMLUListElement>(null);
 
-  const recorded = Boolean(state?.recorded);
+  const recordedRun = state?.recorded ?? null;
+  const recorded = Boolean(recordedRun);
   // Live controls need the visitor's graph: not while it loads, not when the database is down.
   const paused = loading ? "Loading your sandbox graph…" : recorded || !state ? "Paused: live routing and memory writes need the graph database." : null;
   const riders = state?.riders ?? seedRiders;
   const rider: Rider | undefined = riders.find((r) => r.id === selected) ?? riders[0];
+  // With the database down, the recorded run still holds the route the rider desk found for each rider it advised.
+  const replayable = recorded && Boolean(rider?.advisory);
   const closed = useMemo(() => new Set(state?.incident?.closedEids ?? []), [state?.incident?.closedEids]);
   const published = state?.plans.find((p) => p.status === "published") ?? null;
   const elevatorFact = state
@@ -137,12 +141,12 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
     async (id: string, keepPrevious: boolean) => {
       setBusy(`route:${id}`);
       setProblem(null);
-      const res = await postJson<RouteResult>("/api/rider/route", { riderId: id });
+      const res = await postJson<RouteResult>("/api/rider/route", { riderId: id, ...(recordedRun ? { recorded: recordedRun } : {}) });
       setBusy(null);
       if (!res.ok) return setProblem(res.error);
       setRoutes((all) => ({ ...all, [id]: { now: res.data, before: keepPrevious ? all[id]?.now : undefined } }));
     },
-    [],
+    [recordedRun],
   );
 
   const flipElevator = useCallback(async () => {
@@ -305,19 +309,21 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
                 <button
                   type="button"
                   onClick={() => void routeNow(rider.id, false)}
-                  disabled={paused !== null || busy !== null}
+                  disabled={(paused !== null && !replayable) || busy !== null}
                   aria-describedby="route-why"
                   className="shrink-0 whitespace-nowrap rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {busy === `route:${rider.id}` ? "Routing…" : `Route ${rider.name} now`}
+                  {busy === `route:${rider.id}` ? (replayable ? "Opening…" : "Routing…") : replayable ? `Show ${rider.name}'s recorded route` : `Route ${rider.name} now`}
                 </button>
                 <span id="route-why" className="text-xs text-ink-500">
-                  {paused ?? "Shortest path on the platform graph, with any closure, shuttle and remembered outage."}
+                  {replayable
+                    ? "The route the rider desk found in the recorded L-closure run, with its Cypher. Live routing needs the graph database."
+                    : (paused ?? "Shortest path on the platform graph, with any closure, shuttle and remembered outage.")}
                 </span>
               </div>
               {current ? (
                 <div className="flex flex-col gap-2">
-                  <RouteCard title="Now" result={current.now} colorOf={colorOf} nameOf={nameOf} tone="now" />
+                  <RouteCard title={recorded ? "Recorded run" : "Now"} result={current.now} colorOf={colorOf} nameOf={nameOf} tone="now" />
                   {current.before ? <RouteCard title="Before the memory changed" result={current.before} colorOf={colorOf} nameOf={nameOf} tone="before" /> : null}
                 </div>
               ) : null}
@@ -392,7 +398,7 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
                     <p key={i} className="flex flex-wrap items-center gap-2 text-xs text-ink-500">
                       <code className="font-mono">{it.tool}</code>
                       {it.result ? <OutcomeChip outcome={it.result.outcome} /> : <span>running…</span>}
-                      {it.result ? <span className="w-full text-ink-700">{it.result.summary}</span> : null}
+                      {it.result ? <span className="w-full text-ink-700">{readable(it.result.summary)}</span> : null}
                     </p>
                   ) : it.kind === "error" ? (
                     <p key={i} role="alert" className="rounded-md bg-warn-wash px-3 py-2 text-sm text-ink-900">

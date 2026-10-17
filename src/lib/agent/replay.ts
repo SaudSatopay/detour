@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { ToolResult } from "../graph/tools/types";
 import type { AgentEvent, Emit } from "./catalog";
 
 /**
@@ -58,4 +59,20 @@ export async function replayRun(scenarioId: string | undefined, mode: string, em
     if (wait) await new Promise((r) => setTimeout(r, wait));
     emit(event);
   }
+}
+
+/** The route the rider desk found for one rider in a recorded approval, or null when that run did not route them. */
+export async function recordedRoute(scenarioId: string, riderId: string): Promise<ToolResult | null> {
+  let text: string;
+  try {
+    text = await readFile(fileFor(scenarioId, "publish"), "utf8");
+  } catch {
+    return null;
+  }
+  for (const line of text.split("\n")) {
+    if (!line) continue;
+    const { event } = JSON.parse(line) as Recorded;
+    if (event.type === "tool-result" && event.id === `route-${riderId}` && event.result.tool === "route_rider") return event.result;
+  }
+  return null;
 }

@@ -5,11 +5,11 @@ const seen = (page: Page, text: string | RegExp, exact = false) => page.getByTex
 
 test("reporting the elevator fixed supersedes the outage fact and changes Aisha's route", async ({ page }, info) => {
   await page.goto("/riders?rider=aisha");
-  const route = page.getByRole("button", { name: "Route Aisha now" });
-  await expect(route).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Route Aisha now|Show Aisha's recorded route)$/ })).toBeVisible();
   // The seeded riders render before the sandbox loads; wait for it, then skip if the database is down.
   await expect(seen(page, /Loading your sandbox graph/)).toHaveCount(0, { timeout: 30_000 });
-  test.skip(await route.isDisabled(), "Routing needs the graph database; this deployment is serving a recording.");
+  const route = page.getByRole("button", { name: "Route Aisha now" });
+  test.skip(!(await route.isVisible()) || (await route.isDisabled()), "Routing needs the graph database; this deployment is serving a recording.");
 
   await route.click();
   await expect(seen(page, /Skipped a faster path because memory says/)).toBeVisible({ timeout: 30_000 });
@@ -27,6 +27,18 @@ test("reporting the elevator fixed supersedes the outage fact and changes Aisha'
   await page.goto("/riders?rider=aisha");
   await page.getByRole("button", { name: "Report it out of service again" }).click();
   await expect(seen(page, /out of service again/).first()).toBeVisible({ timeout: 30_000 });
+});
+
+test("with the database down, the rider page shows the route the recorded run found", async ({ page }) => {
+  await page.goto("/riders?rider=aisha");
+  await expect(seen(page, /Loading your sandbox graph/)).toHaveCount(0, { timeout: 30_000 });
+  const replay = page.getByRole("button", { name: "Show Aisha's recorded route" });
+  test.skip(!(await replay.isVisible()), "The graph database is up, so this deployment routes live.");
+
+  await replay.click();
+  await expect(seen(page, "Recorded run", true)).toBeVisible({ timeout: 15_000 });
+  await expect(seen(page, /33 min · 0 transfers/)).toBeVisible();
+  await expect(seen(page, "11 stops · 33 min")).toBeVisible();
 });
 
 test("the memory page shows current and closed facts with their windows", async ({ page }, info) => {
