@@ -6,7 +6,8 @@ import { MapPanel } from "../map/map-panel";
 import type { LabelExclusion } from "../map/subway-map";
 import { useMapModel } from "../map/use-map-model";
 import { ImpactPanel } from "./impact-panel";
-import { capacityOf, impactOf, incidentOf, lastDrawable, overlayAt, plansOf, recommendedPlan, ridersOf, type RunState } from "./run-state";
+import { PlaybackBar, type Speed } from "./playback-bar";
+import { capacityOf, impactOf, incidentOf, lastDrawable, overlayAt, plansOf, recommendedPlan, ridersOf, stepView, type RunState } from "./run-state";
 import { agentName, Trace } from "./trace";
 import { useControlRun } from "./use-control-run";
 
@@ -66,10 +67,14 @@ function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] 
 
 const noSubscribe = () => () => {};
 
+/** One playback step per beat at 1x. */
+const STEP_MS = 1400;
+
 export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
-  // The page is static; the URL's ?scenario and ?run are read on the client (empty during prerender).
-  const search = useSyncExternalStore(noSubscribe, () => window.location.search, () => "");
-  const params = useMemo(() => new URLSearchParams(search), [search]);
+  // The page is static; the URL's ?scenario, ?run and ?step are read on the client. null during prerender and
+  // hydration (the server has no URL), so nothing rewrites the address before it has been read.
+  const search = useSyncExternalStore<string | null>(noSubscribe, () => window.location.search, () => null);
+  const params = useMemo(() => new URLSearchParams(search ?? ""), [search]);
   const autoRun = params.get("run") === "1";
   const [picked, setPicked] = useState<string | null>(null);
   const [edited, setEdited] = useState<string | null>(null);
@@ -79,7 +84,12 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   const [status, setStatus] = useState<SandboxStatus | null>(null);
   const [resetting, setResetting] = useState(false);
   const [editing, setEditing] = useState(false);
-  const { state, run, approve, clear } = useControlRun();
+  const { timeline, state, run, approve, clear } = useControlRun();
+  // Playback: null follows the newest step; a number shows the run as it stood after that step.
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState<Speed>(1);
+  const [linkDone, setLinkDone] = useState(false);
   const { model } = useMapModel();
 
   const nameOf = useCallback((id: string) => model?.stations.get(id)?.name ?? id, [model]);
@@ -101,6 +111,8 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
 
   const start = useCallback(() => {
     setPinned(null);
+    setCursor(null);
+    setPlaying(false);
     setEditing(false);
     setTab("trace");
     void run({ message: message.trim(), scenarioId: custom ? undefined : scenarioId }).then(loadStatus);
@@ -143,30 +155,94 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
     } finally {
       clear();
       setPinned(null);
+      setCursor(null);
+      setPlaying(false);
       setResetting(false);
       loadStatus();
     }
   }, [clear, loadStatus]);
 
-  const items = state.items;
+  /* Playback */
+  const ready = timeline.ready;
+  // The step on screen: an earlier finished step, or (while a run streams) the newest one the visitor stopped on.
+  const at = cursor !== null && cursor >= 1 && (cursor < ready || (cursor === ready && running)) ? cursor : null;
+  const isPlaying = playing && at !== null;
+
+  const go = useCallback(
+    (step: number) => {
+      setPinned(null);
+      // A visitor's move outranks a ?step still waiting for its step (and ?step now echoes the cursor).
+      setLinkDone(true);
+      if (step >= ready) {
+        // The end of the run is the live state: follow it again.
+        setCursor(null);
+        setPlaying(false);
+      } else setCursor(Math.max(1, step));
+    },
+    [ready],
+  );
+  const toLatest = useCallback(() => go(Infinity), [go]);
+  const togglePlay = () => {
+    if (isPlaying) {
+      setPlaying(false);
+      return;
+    }
+    if (at === null) {
+      // From the end, play the run again from its first step.
+      setPinned(null);
+      setLinkDone(true);
+      setCursor(1);
+    }
+    setPlaying(true);
+  };
+
+  // Play advances one step per beat and stops at the end (go() stops it there).
+  useEffect(() => {
+    if (!isPlaying || at === null) return;
+    const timer = setTimeout(() => go(at + 1), STEP_MS / speed);
+    return () => clearTimeout(timer);
+  }, [isPlaying, at, speed, go]);
+
+  // ?step=N opens the run at step N once that step has finished (or the run ended short of it).
+  const wanted = Math.floor(Number(params.get("step"))) || 0;
+  if (!linkDone && wanted > 0 && ready > 0 && (ready >= wanted || !running)) {
+    setLinkDone(true);
+    setCursor(Math.min(wanted, ready));
+  }
+  // Keep ?step in the address as the visitor scrubs; replaceState, so scrubbing adds no history entries.
+  useEffect(() => {
+    if (search === null || (wanted > 0 && !linkDone)) return;
+    const url = new URL(window.location.href);
+    if (at === null) url.searchParams.delete("step");
+    else url.searchParams.set("step", String(at));
+    if (url.search !== window.location.search) window.history.replaceState(null, "", url);
+  }, [at, linkDone, search, wanted]);
+
+  // Everything below reads the run as it stood at the step on screen; stepView memoizes per step.
+  const snapshot = at === null ? null : timeline.at[at - 1];
+  const view = snapshot && at !== null ? stepView(snapshot, at) : state;
+  const viewRunning = view.status === "running";
+
+  const items = view.items;
   const latestIndex = lastDrawable(items);
-  const selected = pinned ?? latestIndex;
+  const selected = pinned !== null && pinned < items.length ? pinned : latestIndex;
   const { overlay, focus } = useMemo(() => overlayAt(items, selected), [items, selected]);
   const selectedStep = items[selected]?.kind === "tool" ? items[selected] : null;
   const plans = useMemo(() => plansOf(items), [items]);
-  const recommended = recommendedPlan(state.brief, plans);
-  const riders = useMemo(() => ridersOf(state), [state]);
+  const recommended = recommendedPlan(view.brief, plans);
+  const riders = useMemo(() => ridersOf(view), [view]);
   const incident = incidentOf(items);
   const impactProps = {
     incident,
     impact: impactOf(items),
     capacity: capacityOf(items),
     plans,
-    recommended: state.status === "running" && state.stage === "control" ? null : recommended,
-    published: state.published,
+    recommended: viewRunning && view.stage === "control" ? null : recommended,
+    published: view.published,
     riders,
-    stage: state.stage,
-    running,
+    stage: view.stage,
+    // An earlier step is history: its plans cannot be approved from there.
+    running: viewRunning,
     nameOf,
     colorOf,
     onApprove,
@@ -179,12 +255,15 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
       button?.focus({ preventScroll: false });
       return Boolean(button);
     };
-    if (window.matchMedia("(min-width: 1024px)").matches) {
+    const desktop = window.matchMedia("(min-width: 1024px)").matches;
+    const rewound = at !== null;
+    if (rewound) toLatest();
+    if (desktop && !rewound) {
       focusIn(rail.current);
       return;
     }
-    setTab("impact");
-    requestAnimationFrame(() => requestAnimationFrame(() => focusIn(document.getElementById("run-tabpanel"))));
+    if (!desktop) setTab("impact");
+    requestAnimationFrame(() => requestAnimationFrame(() => focusIn(desktop ? rail.current : document.getElementById("run-tabpanel"))));
   };
 
   // On phones the intake folds to one line once a run exists, so the map and its evidence come first.
@@ -280,7 +359,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   );
 
   const tracePane = state.items.length ? (
-    <Trace state={state} selected={selected} onSelect={setPinned} onJumpToPlan={plans.length ? jumpToPlan : undefined} />
+    <Trace state={view} live={at === null} selected={selected} onSelect={setPinned} onJumpToPlan={plans.length ? jumpToPlan : undefined} />
   ) : (
     <div className="flex flex-col gap-2 text-sm text-ink-700">
       <p className="font-display text-xl font-semibold text-ink-900">The agents&apos; work shows here.</p>
@@ -316,34 +395,49 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
           </div>
         </aside>
 
-        <section aria-label="Subway map" className="relative h-[58vh] min-w-0 border-b border-line bg-paper lg:h-auto lg:border-b-0">
-          <div className="absolute inset-0">
-            <MapPanel
-              overlay={overlay}
-              focus={focus.length ? focus : undefined}
-              className="h-full w-full"
-              exclude={MAP_OVERLAYS}
-              label={selectedStep?.kind === "tool" && selectedStep.result ? selectedStep.result.summary : "The New York City subway network."}
-            />
-          </div>
-          {selectedStep?.kind === "tool" ? (
-            <div className="pointer-events-none absolute left-3 right-14 top-3 flex flex-wrap items-center gap-2">
-              <span className="label rounded-sm bg-sign px-2 py-1 text-sign-ink">
-                {agentName(selectedStep.agent)} · {selectedStep.tool}
-              </span>
-              {pinned !== null ? (
-                <button
-                  type="button"
-                  onClick={() => setPinned(null)}
-                  className="label pointer-events-auto rounded-sm border border-line bg-panel px-2 py-1 text-ink-900 shadow-lift hover:bg-sunk"
-                >
-                  Follow the latest step
-                </button>
-              ) : null}
+        <div className="flex min-w-0 flex-col max-lg:border-b max-lg:border-line lg:min-h-0">
+          <section aria-label="Subway map" className="relative h-[58vh] min-w-0 bg-paper lg:h-auto lg:min-h-0 lg:flex-1">
+            <div className="absolute inset-0">
+              <MapPanel
+                overlay={overlay}
+                focus={focus.length ? focus : undefined}
+                className="h-full w-full"
+                exclude={MAP_OVERLAYS}
+                label={selectedStep?.kind === "tool" && selectedStep.result ? selectedStep.result.summary : "The New York City subway network."}
+              />
             </div>
-          ) : null}
-          <Legend overlay={overlay} />
-        </section>
+            {selectedStep?.kind === "tool" ? (
+              <div className="pointer-events-none absolute left-3 right-14 top-3 flex flex-wrap items-center gap-2">
+                <span className="label rounded-sm bg-sign px-2 py-1 text-sign-ink">
+                  {agentName(selectedStep.agent)} · {selectedStep.tool}
+                </span>
+                {pinned !== null ? (
+                  <button
+                    type="button"
+                    onClick={() => setPinned(null)}
+                    className="label pointer-events-auto rounded-sm border border-line bg-panel px-2 py-1 text-ink-900 shadow-lift hover:bg-sunk"
+                  >
+                    {at === null ? "Follow the latest step" : `Back to step ${at}`}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            <Legend overlay={overlay} />
+          </section>
+          {/* Docked under the map, outside it, so the legend and the zoom controls stay clear; on phones it sits above the tabs. */}
+          <PlaybackBar
+            steps={timeline.steps.slice(0, ready)}
+            position={at ?? ready}
+            following={at === null}
+            running={running}
+            playing={isPlaying}
+            speed={speed}
+            onGo={go}
+            onPlay={togglePlay}
+            onSpeed={setSpeed}
+            onLatest={toLatest}
+          />
+        </div>
 
         <aside ref={rail} data-scroll tabIndex={0} aria-label="Impact, plans and rider advisories" className="relative hidden min-w-0 overflow-y-auto lg:block lg:border-l lg:border-line">
           <ImpactPanel {...impactProps} />

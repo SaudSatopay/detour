@@ -3,11 +3,11 @@
 import { startTransition, useCallback, useEffect, useReducer, useRef } from "react";
 import type { AgentEvent } from "@/lib/agent/catalog";
 import { readNdjson } from "@/lib/client/ndjson";
-import { initialRun, reduce } from "./run-state";
+import { advance, initialTimeline } from "./run-state";
 
-/** Starts controller runs and approvals, and folds their event streams into one timeline. */
+/** Starts controller runs and approvals, and folds their event streams into one timeline, kept per step for playback. */
 export function useControlRun() {
-  const [state, dispatch] = useReducer(reduce, initialRun);
+  const [timeline, dispatch] = useReducer(advance, initialTimeline);
   const abort = useRef<AbortController | null>(null);
   useEffect(() => () => abort.current?.abort(), []);
 
@@ -60,5 +60,5 @@ export function useControlRun() {
     dispatch({ type: "reset" });
   }, []);
 
-  return { state, run, approve, clear };
+  return { timeline, state: timeline.run, run, approve, clear };
 }
