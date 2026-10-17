@@ -39,6 +39,7 @@ export async function runAgent({ agent, instructions, messages, tools, emit, max
       tools,
       emit,
       abortSignal,
+      maxWaitMs: step === 1 ? FIRST_STEP_WAIT_MS : MAX_WAIT_MS,
     });
     history.push(...stepOut.messages);
     if (stepOut.text.trim()) finalText = stepOut.text;
@@ -51,22 +52,43 @@ export async function runAgent({ agent, instructions, messages, tools, emit, max
 
 /** Longest one step waits out the last model's rate limit before the run gives up. */
 const MAX_WAIT_MS = 60_000;
+/**
+ * The first step waits only for a short, explicit retry delay: with no progress yet, a visitor would rather see
+ * the standard procedure start at once than watch an empty room while a quota recovers.
+ */
+const FIRST_STEP_WAIT_MS = 8_000;
+
+type ProviderError = { message?: string; responseBody?: string; responseHeaders?: Record<string, string>; lastError?: unknown; errors?: unknown[]; cause?: unknown };
+
+/** The error and the provider errors it wraps (the AI SDK's retry error keeps them in lastError and errors). */
+function causes(error: unknown, depth = 0): ProviderError[] {
+  if (!error || typeof error !== "object" || depth > 3) return [];
+  const e = error as ProviderError;
+  return [e, ...causes(e.lastError, depth + 1), ...(e.errors ?? []).flatMap((x) => causes(x, depth + 1)), ...causes(e.cause, depth + 1)];
+}
+
+const errorText = (error: unknown) => causes(error).map((e) => `${e.message ?? ""} ${e.responseBody ?? ""}`).join(" ");
 
 /** The wait a rate-limited provider asks for (a Retry-After header, or Gemini's "retry in 41.2s"), else a backoff. */
 export function retryDelayMs(error: unknown, attempt: number): number {
-  const e = error as { message?: string; responseBody?: string; responseHeaders?: Record<string, string> } | null;
-  const header = Number(e?.responseHeaders?.["retry-after"]);
-  if (header > 0) return header * 1000;
-  const text = `${e?.message ?? ""} ${e?.responseBody ?? ""}`;
+  for (const e of causes(error)) {
+    const header = Number(e.responseHeaders?.["retry-after"]);
+    if (header > 0) return header * 1000;
+  }
+  const text = errorText(error);
   const asked = /retry in ([\d.]+)\s*s/i.exec(text) ?? /"retryDelay":\s*"([\d.]+)s"/.exec(text);
   if (asked) return Math.ceil(Number(asked[1]) * 1000);
   return 5_000 * 2 ** attempt;
 }
 
+/** Whether the provider said how long to wait (a short wait is worth it even on the first step). */
+function asksForDelay(error: unknown): boolean {
+  return causes(error).some((e) => Number(e.responseHeaders?.["retry-after"]) > 0) || /retry in [\d.]+\s*s|"retryDelay"/i.test(errorText(error));
+}
+
 /** A provider's daily cap (Gemini names the quota "...PerDay..."): waiting a minute will not lift it. */
 export function isDailyQuota(error: unknown): boolean {
-  const e = error as { message?: string; responseBody?: string } | null;
-  return /per ?day|daily/i.test(`${e?.message ?? ""} ${e?.responseBody ?? ""}`);
+  return /per ?day|daily/i.test(errorText(error));
 }
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
@@ -94,7 +116,7 @@ async function stepWithFallback(
   chain: ChainedModel[],
   getCurrent: () => number,
   setCurrent: (i: number) => void,
-  o: { agent: string; instructions: string; history: ModelMessage[]; tools: ToolSet; emit: Emit; abortSignal?: AbortSignal },
+  o: { agent: string; instructions: string; history: ModelMessage[]; tools: ToolSet; emit: Emit; abortSignal?: AbortSignal; maxWaitMs: number },
 ): Promise<{ messages: ModelMessage[]; finishReason: string; text: string }> {
   let waited = 0;
   let attempt = 0;
@@ -134,8 +156,9 @@ async function stepWithFallback(
       // The last model in the chain: wait out its rate limit (a free tier allows a few calls a minute) rather
       // than end the run halfway, unless the wait it asks for would pass the cap.
       if (isDailyQuota(error)) throw error;
+      if (o.maxWaitMs < MAX_WAIT_MS && !asksForDelay(error)) throw error;
       const delay = retryDelayMs(error, attempt++) + 500;
-      if (waited + delay > MAX_WAIT_MS) throw error;
+      if (waited + delay > o.maxWaitMs) throw error;
       o.emit({ type: "model", agent: o.agent, model: m.id, reason: `rate limited, waiting ${Math.round(delay / 1000)} s` });
       await sleep(delay, o.abortSignal);
       waited += delay;

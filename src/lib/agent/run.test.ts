@@ -26,3 +26,11 @@ describe("a daily quota", () => {
     expect(isDailyQuota({ message: "Please retry in 41.2s." })).toBe(false);
   });
 });
+
+describe("errors the AI SDK wraps", () => {
+  it("finds the provider's details inside a retry error", () => {
+    const wrapped = { message: "Failed after 2 attempts. Last error: Resource exhausted", lastError: { message: "Resource exhausted", responseBody: '{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "retryDelay": "33s"}' } };
+    expect(isDailyQuota(wrapped)).toBe(true);
+    expect(retryDelayMs(wrapped, 0)).toBe(33_000);
+  });
+});
