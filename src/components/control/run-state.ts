@@ -5,6 +5,7 @@ import type { Incident } from "@/lib/graph/tools/incident";
 import type { PlanRecord } from "@/lib/graph/tools/plan";
 import type { RiderProfile, RouteAnswer } from "@/lib/graph/tools/riders";
 import type { Highlight, ToolResult } from "@/lib/graph/tools/types";
+import { TOOL_TITLE } from "@/lib/tool-titles";
 import type { MapOverlay, Overloaded } from "../map/subway-map";
 
 /**
@@ -45,7 +46,7 @@ export interface RunState {
   stage: "control" | "desk";
 }
 
-type Action =
+export type RunAction =
   | { type: "start"; stage: "control" | "desk"; planId?: string }
   | { type: "event"; event: AgentEvent; scenarioId?: string }
   | { type: "fail"; message: string }
@@ -67,7 +68,7 @@ export const initialRun: RunState = {
 
 const riderOf = (agent: string) => (agent.startsWith("rider:") ? agent.slice(6) : null);
 
-export function reduce(state: RunState, action: Action): RunState {
+export function reduce(state: RunState, action: RunAction): RunState {
   switch (action.type) {
     case "reset":
       return initialRun;
@@ -151,6 +152,79 @@ function findStep(items: Item[], id: string, agent: string): number {
     if (it.kind === "tool" && it.id === id && it.agent === agent) return i;
   }
   return -1;
+}
+
+/* Playback */
+
+/** One tick of the playback bar: a tool step in call order, and the action (since the run started) that finished it. */
+export interface StepMark {
+  agent: string;
+  id: string;
+  tool: string;
+  /** The plain name the trace shows, such as "Measure capacity". */
+  title: string;
+  /** Index of the action that finished the step; -1 while it runs. */
+  end: number;
+}
+
+/**
+ * A run kept for playback: the live state, every tool step, and the state as it stood once steps
+ * 1..k had all finished (`at[k - 1]`), captured as the events arrive so scrubbing never re-reduces.
+ */
+export interface Timeline {
+  run: RunState;
+  steps: StepMark[];
+  /** Steps 1..ready have all finished; only those can be scrubbed to. */
+  ready: number;
+  at: RunState[];
+  /** Actions folded in since the run started. */
+  count: number;
+}
+
+export const initialTimeline: Timeline = { run: initialRun, steps: [], ready: 0, at: [], count: 0 };
+
+const stepTitle = (tool: string) => TOOL_TITLE[tool] ?? tool;
+
+/** `reduce`, plus the bookkeeping playback needs. Steps mirror the tool items `reduce` creates, one for one. */
+export function advance(t: Timeline, action: RunAction): Timeline {
+  if (action.type === "reset") return initialTimeline;
+  const base = action.type === "start" && action.stage === "control" ? initialTimeline : t;
+  const index = base.count;
+  const run = reduce(base.run, action);
+  let steps = base.steps;
+  if (action.type === "event") {
+    const e = action.event;
+    if (e.type === "tool-call") steps = [...steps, { agent: e.agent, id: e.id, tool: e.tool, title: stepTitle(e.tool), end: -1 }];
+    else if (e.type === "tool-result" || e.type === "tool-error") {
+      let at = -1;
+      for (let i = steps.length - 1; i >= 0 && at < 0; i--) if (steps[i].id === e.id && steps[i].agent === e.agent) at = i;
+      if (at >= 0 && steps[at].end < 0) steps = steps.map((s, i) => (i === at ? { ...s, end: index } : s));
+      else if (at < 0 && e.type === "tool-result") steps = [...steps, { agent: e.agent, id: e.id, tool: e.result.tool, title: stepTitle(e.result.tool), end: index }];
+    }
+  }
+  let ready = base.ready;
+  while (ready < steps.length && steps[ready].end >= 0) ready++;
+  // The action that unblocks the prefix is the last one any newly ready step waited for.
+  const at = ready > base.ready ? [...base.at, ...Array.from({ length: ready - base.ready }, () => run)] : base.at;
+  return { run, steps, ready, at, count: index + 1 };
+}
+
+const views = new WeakMap<RunState, Map<number, RunState>>();
+
+/**
+ * The run as the control room shows it at step k: tool steps after k are left out (parallel calls
+ * may already have started). Memoized per state and step, so a scrub hands the panels the same objects.
+ */
+export function stepView(state: RunState, k: number): RunState {
+  let byStep = views.get(state);
+  if (!byStep) views.set(state, (byStep = new Map()));
+  const hit = byStep.get(k);
+  if (hit) return hit;
+  let n = 0;
+  const items = state.items.filter((it) => it.kind !== "tool" || ++n <= k);
+  const view = items.length === state.items.length ? state : { ...state, items };
+  byStep.set(k, view);
+  return view;
 }
 
 /* Selectors */
