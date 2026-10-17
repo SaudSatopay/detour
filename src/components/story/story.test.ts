@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import story from "../../../public/map/story-l-canarsie.json";
-import { CHAPTERS, mapLabelFor, overlayFor, storyFocus, worstOverload, type Story } from "./story";
+import { CHAPTERS, focusFor, mapLabelFor, overlayFor, storyFocus, worstOverload, type Story } from "./story";
 
 const s = story as unknown as Story;
 
@@ -29,6 +29,16 @@ describe("the L closure story", () => {
     expect(overlayFor(s, "where").marks).toEqual([{ id: worst.from, label: `G at ${worst.pct}%`, tone: "crit" }]);
     expect(overlayFor(s, "cut").marks?.[0]).toMatchObject({ id: s.maxFlow.strandedAt[0].id, tone: "crit" });
     expect(overlayFor(s, "fix").marks?.map((m) => m.id)).toEqual(s.plan.shuttles.flatMap((x) => [x.from, x.to]));
+  });
+
+  it("frames each chapter on its own evidence, close up for the shuttle and the rider", () => {
+    const fix = focusFor(s, "fix");
+    for (const sh of s.plan.shuttles) expect(fix).toEqual(expect.arrayContaining([sh.from, sh.to]));
+    expect(fix.length).toBeLessThan(storyFocus(s).length);
+    expect(focusFor(s, "riders")).toEqual(s.riders.featured.path);
+    expect(focusFor(s, "cut")).toContain(s.maxFlow.strandedAt[0].id);
+    expect(focusFor(s, "where")).toEqual(expect.arrayContaining(s.reroute.overloaded.map((o) => o.from)));
+    for (const chapter of CHAPTERS) expect(new Set(focusFor(s, chapter)).size).toBe(focusFor(s, chapter).length);
   });
 
   it("frames every station a chapter draws on, and names each map state in words", () => {

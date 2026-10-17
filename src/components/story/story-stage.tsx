@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { SubwayMap } from "@/components/map/subway-map";
+import { SubwayMap, type LabelExclusion } from "@/components/map/subway-map";
 import { useMapModel } from "@/components/map/use-map-model";
-import { CHAPTERS, CHAPTER_LABELS, mapLabelFor, overlayFor, storyFocus, type Chapter, type Story } from "./story";
+import { CHAPTERS, CHAPTER_LABELS, focusFor, mapLabelFor, overlayFor, type Chapter, type Story } from "./story";
+
+// Desktop: no station names under the headline (the opening) or under a chapter card (the rest). Phones keep the
+// map above the words, so nothing is excluded there.
+const CLEAR_OF_HEADLINE: LabelExclusion[] = [{ anchor: "tl", w: 430, h: 4000, minWidth: 1024 }];
+const CLEAR_OF_CARD: LabelExclusion[] = [{ anchor: "tl", w: 230, h: 4000, minWidth: 1024 }];
 
 let storyRequest: Promise<Story> | null = null;
 
@@ -46,11 +51,22 @@ function StoryMap({ chapter }: { chapter: Chapter }) {
   }, [story, model]);
 
   const overlay = useMemo(() => (story ? overlayFor(story, chapter, intro) : {}), [story, chapter, intro]);
-  const focus = useMemo(() => (story ? storyFocus(story) : undefined), [story]);
+  const focus = useMemo(() => (story ? focusFor(story, chapter) : undefined), [story, chapter]);
   if (!model || !story) return null;
   return (
-    <div className="fade-in h-full w-full">
-      <SubwayMap model={model} overlay={overlay} focus={focus} interactive={false} showLabels="major" label={mapLabelFor(story, chapter)} className="h-full w-full" />
+    <div className="fade-in relative h-full w-full">
+      <SubwayMap
+        model={model}
+        overlay={overlay}
+        focus={focus}
+        exclude={chapter === "hero" ? CLEAR_OF_HEADLINE : CLEAR_OF_CARD}
+        interactive={false}
+        showLabels="major"
+        label={mapLabelFor(story, chapter)}
+        className="h-full w-full"
+      />
+      {/* Each chapter frames its own evidence; a short dip to night makes the cut to the new frame read as a cut. */}
+      <div key={chapter} aria-hidden="true" className="dip pointer-events-none absolute inset-0 bg-paper" />
     </div>
   );
 }
@@ -100,7 +116,7 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
     <section ref={root} className="night relative overflow-x-clip" aria-labelledby="story-title">
       {/* The stage: the map holds still while the chapters scroll over it. */}
       <div className="sticky top-12 h-[calc(100svh-3rem)] overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-[60%] [mask-image:linear-gradient(to_bottom,black_72%,transparent)] lg:inset-y-0 lg:left-[30%] lg:right-0 lg:h-full lg:[mask-image:linear-gradient(to_right,transparent,black_24%)]">
+        <div className="absolute inset-x-0 top-0 h-[50%] [mask-image:linear-gradient(to_bottom,black_80%,transparent)] lg:inset-y-0 lg:left-[30%] lg:right-0 lg:h-full lg:[mask-image:linear-gradient(to_right,transparent,black_24%)]">
           {armed ? <StoryMap chapter={chapter} /> : null}
         </div>
 

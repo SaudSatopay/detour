@@ -82,21 +82,21 @@ function Chapter({
 }) {
   const color = tone === "crit" ? "text-crit" : tone === "signal" ? "text-signal" : "text-ink-900";
   return (
-    <article id={`ch-${id}`} data-chapter={id} aria-labelledby={`ch-${id}-title`} className="flex min-h-[100svh] scroll-mt-12 items-end px-4 pb-[8svh] sm:px-6 lg:min-h-[92svh] lg:items-center lg:pb-0 lg:pl-12">
+    <article id={`ch-${id}`} data-chapter={id} aria-labelledby={`ch-${id}-title`} className="flex min-h-[100svh] scroll-mt-12 items-end px-4 pb-[5svh] sm:px-6 lg:min-h-[92svh] lg:items-center lg:pb-0 lg:pl-12">
       <div className="pointer-events-auto w-full max-w-[30rem] overflow-hidden rounded-md border border-line bg-panel shadow-lift">
         <p className="sign-band sign-rule label flex items-center gap-2 px-4 pb-2.5 pt-4">
           <span className="tabular">{n}</span>
           <span aria-hidden="true">·</span>
           {kicker}
         </p>
-        <div className="flex flex-col gap-3 p-5 sm:p-6">
+        <div className="flex flex-col gap-2 p-4 sm:gap-3 sm:p-6">
           {/* Long figures (a before → after) step down a size so they hold one line. */}
-          <p className={`tabular font-display font-bold ${figure.length > 7 ? "text-5xl sm:text-6xl" : "text-6xl sm:text-7xl"} ${color}`}>{figure}</p>
-          <p className="-mt-1 text-sm text-ink-500">{unit}</p>
-          <h2 id={`ch-${id}-title`} className="mt-1 font-display text-2xl font-semibold leading-tight sm:text-3xl">
+          <p className={`tabular font-display font-bold ${figure.length > 7 ? "text-4xl sm:text-6xl" : "text-5xl sm:text-7xl"} ${color}`}>{figure}</p>
+          <p className="-mt-1 text-xs text-ink-500 sm:text-sm">{unit}</p>
+          <h2 id={`ch-${id}-title`} className="mt-1 font-display text-xl font-semibold leading-tight sm:text-3xl">
             {title}
           </h2>
-          <div className="flex flex-col gap-3 text-ink-700">{children}</div>
+          <div className="flex flex-col gap-2 text-[0.9375rem] leading-snug text-ink-700 sm:gap-3 sm:text-base sm:leading-normal">{children}</div>
         </div>
       </div>
     </article>
@@ -108,7 +108,7 @@ export default function Home() {
     <>
       <StoryStage>
         {/* The opening: a poster over the night map. */}
-        <header id="ch-hero" data-chapter="hero" className="flex min-h-[calc(100svh-3rem)] flex-col justify-end px-4 pb-8 pt-[40svh] sm:px-6 lg:justify-center lg:py-16 lg:pl-12">
+        <header id="ch-hero" data-chapter="hero" className="flex min-h-[calc(100svh-3rem)] flex-col justify-end px-4 pb-8 pt-[44svh] sm:px-6 lg:justify-center lg:py-16 lg:pl-12">
           <div className="pointer-events-auto relative isolate max-w-[min(60rem,100%)]">
             {/* A soft shade behind the words so they hold over the busiest part of the map. */}
             <div aria-hidden="true" className="absolute -inset-x-8 -inset-y-10 -z-10 bg-[radial-gradient(closest-side,var(--paper)_55%,transparent)] opacity-90" />
@@ -116,13 +116,13 @@ export default function Home() {
             <h1 id="story-title" className="lift poster mt-4 max-w-[16ch]">
               When a subway line breaks, Detour measures what the city can still carry.
             </h1>
-            <div className="rise mt-6 flex max-w-[36rem] flex-col gap-6" style={{ animationDelay: "120ms" }}>
-              <p className="text-lg text-ink-700">
+            <div className="rise mt-5 flex max-w-[36rem] flex-col gap-5 lg:mt-6 lg:gap-6" style={{ animationDelay: "120ms" }}>
+              <p className="order-2 text-ink-700 sm:text-lg lg:order-1">
                 The real New York subway, built from the MTA&apos;s own data, lives in FalkorDB. Agents find whose trips a closure breaks, measure
                 what the rest of the network can absorb with max flow, test shuttle bridges on forked copies of the graph, and tell every remembered
                 rider what to take instead.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="order-1 flex flex-wrap gap-3 lg:order-2">
                 <Link
                   href="/control?scenario=l-canarsie&run=1"
                   className="rounded-md bg-signal px-5 py-3 font-display text-lg font-semibold tracking-wide text-signal-ink transition-transform duration-150 ease-out hover:-translate-y-px"
@@ -136,7 +136,7 @@ export default function Home() {
                   See the proof
                 </Link>
               </div>
-              <dl className="grid grid-cols-3 gap-4 border-t border-line pt-4">
+              <dl className="order-3 grid grid-cols-3 gap-4 border-t border-line pt-4">
                 {[
                   [fmt(FACTS.ridersAt8), "riders in the 8 a.m. hour"],
                   [fmt(FACTS.stations), "station complexes"],
@@ -172,7 +172,7 @@ export default function Home() {
             {fmt(depth(0))} board at the closed stations. Count everyone whose trip crosses the tube from up to four stops away and it is{" "}
             {fmt(depth(4))}. An alert sent to the closed stations would miss most of them.
           </p>
-          <p className="text-sm text-ink-500">On the map: each station whose riders are hit, shaded by how many stops before the closure they board.</p>
+          <p className="text-sm text-ink-500 max-sm:hidden">On the map: each station whose riders are hit, shaded by how many stops before the closure they board.</p>
         </Chapter>
 
         <Chapter
@@ -317,11 +317,14 @@ export default function Home() {
               Open the memory
             </Link>
           </div>
-          <ul className="grid gap-4 self-center sm:grid-cols-2">
+          {/* The four kinds of memory on one tablet, each row signed like a platform sign. */}
+          <ul className="self-center overflow-hidden rounded-md border-2 border-ink-900 bg-paper">
             {MEMORY.map(([k, v]) => (
-              <li key={k} className="rounded-md border border-line bg-paper p-5">
-                <p className="label text-ink-500">{k}</p>
-                <p className="mt-2 text-ink-700">{v}</p>
+              <li key={k} className="grid gap-2 border-b border-line p-5 last:border-b-0 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:items-baseline sm:gap-5">
+                <p>
+                  <span className="sign-band label inline-block rounded-sm px-2 py-1">{k}</span>
+                </p>
+                <p className="text-ink-700">{v}</p>
               </li>
             ))}
           </ul>

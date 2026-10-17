@@ -368,6 +368,19 @@ p {
   }
 }
 
+/* The story map between chapters: a short dip to night over the cut to a new frame. */
+@keyframes dip {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.dip {
+  animation: dip 380ms var(--ease-out) both;
+}
+
 /* A closure appearing on the map. */
 .fade-in {
   animation: fade-in 280ms var(--ease-out) both;

@@ -64,7 +64,7 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 /** The worst overloaded segment: where the reroute hurts most. */
 export const worstOverload = (story: Story) => story.reroute.overloaded.reduce((a, b) => (b.pct > a.pct ? b : a), story.reroute.overloaded[0]);
 
-/** Every station the story needs in frame, so the map holds one frame from the first chapter to the last. */
+/** Every station the story needs in frame: the opening's wide shot. */
 export function storyFocus(story: Story): string[] {
   const ids = new Set<string>([
     ...story.incident.stretch,
@@ -73,6 +73,27 @@ export function storyFocus(story: Story): string[] {
     ...story.riders.featured.path,
   ]);
   return [...ids];
+}
+
+/** The stations a chapter frames: wide for the network, close for the choke point, the shuttle and a rider's route. */
+export function focusFor(story: Story, chapter: Chapter): string[] {
+  const stretch = story.incident.stretch;
+  switch (chapter) {
+    case "hero":
+    case "carry":
+      return storyFocus(story);
+    case "who":
+      return [...new Set([...stretch, ...Object.entries(story.impact.depth).filter(([, hops]) => hops <= 3).map(([id]) => id)])];
+    case "where":
+      return [...new Set([...stretch, ...story.reroute.overloaded.flatMap((o) => [o.from, o.to])])];
+    case "cut":
+      return [...new Set([...stretch, ...story.maxFlow.strandedAt.map((s) => s.id)])];
+    case "fix":
+      // A close-up of the bridge itself: the shuttle's two ends.
+      return [...new Set(story.plan.shuttles.flatMap((s) => [s.from, s.to]))];
+    case "riders":
+      return story.riders.featured.path;
+  }
 }
 
 /**
