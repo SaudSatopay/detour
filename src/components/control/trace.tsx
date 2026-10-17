@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useEffect, useRef, useState } from "react";
+import { readable } from "@/lib/readable";
 import { CypherBlock } from "@/components/cypher-block";
 import { TOOL_TITLE } from "@/lib/tool-titles";
 import { BriefLines, OutcomeChip } from "./bits";
@@ -8,7 +9,7 @@ import type { Item, RunState, ToolStep } from "./run-state";
 
 
 /** Station ids like "[120]" are there for the agents, which pass them to the next tool; people read names. */
-const forPeople = (text: string) => text.replace(/ \[\d{1,4}\]/g, "");
+const forPeople = readable;
 
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;

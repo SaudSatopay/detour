@@ -25,18 +25,21 @@ const page = await context.newPage();
 const pause = (s) => page.waitForTimeout(s * 1000);
 const seen = (t) => page.getByText(t).filter({ visible: true });
 
-/** A caption bar in the station-sign style, bottom center. */
-async function caption(title, detail = "") {
+/** A caption bar in the station-sign style, bottom center (or top center, to keep the playback bar in view). */
+async function caption(title, detail = "", at = "bottom") {
   await page.evaluate(
-    ([t, d]) => {
+    ([t, d, where]) => {
       let el = document.getElementById("demo-caption");
       if (!el) {
         el = document.createElement("div");
         el.id = "demo-caption";
+        // Click-through, so it never blocks the controls the recording presses.
         el.style.cssText =
-          "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;max-width:980px;padding:14px 22px;border-radius:6px;background:var(--sign);color:var(--sign-ink);box-shadow:0 10px 30px rgb(0 0 0/.25);transition:opacity 200ms ease-out";
+          "position:fixed;left:50%;transform:translateX(-50%);z-index:9999;max-width:980px;padding:14px 22px;border-radius:6px;background:var(--sign);color:var(--sign-ink);box-shadow:0 10px 30px rgb(0 0 0/.25);transition:opacity 200ms ease-out;pointer-events:none";
         document.body.appendChild(el);
       }
+      el.style.top = where === "top" ? "64px" : "auto";
+      el.style.bottom = where === "top" ? "auto" : "28px";
       el.style.opacity = t ? "1" : "0";
       el.innerHTML = t
         ? `<div style="font-family:var(--font-display);font-weight:700;font-size:28px;line-height:1.1;letter-spacing:.01em">${t}</div>${
@@ -44,7 +47,7 @@ async function caption(title, detail = "") {
           }`
         : "";
     },
-    [title, detail],
+    [title, detail, at],
   );
 }
 
@@ -91,8 +94,21 @@ await page.getByRole("button", { name: /Simulate a plan/ }).filter({ visible: tr
 await caption("A shuttle tested on a forked graph", "1 Av to Astor Pl: riders with no path 4,689 → 623. Memory said past buses carried 79% of plan, so it adds 27% more.");
 await pause(7);
 
-// 3. Approval and the rider desk.
+// Playback: scrub the finished run back a few steps; the whole room shows the run as it was then.
 await page.getByRole("button", { name: "Follow the latest step" }).click().catch(() => undefined);
+const previous = page.getByRole("button", { name: /Previous step/ }).filter({ visible: true }).first();
+if (await previous.count()) {
+  await caption("Replay any step", "The playback bar scrubs the run: the trace, the map and the impact panel show it as it was at that step.", "top");
+  for (let i = 0; i < 3; i++) {
+    await previous.click();
+    await pause(1.2);
+  }
+  await pause(2);
+  await page.getByRole("button", { name: /Back to latest/ }).filter({ visible: true }).first().click().catch(() => undefined);
+  await pause(1);
+}
+
+// 3. Approval and the rider desk.
 await page.getByRole("button", { name: "Approve and publish to riders" }).filter({ visible: true }).first().click();
 await caption("A person approves; the controller hands off", "The rider desk runs one agent per remembered rider whose trip crosses the closure.");
 await pause(9);

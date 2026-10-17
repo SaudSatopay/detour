@@ -24,17 +24,17 @@ export default function OgCard() {
             <dl className="grid grid-cols-3 gap-5 border-t border-line pt-5">
               <div>
                 <dt className="label text-ink-500">Displaced</dt>
-                <dd className="tabular font-display text-5xl font-bold">{fmt(L.displaced)}</dd>
+                <dd className="tabular font-display text-[3.1rem] font-bold leading-none">{fmt(L.displaced)}</dd>
                 <dd className="text-sm text-ink-500">riders an hour</dd>
               </div>
               <div>
                 <dt className="label text-ink-500">Worst overload</dt>
-                <dd className="tabular font-display text-5xl font-bold text-crit">{L.worstPct}%</dd>
+                <dd className="tabular font-display text-[3.1rem] font-bold leading-none text-crit">{L.worstPct}%</dd>
                 <dd className="text-sm text-ink-500">on the {L.worstRoute}</dd>
               </div>
               <div>
                 <dt className="label text-ink-500">Max flow</dt>
-                <dd className="tabular font-display text-5xl font-bold text-signal">{Math.round((L.absorbed / L.required) * 100)}%</dd>
+                <dd className="tabular font-display text-[3.1rem] font-bold leading-none text-signal">{Math.round((L.absorbed / L.required) * 100)}%</dd>
                 <dd className="text-sm text-ink-500">can still move</dd>
               </div>
             </dl>

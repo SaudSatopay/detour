@@ -121,8 +121,8 @@ export default function ProofPage() {
                 <thead className="text-left">
                   <tr className="border-b border-line">
                     <th scope="col" className="label py-1.5 text-ink-700">Within</th>
-                    <th scope="col" className="label py-1.5 text-right text-ink-700">FalkorDB</th>
-                    <th scope="col" className="label py-1.5 text-right text-ink-700">NetworkX</th>
+                    <th scope="col" className="label px-3 py-1.5 text-right text-ink-700">FalkorDB</th>
+                    <th scope="col" className="label px-3 py-1.5 text-right text-ink-700">NetworkX</th>
                     <th scope="col" className="label py-1.5 pl-3 text-ink-700">Agree</th>
                   </tr>
                 </thead>
@@ -130,8 +130,8 @@ export default function ProofPage() {
                   {depth.map((d) => (
                     <tr key={d.k} className="border-b border-line/60">
                       <td className="py-1.5 text-ink-700">{d.k === 0 ? "boards in the closed stretch" : `${d.k} stop${d.k === 1 ? "" : "s"}`}</td>
-                      <td className="tabular py-1.5 text-right font-mono">{n(d.falkor)}</td>
-                      <td className="tabular py-1.5 text-right font-mono text-ink-500">{d.networkx.toFixed(1)}</td>
+                      <td className="tabular px-3 py-1.5 text-right font-mono">{n(d.falkor)}</td>
+                      <td className="tabular px-3 py-1.5 text-right font-mono text-ink-500">{d.networkx.toFixed(1)}</td>
                       <td className={`py-1.5 pl-3 font-semibold ${d.match ? "text-ok" : "text-crit"}`}>{d.match ? "✓" : "✗"}</td>
                     </tr>
                   ))}

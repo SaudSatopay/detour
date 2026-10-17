@@ -13,7 +13,7 @@ export default function NotFound() {
           No stop by that name on this line.
         </h1>
         {/* A line that runs out: the track ends in a buffer stop. */}
-        <svg viewBox="0 0 320 24" className="w-full max-w-md" aria-hidden="true">
+        <svg viewBox="-6 0 326 24" className="w-full max-w-md" aria-hidden="true">
           <path d="M4 12H236" stroke="var(--line-strong)" strokeWidth="6" strokeLinecap="round" />
           <path d="M236 12H276" stroke="var(--crit)" strokeWidth="6" strokeDasharray="8 6" />
           <path d="M284 2V22M284 12H296" stroke="var(--crit)" strokeWidth="4" strokeLinecap="round" />

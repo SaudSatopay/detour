@@ -72,6 +72,7 @@ export function HeroMap({ className = "" }: { className?: string }) {
           label="The L train closed between Bedford Av and 8 Av. Displaced riders' fastest alternatives overload the G train between Metropolitan Av and Court Sq."
           showLabels="major"
           exclude={CARD}
+          interactive={false}
         />
       ) : (
         <div className="absolute inset-0 animate-pulse bg-sunk" aria-busy="true" />

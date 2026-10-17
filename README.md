@@ -69,6 +69,17 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
   <sub>The controller on the L closure: each tool call streams into the trace, and the map shows its evidence.</sub>
 </p>
 
+## On screen
+
+| Screen | What you can do |
+|:---|:---|
+| **Home** | Follow the L closure in six chapters on one sticky night map: who it hits, where they go, what max flow says the network can carry, the min cut, the shuttle tested on a fork, the riders rerouted. Every number comes from the run recorded on FalkorDB |
+| **Control room** | Close a line and watch the controller's tool calls stream in with their Cypher. Scrub, step or replay the run at 1×, 2× or 4×, and link straight to a step with `?step=` |
+| **Riders** | Remembered riders and their routes. Report an elevator fixed and watch memory change a wheelchair user's route |
+| **Memory** | Memory over time: each fact's validity window, closed facts and what replaced them, incidents and agent steps |
+| **Proof** | FalkorDB and NetworkX side by side, the concurrency benchmark, and every query |
+| **Every page** | On a keyboard, <kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd> opens a command palette for any closure, rider, page or proof check; the theme switch spreads paper or night service from where you click and remembers it |
+
 ## How it works
 
 ```mermaid
@@ -287,7 +298,7 @@ CREATE (f)-[:SUPERSEDES]->(old)
 
 | Memory | How it lives in the graph |
 |:---|:---|
-| **Episodic** | Every tool call becomes an `Episode` linked to its incident ([memory page](https://detour-orpin.vercel.app/memory)) |
+| **Episodic** | Every tool call becomes an `Episode` linked to its incident; the [memory page](https://detour-orpin.vercel.app/memory) draws every fact over its validity window on a timeline |
 | **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance (who wrote it, from which incident) |
 | **Procedural** | Playbooks per route; past shuttles keep planned against observed riders, and the controller sizes new bus plans by the worst ratio it remembers |
 | **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider concurrently |
@@ -301,8 +312,8 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | Identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 26 Vitest tests, including the control room's state on recorded runs and the eval grader |
-| End-to-end tests | 7 Playwright tests, each on desktop and phone, including axe accessibility checks after a run and after approval, in light and dark |
+| Unit tests | 58 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout, the command palette's search and the eval grader |
+| End-to-end tests | 11 Playwright tests, each on desktop and phone: the control flow and playback, the memory timeline, the command palette, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (home, control room, proof) | Performance 98 to 99; accessibility, best practices and SEO 100 |
 
 <p align="center">

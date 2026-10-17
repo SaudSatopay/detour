@@ -82,7 +82,7 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
         <span className="label">Search</span>
         <span className="sr-only"> closures, riders and pages</span>
         {keys ? (
-          <kbd aria-hidden="true" className="label rounded-sm bg-sign-ink/15 px-1 py-px text-[0.6875rem]">
+          <kbd aria-hidden="true" className="label rounded-sm bg-sign-ink/15 px-1 py-px text-xs">
             {keys}
           </kbd>
         ) : null}
@@ -116,7 +116,7 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
             placeholder="A line, a rider, a page or a proof check"
             className="w-full min-w-0 bg-transparent font-display text-xl font-semibold text-sign-ink outline-none placeholder:font-normal placeholder:text-sign-ink/55"
           />
-          <kbd className="label shrink-0 rounded-sm bg-sign-ink/15 px-1.5 py-px text-[0.6875rem] text-sign-ink/80">Esc</kbd>
+          <kbd className="label shrink-0 rounded-sm bg-sign-ink/15 px-1.5 py-px text-xs text-sign-ink/80">Esc</kbd>
         </div>
         <div ref={list} id={listId} role="listbox" aria-label="Places to go" className="max-h-[min(60vh,28rem)] overflow-y-auto p-2">
           {groups.map((g) => (

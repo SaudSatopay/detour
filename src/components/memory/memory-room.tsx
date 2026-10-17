@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { readable } from "@/lib/readable";
 import type { FindingRow } from "@/lib/graph/state";
 import { TOOL_TITLE } from "@/lib/tool-titles";
 import { CypherBlock } from "../cypher-block";
@@ -45,7 +46,7 @@ function Finding({ f, successor }: { f: FindingRow; successor?: FindingRow }) {
           {live ? `since ${day(f.validFromMs)}` : `${day(f.validFromMs)} → ${day(f.validToMs!)}`}
         </span>
       </div>
-      <p className={`text-sm ${live ? "text-ink-900" : "text-ink-700"}`}>{f.text}</p>
+      <p className={`text-sm ${live ? "text-ink-900" : "text-ink-700"}`}>{readable(f.text)}</p>
       <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-500">
         {f.about.length ? <span>About {f.about.join(", ")}</span> : null}
         {f.agent ? <span>Written by {f.agent}</span> : null}
@@ -164,10 +165,10 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
                 </span>
                 <span className="min-w-0">
                   <OutcomeChip outcome={e.outcome as Outcome} />
-                  {e.summary.includes(" | ") ? (
+                  {readable(e.summary).includes(" | ") ? (
                     // A recall lists several facts: show the first few whole, one per line.
                     <span className="mt-1 flex flex-col gap-0.5 text-xs text-ink-700">
-                      {e.summary
+                      {readable(e.summary)
                         .split(" | ")
                         .slice(0, 3)
                         .map((fact) => (
@@ -175,10 +176,10 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
                             {fact}
                           </span>
                         ))}
-                      {e.summary.split(" | ").length > 3 ? <span className="text-ink-500">and {e.summary.split(" | ").length - 3} more</span> : null}
+                      {readable(e.summary).split(" | ").length > 3 ? <span className="text-ink-500">and {readable(e.summary).split(" | ").length - 3} more</span> : null}
                     </span>
                   ) : (
-                    <span className="mt-1 line-clamp-2 block text-xs text-ink-700">{e.summary}</span>
+                    <span className="mt-1 line-clamp-2 block text-xs text-ink-700">{readable(e.summary)}</span>
                   )}
                 </span>
                 <span className="tabular font-mono text-xs text-ink-500 sm:text-right">

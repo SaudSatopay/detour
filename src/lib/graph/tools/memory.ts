@@ -98,7 +98,7 @@ export async function recall(
       (i) =>
         `${i.id} on ${day(i.openedMs)} (${i.title})${i.shuttles.length ? `: ${i.shuttles.map((s) => `${s.from} ↔ ${s.to} planned ${s.planned.toLocaleString("en-US")}, carried ${s.observed.toLocaleString("en-US")} riders an hour`).join("; ")}` : ""}`,
     ),
-    ...pb.slice(0, 1).map((p) => `Playbook "${p.title}" used ${p.uses} time(s): ${p.steps.join(" ")}`),
+    ...pb.slice(0, 1).map((p) => `Playbook "${p.title}" used ${p.uses === 1 ? "once" : `${p.uses} times`}: ${p.steps.join(" ")}`),
   ];
   return result(ctx, "recall", "memory", parts.join(" | "), { findings: f, incidents: inc, playbooks: pb });
 }

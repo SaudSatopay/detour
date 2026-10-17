@@ -9,7 +9,7 @@ import "./globals.css";
 const display = Barlow_Condensed({
   variable: "--font-barlow-condensed",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["600", "700"],
   display: "swap",
 });
 
@@ -26,6 +26,8 @@ const mono = Atkinson_Hyperlegible_Mono({
   variable: "--font-atkinson-mono",
   subsets: ["latin"],
   display: "swap",
+  // Numbers and Cypher only, never the largest paint: load it without a preload.
+  preload: false,
   adjustFontFallback: false,
   fallback: ["ui-monospace", "Consolas", "monospace"],
 });

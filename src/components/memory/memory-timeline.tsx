@@ -24,7 +24,7 @@ function ExampleTag() {
   return <span className="label rounded-sm bg-sunk px-1.5 text-ink-500">Example</span>;
 }
 
-function Legend({ episodes, example }: { episodes: boolean; example: boolean }) {
+function Legend({ episodes, example, links }: { episodes: boolean; example: boolean; links: boolean }) {
   return (
     <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-ink-700" aria-label="Legend">
       <li className="flex items-center gap-2">
@@ -43,12 +43,14 @@ function Legend({ episodes, example }: { episodes: boolean; example: boolean }) 
         </svg>
         Closed fact, ends at its stop date
       </li>
-      <li className="flex items-center gap-2">
-        <svg width="34" height="14" viewBox="0 0 34 14" aria-hidden="true">
-          <path d="M2 2 C18 2 16 12 32 12" className="stroke-ink-700" strokeWidth="1.5" strokeDasharray="4 3" fill="none" />
-        </svg>
-        Supersedes link, old fact to its replacement
-      </li>
+      {links ? (
+        <li className="flex items-center gap-2">
+          <svg width="34" height="14" viewBox="0 0 34 14" aria-hidden="true">
+            <path d="M2 2 C18 2 16 12 32 12" className="stroke-ink-700" strokeWidth="1.5" strokeDasharray="4 3" fill="none" />
+          </svg>
+          Supersedes link, old fact to its replacement
+        </li>
+      ) : null}
       <li className="flex items-center gap-2">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
           <rect x="4" y="0.5" width="6" height="6" transform="rotate(45 7 3.5)" className="fill-crit" />
@@ -179,6 +181,15 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
     [findings, incidents, episodes, now, box.width],
   );
 
+  // On a screen narrower than the chart, open at Today: the recent weeks are where memory changes.
+  const openedAtToday = useRef(false);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el || openedAtToday.current || el.scrollWidth <= el.clientWidth + 1) return;
+    el.scrollLeft = el.scrollWidth;
+    openedAtToday.current = true;
+  }, [l.width]);
+
   if (!findings.length) {
     return <p className="rounded-md border border-dashed border-line-strong px-4 py-6 text-sm text-ink-700">No facts in this graph yet, so there is nothing to draw over time.</p>;
   }
@@ -197,7 +208,7 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
 
   return (
     <div className="flex flex-col gap-4">
-      <Legend episodes={l.episodes.length > 0} example={findings.some((f) => f.example)} />
+      <Legend episodes={l.episodes.length > 0} example={findings.some((f) => f.example)} links={l.links.length > 0} />
       <div className="relative grid grid-cols-[9.5rem_minmax(0,1fr)] rounded-md border border-line bg-panel sm:grid-cols-[13rem_minmax(0,1fr)]">
         {/* Row labels stay put while the plot scrolls sideways on a phone. */}
         <div className="relative border-r border-line" style={{ height: l.height }} aria-hidden="true">
