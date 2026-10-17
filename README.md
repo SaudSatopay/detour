@@ -63,10 +63,10 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
 
 <p align="center">
   <a href="https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1">
-    <img src="docs/images/control-room.gif" alt="A run of the L closure: the controller's tool calls stream in, the map shows each step's evidence, and the G overload and max flow appear with their numbers.">
+    <img src="docs/images/control-room.gif" alt="A run of the L closure in the dark theme: the controller's tool calls stream into the trace, the night map shows each step's evidence, the G overload and max flow appear with their numbers, and the playback bar counts the steps.">
   </a>
   <br>
-  <sub>The controller on the L closure: each tool call streams into the trace, and the map shows its evidence.</sub>
+  <sub>The controller on the L closure: each tool call streams into the trace, the night map shows its evidence, and the playback bar can replay any step.</sub>
 </p>
 
 ## On screen
@@ -322,27 +322,39 @@ CREATE (f)-[:SUPERSEDES]->(old)
 
 ## Screens
 
+<p align="center">
+  <img src="docs/images/home-story.png" alt="The home page's story on the night stage: chapter 02, Where they go, says the G runs at 244% of capacity while the sticky map shows displaced riders' fastest paths overloading the G in red.">
+  <br>
+  <sub><b>The story.</b> The home page tells the L closure chapter by chapter over one sticky night map; here the G runs at 244% of capacity.</sub>
+</p>
+
 <table>
   <tr>
     <td width="37%" rowspan="2" align="center">
-      <img src="docs/images/phone-dark.png" width="100%" alt="The control room on a phone in the dark theme, with the dispatcher's report, the run button and the flow map.">
+      <img src="docs/images/phone-dark.png" width="100%" alt="The story on a phone in the dark theme: the map's close-up of the shuttle between 1 Av and Astor Pl above the chapter card, riders with no path 4,689 to 623.">
       <br>
-      <sub><b>On a phone, in the dark theme.</b> The dispatcher's report, the run button and the flow map.</sub>
+      <sub><b>On a phone, at night.</b> The shuttle chapter: a close-up of the bridge above its card.</sub>
     </td>
     <td width="63%">
-      <img src="docs/images/control-room.png" width="100%" alt="The control room after closing the L: displaced riders' fastest paths overload the G (red), max flow moves 17,167 of 18,432 riders an hour, and the trace shows every tool call with its Cypher.">
+      <img src="docs/images/control-room.png" width="100%" alt="The control room after closing the L: displaced riders' fastest paths overload the G (red) on the night map, max flow moves 17,167 of 18,432 riders an hour, and the trace shows every tool call with its Cypher.">
       <br>
       <sub><b>Control room.</b> The G overloads in red, max flow moves 17,167 of 18,432 riders an hour, and the trace shows every tool call with its Cypher.</sub>
     </td>
   </tr>
   <tr>
     <td width="63%">
-      <img src="docs/images/rider-desk.png" width="100%" alt="After approval: two shuttle plans tested on forked graphs, the recommended one published to riders, and a rider agent routing Tomás around the closure.">
+      <img src="docs/images/rider-desk.png" width="100%" alt="After approval: two shuttle plans tested on forked graphs, the recommended one published to riders, a rider agent routing Tomás around the closure, and the playback bar at step 15 of 15.">
       <br>
       <sub><b>After approval.</b> Two shuttle plans tested on forks, the recommended one published, and a rider agent routing Tomás around the break.</sub>
     </td>
   </tr>
 </table>
+
+<p align="center">
+  <img src="docs/images/memory-timeline.png" alt="Memory over time on the memory page: each fact as a bar over its validity window, grouped by line, with the June 12 and September 3 incidents, a closed elevator fact, and the last three weeks drawn wider.">
+  <br>
+  <sub><b>Memory over time.</b> Every fact over its validity window; a closed fact keeps its window, and the last three weeks are drawn wider.</sub>
+</p>
 
 ## Use it from an agent
 
