@@ -21,6 +21,8 @@ export interface MapOverlay {
   /** Station id -> hops from the closure. */
   depth?: Record<string, number>;
   stations?: string[];
+  /** Stations a story points at: a ring and a short label of its own in place of the station name. */
+  marks?: { id: string; label: string; tone?: "crit" | "signal" }[];
 }
 
 /** A screen-pixel rectangle pinned to a corner of the map (an overlay such as a card or legend) where labels are not drawn. */
@@ -173,6 +175,9 @@ function inFrame(model: MapModel, ids: string[], view: View, box: { w: number; h
 
 const SPACING = 2.4;
 
+/** Where a marked station's label sits and how big it is, in screen pixels. */
+const MARK_LABEL = { dx: 12, dy: 5, size: 15 };
+
 const ZOOM_CONTROLS: LabelExclusion = { anchor: "br", w: 56, h: 136 };
 
 export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, label, className = "", showLabels = "major", interactive = true, exclude = NO_EXCLUSIONS }: Props) {
@@ -319,6 +324,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const overloaded = useMemo(() => new Map((overlay.overloaded ?? []).filter((o) => o.kind === "RUNS").map((o) => [o.id, o.pct])), [overlay.overloaded]);
   const emphasized = useMemo(() => new Set([...(overlay.stations ?? []), ...(overlay.path ?? []), ...(selected ? [selected] : [])]), [overlay.stations, overlay.path, selected]);
   const maxFlow = Math.max(1, ...(overlay.flows ?? []).map((f) => f.flow));
+  const marks = useMemo(() => (overlay.marks ?? []).flatMap((m) => (model.stations.has(m.id) ? [{ ...m, s: model.stations.get(m.id)! }] : [])), [overlay.marks, model]);
 
   const majorLabels = useMemo(() => {
     const ranked = [...model.stations.values()].sort((a, b) => b.entries - a.entries).slice(0, k > 2.5 ? 90 : k > 1.5 ? 45 : 22);
@@ -328,10 +334,16 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   // Labels placed greedily in priority order (the step's evidence first, then by ridership); a label whose
   // box would overlap one already placed is skipped, so names never print over each other.
   const labels = useMemo(() => {
+    const marked = new Set(marks.map((m) => m.id));
     const candidates = [...model.stations.values()]
-      .filter((s) => majorLabels.has(s.id) || emphasized.has(s.id))
+      .filter((s) => (majorLabels.has(s.id) || emphasized.has(s.id)) && !marked.has(s.id))
       .sort((a, b) => Number(emphasized.has(b.id)) - Number(emphasized.has(a.id)) || b.entries - a.entries);
-    const placed: { x0: number; y0: number; x1: number; y1: number }[] = [];
+    // A marked station's own label is placed first, so station names keep clear of it.
+    const placed: { x0: number; y0: number; x1: number; y1: number }[] = marks.map((m) => {
+      const x0 = m.s.x + MARK_LABEL.dx * unit;
+      const base = m.s.y + MARK_LABEL.dy * unit;
+      return { x0, x1: x0 + m.label.length * MARK_LABEL.size * 0.5 * unit, y0: base - 0.8 * MARK_LABEL.size * unit, y1: base + 0.25 * MARK_LABEL.size * unit };
+    });
     const out: { s: MapStation; size: number }[] = [];
     const pad = 2 * unit;
     // Screen pixels to model coordinates (the SVG letterboxes the view box into the element).
@@ -362,7 +374,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
       out.push({ s, size });
     }
     return out;
-  }, [model, majorLabels, emphasized, unit, scalePx, box, view, exclude, interactive]);
+  }, [model, majorLabels, emphasized, marks, unit, scalePx, box, view, exclude, interactive]);
 
   return (
     <div className={`relative ${className}`}>
@@ -371,7 +383,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
         viewBox={`0 0 ${model.width} ${model.height}`}
         role="img"
         aria-label={label}
-        className={`block h-full w-full touch-none select-none ${interactive ? "cursor-grab active:cursor-grabbing" : ""} ${hidden ? "paused" : ""}`}
+        className={`block h-full w-full select-none ${interactive ? "touch-none cursor-grab active:cursor-grabbing" : ""} ${hidden ? "paused" : ""}`}
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -463,6 +475,30 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
 
           {/* Stations. */}
           <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={unit} onSelect={onSelect} />
+
+          {/* Stations a story points at. */}
+          {marks.map((m) => {
+            const color = m.tone === "signal" ? "var(--signal)" : "var(--crit)";
+            return (
+              <g key={`m${m.id}`} className="fade-in">
+                <circle cx={m.s.x} cy={m.s.y} r={sw(8)} fill="none" stroke={color} strokeWidth={sw(2)} className="mark-pulse" />
+                <circle cx={m.s.x} cy={m.s.y} r={sw(7)} fill="none" stroke={color} strokeWidth={sw(2.4)} />
+                <text
+                  x={m.s.x + sw(MARK_LABEL.dx)}
+                  y={m.s.y + sw(MARK_LABEL.dy)}
+                  fontSize={sw(MARK_LABEL.size)}
+                  fill={color}
+                  stroke="var(--paper)"
+                  strokeWidth={sw(4)}
+                  paintOrder="stroke"
+                  pointerEvents="none"
+                  style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
+                >
+                  {m.label}
+                </text>
+              </g>
+            );
+          })}
 
           {/* Labels: busiest stations at this zoom, plus anything emphasized. */}
           {showLabels === "major" ? <Labels labels={labels} emphasized={emphasized} unit={unit} /> : null}

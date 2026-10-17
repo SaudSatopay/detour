@@ -136,6 +136,13 @@
   --text-4xl--line-height: 3.05rem;
   --text-5xl: 3.815rem;
   --text-5xl--line-height: 3.7rem;
+  /* Poster sizes continue the 1.25 scale, for numbers and the night stage. */
+  --text-6xl: 4.768rem;
+  --text-6xl--line-height: 0.95;
+  --text-7xl: 5.96rem;
+  --text-7xl--line-height: 0.93;
+  --text-8xl: 7.45rem;
+  --text-8xl--line-height: 0.92;
 
   /* The column long pages, the footer and the hero share; reading measures for prose and short headings. */
   --container-page: 73.75rem;
@@ -194,8 +201,98 @@ p {
 
 /* Sign band: the station-sign motif, used sparingly. */
 .sign-band {
-  background: var(--sign);
+  background-color: var(--sign);
   color: var(--sign-ink);
+}
+
+/* The thin white stripe near the top edge of a black station sign. */
+.sign-rule {
+  background-image: linear-gradient(var(--sign-ink), var(--sign-ink));
+  background-size: 100% 2px;
+  background-position: 0 6px;
+  background-repeat: no-repeat;
+}
+
+/*
+ * The night stage: the night-service token set on one subtree in both themes, a step deeper than the
+ * dark page so it still reads as a stage at night. Chosen by hand like the dark theme, not inverted.
+ */
+.night {
+  --paper: oklch(0.165 0.012 258);
+  --panel: oklch(0.205 0.014 256);
+  --sunk: oklch(0.145 0.011 258);
+  --line: oklch(0.3 0.015 256);
+  --line-strong: oklch(0.42 0.018 255);
+  --ink-900: oklch(0.96 0.005 250);
+  --ink-700: oklch(0.82 0.01 250);
+  --ink-500: oklch(0.68 0.012 250);
+  --signal: oklch(0.74 0.12 200);
+  --signal-strong: oklch(0.8 0.11 200);
+  --signal-ink: oklch(0.18 0.03 220);
+  --signal-wash: oklch(0.3 0.05 210);
+  --crit: oklch(0.7 0.17 25);
+  --crit-wash: oklch(0.32 0.07 25);
+  --warn: oklch(0.8 0.14 80);
+  --warn-wash: oklch(0.34 0.06 80);
+  --ok: oklch(0.74 0.13 155);
+  --ok-wash: oklch(0.31 0.05 155);
+  --map-base: oklch(0.34 0.014 255);
+  --map-station: oklch(0.165 0.012 258);
+  --map-fade: 0.55;
+  --shadow-lift: 0 1px 1px oklch(0 0 0 / 0.3), 0 10px 28px oklch(0 0 0 / 0.4);
+  color-scheme: dark;
+  background-color: var(--paper);
+  color: var(--ink-900);
+}
+
+/* A headline at poster scale: fluid from phone to wall. */
+.poster {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.75rem, 1.2rem + 6.2vw, 7.45rem);
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+/* The white subway tile, 1:2 in running bond, as a grout mask in --line. Text never sits on raw tile. */
+.tile {
+  position: relative;
+  isolation: isolate;
+}
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--line);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M0 .5H48M0 24.5H48M.5 0V24M24.5 24V48' stroke='%23000' fill='none'/%3E%3C/svg%3E") 0 0 / 48px 48px repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M0 .5H48M0 24.5H48M.5 0V24M24.5 24V48' stroke='%23000' fill='none'/%3E%3C/svg%3E") 0 0 / 48px 48px repeat;
+  pointer-events: none;
+}
+
+/* A station the story points at: a ring that breathes while the chapter is on screen. */
+@keyframes mark-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.mark-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mark-pulse 1.6s var(--ease-out) infinite;
+}
+
+/* Theme switch: the new theme spreads from the switch as a circle (the script animates the clip). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 .label {
@@ -289,9 +386,14 @@ p {
     animation: none;
     stroke-dasharray: none;
   }
+  .mark-pulse {
+    animation: none;
+    opacity: 0;
+  }
 }
 
-.paused .flow {
+.paused .flow,
+.paused .mark-pulse {
   animation-play-state: paused;
 }
 
