@@ -39,6 +39,11 @@ test("with the database down, the rider page shows the route the recorded run fo
   await expect(seen(page, "Recorded run", true)).toBeVisible({ timeout: 15_000 });
   await expect(seen(page, /33 min · 0 transfers/)).toBeVisible();
   await expect(seen(page, "11 stops · 33 min")).toBeVisible();
+
+  // A question needs the live graph: the form says so up front instead of failing after a submit.
+  await page.getByPlaceholder("How does Aisha get to work today?").fill("How does Aisha get to work?");
+  await expect(page.getByRole("button", { name: "Ask", exact: true })).toBeDisabled();
+  await expect(seen(page, /Questions run on the live graph database/)).toBeVisible();
 });
 
 test("the memory page shows current and closed facts with their windows", async ({ page }, info) => {

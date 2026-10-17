@@ -41,8 +41,8 @@ export async function replayRun(scenarioId: string | undefined, mode: string, em
       type: "error",
       agent,
       message: scenarioId
-        ? "Live agents are paused (no free model quota left) and this scenario has no recording yet. Try a preset scenario or come back in a minute."
-        : "Live agents are paused (no free model quota left). Pick one of the preset scenarios to watch a recorded run.",
+        ? "Live runs need the graph database, which is unreachable right now, and this closure has no recorded run. Try one of the preset closures."
+        : "Live runs need the graph database, which is unreachable right now. Pick one of the preset closures to watch its recorded run.",
     });
     return;
   }

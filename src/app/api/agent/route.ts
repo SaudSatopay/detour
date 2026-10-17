@@ -51,7 +51,18 @@ export async function POST(request: Request) {
       if (body.replay) return replay("A recorded run of this scenario.");
 
       const sandbox = await ensureSandbox(visitor).catch(() => null);
-      if (!sandbox) return replay("The graph database is unreachable, so this is a recorded run of the same scenario.");
+      if (!sandbox) {
+        // A question has no recording to fall back on: say so, with the real cause.
+        if (body.mode === "ask") {
+          emit({
+            type: "error",
+            agent,
+            message: "The graph database is unreachable right now, so the rider desk cannot answer questions. The control room's preset closures still play their recorded runs.",
+          });
+          return;
+        }
+        return replay("The graph database is unreachable, so this is a recorded run of the same scenario.");
+      }
       const base = { visitorId: visitor, sandbox: sandbox.graph, agentId: agent };
 
       const quota = hasLiveModel() && (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false));

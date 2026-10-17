@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import type { AgentEvent } from "@/lib/agent/catalog";
 import { readNdjson } from "@/lib/client/ndjson";
@@ -130,6 +131,8 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
   const rider: Rider | undefined = riders.find((r) => r.id === selected) ?? riders[0];
   // With the database down, the recorded run still holds the route the rider desk found for each rider it advised.
   const replayable = recorded && Boolean(rider?.advisory);
+  // Questions run live on the graph; a recording cannot answer a new one.
+  const askPaused = !loading && (recorded || !state);
   const closed = useMemo(() => new Set(state?.incident?.closedEids ?? []), [state?.incident?.closedEids]);
   const published = state?.plans.find((p) => p.status === "published") ?? null;
   const elevatorFact = state
@@ -305,7 +308,8 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
             ) : null}
 
             <section className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
+              {/* The note reads under the button, at the column's full width, not squeezed beside it. */}
+              <div className="flex flex-col items-start gap-1.5">
                 <button
                   type="button"
                   onClick={() => void routeNow(rider.id, false)}
@@ -382,11 +386,21 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
                 />
                 <button
                   type="submit"
-                  disabled={ask.status === "running" || question.trim().length < 2}
+                  disabled={askPaused || ask.status === "running" || question.trim().length < 2}
+                  aria-describedby={askPaused ? "ask-why" : undefined}
                   className="w-fit rounded-md border border-line-strong px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 enabled:hover:bg-sunk disabled:opacity-50"
                 >
                   {ask.status === "running" ? "Asking…" : "Ask"}
                 </button>
+                {askPaused ? (
+                  <p id="ask-why" className="text-xs text-ink-500">
+                    Questions run on the live graph database, which is unreachable right now.{" "}
+                    <Link href="/control?scenario=l-canarsie&run=1" className="underline decoration-line-strong underline-offset-2 hover:text-ink-900">
+                      Watch the recorded L closure
+                    </Link>{" "}
+                    in the control room instead.
+                  </p>
+                ) : null}
               </form>
               <div className="flex flex-col gap-2" aria-live="polite">
                 {ask.items.map((it, i) =>
