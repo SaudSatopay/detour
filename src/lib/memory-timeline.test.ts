@@ -140,6 +140,14 @@ describe("supersedes links", () => {
     expect(link.d.startsWith(`M${link.x1.toFixed(1)} ${link.y1.toFixed(1)}`)).toBe(true);
   });
 
+  it("bends a link to the right when the replacement starts the moment the old fact closed", () => {
+    const [link] = layout().links;
+    expect(link.x1).toBeCloseTo(link.x2, 6);
+    expect(link.labelX).toBeGreaterThan(link.x1 + 10);
+    expect(link.labelY).toBeGreaterThan(link.y1);
+    expect(link.labelY).toBeLessThan(link.y2);
+  });
+
   it("skips a link whose old fact is not in the graph", () => {
     const l = layoutTimeline({ findings: [FACTS[4]], incidents: [], episodes: [], nowMs: NOW, width: 1000 });
     expect(l.links).toEqual([]);
@@ -167,5 +175,8 @@ describe("accessible names", () => {
       "Elevator to the L platform at Myrtle-Wyckoff Avs out of service, valid Oct 14, 2026 to Oct 16, 2026, closed",
     );
     expect(factName(FACTS[0])).toBe("Fact F-0612-1, valid since Jun 12, 2026, still true");
+    expect(factName({ ...FACTS[2], text: "Elevator to the L platform at 14 St-Union Sq out of service." })).toBe(
+      "Elevator to the L platform at 14 St-Union Sq out of service, valid Oct 2, 2026 to Oct 9, 2026, closed",
+    );
   });
 });

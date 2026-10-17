@@ -133,9 +133,10 @@ function shortTitle(title: string): string {
 
 /** The accessible name of a bar: the fact, its window, and whether it still holds. */
 export function factName(f: TimelineFact): string {
+  const text = f.text.trim().replace(/[.;:,]+$/, "");
   return f.validToMs === null || f.validToMs === undefined
-    ? `${f.text}, valid since ${formatDay(f.validFromMs)}, still true`
-    : `${f.text}, valid ${formatDay(f.validFromMs)} to ${formatDay(f.validToMs)}, closed`;
+    ? `${text}, valid since ${formatDay(f.validFromMs)}, still true`
+    : `${text}, valid ${formatDay(f.validFromMs)} to ${formatDay(f.validToMs)}, closed`;
 }
 
 // A finding written within this long after an incident opened is read as learned in that incident.
@@ -244,8 +245,13 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
     const old = r.fact.supersedes ? rowById.get(r.fact.supersedes) : undefined;
     if (!old) continue;
     const [x1, y1, x2, y2] = [old.open ? r.x1 : old.x2, old.cy, r.x1, r.cy];
-    const k = Math.max(28, Math.abs(x2 - x1) / 2);
-    const [c1x, c2x] = [x1 + k, x2 - k];
+    // Far apart: an S from the cap into the new bar's start. Close together (a fact replaced the moment it
+    // closed): a hook that bulges right, so it stays visible instead of folding onto itself.
+    const near = Math.abs(x2 - x1) < 40;
+    const k = Math.abs(x2 - x1) / 2;
+    const dy = (y2 - y1) * 0.3;
+    const [c1x, c1y, c2x, c2y] = near ? [Math.max(x1, x2) + 22, y1 + dy, Math.max(x1, x2) + 22, y2 - dy] : [x1 + k, y1, x2 - k, y2];
+    const f = (n: number) => n.toFixed(1);
     links.push({
       from: old.id,
       to: r.id,
@@ -253,10 +259,10 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
       y1,
       x2,
       y2,
-      d: `M${x1.toFixed(1)} ${y1.toFixed(1)} C${c1x.toFixed(1)} ${y1.toFixed(1)} ${c2x.toFixed(1)} ${y2.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+      d: `M${f(x1)} ${f(y1)} C${f(c1x)} ${f(c1y)} ${f(c2x)} ${f(c2y)} ${f(x2)} ${f(y2)}`,
       // The curve's midpoint (t = 0.5 on the cubic).
       labelX: (x1 + 3 * c1x + 3 * c2x + x2) / 8,
-      labelY: (y1 + y2) / 2,
+      labelY: (y1 + 3 * c1y + 3 * c2y + y2) / 8,
     });
   }
 
@@ -298,5 +304,3 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
     episodeLane,
   };
 }
-
-export type TimelineLayout = ReturnType<typeof layoutTimeline>;
