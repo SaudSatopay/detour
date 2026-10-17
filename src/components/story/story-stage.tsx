@@ -120,8 +120,8 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
         the chapters in the page, so the keyboard meets the story's own links first, and sticks beside them.
       */}
       <div className="pointer-events-none absolute inset-0 hidden lg:block">
-        <nav aria-label="Chapters" className="pointer-events-auto sticky top-[50svh] ml-auto mr-6 w-fit -translate-y-1/2">
-          <span aria-hidden="true" className="absolute bottom-2 right-[11px] top-2 w-0.5 bg-line-strong" />
+        <nav aria-label="Chapters" className="pointer-events-auto sticky top-[50svh] ml-auto mr-4 w-fit -translate-y-1/2 rounded-md bg-paper/85 px-3 py-3">
+          <span aria-hidden="true" className="absolute bottom-[22px] right-[23px] top-[22px] w-0.5 bg-line-strong" />
           <ol className="relative flex flex-col gap-5 pr-1">
             {CHAPTERS.map((c, i) => (
               <li key={c}>
