@@ -246,6 +246,15 @@ export function MemoryTimeline({ findings, incidents, episodes }: { findings: Ti
                 <line key={g.key} x1={0} y1={g.y} x2={l.width} y2={g.y} className="stroke-line" strokeWidth="1" />
               ))}
               <line x1={0} y1={l.axisY} x2={l.width} y2={l.axisY} className="stroke-line-strong" strokeWidth="1" />
+              {l.recent ? (
+                <g>
+                  <rect x={l.recent.x} y={l.top - 4} width={l.today.x - l.recent.x} height={l.axisY - l.top + 4} className="fill-sunk" opacity="0.6" />
+                  <line x1={l.recent.x} y1={l.top - 4} x2={l.recent.x} y2={l.axisY + 6} className="stroke-line-strong" strokeWidth="1" strokeDasharray="2 3" />
+                  <text x={l.recent.x + 6} y={l.top + 15} className="fill-ink-500 text-xs">
+                    {l.recent.label}
+                  </text>
+                </g>
+              ) : null}
 
               {l.incidents.map((m) => (
                 <g key={m.incident.id} className="fade-in">

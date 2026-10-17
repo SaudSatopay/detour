@@ -152,6 +152,8 @@ function incidentFor(f: TimelineFact, incidents: TimelineIncident[]): TimelineIn
 }
 
 const LABEL_CHAR = 6.6; // average px per character of the 12 px label type
+const RECENT_MS = 21 * DAY;
+const RECENT_SHARE = 0.32;
 
 export function layoutTimeline({ findings, incidents, episodes, nowMs, width: available }: TimelineInput) {
   const T = TIMELINE;
@@ -162,7 +164,16 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
   const startMs = earliest - margin;
   const endMs = nowMs;
   const plotW = width - T.padL - T.padR;
-  const x = (ms: number) => T.padL + ((Math.min(ms, endMs) - startMs) / (endMs - startMs)) * plotW;
+  // When the history is long, the last three weeks get a fixed share of the width, so this week's changes
+  // (a fact closed, its replacement) stay legible beside months of history.
+  const split = endMs - RECENT_MS;
+  const zoomed = split - startMs > 2 * RECENT_MS;
+  const splitX = T.padL + plotW * (1 - RECENT_SHARE);
+  const x = (ms: number) => {
+    const t = Math.min(ms, endMs);
+    if (!zoomed) return T.padL + ((t - startMs) / (endMs - startMs)) * plotW;
+    return t <= split ? T.padL + ((t - startMs) / (split - startMs)) * (splitX - T.padL) : splitX + ((t - split) / (endMs - split)) * (T.padL + plotW - splitX);
+  };
   const todayX = x(nowMs);
 
   // Incident labels sit in lanes above the rows, stacked when they would collide.
@@ -295,6 +306,8 @@ export function layoutTimeline({ findings, incidents, episodes, nowMs, width: av
     bodyBottom,
     axisY,
     today: { x: todayX, label: `Today, ${formatShort(nowMs)}` },
+    /** Where the last three weeks start when they are drawn wider than the rest; null when the scale is even. */
+    recent: zoomed ? { x: splitX, ms: split, label: "Last 3 weeks, drawn wider" } : null,
     ticks,
     groups,
     rows,

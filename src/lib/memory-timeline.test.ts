@@ -37,12 +37,28 @@ const row = (l: ReturnType<typeof layout>, id: string) => {
 };
 
 describe("time scale", () => {
-  it("maps the range linearly from the left pad to Today", () => {
+  it("maps the range from the left pad to Today, the last three weeks drawn wider", () => {
     const l = layout(1000);
     expect(l.width).toBe(1000);
     expect(l.x(l.startMs)).toBe(TIMELINE.padL);
     expect(l.x(NOW)).toBe(1000 - TIMELINE.padR);
     expect(l.today.x).toBe(1000 - TIMELINE.padR);
+    // Months of history: the recent zone starts three weeks back and takes about a third of the plot.
+    expect(l.recent).not.toBeNull();
+    const plot = 1000 - TIMELINE.padL - TIMELINE.padR;
+    expect(l.recent!.ms).toBe(NOW - 21 * 24 * 3600 * 1000);
+    expect(l.x(l.recent!.ms)).toBeCloseTo(TIMELINE.padL + plot * 0.68, 6);
+    // Even and continuous on each side of the break.
+    const a = l.startMs + (l.recent!.ms - l.startMs) / 2;
+    expect(l.x(a)).toBeCloseTo((TIMELINE.padL + l.recent!.x) / 2, 6);
+    const b = l.recent!.ms + (NOW - l.recent!.ms) / 2;
+    expect(l.x(b)).toBeCloseTo((l.recent!.x + l.today.x) / 2, 6);
+  });
+
+  it("keeps an even scale when the history is short", () => {
+    const recent = FACTS.filter((f) => f.validFromMs > NOW - 30 * 24 * 3600 * 1000);
+    const l = layoutTimeline({ findings: recent, incidents: [], episodes: [], nowMs: NOW, width: 1000 });
+    expect(l.recent).toBeNull();
     const mid = (l.startMs + NOW) / 2;
     expect(l.x(mid)).toBeCloseTo((TIMELINE.padL + 1000 - TIMELINE.padR) / 2, 6);
   });
