@@ -353,6 +353,15 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const overloaded = useMemo(() => new Map((overlay.overloaded ?? []).filter((o) => o.kind === "RUNS").map((o) => [o.id, o.pct])), [overlay.overloaded]);
   const emphasized = useMemo(() => new Set([...(overlay.stations ?? []), ...(overlay.path ?? []), ...(selected ? [selected] : [])]), [overlay.stations, overlay.path, selected]);
   const maxFlow = Math.max(1, ...(overlay.flows ?? []).map((f) => f.flow));
+  // New flows are drawn still and start moving a frame later. Starting 160 CSS animations is most of the cost of
+  // drawing them, and it would land in the frame that also zooms the map; the dashes start from rest either way.
+  const [moving, setMoving] = useState(overlay.flows);
+  const still = moving !== overlay.flows;
+  useEffect(() => {
+    if (!still) return;
+    const frame = requestAnimationFrame(() => setMoving(overlay.flows));
+    return () => cancelAnimationFrame(frame);
+  }, [still, overlay.flows]);
   const marks = useMemo(() => (overlay.marks ?? []).flatMap((m) => (model.stations.has(m.id) ? [{ ...m, s: model.stations.get(m.id)! }] : [])), [overlay.marks, model]);
 
   const majorLabels = useMemo(() => {
@@ -460,17 +469,20 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
             const pct = f.kind === "RUNS" ? overloaded.get(f.id) : undefined;
             const width = sw(1.4 + 6.5 * Math.sqrt(f.flow / maxFlow));
             const speed = `${Math.max(0.6, 2.2 - 1.6 * (f.flow / maxFlow))}s`;
+            // A fragment, not a group: a capacity step brings 160 flows, and every element is styled and laid out.
+            // The speed is set as a duration, not a custom property: a custom property on an element copies every
+            // inherited one (the night tokens) into its style.
             return (
-              <g key={`f${f.kind}${f.id}${f.from}`}>
+              <Fragment key={`f${f.kind}${f.id}${f.from}`}>
                 {pct ? <line {...l} stroke="var(--crit)" strokeWidth={width + sw(3)} strokeLinecap="round" opacity={0.35} /> : null}
                 <line
                   {...l}
                   className="flow"
                   stroke={pct ? "var(--crit)" : "var(--signal)"}
                   strokeWidth={width}
-                  style={{ ["--flow-speed" as string]: speed, strokeDasharray: f.kind === "WALK" ? `${sw(1)} ${sw(3)}` : undefined }}
+                  style={{ animationDuration: speed, animationName: still ? "none" : undefined, strokeDasharray: f.kind === "WALK" ? `${sw(1)} ${sw(3)}` : undefined }}
                 />
-              </g>
+              </Fragment>
             );
           })}
 
