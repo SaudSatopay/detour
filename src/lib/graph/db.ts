@@ -10,7 +10,7 @@ type GlobalWithFalkor = typeof globalThis & { __falkor?: Promise<FalkorDB> };
 class GraphConfigError extends Error {
   constructor() {
     super(
-      "FALKORDB_URL is not set. Copy .env.example to .env.local and point it at a FalkorDB instance (falkor://default:<password>@<host>:<port>).",
+      "FALKORDB_URL is not set. Copy .env.example to .env.local and point it at a FalkorDB instance (falkor://<username>:<password>@<host>:<port>; falkors:// for TLS).",
     );
     this.name = "GraphConfigError";
   }
