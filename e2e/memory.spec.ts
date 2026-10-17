@@ -36,3 +36,28 @@ test("the memory page shows current and closed facts with their windows", async 
   await expect(seen(page, /Elevator to the L platform at 14 St-Union Sq out of service/).first()).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}memory-${info.project.name}.png`, fullPage: true });
 });
+
+test("the memory timeline draws every fact over its window and opens its details from the keyboard", async ({ page }) => {
+  await page.goto("/memory");
+  const bars = page.getByRole("list", { name: "Facts on the timeline" }).getByRole("button");
+  await expect(bars.first()).toBeAttached({ timeout: 30_000 });
+  expect(await bars.count()).toBeGreaterThanOrEqual(5);
+
+  // The seeded elevator outage is closed: its bar names the fact, its window and that it is closed.
+  const closed = page.getByRole("button", { name: "Elevator to the L platform at 14 St-Union Sq out of service, valid Oct 2, 2026 to Oct 9, 2026, closed" });
+  await closed.focus();
+  const card = page.getByRole("tooltip");
+  await expect(card).toContainText("Oct 2, 2026 → Oct 9, 2026");
+  await expect(card).toContainText("Rider desk");
+  await page.keyboard.press("Escape");
+  await expect(card).toHaveCount(0);
+
+  // Tab moves to the next bar and its card opens.
+  await page.keyboard.press("Tab");
+  await expect(card).toBeVisible();
+  await expect(card).toContainText("Valid");
+
+  // The chart scrolls inside its own box; the page never scrolls sideways.
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
