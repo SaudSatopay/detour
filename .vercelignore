@@ -14,3 +14,5 @@ CLAUDE.md
 MISSILE.md
 PRODUCT.md
 DESIGN.md
+# Local env files: the deployment reads its variables from the Vercel project, never from disk.
+.env*
