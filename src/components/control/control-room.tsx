@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
 import type { LabelExclusion } from "../map/subway-map";
@@ -66,6 +66,21 @@ function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] 
 }
 
 const noSubscribe = () => () => {};
+
+/**
+ * `value`, one frame late: a new value is shown, as a transition, from the frame after it arrives. A step
+ * changes the trace and impact panels and the map at once; drawn in one frame, the two took longer than a frame
+ * budget allows at 4x CPU, so the map follows a frame behind the panels.
+ */
+function useNextFrame<T>(value: T): T {
+  const [shown, setShown] = useState(value);
+  useEffect(() => {
+    if (Object.is(shown, value)) return;
+    const frame = requestAnimationFrame(() => startTransition(() => setShown(value)));
+    return () => cancelAnimationFrame(frame);
+  }, [shown, value]);
+  return shown;
+}
 
 /** One playback step per beat at 1x. */
 const STEP_MS = 1400;
@@ -226,8 +241,11 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   const items = view.items;
   const latestIndex = lastDrawable(items);
   const selected = pinned !== null && pinned < items.length ? pinned : latestIndex;
-  const { overlay, focus } = useMemo(() => overlayAt(items, selected), [items, selected]);
   const selectedStep = items[selected]?.kind === "tool" ? items[selected] : null;
+  // The map, its caption and its legend, a frame behind the panels (overlayAt hands back the same view per step).
+  const drawn = overlayAt(items, selected);
+  const map = useNextFrame(useMemo(() => ({ ...drawn, step: selectedStep }), [drawn, selectedStep]));
+  const { overlay, focus, step: mapStep } = map;
   const plans = useMemo(() => plansOf(items), [items]);
   const recommended = recommendedPlan(view.brief, plans);
   const riders = useMemo(() => ridersOf(view), [view]);
@@ -404,13 +422,13 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
                 focus={focus.length ? focus : undefined}
                 className="h-full w-full"
                 exclude={MAP_OVERLAYS}
-                label={selectedStep?.kind === "tool" && selectedStep.result ? selectedStep.result.summary : "The New York City subway network."}
+                label={mapStep?.kind === "tool" && mapStep.result ? mapStep.result.summary : "The New York City subway network."}
               />
             </div>
-            {selectedStep?.kind === "tool" ? (
+            {mapStep?.kind === "tool" ? (
               <div className="pointer-events-none absolute left-3 right-14 top-3 flex flex-wrap items-center gap-2">
                 <span className="label rounded-sm bg-sign px-2 py-1 text-sign-ink">
-                  {agentName(selectedStep.agent)} · {selectedStep.tool}
+                  {agentName(mapStep.agent)} · {mapStep.tool}
                 </span>
                 {pinned !== null ? (
                   <button
