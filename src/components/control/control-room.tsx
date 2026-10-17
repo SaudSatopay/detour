@@ -396,7 +396,8 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
         </aside>
 
         <div className="flex min-w-0 flex-col max-lg:border-b max-lg:border-line lg:min-h-0">
-          <section aria-label="Subway map" className="relative h-[58vh] min-w-0 bg-paper lg:h-auto lg:min-h-0 lg:flex-1">
+          {/* The map is a lit display on the night stage, in both themes. */}
+          <section aria-label="Subway map" className="night relative h-[58vh] min-w-0 overflow-hidden lg:h-auto lg:min-h-0 lg:flex-1">
             <div className="absolute inset-0">
               <MapPanel
                 overlay={overlay}
