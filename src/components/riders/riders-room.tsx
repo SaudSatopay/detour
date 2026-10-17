@@ -262,7 +262,7 @@ export function RidersRoom({ seedRiders, elevatorSeed }: { seedRiders: Rider[]; 
           </ul>
         </nav>
 
-        <section aria-label="Route map" className="night relative h-[46vh] min-w-0 border-b border-line lg:h-auto lg:border-b-0">
+        <section aria-label="Route map" className="night relative h-[46vh] overflow-hidden min-w-0 border-b border-line lg:h-auto lg:border-b-0">
           <div className="absolute inset-0">
             <MapPanel overlay={overlay} focus={focus} className="h-full w-full" label={rider ? `${rider.name}'s trip from ${nameOf(rider.from)} to ${nameOf(rider.to)}.` : "Subway map"} />
           </div>
