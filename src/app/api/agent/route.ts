@@ -1,7 +1,7 @@
 import type { ModelMessage } from "ai";
 import { z } from "zod";
 import { buildTools, type AgentEvent } from "@/lib/agent/catalog";
-import { hasLiveModel } from "@/lib/agent/models";
+import { hasLiveModel, isRetryable } from "@/lib/agent/models";
 import { ASK_INSTRUCTIONS, CONTROLLER_INSTRUCTIONS } from "@/lib/agent/prompts";
 import { recorder, replayRun } from "@/lib/agent/replay";
 import { runAgent } from "@/lib/agent/run";
@@ -72,20 +72,19 @@ export async function POST(request: Request) {
         hasLiveModel() &&
         (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false)) &&
         (await allowToday(body.mode, LIVE_PER_DAY[body.mode]).catch(() => false));
+      /** The controller's standard procedure: the same tools on the visitor's graph, without a model. */
+      const scripted = async (note: string) => {
+        emit({ type: "run", runId, agent, mode: "scripted", note });
+        const out = await scriptedControl(base, scenario!, emit);
+        emit({ type: "done", agent, text: out.brief, steps: out.steps, model: null });
+      };
       if (!quota) {
         if (body.mode === "control" && scenario) {
-          emit({
-            type: "run",
-            runId,
-            agent,
-            mode: "scripted",
-            note: hasLiveModel()
+          return scripted(
+            hasLiveModel()
               ? "The free model runs are used up for now, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
               : "No model is configured, so the controller follows its standard procedure without one: the same tools on your own graph, with templated wording.",
-          });
-          const out = await scriptedControl(base, scenario, emit);
-          emit({ type: "done", agent, text: out.brief, steps: out.steps, model: null });
-          return;
+          );
         }
         emit({
           type: "error",
@@ -104,15 +103,25 @@ export async function POST(request: Request) {
         ...(body.history ?? []).map((m) => ({ role: m.role, content: m.content }) as ModelMessage),
         { role: "user", content: body.message },
       ];
-      const out = await runAgent({
-        agent,
-        instructions: body.mode === "control" ? CONTROLLER_INSTRUCTIONS : ASK_INSTRUCTIONS,
-        messages,
-        tools,
-        emit,
-        maxSteps: body.mode === "control" ? 12 : 6,
-        abortSignal: request.signal,
-      });
+      let out: Awaited<ReturnType<typeof runAgent>>;
+      try {
+        out = await runAgent({
+          agent,
+          instructions: body.mode === "control" ? CONTROLLER_INSTRUCTIONS : ASK_INSTRUCTIONS,
+          messages,
+          tools,
+          emit,
+          maxSteps: body.mode === "control" ? 12 : 6,
+          abortSignal: request.signal,
+        });
+      } catch (error) {
+        // Free model quotas run out (a daily cap, or every provider rate limited): a preset closure finishes on the
+        // controller's standard procedure, from the start, rather than stopping halfway.
+        if (body.mode === "control" && scenario && isRetryable(error)) {
+          return scripted("The free model's quota ran out, so the controller finished with its standard procedure: the same tools on your own graph, with templated wording.");
+        }
+        throw error;
+      }
       emit({ type: "done", agent, text: out.text, steps: out.steps, model: out.model });
       await rec.save();
     },

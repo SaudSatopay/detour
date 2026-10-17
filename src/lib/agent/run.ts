@@ -63,6 +63,12 @@ export function retryDelayMs(error: unknown, attempt: number): number {
   return 5_000 * 2 ** attempt;
 }
 
+/** A provider's daily cap (Gemini names the quota "...PerDay..."): waiting a minute will not lift it. */
+export function isDailyQuota(error: unknown): boolean {
+  const e = error as { message?: string; responseBody?: string } | null;
+  return /per ?day|daily/i.test(`${e?.message ?? ""} ${e?.responseBody ?? ""}`);
+}
+
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(resolve, ms);
@@ -127,6 +133,7 @@ async function stepWithFallback(
       }
       // The last model in the chain: wait out its rate limit (a free tier allows a few calls a minute) rather
       // than end the run halfway, unless the wait it asks for would pass the cap.
+      if (isDailyQuota(error)) throw error;
       const delay = retryDelayMs(error, attempt++) + 500;
       if (waited + delay > MAX_WAIT_MS) throw error;
       o.emit({ type: "model", agent: o.agent, model: m.id, reason: `rate limited, waiting ${Math.round(delay / 1000)} s` });
