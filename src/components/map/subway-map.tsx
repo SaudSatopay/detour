@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapModel, MapStation } from "@/lib/network/map";
 import type { CutHighlight, FlowHighlight } from "@/lib/graph/tools/types";
 
@@ -79,22 +79,35 @@ function computeFit(model: MapModel, ids?: string[]): View {
   return { k, x: model.width / 2 - cx * k, y: model.height / 2 - cy * k };
 }
 
-type Line = { key: string; route: string; x1: number; y1: number; x2: number; y2: number };
+/** A run of consecutive base lines in one color, drawn as one path of "M a L b" pieces. */
+type Run = { key: string; color: string; d: string };
 
 /*
  * The heavy layers are memoized: a new trace step changes the overlay (flows, cut, shuttles), not
- * the network, so about 1,500 base lines and 445 stations are not re-rendered on every step.
+ * the network, so about 770 base lines and 445 stations are not re-rendered on every step.
+ * The base lines are drawn as about 170 paths, one per run of a color in drawing order (the same
+ * strokes in the same order), because a zoom moves every line and the browser restyles, lays out
+ * and paints each element it touches.
  */
-const BaseLines = memo(function BaseLines({ lines, model, width, faded }: { lines: Line[]; model: MapModel; width: number; faded: boolean }) {
+const BaseLines = memo(function BaseLines({ runs, width, faded }: { runs: Run[]; width: number; faded: boolean }) {
   return (
     <g style={{ opacity: faded ? "var(--map-fade)" : 0.9, transition: "opacity 280ms var(--ease-out)" }}>
-      {lines.map((l) => (
-        <line key={l.key} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={`#${model.routes.get(l.route)?.color ?? "808183"}`} strokeWidth={width} strokeLinecap="round" />
+      {runs.map((r) => (
+        <path key={r.key} d={r.d} fill="none" stroke={`#${r.color}`} strokeWidth={width} strokeLinecap="round" />
       ))}
     </g>
   );
 });
 
+/*
+ * A station is a dot with a ring, a constant size on screen. Drawn as circles, all 445 would take a new radius
+ * and stroke on every zoom, and the browser restyles and lays out each one. So a station with a solid fill is
+ * two round dots in screen pixels instead: a zero-length path with a round cap and a non-scaling stroke is a
+ * disc as wide as its stroke, the ring's disc under the fill's, the same paint as the circle, and a zoom changes
+ * neither. A station showing depth fades its fill over the map below, which a disc under it would tint: its fill
+ * is the dot, and its ring a circle on top (`unit` is only read for those). Either way the first element is a
+ * path holding the title, so depth coming and going updates it in place and swaps only the second.
+ */
 const Stations = memo(function Stations({
   model,
   depth,
@@ -114,22 +127,31 @@ const Stations = memo(function Stations({
       {[...model.stations.values()].map((s) => {
         const hop = depth?.[s.id];
         const em = emphasized.has(s.id);
-        const r = sw(em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9);
+        const r = em ? 4.2 : s.routes.length > 2 ? 2.6 : 1.9;
+        const ring = em ? 1.4 : 0.8;
+        const stroke = em ? "var(--ink-900)" : "var(--ink-700)";
+        const onClick = onSelect ? () => onSelect(s.id) : undefined;
+        const className = onSelect ? "cursor-pointer" : undefined;
+        const title = <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>;
+        const d = `M${s.x} ${s.y}h0`;
+        if (hop !== undefined) {
+          const rd = 2.4 + Math.max(0, 4 - hop) * 0.7;
+          return (
+            <Fragment key={s.id}>
+              <path d={d} stroke="var(--crit)" strokeOpacity={Math.max(0.3, 1 - hop * 0.11)} strokeWidth={2 * rd} strokeLinecap="round" vectorEffect="non-scaling-stroke" onClick={onClick} className={className}>
+                {title}
+              </path>
+              <circle cx={s.x} cy={s.y} r={sw(rd)} fill="none" stroke={stroke} strokeWidth={ring} vectorEffect="non-scaling-stroke" onClick={onClick} className={className} />
+            </Fragment>
+          );
+        }
         return (
-          <circle
-            key={s.id}
-            cx={s.x}
-            cy={s.y}
-            r={hop !== undefined ? sw(2.4 + Math.max(0, 4 - hop) * 0.7) : r}
-            fill={hop !== undefined ? "var(--crit)" : em ? "var(--signal)" : "var(--map-station)"}
-            fillOpacity={hop !== undefined ? Math.max(0.3, 1 - hop * 0.11) : 1}
-            stroke={em ? "var(--ink-900)" : "var(--ink-700)"}
-            strokeWidth={sw(em ? 1.4 : 0.8)}
-            onClick={onSelect ? () => onSelect(s.id) : undefined}
-            className={onSelect ? "cursor-pointer" : undefined}
-          >
-            <title>{`${s.label}${s.ada === 1 ? " · step-free" : ""}`}</title>
-          </circle>
+          <Fragment key={s.id}>
+            <path d={d} stroke={stroke} strokeWidth={2 * r + ring} strokeLinecap="round" vectorEffect="non-scaling-stroke" onClick={onClick} className={className}>
+              {title}
+            </path>
+            <path d={d} stroke={em ? "var(--signal)" : "var(--map-station)"} strokeWidth={2 * r - ring} strokeLinecap="round" vectorEffect="non-scaling-stroke" pointerEvents="none" />
+          </Fragment>
         );
       })}
     </g>
@@ -195,7 +217,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const unit = scalePx / view.k;
   // Corridor geometry: a perpendicular offset per route so shared track shows every line side by side.
   const geometry = useMemo(() => {
-    const lines: { key: string; route: string; x1: number; y1: number; x2: number; y2: number }[] = [];
+    const runs: Run[] = [];
     const offsetOf = new Map<string, { nx: number; ny: number; o: number }>();
     for (const c of model.corridors) {
       const a = model.stations.get(c.a);
@@ -209,10 +231,14 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
       c.routes.forEach((route, i) => {
         const o = (i - (c.routes.length - 1) / 2) * SPACING * unit;
         offsetOf.set(`${c.key}|${route}`, { nx, ny, o });
-        lines.push({ key: `${c.key}|${route}`, route, x1: a.x + nx * o, y1: a.y + ny * o, x2: b.x + nx * o, y2: b.y + ny * o });
+        const color = model.routes.get(route)?.color ?? "808183";
+        const piece = `M${a.x + nx * o} ${a.y + ny * o}L${b.x + nx * o} ${b.y + ny * o}`;
+        const last = runs[runs.length - 1];
+        if (last?.color === color) last.d += piece;
+        else runs.push({ key: `${c.key}|${route}`, color, d: piece });
       });
     }
-    return { lines, offsetOf };
+    return { runs, offsetOf };
   }, [model, unit]);
 
   const segmentLine = useCallback(
@@ -327,7 +353,26 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   const overloaded = useMemo(() => new Map((overlay.overloaded ?? []).filter((o) => o.kind === "RUNS").map((o) => [o.id, o.pct])), [overlay.overloaded]);
   const emphasized = useMemo(() => new Set([...(overlay.stations ?? []), ...(overlay.path ?? []), ...(selected ? [selected] : [])]), [overlay.stations, overlay.path, selected]);
   const maxFlow = Math.max(1, ...(overlay.flows ?? []).map((f) => f.flow));
+  // New flows are drawn still and start moving a frame later. Starting 160 CSS animations is most of the cost of
+  // drawing them, and it would land in the frame that also zooms the map; the dashes start from rest either way.
+  const [moving, setMoving] = useState(overlay.flows);
+  const still = moving !== overlay.flows;
+  useEffect(() => {
+    if (!still) return;
+    const frame = requestAnimationFrame(() => setMoving(overlay.flows));
+    return () => cancelAnimationFrame(frame);
+  }, [still, overlay.flows]);
   const marks = useMemo(() => (overlay.marks ?? []).flatMap((m) => (model.stations.has(m.id) ? [{ ...m, s: model.stations.get(m.id)! }] : [])), [overlay.marks, model]);
+
+  // A closure (or a story's mark) fades in once, and its class comes off when the fade ends: a finished fade keeps
+  // filling its opacity, and every filling group is an effect the browser rebuilds its layers for on each frame.
+  // Keys leave the set with their group, so one that comes back fades in again.
+  const [settled, setSettled] = useState<ReadonlySet<string>>(() => new Set());
+  const present = (key: string) => (key[0] === "c" ? closed.has(Number(key.slice(1))) : marks.some((m) => `m${m.id}` === key));
+  if ([...settled].some((key) => !present(key))) setSettled(new Set([...settled].filter(present)));
+  const settle = (key: string) => (e: React.AnimationEvent) => {
+    if (e.target === e.currentTarget) setSettled((s) => new Set(s).add(key));
+  };
 
   const majorLabels = useMemo(() => {
     const ranked = [...model.stations.values()].sort((a, b) => b.entries - a.entries).slice(0, k > 2.5 ? 90 : k > 1.5 ? 45 : 22);
@@ -413,14 +458,14 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
         </defs>
         <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
           {/* Base network: every route in its GTFS color, side by side on shared track. */}
-          <BaseLines lines={geometry.lines} model={model} width={sw(2.2)} faded={hasOverlay} />
+          <BaseLines runs={geometry.runs} width={sw(2.2)} faded={hasOverlay} />
 
           {/* Closed segments. */}
           {[...closed].map((eid) => {
             const l = segmentLine(eid);
             if (!l) return null;
             return (
-              <g key={`c${eid}`} className="fade-in">
+              <g key={`c${eid}`} className={settled.has(`c${eid}`) ? undefined : "fade-in"} onAnimationEnd={settle(`c${eid}`)}>
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(4.6)} strokeLinecap="round" opacity={0.25} />
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(1.8)} strokeDasharray={`${sw(2.2)} ${sw(1.6)}`} />
               </g>
@@ -434,17 +479,20 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
             const pct = f.kind === "RUNS" ? overloaded.get(f.id) : undefined;
             const width = sw(1.4 + 6.5 * Math.sqrt(f.flow / maxFlow));
             const speed = `${Math.max(0.6, 2.2 - 1.6 * (f.flow / maxFlow))}s`;
+            // A fragment, not a group: a capacity step brings 160 flows, and every element is styled and laid out.
+            // The speed is set as a duration, not a custom property: a custom property on an element copies every
+            // inherited one (the night tokens) into its style.
             return (
-              <g key={`f${f.kind}${f.id}${f.from}`}>
+              <Fragment key={`f${f.kind}${f.id}${f.from}`}>
                 {pct ? <line {...l} stroke="var(--crit)" strokeWidth={width + sw(3)} strokeLinecap="round" opacity={0.35} /> : null}
                 <line
                   {...l}
                   className="flow"
                   stroke={pct ? "var(--crit)" : "var(--signal)"}
                   strokeWidth={width}
-                  style={{ ["--flow-speed" as string]: speed, strokeDasharray: f.kind === "WALK" ? `${sw(1)} ${sw(3)}` : undefined }}
+                  style={{ animationDuration: speed, animationName: still ? "none" : undefined, strokeDasharray: f.kind === "WALK" ? `${sw(1)} ${sw(3)}` : undefined }}
                 />
-              </g>
+              </Fragment>
             );
           })}
 
@@ -489,14 +537,15 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
           ) : null}
 
           {/* Stations. */}
-          <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={unit} onSelect={onSelect} />
+          {/* Without depth the layer is drawn in screen pixels, so a zoom does not re-render it. */}
+          <Stations model={model} depth={overlay.depth} emphasized={emphasized} unit={overlay.depth ? unit : 0} onSelect={onSelect} />
 
           {/* Stations a story points at. */}
           {marks.map((m) => {
             const color = m.tone === "signal" ? "var(--signal)" : "var(--crit)";
             const left = markLeft.has(m.id);
             return (
-              <g key={`m${m.id}`} className="fade-in">
+              <g key={`m${m.id}`} className={settled.has(`m${m.id}`) ? undefined : "fade-in"} onAnimationEnd={settle(`m${m.id}`)}>
                 <circle cx={m.s.x} cy={m.s.y} r={sw(8)} fill="none" stroke={color} strokeWidth={sw(2)} className="mark-pulse" />
                 <circle cx={m.s.x} cy={m.s.y} r={sw(7)} fill="none" stroke={color} strokeWidth={sw(2.4)} />
                 <text

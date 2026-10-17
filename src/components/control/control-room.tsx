@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
 import type { LabelExclusion } from "../map/subway-map";
 import { useMapModel } from "../map/use-map-model";
+import { OutcomeChip, RouteTag, Stat } from "./bits";
 import { ImpactPanel } from "./impact-panel";
 import { PlaybackBar, type Speed } from "./playback-bar";
 import { capacityOf, impactOf, incidentOf, lastDrawable, overlayAt, plansOf, recommendedPlan, ridersOf, stepView, type RunState } from "./run-state";
@@ -65,7 +66,53 @@ function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] 
   );
 }
 
+/**
+ * A run sets text in faces and sizes the idle room has not used (the mono face, which loads without a preload,
+ * semibold, the big numbers), and in symbols that come from a system fallback font (✓ ◷ ∅ → ↔ ≤ …). The browser
+ * opens each face, and loads the fallback font, the first time it shapes such text, inside a layout: at 4x CPU
+ * that added 40 to 60 ms to the frames of the first steps. One invisible line of each, in the page's first
+ * layout, opens them before any run (and starts the mono face's download then, not mid-run).
+ */
+function FontSpecimen() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none invisible absolute size-0 overflow-hidden whitespace-nowrap">
+      {(["answered", "memory", "not_in_graph", "unknown_entity"] as const).map((o) => (
+        <OutcomeChip key={o} outcome={o} />
+      ))}
+      <RouteTag route="L" />
+      <dl>
+        <Stat label="0 ≤ …" value="0" unit="0" />
+      </dl>
+      <span className="tabular font-mono text-xs">0 ≤ …</span>
+      <span className="tabular font-mono text-sm">0</span>
+      <span className="tabular font-mono text-xs font-semibold">0 ≤</span>
+      <span className="label">
+        <span className="font-mono normal-case tracking-normal">0</span>
+      </span>
+      <span className="tabular font-mono text-sm font-semibold">0</span>
+      <span className="tabular text-sm">0 → ↔ …</span>
+      <span className="text-sm font-semibold">a …</span>
+      <span className="font-display text-lg font-semibold">a ↔ …</span>
+    </div>
+  );
+}
+
 const noSubscribe = () => () => {};
+
+/**
+ * `value`, one frame late: a new value is shown, as a transition, from the frame after it arrives. A step
+ * changes the trace and impact panels and the map at once; drawn in one frame, the two took longer than a frame
+ * budget allows at 4x CPU, so the map follows a frame behind the panels.
+ */
+function useNextFrame<T>(value: T): T {
+  const [shown, setShown] = useState(value);
+  useEffect(() => {
+    if (Object.is(shown, value)) return;
+    const frame = requestAnimationFrame(() => startTransition(() => setShown(value)));
+    return () => cancelAnimationFrame(frame);
+  }, [shown, value]);
+  return shown;
+}
 
 /** One playback step per beat at 1x. */
 const STEP_MS = 1400;
@@ -226,8 +273,11 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
   const items = view.items;
   const latestIndex = lastDrawable(items);
   const selected = pinned !== null && pinned < items.length ? pinned : latestIndex;
-  const { overlay, focus } = useMemo(() => overlayAt(items, selected), [items, selected]);
   const selectedStep = items[selected]?.kind === "tool" ? items[selected] : null;
+  // The map, its caption and its legend, a frame behind the panels (overlayAt hands back the same view per step).
+  const drawn = overlayAt(items, selected);
+  const map = useNextFrame(useMemo(() => ({ ...drawn, step: selectedStep }), [drawn, selectedStep]));
+  const { overlay, focus, step: mapStep } = map;
   const plans = useMemo(() => plansOf(items), [items]);
   const recommended = recommendedPlan(view.brief, plans);
   const riders = useMemo(() => ridersOf(view), [view]);
@@ -372,6 +422,7 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
 
   return (
     <div className="flex flex-col lg:h-[calc(100dvh-3rem)]">
+      <FontSpecimen />
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2">
         <h1 className="font-display text-xl font-bold tracking-wide">Control room</h1>
         <ModeBadge state={state} />
@@ -404,13 +455,13 @@ export function ControlRoom({ scenarios }: { scenarios: Scenario[] }) {
                 focus={focus.length ? focus : undefined}
                 className="h-full w-full"
                 exclude={MAP_OVERLAYS}
-                label={selectedStep?.kind === "tool" && selectedStep.result ? selectedStep.result.summary : "The New York City subway network."}
+                label={mapStep?.kind === "tool" && mapStep.result ? mapStep.result.summary : "The New York City subway network."}
               />
             </div>
-            {selectedStep?.kind === "tool" ? (
+            {mapStep?.kind === "tool" ? (
               <div className="pointer-events-none absolute left-3 right-14 top-3 flex flex-wrap items-center gap-2">
                 <span className="label rounded-sm bg-sign px-2 py-1 text-sign-ink">
-                  {agentName(selectedStep.agent)} · {selectedStep.tool}
+                  {agentName(mapStep.agent)} · {mapStep.tool}
                 </span>
                 {pinned !== null ? (
                   <button

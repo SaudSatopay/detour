@@ -42,6 +42,17 @@ describe("control room state on the recorded L closure", () => {
     expect(atCap.overloaded?.[0].pct).toBe(244);
   });
 
+  it("hands the map the same overlay for a step until that step or the closure in force changes", () => {
+    const capStep = control.items.findIndex((i) => i.kind === "tool" && i.tool === "measure_capacity");
+    const first = overlayAt(control.items, capStep);
+    // More narration streams in: the items array is new, the step is not.
+    const narrated = reduce(control, { type: "event", event: { type: "text", agent: "controller", delta: "More words." } });
+    expect(narrated.items).not.toBe(control.items);
+    expect(overlayAt(narrated.items, capStep)).toBe(first);
+    // The step before it shows different evidence.
+    expect(overlayAt(control.items, capStep - 1)).not.toBe(first);
+  });
+
   it("hands off to the rider desk on approval and collects one advisory per affected rider", () => {
     const planId = recommendedPlan(control.brief, plansOf(control.items))!;
     const desk = play(reduce(control, { type: "start", stage: "desk", planId }), "l-canarsie-publish.ndjson");
