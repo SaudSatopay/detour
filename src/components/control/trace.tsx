@@ -37,7 +37,7 @@ const StepCard = memo(function StepCard({
   const ms = r ? Math.round(r.trace.reduce((s, t) => s + t.ms, 0)) : 0;
   const drawable = Boolean(r?.highlight);
   return (
-    <article className={`${enter} rounded-md border bg-panel transition-colors duration-150 ${active ? "border-signal shadow-lift" : "border-line"}`}>
+    <article data-step={n} className={`${enter} rounded-md border bg-panel transition-colors duration-150 ${active ? "border-signal shadow-lift" : "border-line"}`}>
       <button
         type="button"
         onClick={() => onSelect(index)}
@@ -163,8 +163,23 @@ function Row({ item, index, n, selected, onSelect, enter }: { item: Item; index:
   }
 }
 
-/** The agents' work in order: what they said, every tool call with its answer shape, and the Cypher behind it. */
-export function Trace({ state, selected, onSelect, onJumpToPlan }: { state: RunState; selected: number; onSelect: (i: number) => void; onJumpToPlan?: () => void }) {
+/**
+ * The agents' work in order: what they said, every tool call with its answer shape, and the Cypher behind it.
+ * `live` is false while playback shows an earlier step: no running line, no announcements, no entrances.
+ */
+export function Trace({
+  state,
+  selected,
+  onSelect,
+  onJumpToPlan,
+  live = true,
+}: {
+  state: RunState;
+  selected: number;
+  onSelect: (i: number) => void;
+  onJumpToPlan?: () => void;
+  live?: boolean;
+}) {
   const end = useRef<HTMLDivElement>(null);
   const count = state.items.length;
   useEffect(() => {
@@ -179,12 +194,12 @@ export function Trace({ state, selected, onSelect, onJumpToPlan }: { state: RunS
   const [firstCount] = useState(state.items.length);
   let n = 0;
   return (
-    <div className="flex flex-col gap-3" aria-live="polite" aria-busy={state.status === "running"}>
+    <div className="flex flex-col gap-3" aria-live={live ? "polite" : "off"} aria-busy={live && state.status === "running"}>
       {state.items.map((item, i) => {
         if (item.kind === "tool") n++;
-        return <Row key={i} item={item} index={i} n={n} selected={selected} onSelect={onSelect} enter={i < firstCount ? "" : "rise"} />;
+        return <Row key={i} item={item} index={i} n={n} selected={selected} onSelect={onSelect} enter={i < firstCount || !live ? "" : "rise"} />;
       })}
-      {state.status === "running" ? (
+      {live && state.status === "running" ? (
         <p className="flex items-center gap-2 px-1 text-sm text-ink-500">
           <span aria-hidden="true" className="size-1.5 animate-pulse rounded-full bg-signal" />
           {state.stage === "desk" ? "The rider desk is routing riders…" : "The controller is working…"}

@@ -171,7 +171,7 @@ export interface StepMark {
  * A run kept for playback: the live state, every tool step, and the state as it stood once steps
  * 1..k had all finished (`at[k - 1]`), captured as the events arrive so scrubbing never re-reduces.
  */
-export interface Timeline {
+interface Timeline {
   run: RunState;
   steps: StepMark[];
   /** Steps 1..ready have all finished; only those can be scrubbed to. */
