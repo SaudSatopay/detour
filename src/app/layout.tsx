@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, Barlow_Condensed } from "next/font/google";
+import { Atkinson_Hyperlegible_Mono, Barlow_Condensed } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { paletteItems } from "@/lib/palette";
@@ -11,15 +11,6 @@ const display = Barlow_Condensed({
   subsets: ["latin"],
   weight: ["600", "700"],
   display: "swap",
-});
-
-// Next has no metrics for the Atkinson faces, so it cannot size-adjust a fallback; name the fallbacks instead.
-const sans = Atkinson_Hyperlegible_Next({
-  variable: "--font-atkinson",
-  subsets: ["latin"],
-  display: "swap",
-  adjustFontFallback: false,
-  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
 });
 
 const mono = Atkinson_Hyperlegible_Mono({
@@ -71,9 +62,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // The boot script may set data-theme before React hydrates, so the attribute is allowed to differ.
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${display.variable} ${mono.variable} h-full`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        {/* The body face's regular weight (globals.css); the bold loads only where a page sets bold body text. */}
+        <link rel="preload" href="/fonts/atkinson-hyperlegible-next-400.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body className="flex min-h-full flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-panel focus:px-3 focus:py-2">

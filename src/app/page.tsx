@@ -264,7 +264,7 @@ export default function Home() {
       <TrimLine />
 
       {/* How it works: the tools as a strip map, one stop per step. */}
-      <section aria-labelledby="how" className="mx-auto w-full max-w-page px-4 py-16 sm:px-6 lg:py-24">
+      <section aria-labelledby="how" className="deferred mx-auto w-full max-w-page px-4 py-16 sm:px-6 lg:py-24">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <div className="lg:sticky lg:top-24 lg:self-start">
             <p className="label text-ink-500">How it works</p>
@@ -301,7 +301,7 @@ export default function Home() {
       </section>
 
       {/* Memory, on the station wall. */}
-      <section aria-labelledby="memory" className="tile border-y border-line bg-sunk">
+      <section aria-labelledby="memory" className="deferred tile border-y border-line bg-sunk">
         <div className="mx-auto grid w-full max-w-page gap-8 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:py-24">
           <div className="self-start rounded-md border-2 border-ink-900 bg-paper p-6 sm:p-8">
             <p className="label text-ink-500">Track 2</p>

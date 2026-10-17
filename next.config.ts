@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     "/api/**": ["./data/nyc/*.json", "./data/scenarios.json", "./data/replays/**"],
   },
   serverExternalPackages: ["falkordb"],
+  // Self-hosted font files never change under the same name.
+  headers: () => [{ source: "/fonts/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }],
 };
 
 export default nextConfig;

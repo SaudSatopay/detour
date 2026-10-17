@@ -1,76 +1,10 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { SubwayMap, type LabelExclusion } from "@/components/map/subway-map";
-import { useMapModel } from "@/components/map/use-map-model";
-import { CHAPTERS, CHAPTER_LABELS, focusFor, mapLabelFor, overlayFor, type Chapter, type Story } from "./story";
+import { lazy, startTransition, Suspense, useEffect, useRef, useState } from "react";
+import { CHAPTERS, CHAPTER_LABELS, type Chapter } from "./story";
 
-// Desktop: no station names under the headline (the opening), under a chapter card (the rest) or under the chapter
-// rail. Phones keep the map above the words, so nothing is excluded there.
-const UNDER_RAIL: LabelExclusion = { anchor: "r", w: 210, h: 340, minWidth: 1024 };
-const CLEAR_OF_HEADLINE: LabelExclusion[] = [{ anchor: "tl", w: 430, h: 4000, minWidth: 1024 }, UNDER_RAIL];
-const CLEAR_OF_CARD: LabelExclusion[] = [{ anchor: "tl", w: 230, h: 4000, minWidth: 1024 }, UNDER_RAIL];
-
-let storyRequest: Promise<Story> | null = null;
-
-function loadStory(): Promise<Story> {
-  storyRequest ??= fetch("/map/story-l-canarsie.json")
-    .then((r) => {
-      if (!r.ok) throw new Error(`Story data failed to load (${r.status})`);
-      return r.json() as Promise<Story>;
-    })
-    .catch((error) => {
-      storyRequest = null;
-      throw error;
-    });
-  return storyRequest;
-}
-
-/** The sticky map: loads the network and the story, plays the opening, then draws whatever the chapter asks for. */
-function StoryMap({ chapter }: { chapter: Chapter }) {
-  const { model } = useMapModel();
-  const [story, setStory] = useState<Story | null>(null);
-  const [intro, setIntro] = useState<0 | 1 | 2>(0);
-
-  useEffect(() => {
-    let live = true;
-    loadStory().then(
-      (s) => live && setStory(s),
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, []);
-
-  // The opening plays once: the network, then the closure, then the displaced riders' flow.
-  useEffect(() => {
-    if (!story || !model) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timers = reduce ? [setTimeout(() => setIntro(2), 0)] : [setTimeout(() => setIntro(1), 300), setTimeout(() => setIntro(2), 900)];
-    return () => timers.forEach(clearTimeout);
-  }, [story, model]);
-
-  const overlay = useMemo(() => (story ? overlayFor(story, chapter, intro) : {}), [story, chapter, intro]);
-  const focus = useMemo(() => (story ? focusFor(story, chapter) : undefined), [story, chapter]);
-  if (!model || !story) return null;
-  return (
-    <div className="fade-in relative h-full w-full">
-      <SubwayMap
-        model={model}
-        overlay={overlay}
-        focus={focus}
-        exclude={chapter === "hero" ? CLEAR_OF_HEADLINE : CLEAR_OF_CARD}
-        interactive={false}
-        showLabels="major"
-        label={mapLabelFor(story, chapter)}
-        className="h-full w-full"
-      />
-      {/* Each chapter frames its own evidence; a short dip to night makes the cut to the new frame read as a cut. */}
-      <div key={chapter} aria-hidden="true" className="dip pointer-events-none absolute inset-0 bg-paper" />
-    </div>
-  );
-}
+// The map's code and data load once the stage arms (after load and idle), so they stay off the first paint.
+const StoryMap = lazy(() => import("./story-map"));
 
 /**
  * The night stage: one sticky map behind the story, and the chapters (server-rendered children) scrolling
@@ -119,7 +53,11 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
       {/* The stage: the map holds still while the chapters scroll over it. */}
       <div className="sticky top-12 h-[calc(100svh-3rem)] overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-[50%] [mask-image:linear-gradient(to_bottom,black_80%,transparent)] lg:inset-y-0 lg:left-[30%] lg:right-0 lg:h-full lg:[mask-image:linear-gradient(to_right,transparent,black_24%)]">
-          {armed ? <StoryMap chapter={chapter} /> : null}
+          {armed ? (
+            <Suspense fallback={null}>
+              <StoryMap chapter={chapter} />
+            </Suspense>
+          ) : null}
         </div>
 
         {/* Phones: a thin progress bar, one segment per chapter. */}
