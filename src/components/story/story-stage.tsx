@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { SubwayMap, type LabelExclusion } from "@/components/map/subway-map";
 import { useMapModel } from "@/components/map/use-map-model";
 import { CHAPTERS, CHAPTER_LABELS, focusFor, mapLabelFor, overlayFor, type Chapter, type Story } from "./story";
@@ -85,7 +85,8 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
     if (!el) return;
     const io = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) if (entry.isIntersecting) setChapter((entry.target as HTMLElement).dataset.chapter as Chapter);
+        // A chapter change redraws the map at a new frame; as a transition React does that in small, interruptible slices.
+        for (const entry of entries) if (entry.isIntersecting) startTransition(() => setChapter((entry.target as HTMLElement).dataset.chapter as Chapter));
       },
       { rootMargin: "-50% 0px -50% 0px" },
     );
