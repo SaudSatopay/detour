@@ -110,11 +110,19 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
             <span key={c} className={`h-1 flex-1 rounded-full transition-colors duration-200 ${i <= at ? "bg-signal" : "bg-line"}`} />
           ))}
         </div>
+      </div>
 
-        {/* Desktop: the chapters as a strip map, the way a car's line diagram shows the stops ahead. */}
-        <nav aria-label="Chapters" className="absolute right-6 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
+      {/* The chapters scroll over the stage; only their cards take the pointer. */}
+      <div className="pointer-events-none relative -mt-[calc(100svh-3rem)]">{children}</div>
+
+      {/*
+        Desktop: the chapters as a strip map, the way a car's line diagram shows the stops ahead. It comes after
+        the chapters in the page, so the keyboard meets the story's own links first, and sticks beside them.
+      */}
+      <div className="pointer-events-none absolute inset-0 hidden lg:block">
+        <nav aria-label="Chapters" className="pointer-events-auto sticky top-[50svh] ml-auto mr-6 w-fit -translate-y-1/2">
+          <span aria-hidden="true" className="absolute bottom-2 right-[11px] top-2 w-0.5 bg-line-strong" />
           <ol className="relative flex flex-col gap-5 pr-1">
-            <span aria-hidden="true" className="absolute bottom-2 right-[7px] top-2 w-0.5 bg-line-strong" />
             {CHAPTERS.map((c, i) => (
               <li key={c}>
                 <a
@@ -135,9 +143,6 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
           </ol>
         </nav>
       </div>
-
-      {/* The chapters scroll over the stage; only their cards take the pointer, so the strip map stays clickable. */}
-      <div className="pointer-events-none relative -mt-[calc(100svh-3rem)]">{children}</div>
     </section>
   );
 }

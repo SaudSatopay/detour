@@ -281,20 +281,22 @@ export default function Home() {
               computed in FalkorDB and checked by a separate NetworkX implementation.
             </p>
           </div>
-          <ol className="relative flex flex-col gap-10">
+          <div className="relative min-w-0">
             <span aria-hidden="true" className="absolute bottom-6 left-[11px] top-3 w-1 rounded-full bg-ink-900" />
-            {STEPS.map((s, i) => (
-              <li key={s.title} className="relative flex min-w-0 gap-5">
-                <span aria-hidden="true" className="relative z-10 mt-1 size-[26px] shrink-0 rounded-full border-[5px] border-ink-900 bg-paper" />
-                <div className="flex min-w-0 flex-1 flex-col gap-3">
-                  <p className="label text-ink-500">Stop {String(i + 1).padStart(2, "0")}</p>
-                  <h3 className="-mt-1 font-display text-2xl font-semibold">{s.title}</h3>
-                  <p className="text-ink-700">{s.body}</p>
-                  <CypherBlock code={s.cypher} />
-                </div>
-              </li>
-            ))}
-          </ol>
+            <ol className="relative flex flex-col gap-10">
+              {STEPS.map((s, i) => (
+                <li key={s.title} className="relative flex min-w-0 gap-5">
+                  <span aria-hidden="true" className="relative z-10 mt-1 size-[26px] shrink-0 rounded-full border-[5px] border-ink-900 bg-paper" />
+                  <div className="flex min-w-0 flex-1 flex-col gap-3">
+                    <p className="label text-ink-500">Stop {String(i + 1).padStart(2, "0")}</p>
+                    <h3 className="-mt-1 font-display text-2xl font-semibold">{s.title}</h3>
+                    <p className="text-ink-700">{s.body}</p>
+                    <CypherBlock code={s.cypher} />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
