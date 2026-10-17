@@ -7,20 +7,13 @@ import { CypherBlock } from "../cypher-block";
 import { OutcomeChip } from "../control/bits";
 import { agentName } from "../control/trace";
 import { useSandbox } from "../use-sandbox";
+import { KIND, MemoryTimeline } from "./memory-timeline";
 import type { Outcome } from "@/lib/graph/tools/types";
 
 // Facts are dated in the subway's time zone, as the agents state them.
 const day = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 const time = (ms: number) => new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const current = (f: FindingRow) => f.validToMs === null || f.validToMs === undefined;
-
-const KIND: Record<string, string> = {
-  accessibility: "Accessibility",
-  capacity: "Capacity",
-  crowding: "Crowding",
-  observation: "Observation",
-  plan: "Plan",
-};
 
 const MODEL: { from: string; rel: string; to: string; note: string }[] = [
   { from: "Agent", rel: "WROTE", to: "Finding", note: "Who learned it. Findings carry validFromMs, validToMs and a confidence." },
@@ -85,6 +78,10 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
   const pastIncidents = state.pastIncidents ?? [];
   const playbooks = state.playbooks ?? [];
   const handoffs = state.handoffs ?? [];
+  const timelineIncidents = [
+    ...pastIncidents.map((i) => ({ id: i.id, title: i.title, openedMs: i.openedMs, example: i.example })),
+    ...(state.incident ? [{ id: state.incident.id, title: state.incident.title, openedMs: state.incident.openedMs, open: true }] : []),
+  ];
 
   return (
     // A different element from the placeholder, so React mounts it fresh instead of resizing one node (a layout shift).
@@ -108,6 +105,20 @@ export function MemoryRoom({ recallQueries }: { recallQueries: { label: string; 
           )}
         </div>
       </header>
+
+      <section className="flex min-w-0 flex-col gap-4" aria-labelledby="memory-over-time">
+        <div className="flex max-w-prose flex-col gap-2">
+          <h2 id="memory-over-time" className="font-display text-2xl font-bold">
+            Memory over time
+          </h2>
+          <p className="text-sm text-ink-700">
+            Each bar is one fact, from the day an agent wrote it to the day it stopped being true. Facts that still hold run to today; a closed
+            fact keeps its window, and a link points to the fact that replaced it. Hover or focus a bar for its source. The full text of every
+            fact is listed below.
+          </p>
+        </div>
+        <MemoryTimeline findings={state.findings} incidents={timelineIncidents} episodes={state.episodes} />
+      </section>
 
       <section className="grid gap-8 lg:grid-cols-2" aria-label="Findings">
         <div className="flex min-w-0 flex-col gap-3">
