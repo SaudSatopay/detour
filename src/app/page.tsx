@@ -96,7 +96,7 @@ function Chapter({
           <h2 id={`ch-${id}-title`} className="mt-1 font-display text-xl font-semibold leading-tight sm:text-3xl">
             {title}
           </h2>
-          <div className="flex flex-col gap-2 text-[0.9375rem] leading-snug text-ink-700 sm:gap-3 sm:text-base sm:leading-normal">{children}</div>
+          <div className="flex flex-col gap-2 text-md text-ink-700 sm:gap-3 sm:text-base sm:leading-normal">{children}</div>
         </div>
       </div>
     </article>

@@ -122,6 +122,9 @@
   --text-xs--line-height: 1.1rem;
   --text-sm: 0.875rem;
   --text-sm--line-height: 1.3rem;
+  /* Body copy on a phone's story card: a step under base that still reads as reading text. */
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.3rem;
   --text-base: 1rem;
   --text-base--line-height: 1.55rem;
   --text-lg: 1.25rem;
@@ -378,7 +381,7 @@ p {
   }
 }
 .dip {
-  animation: dip 380ms var(--ease-out) both;
+  animation: dip 240ms var(--ease-out) both;
 }
 
 /* A closure appearing on the map. */

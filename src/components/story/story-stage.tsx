@@ -5,10 +5,11 @@ import { SubwayMap, type LabelExclusion } from "@/components/map/subway-map";
 import { useMapModel } from "@/components/map/use-map-model";
 import { CHAPTERS, CHAPTER_LABELS, focusFor, mapLabelFor, overlayFor, type Chapter, type Story } from "./story";
 
-// Desktop: no station names under the headline (the opening) or under a chapter card (the rest). Phones keep the
-// map above the words, so nothing is excluded there.
-const CLEAR_OF_HEADLINE: LabelExclusion[] = [{ anchor: "tl", w: 430, h: 4000, minWidth: 1024 }];
-const CLEAR_OF_CARD: LabelExclusion[] = [{ anchor: "tl", w: 230, h: 4000, minWidth: 1024 }];
+// Desktop: no station names under the headline (the opening), under a chapter card (the rest) or under the chapter
+// rail. Phones keep the map above the words, so nothing is excluded there.
+const UNDER_RAIL: LabelExclusion = { anchor: "r", w: 210, h: 340, minWidth: 1024 };
+const CLEAR_OF_HEADLINE: LabelExclusion[] = [{ anchor: "tl", w: 430, h: 4000, minWidth: 1024 }, UNDER_RAIL];
+const CLEAR_OF_CARD: LabelExclusion[] = [{ anchor: "tl", w: 230, h: 4000, minWidth: 1024 }, UNDER_RAIL];
 
 let storyRequest: Promise<Story> | null = null;
 

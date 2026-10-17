@@ -25,9 +25,12 @@ export interface MapOverlay {
   marks?: { id: string; label: string; tone?: "crit" | "signal" }[];
 }
 
-/** A screen-pixel rectangle pinned to a corner of the map (an overlay such as a card or legend) where labels are not drawn. */
+/**
+ * A screen-pixel rectangle where labels are not drawn: an overlay such as a card, a legend or a rail, pinned to
+ * a corner of the map or ("r") to the middle of its right edge.
+ */
 export interface LabelExclusion {
-  anchor: "tl" | "tr" | "bl" | "br";
+  anchor: "tl" | "tr" | "bl" | "br" | "r";
   w: number;
   h: number;
   /** Only when the viewport (not the map) is at least / at most this wide: overlays move at CSS breakpoints. */
@@ -333,18 +336,11 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
 
   // Labels placed greedily in priority order (the step's evidence first, then by ridership); a label whose
   // box would overlap one already placed is skipped, so names never print over each other.
-  const labels = useMemo(() => {
+  const { labels, markLeft } = useMemo(() => {
     const marked = new Set(marks.map((m) => m.id));
     const candidates = [...model.stations.values()]
       .filter((s) => (majorLabels.has(s.id) || emphasized.has(s.id)) && !marked.has(s.id))
       .sort((a, b) => Number(emphasized.has(b.id)) - Number(emphasized.has(a.id)) || b.entries - a.entries);
-    // A marked station's own label is placed first, so station names keep clear of it.
-    const placed: { x0: number; y0: number; x1: number; y1: number }[] = marks.map((m) => {
-      const x0 = m.s.x + MARK_LABEL.dx * unit;
-      const base = m.s.y + MARK_LABEL.dy * unit;
-      return { x0, x1: x0 + m.label.length * MARK_LABEL.size * 0.5 * unit, y0: base - 0.8 * MARK_LABEL.size * unit, y1: base + 0.25 * MARK_LABEL.size * unit };
-    });
-    const out: { s: MapStation; size: number }[] = [];
     const pad = 2 * unit;
     // Screen pixels to model coordinates (the SVG letterboxes the view box into the element).
     const offX = (box.w * scalePx - model.width) / 2;
@@ -355,25 +351,44 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
     const active = [...exclude, ...(interactive ? [ZOOM_CONTROLS] : [])].filter((e) => box.vw >= (e.minWidth ?? 0) && box.vw <= (e.maxWidth ?? Infinity));
     const blocked = (box.w ? active : []).map((e) => {
       const x0 = e.anchor.endsWith("l") ? 0 : box.w - e.w;
-      const y0 = e.anchor.startsWith("t") ? 0 : box.h - e.h;
+      const y0 = e.anchor === "r" ? (box.h - e.h) / 2 : e.anchor.startsWith("t") ? 0 : box.h - e.h;
       const a = toModel(x0, y0);
       const b = toModel(x0 + e.w, y0 + e.h);
       return { x0: a.x, y0: a.y, x1: b.x, y1: b.y };
     });
+    type Rect = { x0: number; y0: number; x1: number; y1: number };
+    const overlaps = (r: Rect, p: Rect, gap = 0) => r.x0 - gap < p.x1 && r.x1 + gap > p.x0 && r.y0 - gap < p.y1 && r.y1 + gap > p.y0;
+    // Not clipped at the pane edge.
+    const inView = (r: Rect) => !box.w || (r.x0 >= seen0.x && r.x1 <= seen1.x && r.y0 >= seen0.y && r.y1 <= seen1.y);
+
+    // A marked station's own label is placed first, so station names keep clear of it. It reads to the right of
+    // its ring, or to the left when the right side would run off the map or under an overlay.
+    const markLeft = new Set<string>();
+    const placed: Rect[] = marks.map((m) => {
+      const w = m.label.length * MARK_LABEL.size * 0.5 * unit;
+      const base = m.s.y + MARK_LABEL.dy * unit;
+      const y0 = base - 0.8 * MARK_LABEL.size * unit;
+      const y1 = base + 0.25 * MARK_LABEL.size * unit;
+      const right = { x0: m.s.x + MARK_LABEL.dx * unit, x1: m.s.x + MARK_LABEL.dx * unit + w, y0, y1 };
+      const left = { x0: m.s.x - MARK_LABEL.dx * unit - w, x1: m.s.x - MARK_LABEL.dx * unit, y0, y1 };
+      const clear = (r: Rect) => inView(r) && !blocked.some((b) => overlaps(r, b));
+      if (clear(right) || !clear(left)) return right;
+      markLeft.add(m.id);
+      return left;
+    });
+    const out: { s: MapStation; size: number }[] = [];
     for (const s of candidates) {
       const size = emphasized.has(s.id) ? 13 : 11;
       const x0 = s.x + 5 * unit;
       const base = s.y - 4 * unit;
       // Barlow Condensed runs about half an em per character.
       const rect = { x0, x1: x0 + s.name.length * size * 0.5 * unit, y0: base - 0.8 * size * unit, y1: base + 0.25 * size * unit };
-      const hits = (p: { x0: number; y0: number; x1: number; y1: number }) => rect.x0 - pad < p.x1 && rect.x1 + pad > p.x0 && rect.y0 - pad < p.y1 && rect.y1 + pad > p.y0;
       // Not clipped at the pane edge, not under an overlay, not over another label.
-      if (box.w && (rect.x0 < seen0.x || rect.x1 > seen1.x || rect.y0 < seen0.y || rect.y1 > seen1.y)) continue;
-      if (blocked.some(hits) || placed.some(hits)) continue;
+      if (!inView(rect) || blocked.some((p) => overlaps(rect, p, pad)) || placed.some((p) => overlaps(rect, p, pad))) continue;
       placed.push(rect);
       out.push({ s, size });
     }
-    return out;
+    return { labels: out, markLeft };
   }, [model, majorLabels, emphasized, marks, unit, scalePx, box, view, exclude, interactive]);
 
   return (
@@ -479,13 +494,15 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
           {/* Stations a story points at. */}
           {marks.map((m) => {
             const color = m.tone === "signal" ? "var(--signal)" : "var(--crit)";
+            const left = markLeft.has(m.id);
             return (
               <g key={`m${m.id}`} className="fade-in">
                 <circle cx={m.s.x} cy={m.s.y} r={sw(8)} fill="none" stroke={color} strokeWidth={sw(2)} className="mark-pulse" />
                 <circle cx={m.s.x} cy={m.s.y} r={sw(7)} fill="none" stroke={color} strokeWidth={sw(2.4)} />
                 <text
-                  x={m.s.x + sw(MARK_LABEL.dx)}
+                  x={m.s.x + (left ? -1 : 1) * sw(MARK_LABEL.dx)}
                   y={m.s.y + sw(MARK_LABEL.dy)}
+                  textAnchor={left ? "end" : "start"}
                   fontSize={sw(MARK_LABEL.size)}
                   fill={color}
                   stroke="var(--paper)"
