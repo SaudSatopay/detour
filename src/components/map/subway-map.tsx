@@ -364,6 +364,16 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
   }, [still, overlay.flows]);
   const marks = useMemo(() => (overlay.marks ?? []).flatMap((m) => (model.stations.has(m.id) ? [{ ...m, s: model.stations.get(m.id)! }] : [])), [overlay.marks, model]);
 
+  // A closure (or a story's mark) fades in once, and its class comes off when the fade ends: a finished fade keeps
+  // filling its opacity, and every filling group is an effect the browser rebuilds its layers for on each frame.
+  // Keys leave the set with their group, so one that comes back fades in again.
+  const [settled, setSettled] = useState<ReadonlySet<string>>(() => new Set());
+  const present = (key: string) => (key[0] === "c" ? closed.has(Number(key.slice(1))) : marks.some((m) => `m${m.id}` === key));
+  if ([...settled].some((key) => !present(key))) setSettled(new Set([...settled].filter(present)));
+  const settle = (key: string) => (e: React.AnimationEvent) => {
+    if (e.target === e.currentTarget) setSettled((s) => new Set(s).add(key));
+  };
+
   const majorLabels = useMemo(() => {
     const ranked = [...model.stations.values()].sort((a, b) => b.entries - a.entries).slice(0, k > 2.5 ? 90 : k > 1.5 ? 45 : 22);
     return new Set(ranked.map((s) => s.id));
@@ -455,7 +465,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
             const l = segmentLine(eid);
             if (!l) return null;
             return (
-              <g key={`c${eid}`} className="fade-in">
+              <g key={`c${eid}`} className={settled.has(`c${eid}`) ? undefined : "fade-in"} onAnimationEnd={settle(`c${eid}`)}>
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(4.6)} strokeLinecap="round" opacity={0.25} />
                 <line {...l} stroke="var(--crit)" strokeWidth={sw(1.8)} strokeDasharray={`${sw(2.2)} ${sw(1.6)}`} />
               </g>
@@ -535,7 +545,7 @@ export function SubwayMap({ model, overlay = {}, focus, selected, onSelect, labe
             const color = m.tone === "signal" ? "var(--signal)" : "var(--crit)";
             const left = markLeft.has(m.id);
             return (
-              <g key={`m${m.id}`} className="fade-in">
+              <g key={`m${m.id}`} className={settled.has(`m${m.id}`) ? undefined : "fade-in"} onAnimationEnd={settle(`m${m.id}`)}>
                 <circle cx={m.s.x} cy={m.s.y} r={sw(8)} fill="none" stroke={color} strokeWidth={sw(2)} className="mark-pulse" />
                 <circle cx={m.s.x} cy={m.s.y} r={sw(7)} fill="none" stroke={color} strokeWidth={sw(2.4)} />
                 <text
