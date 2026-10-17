@@ -66,3 +66,12 @@ export async function allow(visitorId: string, bucket: string, perHour: number):
   const n = await bump(`rl:${bucket}:${visitorId}:${Math.floor(Date.now() / 3_600_000)}`, 3_700_000);
   return n <= perHour;
 }
+
+/**
+ * A daily budget shared by every visitor (UTC days): past it, runs use the scripted procedure instead of
+ * starting live and running out of the free model quota halfway.
+ */
+export async function allowToday(bucket: string, perDay: number): Promise<boolean> {
+  const n = await bump(`day:${bucket}:${new Date().toISOString().slice(0, 10)}`, 26 * 3_600_000);
+  return n <= perDay;
+}

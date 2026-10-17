@@ -8,9 +8,12 @@ import { runAgent } from "@/lib/agent/run";
 import { scriptedControl } from "@/lib/agent/scripted";
 import { ensureSandbox } from "@/lib/graph/tenancy";
 import { loadScenarios } from "@/lib/network/data";
-import { allow, ndjson, visitorId } from "@/lib/server/http";
+import { allow, allowToday, ndjson, visitorId } from "@/lib/server/http";
 
 export const maxDuration = 300;
+
+/** Live runs a day across all visitors: what the free Gemini and Groq tiers carry, with room for the demo. */
+const LIVE_PER_DAY = { control: 20, ask: 80 } as const;
 
 const Body = z.object({
   mode: z.enum(["control", "ask"]),
@@ -65,7 +68,10 @@ export async function POST(request: Request) {
       }
       const base = { visitorId: visitor, sandbox: sandbox.graph, agentId: agent };
 
-      const quota = hasLiveModel() && (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false));
+      const quota =
+        hasLiveModel() &&
+        (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false)) &&
+        (await allowToday(body.mode, LIVE_PER_DAY[body.mode]).catch(() => false));
       if (!quota) {
         if (body.mode === "control" && scenario) {
           emit({
@@ -74,7 +80,7 @@ export async function POST(request: Request) {
             agent,
             mode: "scripted",
             note: hasLiveModel()
-              ? "Your free model runs for this hour are used up, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
+              ? "The free model runs are used up for now, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
               : "No model is configured, so the controller follows its standard procedure without one: the same tools on your own graph, with templated wording.",
           });
           const out = await scriptedControl(base, scenario, emit);

@@ -49,6 +49,34 @@ export async function runAgent({ agent, instructions, messages, tools, emit, max
   return { text: finalText, steps: maxSteps, model: chain[current].id };
 }
 
+/** Longest one step waits out the last model's rate limit before the run gives up. */
+const MAX_WAIT_MS = 60_000;
+
+/** The wait a rate-limited provider asks for (a Retry-After header, or Gemini's "retry in 41.2s"), else a backoff. */
+export function retryDelayMs(error: unknown, attempt: number): number {
+  const e = error as { message?: string; responseBody?: string; responseHeaders?: Record<string, string> } | null;
+  const header = Number(e?.responseHeaders?.["retry-after"]);
+  if (header > 0) return header * 1000;
+  const text = `${e?.message ?? ""} ${e?.responseBody ?? ""}`;
+  const asked = /retry in ([\d.]+)\s*s/i.exec(text) ?? /"retryDelay":\s*"([\d.]+)s"/.exec(text);
+  if (asked) return Math.ceil(Number(asked[1]) * 1000);
+  return 5_000 * 2 ** attempt;
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
+}
+
 class NoModelError extends Error {
   constructor() {
     super("No LLM key is configured (GOOGLE_GENERATIVE_AI_API_KEY or GROQ_API_KEY).");
@@ -62,6 +90,8 @@ async function stepWithFallback(
   setCurrent: (i: number) => void,
   o: { agent: string; instructions: string; history: ModelMessage[]; tools: ToolSet; emit: Emit; abortSignal?: AbortSignal },
 ): Promise<{ messages: ModelMessage[]; finishReason: string; text: string }> {
+  let waited = 0;
+  let attempt = 0;
   for (;;) {
     const m = chain[getCurrent()];
     try {
@@ -88,13 +118,20 @@ async function stepWithFallback(
       if (text) o.emit({ type: "text", agent: o.agent, delta: "\n" });
       return { messages, finishReason, text };
     } catch (error) {
+      if (!isRetryable(error)) throw error;
       const next = getCurrent() + 1;
-      if (isRetryable(error) && next < chain.length) {
+      if (next < chain.length) {
         setCurrent(next);
         o.emit({ type: "model", agent: o.agent, model: chain[next].id, reason: "rate limited, switching provider" });
         continue;
       }
-      throw error;
+      // The last model in the chain: wait out its rate limit (a free tier allows a few calls a minute) rather
+      // than end the run halfway, unless the wait it asks for would pass the cap.
+      const delay = retryDelayMs(error, attempt++) + 500;
+      if (waited + delay > MAX_WAIT_MS) throw error;
+      o.emit({ type: "model", agent: o.agent, model: m.id, reason: `rate limited, waiting ${Math.round(delay / 1000)} s` });
+      await sleep(delay, o.abortSignal);
+      waited += delay;
     }
   }
 }
