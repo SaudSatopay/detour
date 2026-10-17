@@ -20,15 +20,10 @@ function loadStory(): Promise<Story> {
   return storyRequest;
 }
 
-/**
- * The night stage: one sticky map behind the story, and the chapters (server-rendered children) scrolling
- * over it. Whichever chapter crosses the middle of the viewport decides what the map draws.
- */
-export function StoryStage({ children }: { children: React.ReactNode }) {
-  const root = useRef<HTMLElement>(null);
+/** The sticky map: loads the network and the story, plays the opening, then draws whatever the chapter asks for. */
+function StoryMap({ chapter }: { chapter: Chapter }) {
   const { model } = useMapModel();
   const [story, setStory] = useState<Story | null>(null);
-  const [chapter, setChapter] = useState<Chapter>("hero");
   const [intro, setIntro] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
@@ -41,6 +36,33 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
       live = false;
     };
   }, []);
+
+  // The opening plays once: the network, then the closure, then the displaced riders' flow.
+  useEffect(() => {
+    if (!story || !model) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timers = reduce ? [setTimeout(() => setIntro(2), 0)] : [setTimeout(() => setIntro(1), 300), setTimeout(() => setIntro(2), 900)];
+    return () => timers.forEach(clearTimeout);
+  }, [story, model]);
+
+  const overlay = useMemo(() => (story ? overlayFor(story, chapter, intro) : {}), [story, chapter, intro]);
+  const focus = useMemo(() => (story ? storyFocus(story) : undefined), [story]);
+  if (!model || !story) return null;
+  return (
+    <div className="fade-in h-full w-full">
+      <SubwayMap model={model} overlay={overlay} focus={focus} interactive={false} showLabels="major" label={mapLabelFor(story, chapter)} className="h-full w-full" />
+    </div>
+  );
+}
+
+/**
+ * The night stage: one sticky map behind the story, and the chapters (server-rendered children) scrolling
+ * over it. Whichever chapter crosses the middle of the viewport decides what the map draws.
+ */
+export function StoryStage({ children }: { children: React.ReactNode }) {
+  const root = useRef<HTMLElement>(null);
+  const [chapter, setChapter] = useState<Chapter>("hero");
+  const [armed, setArmed] = useState(false);
 
   useEffect(() => {
     const el = root.current;
@@ -55,16 +77,23 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
     return () => io.disconnect();
   }, []);
 
-  // The opening plays once: the network, then the closure, then the displaced riders' flow.
+  // The map waits for the page to load and the browser to go idle: the headline paints first, then the map draws in.
   useEffect(() => {
-    if (!story || !model) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timers = reduce ? [setTimeout(() => setIntro(2), 0)] : [setTimeout(() => setIntro(1), 300), setTimeout(() => setIntro(2), 900)];
-    return () => timers.forEach(clearTimeout);
-  }, [story, model]);
+    let idle = 0;
+    let timer = 0;
+    const arm = () => {
+      if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(() => setArmed(true), { timeout: 1200 });
+      else timer = window.setTimeout(() => setArmed(true), 200);
+    };
+    if (document.readyState === "complete") arm();
+    else window.addEventListener("load", arm, { once: true });
+    return () => {
+      window.removeEventListener("load", arm);
+      if (idle) window.cancelIdleCallback(idle);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, []);
 
-  const overlay = useMemo(() => (story ? overlayFor(story, chapter, intro) : {}), [story, chapter, intro]);
-  const focus = useMemo(() => (story ? storyFocus(story) : undefined), [story]);
   const at = CHAPTERS.indexOf(chapter);
 
   return (
@@ -72,9 +101,7 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
       {/* The stage: the map holds still while the chapters scroll over it. */}
       <div className="sticky top-12 h-[calc(100svh-3rem)] overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-[60%] [mask-image:linear-gradient(to_bottom,black_72%,transparent)] lg:inset-y-0 lg:left-[30%] lg:right-0 lg:h-full lg:[mask-image:linear-gradient(to_right,transparent,black_24%)]">
-          {model && story ? (
-            <SubwayMap model={model} overlay={overlay} focus={focus} interactive={false} showLabels="major" label={mapLabelFor(story, chapter)} className="h-full w-full" />
-          ) : null}
+          {armed ? <StoryMap chapter={chapter} /> : null}
         </div>
 
         {/* Phones: a thin progress bar, one segment per chapter. */}
