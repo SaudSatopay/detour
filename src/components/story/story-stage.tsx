@@ -1,6 +1,7 @@
 "use client";
 
 import { lazy, startTransition, Suspense, useEffect, useRef, useState } from "react";
+import { useAfterLoad } from "../use-after-load";
 import { CHAPTERS, CHAPTER_LABELS, type Chapter } from "./story";
 
 // The map's code and data load once the stage arms (after load and idle), so they stay off the first paint.
@@ -13,7 +14,6 @@ const StoryMap = lazy(() => import("./story-map"));
 export function StoryStage({ children }: { children: React.ReactNode }) {
   const root = useRef<HTMLElement>(null);
   const [chapter, setChapter] = useState<Chapter>("hero");
-  const [armed, setArmed] = useState(false);
 
   useEffect(() => {
     const el = root.current;
@@ -30,21 +30,7 @@ export function StoryStage({ children }: { children: React.ReactNode }) {
   }, []);
 
   // The map waits for the page to load and the browser to go idle: the headline paints first, then the map draws in.
-  useEffect(() => {
-    let idle = 0;
-    let timer = 0;
-    const arm = () => {
-      if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(() => setArmed(true), { timeout: 1200 });
-      else timer = window.setTimeout(() => setArmed(true), 200);
-    };
-    if (document.readyState === "complete") arm();
-    else window.addEventListener("load", arm, { once: true });
-    return () => {
-      window.removeEventListener("load", arm);
-      if (idle) window.cancelIdleCallback(idle);
-      if (timer) window.clearTimeout(timer);
-    };
-  }, []);
+  const armed = useAfterLoad();
 
   const at = CHAPTERS.indexOf(chapter);
 

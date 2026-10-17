@@ -5,6 +5,7 @@ import type { Scenario } from "@/lib/network/data";
 import { MapPanel } from "../map/map-panel";
 import type { LabelExclusion } from "../map/subway-map";
 import { useMapModel } from "../map/use-map-model";
+import { useAfterLoad } from "../use-after-load";
 import { OutcomeChip, RouteTag, Stat } from "./bits";
 import { ImpactPanel } from "./impact-panel";
 import { PlaybackBar, type Speed } from "./playback-bar";
@@ -70,10 +71,13 @@ function Legend({ overlay }: { overlay: ReturnType<typeof overlayAt>["overlay"] 
  * A run sets text in faces and sizes the idle room has not used (the mono face, which loads without a preload,
  * semibold, the big numbers), and in symbols that come from a system fallback font (✓ ◷ ∅ → ↔ ≤ …). The browser
  * opens each face, and loads the fallback font, the first time it shapes such text, inside a layout: at 4x CPU
- * that added 40 to 60 ms to the frames of the first steps. One invisible line of each, in the page's first
- * layout, opens them before any run (and starts the mono face's download then, not mid-run).
+ * that added 40 to 60 ms to the frames of the first steps. One invisible line of each opens them before any run
+ * (and starts the mono face's download then, not mid-run). It waits for load and idle: in the first layout it
+ * would put those downloads ahead of the page's first paint.
  */
 function FontSpecimen() {
+  const ready = useAfterLoad();
+  if (!ready) return null;
   return (
     <div aria-hidden="true" className="pointer-events-none invisible absolute size-0 overflow-hidden whitespace-nowrap">
       {(["answered", "memory", "not_in_graph", "unknown_entity"] as const).map((o) => (

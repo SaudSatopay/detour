@@ -71,7 +71,7 @@ export default function ProofPage() {
 
       <div className="mx-auto flex w-full max-w-page flex-col gap-16 px-4 pb-24 pt-14 sm:px-6">
 
-        <section className="flex flex-col gap-6" aria-labelledby="agreement">
+        <section className="deferred flex flex-col gap-6" aria-labelledby="agreement">
           <SectionHead id="agreement" kicker="Check 1" title={allMatch ? "FalkorDB and NetworkX agree on every closure." : "FalkorDB and NetworkX disagree."}>
             <p>
               Max flow from a super source to a super sink over spare capacity, per direction of travel. FalkorDB runs <code className="font-mono text-sm">algo.maxFlow</code>{" "}
@@ -170,7 +170,7 @@ export default function ProofPage() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-6" aria-labelledby="concurrency">
+        <section className="deferred flex flex-col gap-6" aria-labelledby="concurrency">
           <SectionHead id="concurrency" kicker="Check 2" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>
             <p>
               Every visitor gets a graph of their own. The benchmark runs {BENCH.readers} reader agents and {BENCH.writers} writer agents for{" "}
@@ -200,7 +200,7 @@ export default function ProofPage() {
           </p>
         </section>
 
-        <section className="flex flex-col gap-6" aria-labelledby="cost">
+        <section className="deferred flex flex-col gap-6" aria-labelledby="cost">
           <SectionHead id="cost" kicker="Check 3" title="What each tool costs on the L closure.">
             <p>Summed query time per call, from the same run. The expensive tools fork the graph, rebuild the flow network and reroute two thousand trips.</p>
           </SectionHead>
@@ -222,7 +222,7 @@ export default function ProofPage() {
           </ol>
         </section>
 
-        <section className="flex flex-col gap-6" aria-labelledby="data">
+        <section className="deferred flex flex-col gap-6" aria-labelledby="data">
           <SectionHead id="data" kicker="Inputs" title="The data, and what was assumed.">
             <p>
               {n(META.counts.stations)} station complexes, {META.counts.routes} routes, {n(META.counts.segments)} scheduled segments,{" "}
@@ -265,7 +265,7 @@ export default function ProofPage() {
           </p>
         </section>
 
-        <section className="flex flex-col gap-6" aria-labelledby="cypher">
+        <section className="deferred flex flex-col gap-6" aria-labelledby="cypher">
           <SectionHead id="cypher" kicker="Every query" title={`${queryCount} Cypher queries and graph commands behind ${catalog.length} tools.`}>
             <p>
               The agents never write Cypher. They pick from this fixed catalogue; each call returns its answer shape, a summary, and the exact
