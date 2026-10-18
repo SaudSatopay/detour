@@ -17,6 +17,8 @@ export const maxDuration = 300;
  *   POST { "start": true }  begins a run (one a UTC day), then runs questions until about 270 s have passed
  *   POST {}                 runs the next batch of the run in progress
  *   POST { "retry": true }  reopens the last run: its arms that met spent free quotas run again, in the next batches
+ *   POST { "start": true, "skip": [ids] }  begins a run without questions an earlier run already answered on
+ *                           every arm (its records are merged when the results are fetched)
  *   GET  ?offset=&limit=    progress and a page of per-question results
  *
  * Every batch works on one sandbox graph of its own (EVAL_VISITOR), runs no brain, publishes nothing and touches no
@@ -34,7 +36,7 @@ const ARM_TIMEOUT_MS = 100_000;
 const LEFT_FOR_VISITORS = 2;
 const evalChain = async () => (await liveChain()).slice(LEFT_FOR_VISITORS);
 
-const Body = z.object({ start: z.boolean().optional(), retry: z.boolean().optional() }).strict();
+const Body = z.object({ start: z.boolean().optional(), retry: z.boolean().optional(), skip: z.array(z.string().max(80)).max(200).optional() }).strict();
 const enabled = () => process.env.EVAL_ENABLED === "1";
 const clientOf = (request: Request) => (request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anon").replace(/[^a-z0-9.:]/gi, "");
 
@@ -77,7 +79,9 @@ export async function POST(request: Request) {
       if (!(await allowToday("eval-run", 1))) {
         return Response.json({ error: "One full evaluation a UTC day: today's has started already." }, { status: 429 });
       }
-      current = { id: `eval-${new Date(started).toISOString().slice(0, 10)}-${owner.slice(0, 6)}`, startedMs: started, finishedMs: null, order: runOrder(QUESTIONS), status: "running" };
+      const skip = new Set(parsed.data.skip ?? []);
+      const order = runOrder(QUESTIONS).filter((id) => !skip.has(id));
+      current = { id: `eval-${new Date(started).toISOString().slice(0, 10)}-${owner.slice(0, 6)}`, startedMs: started, finishedMs: null, order, status: "running" };
       await startRun(current);
     }
 

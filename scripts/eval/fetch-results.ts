@@ -2,9 +2,12 @@
  * Pages GET /api/eval on a deployment and writes data/eval/results.json, then data/eval/summary.json is one
  * `pnpm eval:analyze` away. Reads only: no key or secret is needed or sent.
  *
- *   pnpm tsx scripts/eval/fetch-results.ts https://detour.example.app
+ *   pnpm tsx scripts/eval/fetch-results.ts https://detour.example.app [--merge data/eval/results-earlier.json]
+ *
+ * --merge keeps an earlier run's records for every question the deployment's run has no record of (a run started with
+ * "skip" for questions the earlier one had answered on every arm); each question's arms still come from one run.
  */
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import type { ArmRecord } from "../../src/lib/eval/runner";
 import type { ResultsFile } from "./run-eval";
 
@@ -31,12 +34,21 @@ async function main() {
     offset = page.next;
   }
   if (!first?.run) throw new Error("The deployment has no eval run yet.");
+  const at = process.argv.indexOf("--merge");
+  const earlier = at > 0 ? (JSON.parse(readFileSync(process.argv[at + 1], "utf8")) as ResultsFile) : null;
+  const answered = new Set(results.map((r) => r.qid));
+  const kept = earlier ? earlier.results.filter((r) => !answered.has(r.qid)) : [];
   const file: ResultsFile = {
     source: base,
-    run: { id: first.run.id, startedMs: first.run.startedMs, finishedMs: first.run.finishedMs },
+    run: {
+      id: earlier ? `${earlier.run.id}+${first.run.id}` : first.run.id,
+      startedMs: earlier?.run.startedMs ? Math.min(earlier.run.startedMs, first.run.startedMs) : first.run.startedMs,
+      finishedMs: first.run.finishedMs,
+    },
     fetchedAt: new Date().toISOString(),
-    results,
+    results: [...kept, ...results],
   };
+  if (earlier) console.log(`kept ${kept.length} records of ${new Set(kept.map((r) => r.qid)).size} questions from ${earlier.run.id}`);
   writeFileSync("data/eval/results.json", JSON.stringify(file, null, 1) + "\n");
   console.log(`${results.length} of ${first.progress?.total ?? "?"} results from run ${first.run.id} (${first.run.status}) → data/eval/results.json`);
 }
