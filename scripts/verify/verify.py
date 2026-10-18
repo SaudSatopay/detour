@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -44,6 +45,10 @@ TOP_EDGES = 15
 TOP_PAIRS = 10
 BUS_RIDERS = 70  # riders per bus, docs/model.md "Shuttle plans"
 DIRECTIONS = ("forward", "backward")
+TRANSFER_PENALTY_MINUTES = 3  # docs/model.md "Network", platform layer
+MAX_WAIT_MINUTES = 30
+HEADROOM_MAX_SCALE = 20  # same default as the measure_headroom tool
+TIE_BREAKS = 8  # random tie-breaks between equally fast paths for the overflow range
 
 
 def r1(x: float) -> float:
@@ -52,6 +57,23 @@ def r1(x: float) -> float:
 
 def r6(x: float) -> float:
     return round(x, 6) + 0.0
+
+
+def js_round(x: float) -> int:
+    """JavaScript's Math.round (halves round up), which the FalkorDB tools use."""
+    return int(math.floor(x + 0.5))
+
+
+def js_round1(x: float) -> float:
+    return math.floor(x * 10 + 0.5) / 10
+
+
+def bus_minutes(a: dict, b: dict) -> float:
+    """Shuttle running time as the FalkorDB tool computes it: 4 min + 3 min per km, earth radius 6,371,000 m."""
+    lat1, lon1, lat2, lon2 = map(math.radians, (a["lat"], a["lon"], b["lat"], b["lon"]))
+    h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    meters = 2 * 6_371_000 * math.asin(math.sqrt(h))
+    return js_round1(4 + meters / 1000 * 3)
 
 
 # ---------------------------------------------------------------- inputs
@@ -309,6 +331,240 @@ class Model:
             "_top": [edge_out(e) for e in top[:TOP_EDGES]],
         }
 
+    # ------------------------------------------------------------ cut-off stations and headroom
+
+    def demand_feeds(self, direction: str) -> tuple[dict[str, float], dict[str, float]]:
+        net: dict[str, float] = defaultdict(float)
+        for o, dst, riders, *_ in self.displaced[direction]:
+            net[o] += riders
+            net[dst] -= riders
+        return {s: v for s, v in net.items() if v > EPS}, {s: -v for s, v in net.items() if v < -EPS}
+
+    def cut_off(self, direction: str, buses: list[dict] | None = None) -> list[dict]:
+        """Origins that reach no destination and destinations no origin reaches, over edges with spare > 0."""
+        sources, sinks = self.demand_feeds(direction)
+        G = nx.DiGraph()
+        G.add_nodes_from(self.stations)
+        for e in self.network_edges(buses):
+            if e["capacity"] > EPS:
+                G.add_edge(e["from"], e["to"])
+        from_sources: set[str] = set()
+        for s in sources:
+            from_sources |= nx.descendants(G, s) | {s}
+        to_sinks: set[str] = set()
+        for t in sinks:
+            to_sinks |= nx.ancestors(G, t) | {t}
+        out = [{"station": s, "side": "origin", "riders": r1(v)} for s, v in sources.items() if s not in to_sinks]
+        out += [{"station": t, "side": "destination", "riders": r1(v)} for t, v in sinks.items() if t not in from_sources]
+        return sorted(out, key=lambda x: (-x["riders"], x["station"]))
+
+    def headroom(self, direction: str, max_scale: float = HEADROOM_MAX_SCALE) -> dict:
+        """Displaced-demand multiplier at which an open edge first saturates (parametric max flow).
+
+        f(lam) = max flow with every feed capacity times lam is the lower envelope of the cuts'
+        lines lam*F + N. Below the first breakpoint only feed cuts bind and f(lam) = lam*F0, where
+        F0 is the connected demand. From lam, the min cut's line meets lam*F0 at N / (F0 - F);
+        iterating that from max_scale reaches the first breakpoint exactly (Newton on breakpoints).
+        """
+        sources, sinks = self.demand_feeds(direction)
+        edges = self.network_edges()
+
+        def graph(lam: float, unlimited: bool = False) -> nx.DiGraph:
+            G = nx.DiGraph()
+            G.add_nodes_from([SRC, SNK])
+            for s, v in sources.items():
+                G.add_edge(SRC, s, capacity=v * lam, feed=True)
+            for t, v in sinks.items():
+                G.add_edge(t, SNK, capacity=v * lam, feed=True)
+            for e in edges:
+                mid = (e["kind"], e["id"])
+                if unlimited:
+                    if e["capacity"] > EPS:
+                        G.add_edge(e["from"], mid)
+                        G.add_edge(mid, e["to"])
+                else:
+                    G.add_edge(e["from"], mid, capacity=e["capacity"])
+                    G.add_edge(mid, e["to"])
+            return G
+
+        connected = nx.maximum_flow_value(graph(1.0, unlimited=True), SRC, SNK, flow_func=FLOW_FUNC) if sources else 0.0
+        if connected <= EPS:
+            return {"connected": 0.0, "multiplier": None, "saturating": [], "solves": 0}
+        lam = max_scale
+        binding: list = []
+        solves = 0
+        for i in range(40):
+            G = graph(lam)
+            value, (side_s, _side_t) = nx.minimum_cut(G, SRC, SNK, flow_func=FLOW_FUNC)
+            solves += 1
+            if value >= lam * connected * (1 - 1e-9) - 1e-6:
+                return {
+                    "connected": r6(connected),
+                    "multiplier": None if i == 0 else r6(lam),
+                    "saturating": binding,
+                    "solves": solves,
+                }
+            feed_cap = 0.0
+            net_cap = 0.0
+            crossing = []
+            for u, v, data in G.edges(data=True):
+                if u in side_s and v not in side_s:
+                    if data.get("feed"):
+                        feed_cap += data["capacity"] / lam
+                    else:
+                        net_cap += data["capacity"]
+                        if data["capacity"] > EPS:
+                            crossing.append({"kind": v[0], "id": v[1], "from": u, "to": next(iter(G.successors(v))), "spare": r1(data["capacity"])})
+            # networkx returns the maximal source side; the cut it names binds at the next breakpoint all the same.
+            binding = sorted(crossing, key=lambda e: (e["spare"], e["kind"], str(e["id"])))
+            lam = net_cap / (connected - feed_cap)
+        return {"connected": r6(connected), "multiplier": r6(lam), "saturating": binding, "solves": solves}
+
+    # ------------------------------------------------------------ fastest-path reroute
+
+    def platform_graph(self, buses: list[dict] | None = None) -> nx.DiGraph:
+        """The platform layer of docs/model.md on the closure fork, plus optional BUS legs.
+
+        Station nodes ("S", id); a platform ("P", id, route) per station and route a segment
+        touches. BOARD costs 3 min plus half the headway (capped at 30) of the platform's
+        busiest departing segment, ALIGHT is free, RIDE is the segment's minutes (closed
+        segments are deleted), WALK and BUS connect stations directly.
+        """
+        tph: dict[tuple[str, str], float] = {}
+        for seg in self.segments.values():
+            for key in ((seg["from"], seg["route"]), (seg["to"], seg["route"])):
+                tph.setdefault(key, 0.0)
+            key = (seg["from"], seg["route"])
+            tph[key] = max(tph[key], seg["tph"])
+        G = nx.DiGraph()
+        for (station, route), t in tph.items():
+            board = js_round1(TRANSFER_PENALTY_MINUTES + min(MAX_WAIT_MINUTES, 30 / max(1, t)))
+            G.add_edge(("S", station), ("P", station, route), minutes=board, kind="BOARD")
+            G.add_edge(("P", station, route), ("S", station), minutes=0.0, kind="ALIGHT")
+        for seg in self.segments.values():
+            if seg["eid"] in self.closed:
+                continue
+            G.add_edge(("P", seg["from"], seg["route"]), ("P", seg["to"], seg["route"]), minutes=seg["minutes"], kind="RIDE", eid=seg["eid"])
+
+        def link(a: str, b: str, minutes: float, **ref: Any) -> None:
+            u, v = ("S", a), ("S", b)
+            # Station-to-station links can coincide (a shuttle between stations a walk apart): keep the faster.
+            if not G.has_edge(u, v) or minutes < G[u][v]["minutes"]:
+                G.add_edge(u, v, minutes=minutes, **ref)
+
+        for walk in self.walks.values():
+            link(walk["from"], walk["to"], walk["minutes"], kind="WALK", wid=walk["wid"])
+        for i, bus in enumerate(buses or []):
+            minutes = bus_minutes(self.stations[bus["from"]], self.stations[bus["to"]])
+            link(bus["from"], bus["to"], minutes, kind="BUS", bid=i)
+            link(bus["to"], bus["from"], minutes, kind="BUS", bid=i)
+        return G
+
+    def reroute(self, buses: list[dict] | None = None) -> dict:
+        """All-or-nothing assignment of every displaced pair to its fastest open path.
+
+        Mirrors the FalkorDB tool (capacity.ts, reroute): new load = load - displacedLoad +
+        rerouted riders on each segment a path rides; a segment is overloaded when that exceeds
+        its capacity and its 8 a.m. load; overflow = load - max(capacity, baseline), summed
+        after rounding each load. Pairs with no open path are stranded. A BUS leg's load is the
+        riders on both of its directions, checked against one direction's capacity, as the
+        FalkorDB tool counts it.
+        """
+        G = self.platform_graph(buses)
+        pairs = [p for d in DIRECTIONS for p in self.displaced[d]]
+        displaced_load: dict[int, float] = defaultdict(float)
+        for pair in pairs:
+            for eid in set(pair[4]):
+                if eid not in self.closed:
+                    displaced_load[eid] += pair[2]
+        by_origin: dict[str, list] = defaultdict(list)
+        for p in pairs:
+            by_origin[p[0]].append(p)
+        added: dict[int, float] = defaultdict(float)
+        bus_added: dict[int, float] = defaultdict(float)
+        rerouted = 0.0
+        stranded: list = []
+        for origin, group in sorted(by_origin.items()):
+            source = ("S", origin)
+            _dist, paths = nx.single_source_dijkstra(G, source, weight="minutes") if source in G else ({}, {})
+            for o, dst, riders, *_ in group:
+                path = paths.get(("S", dst))
+                if path is None:
+                    stranded.append((o, dst, riders))
+                    continue
+                rerouted += riders
+                for a, b in zip(path, path[1:]):
+                    data = G[a][b]
+                    if data["kind"] == "RIDE":
+                        added[data["eid"]] += riders
+                    elif data["kind"] == "BUS":
+                        bus_added[data["bid"]] += riders
+
+        overloaded = []
+        for eid, n in added.items():
+            seg = self.segments[eid]
+            load = seg["load"] - displaced_load[eid] + n
+            if load > seg["capacity"] and load > seg["load"]:
+                overloaded.append({
+                    "kind": "RUNS", "eid": eid, "route": seg["route"], "from": seg["from"], "to": seg["to"],
+                    "load": js_round(load), "baseline": js_round(seg["load"]), "capacity": seg["capacity"],
+                    "pct": js_round(load / seg["capacity"] * 100),
+                })
+        for i, bus in enumerate(buses or []):
+            cap = float(bus["busesPerHour"]) * BUS_RIDERS
+            load = bus_added[i]
+            for a, b in ((bus["from"], bus["to"]), (bus["to"], bus["from"])):
+                if load > cap:
+                    overloaded.append({
+                        "kind": "BUS", "bid": i, "route": "BUS", "from": a, "to": b, "load": js_round(load),
+                        "baseline": 0, "capacity": cap, "pct": js_round(load / cap * 100),
+                    })
+        excess = lambda o: o["load"] - max(o["capacity"], o["baseline"])  # noqa: E731
+        overloaded.sort(key=lambda o: (-excess(o), o["kind"], o.get("eid", o.get("bid"))))
+        no_path_ends: dict[str, float] = defaultdict(float)
+        for o, dst, riders in stranded:
+            for end in {o, dst}:
+                no_path_ends[end] += riders
+        return {
+            "costModel": "BOARD 3 min + min(30, 30/tph); RIDE segment minutes; ALIGHT 0; WALK minutes; BUS 4 min + 3 min/km; closed RIDE deleted",
+            "pairs": len(pairs),
+            "rerouted": js_round(rerouted),
+            "stranded": js_round(sum(r for *_, r in stranded)),
+            "strandedPairs": len(stranded),
+            "strandedByStation": [
+                {"station": s, "riders": r1(v)} for s, v in sorted(no_path_ends.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
+            ],
+            "overflow": js_round(sum(excess(o) for o in overloaded)),
+            "overloaded": overloaded,
+        }
+
+    def overflow_range(self, tie_breaks: int = TIE_BREAKS) -> dict:
+        """Overflow over several tie-breaks between equally fast paths.
+
+        All-or-nothing assignment is not unique when two paths cost the same minutes, and which
+        one a shortest-path routine returns is an implementation detail (FalkorDB's SPpaths and
+        networkx's Dijkstra need not agree). Adding a random 1e-7 minutes to every edge picks
+        a different equally fast path without changing any strictly faster one; the spread of
+        the resulting overflow is the range any correct implementation can land in.
+        """
+        values = [self.reroute()["overflow"]]
+        original = self.platform_graph
+        for seed in range(1, tie_breaks + 1):
+            rng = random.Random(seed)
+
+            def perturbed(buses: list[dict] | None = None, rng: random.Random = rng) -> nx.DiGraph:
+                G = original(buses)
+                for _u, _v, data in G.edges(data=True):
+                    data["minutes"] += rng.random() * 1e-7
+                return G
+
+            self.platform_graph = perturbed  # type: ignore[method-assign]
+            try:
+                values.append(self.reroute()["overflow"])
+            finally:
+                del self.platform_graph
+        return {"min": min(values), "max": max(values), "tieBreaks": tie_breaks}
+
     # ------------------------------------------------------------ routing
 
     def routing_graph(self) -> nx.DiGraph:
@@ -360,6 +616,8 @@ def evaluate_scenario(model: Model) -> dict:
     top = flow[peak]["_top"]
     for d in DIRECTIONS:
         del flow[d]["_top"]
+        flow[d]["cutOff"] = model.cut_off(d)
+        flow[d]["headroom"] = model.headroom(d) if flow[d]["requiredExact"] > EPS else None
     depth, depth_by_dir = model.depth_counts()
     return {
         "scenario": {"id": sc["id"], "title": sc["title"], "routes": sc["routes"], "stations": sc["stations"]},
@@ -388,6 +646,31 @@ def evaluate_scenario(model: Model) -> dict:
             "weight": "minutes over open RUNS + WALK (no waits, no transfer penalty)",
             "pairs": model.reference_paths(peak),
         },
+        "reroute": {**model.reroute(), "overflowRange": model.overflow_range()},
+    }
+
+
+def evaluate_compact(model: Model) -> dict:
+    """The numbers the held-out evaluation compares, without depth counts or reference paths."""
+    flow = {}
+    for d in DIRECTIONS:
+        g = model.solve(d)
+        flow[d] = {
+            "required": g["requiredExact"],
+            "absorbed": g["absorbedExact"],
+            "unmet": g["unmetExact"],
+            "cutCapacity": g["cut"]["capacity"],
+            "openEdgesInCut": len(g["cut"]["bottleneckEidsWithSpare"]) + len([w for w in g["cut"]["bottlenecks"]["walks"] if w["spare"] > 0]),
+            "cutOff": model.cut_off(d),
+            "headroom": model.headroom(d) if g["requiredExact"] > EPS else None,
+        }
+    re = model.reroute()
+    return {
+        "closedEids": sorted(model.closed),
+        "displaced": r6(sum(p[2] for d in DIRECTIONS for p in model.displaced[d])),
+        "flow": flow,
+        "reroute": {k: re[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow")}
+        | {"overloaded": len(re["overloaded"]), "overflowRange": model.overflow_range()},
     }
 
 
@@ -416,10 +699,19 @@ def evaluate_plan(model: Model, plan: dict) -> dict:
             "cutCheckAfter": {"capacity": after["cut"]["capacity"], "maxFlow": after["cut"]["maxFlow"]},
             "bottleneckEidsAfter": after["cut"]["bottleneckEids"],
             "busEdgesInCutAfter": after["cut"]["bottlenecks"]["bus"],
+            "cutOffAfter": model.cut_off(d, buses),
         }
+    re_before = model.reroute()
+    re_after = model.reroute(buses)
     return {
         "scenario": model.scenario["id"],
+        "label": plan.get("label"),
         "maxFlow": FLOW_FUNC_NAME,
+        "reroute": {
+            "before": {k: re_before[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow")},
+            "after": {k: re_after[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow", "strandedByStation")},
+            "overloadedAfter": re_after["overloaded"][:12],
+        },
         "buses": [
             {
                 "from": b["from"], "to": b["to"], "busesPerHour": b["busesPerHour"],
@@ -449,8 +741,18 @@ def summary_lines(out: dict) -> list[str]:
             f"source side {cut['sourceSideStations']} stations, inside networkx's {cut['networkxSourceSideStations']}); network spare {cut['networkSpare']} + feeds {cut['feedCapacity']}"
         )
         lines.append(f"    bottleneck eids {cut['bottleneckEids']} wids {cut['bottleneckWids']}; cut feeds {len(cut['feeds'])}")
+        cut_off = ", ".join(f"{c['station']} ({c['side']}, {c['riders']})" for c in g["cutOff"][:4]) or "none"
+        hr = g["headroom"]
+        hr_text = "n/a" if hr is None else ("beyond scale" if hr["multiplier"] is None else f"{hr['multiplier']:.3f}x")
+        lines.append(f"    cut off: {cut_off}; headroom {hr_text}")
     depth = ", ".join(f"k{row['k']}={row['riders']}" for row in out["depthCounts"])
     lines.append(f"  depth riders/h: {depth}")
+    re = out["reroute"]
+    worst = ", ".join(f"{o['route']} {o['from']}>{o['to']} {o['pct']}%" for o in re["overloaded"][:4])
+    lines.append(
+        f"  fastest-path reroute: {re['rerouted']} rerouted, {re['stranded']} with no path ({re['strandedPairs']} pairs), "
+        f"{len(re['overloaded'])} overloaded, overflow {re['overflow']}{f' ({worst})' if worst else ''}"
+    )
     ref = out["referencePaths"]["pairs"]
     reachable = sum(1 for p in ref if p["minutes"] is not None)
     lines.append(f"  reference paths ({out['peakDirection']}): {reachable}/{len(ref)} reachable")
@@ -464,9 +766,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("out_dir", type=Path, help="where <scenario id>.json files are written")
     parser.add_argument("--plan", help="shuttle plan as inline JSON or a path to a JSON file")
     parser.add_argument("--plan-out", type=Path, help="also write the plan result to this file")
+    parser.add_argument(
+        "--plans", type=Path, default=Path(__file__).with_name("plans.json"),
+        help="headline shuttle plans to evaluate on a full run (default scripts/verify/plans.json); written to <out>/plans/<id>.json",
+    )
+    parser.add_argument(
+        "--summary", type=Path,
+        help="compact mode for many closures: write one JSON of {scenario id: closed segments, displaced, max flow, reroute} here and skip the per-scenario files",
+    )
     args = parser.parse_args(argv)
 
     network, pairs, scenarios = load_inputs(args.data_dir, args.scenarios)
+
+    if args.summary:
+        compact = {}
+        for scenario in scenarios:
+            compact[scenario["id"]] = evaluate_compact(Model(network, pairs, scenario))
+            row = compact[scenario["id"]]
+            print(f"{scenario['id']}: {len(row['closedEids'])} closed, {row['displaced']:.0f} displaced, no path {row['reroute']['stranded']}")
+        args.summary.parent.mkdir(parents=True, exist_ok=True)
+        args.summary.write_text(json.dumps({"verifier": FLOW_FUNC_NAME, "networkx": nx.__version__, "closures": compact}, indent=1) + "\n", encoding="utf-8", newline="\n")
+        print(f"wrote {args.summary.as_posix()}")
+        return 0
 
     if args.plan:
         plan_path = Path(args.plan)
@@ -494,6 +815,24 @@ def main(argv: list[str] | None = None) -> int:
         path.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8", newline="\n")
         print("\n".join(summary_lines(out)))
         print(f"  wrote {path.as_posix()}")
+
+    # The README's headline shuttle plans, so their before/after numbers are recomputed too.
+    if args.plans.is_file():
+        by_id = {s["id"]: s for s in scenarios}
+        for plan in json.loads(args.plans.read_text(encoding="utf-8")):
+            if plan["scenario"] not in by_id:
+                continue
+            result = evaluate_plan(Model(network, pairs, by_id[plan["scenario"]]), plan)
+            path = args.out_dir / "plans" / f"{plan['id']}.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
+            re = result["reroute"]
+            peak = max(result["directions"].values(), key=lambda row: row["required"])
+            print(
+                f"== plan {plan['id']}: no path {re['before']['stranded']} -> {re['after']['stranded']}; "
+                f"max-flow shortfall {peak['unmetBefore']} -> {peak['unmetAfter']}; overflow {re['before']['overflow']} -> {re['after']['overflow']}"
+            )
+            print(f"  wrote {path.as_posix()}")
     return 0
 
 

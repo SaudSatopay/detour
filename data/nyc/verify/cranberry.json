@@ -752,6 +752,70 @@
             "capacity": 25.2
           }
         ]
+      },
+      "cutOff": [],
+      "headroom": {
+        "connected": 14267.5,
+        "multiplier": 7.11482,
+        "saturating": [
+          {
+            "kind": "RUNS",
+            "id": 907,
+            "from": "141",
+            "to": "626",
+            "spare": 1891.0
+          },
+          {
+            "kind": "WALK",
+            "id": 189,
+            "from": "135",
+            "to": "349",
+            "spare": 3000.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1020,
+            "from": "96",
+            "to": "97",
+            "spare": 3340.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1457,
+            "from": "95",
+            "to": "97",
+            "spare": 4640.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 989,
+            "from": "82",
+            "to": "81",
+            "spare": 5883.9
+          },
+          {
+            "kind": "RUNS",
+            "id": 679,
+            "from": "177",
+            "to": "176",
+            "spare": 8782.6
+          },
+          {
+            "kind": "RUNS",
+            "id": 1044,
+            "from": "129",
+            "to": "630",
+            "spare": 12735.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 509,
+            "from": "179",
+            "to": "175",
+            "spare": 18358.6
+          }
+        ],
+        "solves": 3
       }
     },
     "backward": {
@@ -1120,6 +1184,13 @@
             "capacity": 529.9
           }
         ]
+      },
+      "cutOff": [],
+      "headroom": {
+        "connected": 2000.6,
+        "multiplier": null,
+        "saturating": [],
+        "solves": 1
       }
     }
   },
@@ -1686,5 +1757,20 @@
         ]
       }
     ]
+  },
+  "reroute": {
+    "costModel": "BOARD 3 min + min(30, 30/tph); RIDE segment minutes; ALIGHT 0; WALK minutes; BUS 4 min + 3 min/km; closed RIDE deleted",
+    "pairs": 1308,
+    "rerouted": 16268,
+    "stranded": 0,
+    "strandedPairs": 0,
+    "strandedByStation": [],
+    "overflow": 0,
+    "overloaded": [],
+    "overflowRange": {
+      "min": 0,
+      "max": 0,
+      "tieBreaks": 8
+    }
   }
 }

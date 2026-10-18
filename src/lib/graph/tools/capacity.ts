@@ -1,7 +1,22 @@
 import { loadNetwork } from "../../network/data";
 import type { Network } from "../../network/types";
 import { copyGraph, deleteGraph, listGraphs } from "../db";
-import { busLeg, BUS_FLEET, directionOf, freedLoad, haversineMeters, minCut, netBalance, type Direction, type DisplacedPair, type FlowEdge } from "../flow";
+import {
+  busLeg,
+  BUS_FLEET,
+  certifyMaxFlow,
+  cutOffStations,
+  dinicMaxFlow,
+  directionOf,
+  freedLoad,
+  haversineMeters,
+  minCut,
+  netBalance,
+  parametricHeadroom,
+  type Direction,
+  type DisplacedPair,
+  type FlowEdge,
+} from "../flow";
 import { forkGraph } from "../names";
 import { displacedPairs } from "./impact";
 import { applyCrowding, crowdingOf, openIncident, type Incident } from "./incident";
@@ -146,24 +161,39 @@ function spareLookup(network: Network, freed: Map<number, number>, busCapacity: 
   };
 }
 
-export interface FlowRun {
-  direction: Direction;
-  required: number;
-  absorbed: number;
-  unmet: number;
-  flows: FlowHighlight[];
-  cut: CutHighlight[];
-  /** Feed edges in the cut: stations whose riders the network cannot move at all. */
-  strandedAt: { id: string; riders: number }[];
+/**
+ * How far a max-flow answer can be trusted. FalkorDB's algo.maxFlow returns non-maximal flows on
+ * some networks (docs/model.md, "Checking max flow"), so every answer carries this certificate.
+ */
+interface FlowCheck {
+  /** The final answer is feasible, leaves no augmenting path, and equals its cut's capacity. */
+  checked: boolean;
+  /** Who produced the final answer: FalkorDB's algo.maxFlow, or Detour's Dinic solver after FalkorDB failed the check. */
+  solver: "falkordb" | "dinic";
+  value: number;
+  cutCapacity: number;
+  /** What algo.maxFlow returned and whether it passed. */
+  falkordb: { value: number; checked: boolean; problems: string[] };
 }
 
-/** algo.maxFlow from the direction's super source to its super sink, then the min cut from the residual graph. */
-async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: SpareOf): Promise<FlowRun> {
+interface CertifiedFlow {
+  edges: FlowEdge[];
+  refsOf: Map<string, string[]>;
+  value: number;
+  check: FlowCheck;
+}
+
+/**
+ * algo.maxFlow from the direction's super source to its super sink, with its answer checked by a
+ * max-flow/min-cut certificate on the edges it ran over. If the check fails, Dinic's algorithm
+ * recomputes the flow on the same edges and the result says so.
+ */
+async function certifiedMaxFlow(ctx: ToolContext, graph: string, group: Group, label: string): Promise<CertifiedFlow> {
   const { src, snk } = HUB[group.direction];
   const feed = FEED[group.direction];
   type Row = { maxFlow: number; es: [string, string, string][]; flows: number[] };
   const res = await ctx.tracer.run<Row>(
-    `${group.direction} max flow`,
+    label,
     graph,
     `MATCH (src:Hub {id: $src}), (snk:Hub {id: $snk})
      CALL algo.maxFlow({sourceNodes: [src], targetNodes: [snk], relationshipTypes: ['FLOW'], capacityProperty: 'spare'})
@@ -173,7 +203,7 @@ async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: S
     { readOnly: true, timeoutMs: 30_000 },
   );
   const row = res.rows[0];
-  const absorbed = row?.maxFlow ?? 0;
+  const reported = row?.maxFlow ?? 0;
   const flowByKey = new Map<string, number>();
   (row?.es ?? []).forEach(([kind, a, b], i) => flowByKey.set(`${kind}:${a}>${b}`, (flowByKey.get(`${kind}:${a}>${b}`) ?? 0) + (row.flows[i] ?? 0)));
 
@@ -186,11 +216,85 @@ async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: S
     { readOnly: true },
   );
   const refsOf = new Map<string, string[]>();
-  const edges: FlowEdge[] = all.rows.map((r) => {
+  let edges: FlowEdge[] = all.rows.map((r) => {
     const key = `${r.kind}:${r.a}>${r.b}`;
     if (r.refs) refsOf.set(key, r.refs);
     return { key, from: r.a, to: r.b, capacity: r.cap ?? 0, flow: flowByKey.get(key) ?? 0 };
   });
+  const falkor = certifyMaxFlow(edges, src, snk, reported);
+  if (falkor.checked) {
+    return {
+      edges,
+      refsOf,
+      value: reported,
+      check: { checked: true, solver: "falkordb", value: reported, cutCapacity: falkor.cutCapacity, falkordb: { value: reported, checked: true, problems: [] } },
+    };
+  }
+  const exact = dinicMaxFlow(edges, src, snk);
+  edges = edges.map((e, i) => ({ ...e, flow: exact.flows[i] }));
+  const mine = certifyMaxFlow(edges, src, snk, exact.value);
+  return {
+    edges,
+    refsOf,
+    value: exact.value,
+    check: {
+      checked: mine.checked,
+      solver: "dinic",
+      value: exact.value,
+      cutCapacity: mine.cutCapacity,
+      falkordb: { value: reported, checked: false, problems: falkor.problems },
+    },
+  };
+}
+
+/** The network edges a cut crosses, split back into the segments, walks and shuttle legs of each corridor. */
+function cutHighlights(cut: FlowEdge[], refsOf: Map<string, string[]>, spareOf: SpareOf, segs: Map<number, Network["segments"][number]>): CutHighlight[] {
+  return cut
+    .filter((e) => e.key.startsWith("NET:"))
+    .flatMap((e) =>
+      (refsOf.get(e.key) ?? []).map((ref) => {
+        const kind = (ref[0] === "R" ? "RUNS" : ref[0] === "W" ? "WALK" : "BUS") as CutHighlight["kind"];
+        const id = Number(ref.slice(1));
+        return { kind, id, from: e.from, to: e.to, spare: Math.round(spareOf(ref)), route: kind === "RUNS" ? segs.get(id)?.route : undefined };
+      }),
+    );
+}
+
+/** Origins and destinations of a direction group that no open link with spare capacity joins to the rest. */
+function cutOffOf(edges: FlowEdge[], group: Group) {
+  const { src, snk } = HUB[group.direction];
+  const sources = new Map(edges.filter((e) => e.from === src).map((e) => [e.to, e.capacity]));
+  const sinks = new Map(edges.filter((e) => e.to === snk).map((e) => [e.from, e.capacity]));
+  return cutOffStations(
+    edges.filter((e) => e.key.startsWith("NET:")),
+    sources,
+    sinks,
+  ).map((s) => ({ ...s, riders: Math.round(s.riders) }));
+}
+
+export interface FlowRun {
+  direction: Direction;
+  required: number;
+  absorbed: number;
+  unmet: number;
+  flows: FlowHighlight[];
+  /** Open segments, walks and shuttle legs with spare capacity in the min cut: the network's own bottlenecks. */
+  cut: CutHighlight[];
+  /**
+   * Origins whose riders the network cannot move: stations the closure cuts off, then (only when
+   * the cut runs through open segments) origins behind that cut with riders left over.
+   */
+  strandedAt: { id: string; riders: number }[];
+  /** Stations the closure cuts off, on either side: origins that reach no destination, destinations no origin reaches. */
+  cutOff: { id: string; side: "origin" | "destination"; riders: number }[];
+  check: FlowCheck;
+}
+
+/** Certified max flow for one direction group, then the min cut from the residual graph. */
+async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: SpareOf): Promise<FlowRun> {
+  const { src } = HUB[group.direction];
+  const feed = FEED[group.direction];
+  const { edges, refsOf, value: absorbed, check } = await certifiedMaxFlow(ctx, graph, group, `${group.direction} max flow`);
   const { cut } = minCut(edges, src);
   const network = await loadNetwork();
   const segs = segmentsById(network);
@@ -211,20 +315,17 @@ async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: S
   }
   flows.sort((a, b) => b.flow - a.flow);
 
-  const cutNet: CutHighlight[] = cut
-    .filter((e) => e.key.startsWith("NET:"))
-    .flatMap((e) =>
-      (refsOf.get(e.key) ?? []).map((ref) => {
-        const kind = (ref[0] === "R" ? "RUNS" : ref[0] === "W" ? "WALK" : "BUS") as CutHighlight["kind"];
-        const id = Number(ref.slice(1));
-        return { kind, id, from: e.from, to: e.to, spare: Math.round(spareOf(ref)), route: kind === "RUNS" ? segs.get(id)?.route : undefined };
-      }),
-    );
-  // Riders the network cannot move: supply left on the source's feed edges after max flow.
+  const cutNet = cutHighlights(cut, refsOf, spareOf, segs);
+  // Riders the network cannot move: supply left on the source's feed edges after max flow. Only
+  // cut-off origins are blamed by name unless open segments bind, because when a destination is
+  // cut off the leftover supply lands on whichever origins the solver happened to fill last.
+  const cutOff = cutOffOf(edges, group);
+  const cutOffOrigins = new Set(cutOff.filter((s) => s.side === "origin").map((s) => s.id));
   const strandedAt = edges
     .filter((e) => e.key.startsWith(`${feed}:`) && e.from === src && e.capacity - e.flow > 0.5)
+    .filter((e) => cutOffOrigins.has(e.to) || cutNet.length > 0)
     .map((e) => ({ id: e.to, riders: Math.round(e.capacity - e.flow) }))
-    .sort((a, b) => b.riders - a.riders);
+    .sort((a, b) => Number(cutOffOrigins.has(b.id)) - Number(cutOffOrigins.has(a.id)) || b.riders - a.riders);
 
   return {
     direction: group.direction,
@@ -235,7 +336,43 @@ async function maxFlow(ctx: ToolContext, graph: string, group: Group, spareOf: S
     flows,
     cut: cutNet,
     strandedAt,
+    cutOff,
+    check,
   };
+}
+
+/** One sentence on how the max flow was checked, for tool summaries. */
+function describeCheck(check: FlowCheck): string {
+  if (check.solver === "falkordb") {
+    return `Certificate: the flow is feasible, leaves no augmenting path, and its ${fmt(check.value)} equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands.`;
+  }
+  return (
+    `Certificate: FalkorDB's algo.maxFlow returned ${fmt(check.falkordb.value)}, which failed the check (${check.falkordb.problems[0] ?? "not a maximum flow"}); ` +
+    `Detour's Dinic solver recomputed it on the same edges as ${fmt(check.value)}${check.checked ? ", which passes" : ", which also fails; treat it with care"}.`
+  );
+}
+
+/** What limits the max flow, in words: open segments in the min cut, or stations the closure cuts off. */
+function describeLimit(n: Map<string, string>, run: FlowRun): string {
+  const named = (side: "origin" | "destination") =>
+    run.cutOff
+      .filter((s) => s.side === side)
+      .slice(0, 4)
+      .map((s) => `${n.get(s.id) ?? s.id} (${fmt(s.riders)} riders an hour ${side === "origin" ? "starting" : "ending"} there)`);
+  const cutOff = [
+    named("origin").length ? `origins ${named("origin").join(", ")}` : "",
+    named("destination").length ? `destinations ${named("destination").join(", ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
+  if (run.cut.length) {
+    return `Min cut: ${run.cut.slice(0, 3).map((c) => describeSegment(n, c)).join("; ")}.${cutOff ? ` Cut off by the closure: ${cutOff}.` : ""}`;
+  }
+  if (cutOff) {
+    return `The min cut holds no open segment: the open network has spare capacity everywhere these riders can reach, and only stations the closure cuts off limit the flow: ${cutOff}.`;
+  }
+  if (run.unmet > 0) return "The min cut holds no segment with spare capacity left: segments already full at 8 a.m. limit the flow.";
+  return "";
 }
 
 export interface RerouteRun {
@@ -395,15 +532,14 @@ export async function measureCapacity(ctx: ToolContext): Promise<ToolResult<Capa
   await applyCrowding(ctx, crowdingOf(re));
 
   const worst = re.overloaded.slice(0, 3).map((o) => `${describeSegment(n, o)} at ${o.pct}%`);
-  const bottlenecks = peak?.cut.slice(0, 3).map((c) => describeSegment(n, c)) ?? [];
-  const stranded = peak?.strandedAt.slice(0, 3).map((s) => `${n.get(s.id) ?? s.id} (${fmt(s.riders)})`) ?? [];
   const summary = [
     `${fmt(displacedRiders)} displaced riders an hour.`,
     `If each takes the fastest open path, ${re.overloaded.length} segments overflow by ${fmt(re.overflow)} riders an hour${worst.length ? `: ${worst.join("; ")}` : ""}${re.stranded ? `; ${fmt(re.stranded)} have no open path` : ""}.`,
     peak
       ? `If riders are spread perfectly (max flow, ${peak.direction} peak direction), the open network can carry ${fmt(peak.absorbed)} of ${fmt(peak.required)} (${Math.round((peak.absorbed / Math.max(1, peak.required)) * 100)}%); ${fmt(peak.unmet)} cannot move.`
       : "",
-    bottlenecks.length ? `Min cut: ${bottlenecks.join("; ")}.` : stranded.length ? `Min cut is at the riders' own stations: ${stranded.join(", ")} have no open alternative.` : "",
+    peak ? describeCheck(peak.check) : "",
+    peak ? describeLimit(n, peak) : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -418,9 +554,109 @@ export async function measureCapacity(ctx: ToolContext): Promise<ToolResult<Capa
       closedEids: incident.closedEids,
       flows: re.flows.slice(0, 160),
       cut: peak?.cut ?? [],
-      stations: peak?.strandedAt.map((s) => s.id) ?? [],
+      stations: [...new Set([...(peak?.strandedAt ?? []), ...(peak?.cutOff ?? [])].map((s) => s.id))],
     },
   );
+}
+
+export interface HeadroomRun {
+  direction: Direction;
+  required: number;
+  /** Displaced riders an hour that can reach a destination at all, whatever the capacity. */
+  connected: number;
+  /** Displaced demand multiplier at which the first open segment saturates; null when beyond maxScale. */
+  multiplier: number | null;
+  /** The open segments, walks or legs in the cut that binds first. */
+  saturating: CutHighlight[];
+  cutOff: FlowRun["cutOff"];
+  /** Max-flow solves on the fork, and how many FalkorDB answers failed the certificate and were recomputed. */
+  solves: number;
+  recomputed: number;
+  checked: boolean;
+}
+
+export interface HeadroomData {
+  incidentId: string;
+  maxScale: number;
+  peak: Direction;
+  directions: HeadroomRun[];
+}
+
+/**
+ * How much more displaced demand the open network takes before an open segment saturates: a
+ * parametric max flow over a demand scale on the closure fork. Each step scales the feed edges
+ * in Cypher, runs a certified algo.maxFlow and jumps to where the binding cut meets the demand
+ * line (flow.ts, parametricHeadroom), so the answer is exact in a handful of solves.
+ */
+export async function measureHeadroom(ctx: ToolContext, input: { maxScale?: number } = {}): Promise<ToolResult<HeadroomData | null>> {
+  const incident = await openIncident(ctx);
+  if (!incident) return result(ctx, "measure_headroom", "not_in_graph", "No closure is open in this sandbox. Close a line first.", null);
+  const maxScale = Math.min(100, Math.max(1.5, input.maxScale ?? 20));
+  const network = await loadNetwork();
+  const n = names(network);
+  const segs = segmentsById(network);
+  const runs = await withClosureFork(ctx, incident, async (prepared) => {
+    const spareOf = spareLookup(network, prepared.freed);
+    const out: HeadroomRun[] = [];
+    for (const group of prepared.groups) {
+      if (!group.required) continue;
+      const feed = FEED[group.direction];
+      const { src, snk } = HUB[group.direction];
+      await ctx.tracer.run(`${group.direction} remember feed capacities`, prepared.fork, "MATCH ()-[f:FLOW {kind: $feed}]->() SET f.base = f.spare", { feed });
+      const base = await certifiedMaxFlow(ctx, prepared.fork, group, `${group.direction} max flow at 1× demand`);
+      const edges = base.edges.map((e) => ({ key: e.key, from: e.from, to: e.to, capacity: e.capacity, feed: e.key.startsWith(`${feed}:`) }));
+      let recomputed = base.check.solver === "dinic" ? 1 : 0;
+      let checked = base.check.checked;
+      const headroom = await parametricHeadroom(edges, src, snk, async (lambda) => {
+        await ctx.tracer.run(`${group.direction} scale demand to ${lambda.toFixed(3)}×`, prepared.fork, "MATCH ()-[f:FLOW {kind: $feed}]->() SET f.spare = f.base * $lambda", {
+          feed,
+          lambda,
+        });
+        const solved = await certifiedMaxFlow(ctx, prepared.fork, group, `${group.direction} max flow at ${lambda.toFixed(3)}× demand`);
+        if (solved.check.solver === "dinic") recomputed++;
+        checked &&= solved.check.checked;
+        const flowOf = new Map(solved.edges.map((e) => [e.key, e.flow]));
+        return edges.map((e) => flowOf.get(e.key) ?? 0);
+      }, maxScale);
+      out.push({
+        direction: group.direction,
+        required: Math.round(group.required),
+        connected: Math.round(Math.min(headroom.connected, group.required)),
+        multiplier: headroom.multiplier === null ? null : Math.round(headroom.multiplier * 1000) / 1000,
+        saturating: cutHighlights(
+          headroom.saturating.map((e) => ({ ...e, flow: e.capacity })),
+          base.refsOf,
+          spareOf,
+          segs,
+        ),
+        cutOff: cutOffOf(base.edges, group),
+        solves: headroom.solves + 1,
+        recomputed,
+        checked,
+      });
+    }
+    return out;
+  });
+  const peak = runs.slice().sort((a, b) => b.required - a.required)[0];
+  if (!peak) return result(ctx, "measure_headroom", "not_in_graph", "No displaced rider needs the open network, so there is no headroom to measure.", null);
+
+  const towards = peak.direction === "forward" ? "in the closure's forward direction" : "in the closure's backward direction";
+  const first = peak.saturating.slice(0, 2).map((c) => `${describeSegment(n, c)} (spare ${fmt(c.spare)} riders an hour)`);
+  const cutOff = peak.cutOff.slice(0, 3).map((s) => n.get(s.id) ?? s.id);
+  const summary = [
+    `${fmt(peak.connected)} of ${fmt(peak.required)} displaced riders an hour ${towards} can reach their destinations at all${cutOff.length ? `; the rest start or end at stations the closure cuts off (${cutOff.join(", ")})` : ""}.`,
+    peak.multiplier === null
+      ? `Their demand could grow more than ${maxScale}× before any open segment saturates.`
+      : peak.multiplier < 1
+        ? `An open segment already binds at today's demand: it saturates at ${peak.multiplier.toFixed(2)}× the displaced riders${first.length ? `, first ${first.join(" and ")}` : ""}.`
+        : `Their demand can grow ${peak.multiplier.toFixed(2)}× before an open segment saturates${first.length ? `; the first to fill: ${first.join(" and ")}` : ""}.`,
+    `Found exactly in ${peak.solves} certified max-flow solves on the fork${peak.recomputed ? `; FalkorDB's algo.maxFlow failed the certificate on ${peak.recomputed} and Dinic recomputed ${peak.recomputed === 1 ? "it" : "them"}` : ""}.`,
+  ].join(" ");
+  return result(ctx, "measure_headroom", "answered", summary, { incidentId: incident.id, maxScale, peak: peak.direction, directions: runs }, {
+    closedEids: incident.closedEids,
+    cut: peak.saturating,
+    stations: peak.cutOff.map((s) => s.id),
+  });
 }
 
 export interface Candidate {

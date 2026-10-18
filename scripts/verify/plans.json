@@ -1,0 +1,17 @@
+[
+  {
+    "id": "l-canarsie-1av-astor",
+    "scenario": "l-canarsie",
+    "label": "1 Av ↔ Astor Pl at 25 buses an hour (the controller's recommended plan in the README)",
+    "buses": [{ "from": "119", "to": "407", "busesPerHour": 25 }]
+  },
+  {
+    "id": "l-canarsie-two-leg",
+    "scenario": "l-canarsie",
+    "label": "1 Av ↔ Astor Pl at 25 plus Bedford Av ↔ Metropolitan Av/Lorimer St at 60 (the README's two-leg plan)",
+    "buses": [
+      { "from": "119", "to": "407", "busesPerHour": 25 },
+      { "from": "120", "to": "629", "busesPerHour": 60 }
+    ]
+  }
+]

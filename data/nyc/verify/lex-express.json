@@ -906,6 +906,140 @@
             "capacity": 10.6
           }
         ]
+      },
+      "cutOff": [],
+      "headroom": {
+        "connected": 15021.7,
+        "multiplier": 10.610708,
+        "saturating": [
+          {
+            "kind": "RUNS",
+            "id": 1146,
+            "from": "223",
+            "to": "9",
+            "spare": 1450.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1449,
+            "from": "82",
+            "to": "83",
+            "spare": 2320.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 988,
+            "from": "81",
+            "to": "83",
+            "spare": 2420.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 933,
+            "from": "284",
+            "to": "629",
+            "spare": 3858.4
+          },
+          {
+            "kind": "RUNS",
+            "id": 990,
+            "from": "82",
+            "to": "83",
+            "spare": 4486.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1206,
+            "from": "223",
+            "to": "9",
+            "spare": 6610.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1174,
+            "from": "613",
+            "to": "8",
+            "spare": 7186.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1093,
+            "from": "223",
+            "to": "224",
+            "spare": 7207.6
+          },
+          {
+            "kind": "RUNS",
+            "id": 1427,
+            "from": "613",
+            "to": "8",
+            "spare": 7715.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 953,
+            "from": "610",
+            "to": "611",
+            "spare": 8237.1
+          },
+          {
+            "kind": "RUNS",
+            "id": 897,
+            "from": "612",
+            "to": "276",
+            "spare": 8248.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 626,
+            "from": "604",
+            "to": "220",
+            "spare": 8381.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 159,
+            "from": "603",
+            "to": "438",
+            "spare": 9238.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 729,
+            "from": "215",
+            "to": "151",
+            "spare": 9607.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 812,
+            "from": "612",
+            "to": "276",
+            "spare": 10212.6
+          },
+          {
+            "kind": "RUNS",
+            "id": 1333,
+            "from": "613",
+            "to": "8",
+            "spare": 11861.6
+          },
+          {
+            "kind": "RUNS",
+            "id": 424,
+            "from": "404",
+            "to": "405",
+            "spare": 11925.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 481,
+            "from": "610",
+            "to": "609",
+            "spare": 27303.3
+          }
+        ],
+        "solves": 2
       }
     },
     "backward": {
@@ -1719,6 +1853,133 @@
             "capacity": 13.2
           }
         ]
+      },
+      "cutOff": [],
+      "headroom": {
+        "connected": 14486.6,
+        "multiplier": 11.143777,
+        "saturating": [
+          {
+            "kind": "RUNS",
+            "id": 930,
+            "from": "283",
+            "to": "282",
+            "spare": 1486.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 989,
+            "from": "82",
+            "to": "81",
+            "spare": 5881.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 79,
+            "from": "318",
+            "to": "611",
+            "spare": 6187.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1252,
+            "from": "607",
+            "to": "611",
+            "spare": 6688.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1124,
+            "from": "607",
+            "to": "609",
+            "spare": 6783.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 892,
+            "from": "607",
+            "to": "609",
+            "spare": 6876.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 750,
+            "from": "607",
+            "to": "609",
+            "spare": 8251.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 178,
+            "from": "318",
+            "to": "611",
+            "spare": 8383.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 44,
+            "from": "318",
+            "to": "611",
+            "spare": 8391.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1423,
+            "from": "607",
+            "to": "611",
+            "spare": 8698.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 664,
+            "from": "164",
+            "to": "611",
+            "spare": 9058.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 628,
+            "from": "607",
+            "to": "609",
+            "spare": 10905.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1327,
+            "from": "607",
+            "to": "611",
+            "spare": 10907.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 425,
+            "from": "405",
+            "to": "404",
+            "spare": 11211.4
+          },
+          {
+            "kind": "RUNS",
+            "id": 1169,
+            "from": "607",
+            "to": "611",
+            "spare": 12255.9
+          },
+          {
+            "kind": "RUNS",
+            "id": 782,
+            "from": "164",
+            "to": "611",
+            "spare": 15397.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 499,
+            "from": "164",
+            "to": "611",
+            "spare": 15804.0
+          }
+        ],
+        "solves": 3
       }
     }
   },
@@ -2262,5 +2523,20 @@
         ]
       }
     ]
+  },
+  "reroute": {
+    "costModel": "BOARD 3 min + min(30, 30/tph); RIDE segment minutes; ALIGHT 0; WALK minutes; BUS 4 min + 3 min/km; closed RIDE deleted",
+    "pairs": 1786,
+    "rerouted": 31347,
+    "stranded": 0,
+    "strandedPairs": 0,
+    "strandedByStation": [],
+    "overflow": 0,
+    "overloaded": [],
+    "overflowRange": {
+      "min": 0,
+      "max": 0,
+      "tieBreaks": 8
+    }
   }
 }

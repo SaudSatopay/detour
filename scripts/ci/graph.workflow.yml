@@ -1,3 +1,8 @@
+# Not active yet. GitHub runs workflows only from .github/workflows/, and the token this
+# repository is pushed with lacks the workflow scope, so this file waits here. To enable it:
+#   mkdir -p .github/workflows && cp scripts/ci/graph.workflow.yml .github/workflows/graph.yml
+# Until then the same checks run by hand: pnpm typecheck, lint, test, test:verify, ci:scenarios,
+# eval:closures and judge (see CLAIMS.md).
 name: graph
 
 on:
@@ -22,13 +27,15 @@ jobs:
       - run: pnpm test
 
   scenarios:
-    # Every graph tool on the three demo closures, against both FalkorDB engines,
-    # with max flow cross-checked against the independent NetworkX results.
+    # Every graph tool on the three demo closures, with max flow certified and cross-checked
+    # against the independent NetworkX results, then every README claim re-measured.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        falkordb: ["6.0.2", "v4.22.1"]
+        # The engine Detour runs on: FalkorDB 4.22 (the evidence sandbox reports module 42201,
+        # i.e. 4.22.1). Docker Hub's "6.0.2" tag is a different release line Detour never ran on.
+        falkordb: ["v4.22.1"]
     services:
       falkordb:
         image: falkordb/falkordb:${{ matrix.falkordb }}
@@ -43,6 +50,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      - uses: astral-sh/setup-uv@v6
       - run: pnpm install --frozen-lockfile
       - name: Probe procedure shapes
         run: pnpm tsx scripts/ci/probe.ts
@@ -50,6 +58,14 @@ jobs:
           FALKORDB_URL: falkor://localhost:6379
       - name: Run scenarios
         run: pnpm tsx scripts/ci/run-scenarios.ts
+        env:
+          FALKORDB_URL: falkor://localhost:6379
+      - name: Re-measure the README's claims
+        run: pnpm judge
+        env:
+          FALKORDB_URL: falkor://localhost:6379
+      - name: algo.maxFlow reproduction (informational)
+        run: pnpm judge:maxflow 100
         env:
           FALKORDB_URL: falkor://localhost:6379
       - name: Concurrency benchmark
@@ -67,4 +83,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - run: uv run --with networkx python scripts/verify/test_verify.py
+      - run: uv run --with networkx --with pytest pytest scripts/verify/test_verify.py -q

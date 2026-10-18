@@ -44,9 +44,34 @@ Computed separately for each direction group, because trains in opposite directi
 
 This is a single-commodity relaxation with no detour limit: an upper bound on how many displaced riders the open network could carry if they spread perfectly. Read the two results together. The reroute shows what happens when everyone takes their fastest alternative (lines that overflow); the max flow shows what is possible if riders are steered (its edge flows are the steering plan the rider agents follow); the gap the max flow cannot close needs extra service.
 
+## Checking max flow (certificate)
+
+`algo.maxFlow` is not trusted on its word. After every call the tool reads back the edges it ran over and checks a max-flow/min-cut certificate (`certifyMaxFlow` in `src/lib/graph/flow.ts`):
+
+1. **Feasible**: `0 ≤ flow ≤ spare` on every edge, and flow is conserved at every node except `SRC` and `SNK`.
+2. **Maximal**: `SNK` is unreachable from `SRC` in the residual graph (no augmenting path).
+3. **Consistent**: the reported value equals the net flow out of `SRC` and the capacity of the residual cut.
+
+Tolerance is `1e-6 ×` the largest capacity on the network. If any check fails, Detour's own solver (`dinicMaxFlow`, Dinic's algorithm on the same edges) recomputes the flow, the new answer is certified the same way, and the result says so: `check: {checked, solver: 'falkordb' | 'dinic', value, cutCapacity, falkordb: {value, checked, problems}}` on every direction of `measure_capacity`, and a sentence in its summary that the control room shows under the call.
+
+**Why.** Chokepoint (another Graph Hacks entry, [github.com/Hackmaass/Chokepoint](https://github.com/Hackmaass/Chokepoint)) found `algo.maxFlow` returning non-maximal flows on 12 to 17% of random node-split networks, with an 11-edge reproduction. We ran it on the FalkorDB Detour uses (`scripts/judge/maxflow-repro.ts`, module version 42201, i.e. 4.22.1, in a Vercel Sandbox on 2026-10-19):
+
+| Network | `algo.maxFlow` | Exact (Dinic, NetworkX) | Certificate |
+|:---|---:|---:|:---|
+| Chokepoint's 11 edges | 300 | 453 | rejects it: flow not conserved at `a20:in` (158 in, nothing out), 458 leave the source while 300 is reported, and an augmenting path remains |
+| 100 random node-split networks (seed 7) | wrong on 13 (13%): a value below the maximum, or flows that break conservation | | caught all 13, passed none of them |
+
+The defect is present in 4.22.1. On Detour's own flow networks it has not fired: every `algo.maxFlow` answer on the three preset closures, their headroom searches and the 48 held-out closures passed the certificate (counts in `data/eval/closures.json`, `certificates`). The check costs one extra read of the fork's flow edges per call.
+
 ## Bottleneck (min cut)
 
 From the max-flow residual graph, collect the nodes reachable from `SRC` through edges with `flow < spare` (forward) or `flow > 0` (backward). The min cut is every edge from a reachable node to an unreachable one. The bottlenecks shown to users are the `RUNS` and `WALK` edges in the cut (and `BUS` legs on a plan's fork); in FalkorDB they are the `refs` of each cut `NET` edge. Their summed spare equals the absorbed flow minus any cut feed edges, which is how the checker verifies the cut.
+
+**When the cut holds no open segment.** Often the min cut crosses only feed edges: the open network has spare capacity everywhere displaced riders can reach, and the shortfall is riders at stations the closure cuts off. Those are named by connectivity over edges with spare capacity (`cutOffStations`): an **origin** is cut off when it reaches no destination of its group, a **destination** when no origin reaches it. In all six direction groups of the three preset closures the cut contains no open edge with spare. On the Lexington and Cranberry closures nothing is short at all. On the L the cut-off stations are 1 Av (origin, 1,266 riders an hour toward Manhattan) and 3 Av (destination, 315), the two stations only the L serves and with no walking link. The summary says exactly that instead of calling them a bottleneck. Riders "the network cannot move" (`strandedAt`, used to seed shuttle candidates) are cut-off origins first; other origins with riders left over are listed only when open segments bind, because when a destination is cut off the leftover supply lands on whichever origins the solver filled last.
+
+## Headroom (parametric max flow)
+
+How much more displaced demand fits before an open segment saturates? Scale every feed capacity by `λ`. The max flow `f(λ)` is the lower envelope of the cuts' lines `λ·F + N` (`F` a cut's feed capacity at `λ = 1`, `N` its network capacity). For small `λ` only feed cuts bind and `f(λ) = λ·F0`, where `F0` is the **connected demand** (max flow with unlimited spare). The **headroom** is the first breakpoint: the smallest `λ` where a cut through an open segment binds. Starting from `λ = 20`, each step runs a certified `algo.maxFlow` on the fork with the feeds scaled in Cypher (`SET f.spare = f.base * $lambda`), takes the min cut, and jumps to where that cut's line meets `λ·F0`, which is `N / (F0 − F)`. The sequence decreases and stops exactly at the breakpoint, usually in three or four solves (`parametricHeadroom` in `flow.ts`, `measureHeadroom` in `capacity.ts`). The edges of the last binding cut are the segments that fill first. On the L toward Manhattan the headroom is 1.77×, first filling the G between Greenpoint Av and 21 St; the verifier finds the same multiplier with `networkx.minimum_cut`.
 
 ## Shuttle plans
 
@@ -55,3 +80,13 @@ A plan adds `BUS` edges in both directions between two stations: `capacity = bus
 ## Rider routing
 
 Weighted shortest path on the platform layer plus `WALK` and the `BUS` edges of a published plan, weight `minutes`: `algo.SPpaths({sourceNode, targetNode, relTypes:['BOARD','RIDE','ALIGHT','WALK','BUS'], weightProp:'minutes', pathCount: k})`. Step-free riders take the first of the k fastest paths whose every boarding and exit is at a station with `ada = 1` and whose platform has no elevator outage remembered as current (an outage tagged with a route blocks only that route's platform).
+
+## Checking the numbers
+
+`scripts/verify/verify.py` recomputes, independently of FalkorDB: closed segments, displaced riders and their depth counts, max flow per direction with its cut, cut-off stations, headroom, the fastest-path reroute on the platform layer (riders with no path, overloaded segments, overflow) and the README's shuttle plans before and after. It cannot recompute what has no second implementation: graph memory (the 79% and 27%), the concurrency benchmark, and step-free routing.
+
+Tolerances, the same in `scripts/ci/run-scenarios.ts`, `scripts/eval/closures-eval.ts` and `pnpm judge`: rider counts within 1.5 an hour (FalkorDB rounds, NetworkX keeps floats); closed segments and cut-off stations identical; overloaded percentages within 1 point; headroom within a relative 1e-3. Fastest-path overflow within 1%, or inside the range NetworkX finds over 8 random tie-breaks: when two paths take exactly the same minutes the all-or-nothing assignment is not unique, and which one `algo.SPpaths` or Dijkstra returns is an implementation detail. On the L the range is 24,078 to 24,122; on one held-out 7 closure it spans 391 to 1,639.
+
+**Held-out closures.** `pnpm eval:closures` draws 48 closures with seed 20261019 (`heldOutClosures` in `flow.ts`: stretches of 2 to 6 segments, lines taken in a shuffled round, 25 lines in all), runs each through the scripted controller on FalkorDB and through the verifier, and writes `data/eval/closures.json`. On FalkorDB 4.22.1 the two programs agree on all 48 for closed segments, displaced riders, max flow per direction, riders with no path, cut-off stations, headroom and overflow (42 the same value, 6 inside the tie range); all 90 max flows and 254 headroom solves passed the certificate as FalkorDB returned them. It also scores the controller's plan choice against an oracle that simulates every shuttle candidate leg alone, at the controller's sizing, and keeps the best gain per bus: 15 closures need buses, the controller's choice is the best on 13, the mean gap is 3.9% and the worst 31% (it simulates only the first candidate for riders with no line and the first for relief).
+
+**One command.** `pnpm judge` re-measures every headline number in the README on a FalkorDB, recomputes it with the verifier, and exits 1 on any mismatch. `CLAIMS.md` maps each claim to its code and tests.
