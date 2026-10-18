@@ -33,11 +33,22 @@ export async function GET(request: Request) {
   }
 }
 
-const Body = z.object({ action: z.enum(["reset", "resolve"]) });
+const STATION = /^[A-Za-z0-9]{1,8}$/;
+
+/** reset, or resolve with what each published shuttle leg carried (riders an hour), which procedural memory learns from. */
+const Body = z.object({
+  action: z.enum(["reset", "resolve"]),
+  observed: z
+    .array(z.object({ from: z.string().regex(STATION), to: z.string().regex(STATION), riders: z.number().int().min(1).max(20_000) }))
+    .max(4)
+    .optional(),
+});
 
 export async function POST(request: Request) {
   const parsed = Body.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return Response.json({ error: "Send { action: 'reset' | 'resolve' }." }, { status: 400 });
+  if (!parsed.success) {
+    return Response.json({ error: "Send { action: 'reset' } or { action: 'resolve', observed?: [{ from, to, riders }] } with riders a whole number from 1 to 20,000." }, { status: 400 });
+  }
   try {
     const visitor = await visitorId();
     if (parsed.data.action === "reset") {
@@ -45,8 +56,8 @@ export async function POST(request: Request) {
       return Response.json({ ok: true, message: "Your sandbox was copied fresh from the template." });
     }
     const sandbox = await ensureSandbox(visitor);
-    const res = await resolveIncident({ visitorId: visitor, sandbox: sandbox.graph, agentId: "controller", tracer: new Tracer() });
-    return Response.json({ ok: res.outcome === "answered", message: res.summary, trace: res.trace });
+    const res = await resolveIncident({ visitorId: visitor, sandbox: sandbox.graph, agentId: "controller", tracer: new Tracer() }, { observed: parsed.data.observed });
+    return Response.json({ ok: res.outcome === "answered", message: res.summary, learned: res.data, trace: res.trace });
   } catch (error) {
     return Response.json({ error: friendlyError(error) }, { status: 503 });
   }

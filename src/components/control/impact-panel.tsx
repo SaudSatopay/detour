@@ -1,12 +1,146 @@
 "use client";
 
+import { useId, useState } from "react";
 import type { CapacityData } from "@/lib/graph/tools/capacity";
 import type { ImpactData } from "@/lib/graph/tools/impact";
 import type { Incident } from "@/lib/graph/tools/incident";
+import type { ResolveData } from "@/lib/graph/tools/plan";
 import { fmt, RouteTag, Stat } from "./bits";
 import type { PlanCard, RiderCard } from "./run-state";
 
 type Lookup = (id: string) => string;
+
+type Closing = { kind: "idle" } | { kind: "busy" } | { kind: "error"; message: string } | { kind: "done"; data: ResolveData; message: string };
+
+const pct = (ratio: number) => `${Math.round(ratio * 100)}%`;
+
+/**
+ * Ends the incident from the published plan. The dispatcher enters what each shuttle actually carried;
+ * procedural memory keeps it, and the panel says what the next plan will do with it.
+ */
+function CloseIncident({ plan, nameOf }: { plan: PlanCard; nameOf: Lookup }) {
+  const id = useId();
+  const [counts, setCounts] = useState<string[]>(() => plan.legs.map(() => ""));
+  const [closing, setClosing] = useState<Closing>({ kind: "idle" });
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const observed: { from: string; to: string; riders: number }[] = [];
+    for (const [i, leg] of plan.legs.entries()) {
+      const raw = counts[i]?.replace(/[,\s]/g, "") ?? "";
+      if (!raw) continue;
+      const riders = Number(raw);
+      if (!Number.isInteger(riders) || riders < 1 || riders > 20_000) {
+        setClosing({ kind: "error", message: `Enter the riders an hour the ${nameOf(leg.from)} ↔ ${nameOf(leg.to)} shuttle carried as a whole number, like 1650, or leave it blank.` });
+        return;
+      }
+      observed.push({ from: leg.from, to: leg.to, riders });
+    }
+    setClosing({ kind: "busy" });
+    try {
+      const res = await fetch("/api/sandbox", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "resolve", observed }) });
+      const body = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string; error?: string; learned?: ResolveData };
+      if (!res.ok || !body.ok || !body.learned) {
+        setClosing({ kind: "error", message: body.error ?? body.message ?? `The server answered ${res.status}. Try again.` });
+        return;
+      }
+      setClosing({ kind: "done", data: body.learned, message: body.message ?? "" });
+    } catch {
+      setClosing({ kind: "error", message: "The server did not answer. Check your connection and try again." });
+    }
+  };
+
+  if (closing.kind === "done") {
+    const { learned, playbooks, next, incident } = closing.data;
+    return (
+      <div role="status" className="flex flex-col gap-2 border-t border-line pt-2.5">
+        <p className="label flex items-center gap-2 text-ok">
+          <span aria-hidden="true">✓</span> Incident closed · lines reopened
+        </p>
+        {learned.length ? (
+          <ul className="flex flex-col gap-1 text-sm text-ink-700">
+            {learned.map((l) => (
+              <li key={`${l.from}${l.to}`}>
+                {nameOf(l.from)} ↔ {nameOf(l.to)} carried <span className="tabular font-mono text-ink-900">{fmt(l.observed)}</span> of {fmt(l.planned)} planned riders
+                an hour ({pct(l.ratio)}).
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-ink-700">{plan.legs.length ? "No shuttle counts were entered, so nothing new about buses was learned." : "This plan ran no buses, so there was nothing to learn about them."}</p>
+        )}
+        {next ? (
+          <p className="text-sm font-semibold text-ink-900">
+            The next plan will size buses at {pct(next.ratio)} of plan
+            <span className="font-normal text-ink-700">
+              {next.incident === incident ? ", from this shuttle." : `: a shuttle in ${next.incident} carried less, and the plan sizes for the lowest share on record.`}
+            </span>
+          </p>
+        ) : learned.length ? (
+          <p className="text-sm text-ink-700">The shuttles carried what was planned, so the next plan sizes buses at their nominal capacity.</p>
+        ) : null}
+        {playbooks.map((p) => (
+          <p key={p.id} className="text-xs text-ink-500">
+            <span className="font-mono">{p.id}</span> {p.created ? "written from this incident" : `is now revision ${p.revision}; the old steps are kept, superseded`}.
+          </p>
+        ))}
+      </div>
+    );
+  }
+
+  const busy = closing.kind === "busy";
+  return (
+    <form onSubmit={submit} aria-labelledby={`${id}-title`} className="flex flex-col gap-2.5 border-t border-line pt-2.5">
+      <div className="flex flex-col gap-0.5">
+        <h4 id={`${id}-title`} className="text-sm font-semibold text-ink-900">
+          Close the incident
+        </h4>
+        <p className="text-xs text-ink-500">
+          {plan.legs.length
+            ? "Reopens the line. Enter what each shuttle carried and memory sizes the next plan from it; leave a count blank if nobody counted."
+            : "Reopens the line and counts the playbook as used."}
+        </p>
+      </div>
+      {plan.legs.map((l, i) => (
+        <label key={`${l.from}${l.to}`} className="flex flex-col gap-1">
+          <span className="text-sm text-ink-900">
+            Riders the shuttle carried
+            <span className="text-ink-500">
+              {" "}
+              · {nameOf(l.from)} ↔ {nameOf(l.to)}
+            </span>
+          </span>
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            value={counts[i] ?? ""}
+            onChange={(e) => setCounts((c) => c.map((v, j) => (j === i ? e.target.value : v)))}
+            disabled={busy}
+            placeholder={`${fmt(l.capacity)} planned`}
+            aria-describedby={`${id}-unit-${i}`}
+            className="tabular w-full rounded-md border border-line bg-panel px-3 py-2 font-mono text-base text-ink-900 placeholder:text-ink-500 focus:border-signal disabled:opacity-50 sm:text-sm"
+          />
+          <span id={`${id}-unit-${i}`} className="text-xs text-ink-500">
+            Riders an hour; {fmt(l.capacity)} planned at {l.busesPerHour} buses an hour.
+          </span>
+        </label>
+      ))}
+      {closing.kind === "error" ? (
+        <p role="alert" className="text-sm text-crit">
+          {closing.message}
+        </p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={busy}
+        className="self-start rounded-md border border-line-strong px-3 py-2 font-display text-base font-semibold tracking-wide text-ink-900 transition-[transform,background-color] duration-150 ease-out enabled:hover:-translate-y-px enabled:hover:bg-sunk disabled:cursor-not-allowed disabled:opacity-50 max-sm:w-full"
+      >
+        {busy ? "Closing…" : "Close the incident"}
+      </button>
+    </form>
+  );
+}
 
 function Section({ title, children, aside, marker }: { title: string; children: React.ReactNode; aside?: React.ReactNode; marker?: string }) {
   return (
@@ -167,11 +301,14 @@ function Plan({
   nameOf,
   onApprove,
   comparison,
+  closable,
 }: {
   plan: PlanCard;
   recommended: boolean;
   published: boolean;
   busy: boolean;
+  /** The published plan of the live run (not a step played back) can close the incident. */
+  closable: boolean;
   nameOf: Lookup;
   onApprove: () => void;
   comparison: string | null;
@@ -221,9 +358,12 @@ function Plan({
       ) : null}
       {comparison ? <p className="text-sm font-semibold text-ink-900">{comparison}</p> : null}
       {published ? (
-        <p className="label flex items-center gap-2 text-ok">
-          <span aria-hidden="true">✓</span> Published to riders
-        </p>
+        <>
+          <p className="label flex items-center gap-2 text-ok">
+            <span aria-hidden="true">✓</span> Published to riders
+          </p>
+          {closable ? <CloseIncident plan={plan} nameOf={nameOf} /> : null}
+        </>
       ) : (
         <button
           type="button"
@@ -345,6 +485,7 @@ export function ImpactPanel(p: ImpactProps) {
                       nameOf={p.nameOf}
                       onApprove={() => p.onApprove(plan.id)}
                       comparison={compare(plan, p.plans, p.recommended)}
+                      closable={!p.running}
                     />
                   ))}
               </div>
