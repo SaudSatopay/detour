@@ -10,6 +10,8 @@ export default defineConfig({
   testDir: "e2e",
   timeout: 120_000,
   fullyParallel: false,
+  // A deployment's free database holds a few visitors' graphs at once: test it two visitors at a time.
+  workers: process.env.BASE_URL ? 2 : undefined,
   reporter: [["list"]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://localhost:3000",

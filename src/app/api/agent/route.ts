@@ -10,7 +10,7 @@ import { IncompleteRunError, NoModelError, runAgent } from "@/lib/agent/run";
 import { scriptedControl } from "@/lib/agent/scripted";
 import { scriptedAsk } from "@/lib/agent/scripted-ask";
 import { recentTurns, rememberTurns } from "@/lib/graph/conversation";
-import { ensureSandbox } from "@/lib/graph/tenancy";
+import { ensureSandbox, holdFor, release } from "@/lib/graph/tenancy";
 import { Tracer } from "@/lib/graph/trace";
 import type { ToolResult } from "@/lib/graph/tools/types";
 import { loadScenarios } from "@/lib/network/data";
@@ -51,6 +51,8 @@ export async function POST(request: Request) {
 
   return ndjson<AgentEvent>(
     async (send) => {
+      // Held for the whole run, so another visitor making room never deletes this graph or its forks mid-run.
+      await holdFor(visitor);
       let emit = send;
       const runId = `run-${Date.now().toString(36)}`;
       const replay = async (note: string) => {
@@ -219,6 +221,7 @@ export async function POST(request: Request) {
       await rec.save();
     },
     (message) => ({ type: "error", agent, message }),
+    () => release(visitor),
   );
 }
 

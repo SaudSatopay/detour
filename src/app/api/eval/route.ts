@@ -5,7 +5,7 @@ import { evalToolset, EVAL_VISITOR, runBatch, runOrder } from "@/lib/eval/runner
 import type { EvalQuestion } from "@/lib/eval/questions";
 import { countResults, currentRun, doneKeys, finishRun, getResult, reopenRun, resultPage, saveResult, startRun } from "@/lib/eval/store";
 import { releaseLock, takeLock } from "@/lib/graph/meta";
-import { dropSandbox, ensureBase, ensureSandbox } from "@/lib/graph/tenancy";
+import { dropSandbox, ensureBase, ensureSandbox, whileHeld } from "@/lib/graph/tenancy";
 import { allow, allowToday, friendlyError } from "@/lib/server/http";
 import questionsJson from "../../../../data/eval/questions.json";
 
@@ -81,18 +81,22 @@ export async function POST(request: Request) {
       await startRun(current);
     }
 
-    const sandbox = await ensureSandbox(EVAL_VISITOR);
-    const base = { visitorId: EVAL_VISITOR, sandbox: sandbox.graph, agentId: "controller" };
     const origin = new URL(request.url).origin;
     const runId = current.id;
-    const { ran, remaining, paused } = await runBatch({
-      questions: QUESTIONS,
-      order: current.order,
-      deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: evalChain, soonest: () => soonestModelMs(), armTimeoutMs: ARM_TIMEOUT_MS },
-      done: await doneKeys(runId),
-      save: (r) => saveResult(runId, r),
-      graphModel: async (qid) => (await getResult(runId, qid, "graph"))?.model ?? null,
-      until: started + BATCH_MS,
+    const order = current.order;
+    // The eval's sandbox is held for the batch, so a visitor making room never deletes it between two tool calls.
+    const { ran, remaining, paused } = await whileHeld(EVAL_VISITOR, async () => {
+      const sandbox = await ensureSandbox(EVAL_VISITOR);
+      const base = { visitorId: EVAL_VISITOR, sandbox: sandbox.graph, agentId: "controller" };
+      return runBatch({
+        questions: QUESTIONS,
+        order,
+        deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: evalChain, soonest: () => soonestModelMs(), armTimeoutMs: ARM_TIMEOUT_MS },
+        done: await doneKeys(runId),
+        save: (r) => saveResult(runId, r),
+        graphModel: async (qid) => (await getResult(runId, qid, "graph"))?.model ?? null,
+        until: started + BATCH_MS,
+      });
     });
     if (remaining === 0) {
       await finishRun(runId);

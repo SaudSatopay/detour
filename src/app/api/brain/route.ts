@@ -9,7 +9,7 @@ import { lastExchange, recentTurns, rememberTurns } from "@/lib/graph/conversati
 import { ingest, extractMentions } from "@/lib/graph/intake";
 import { ensureOrgLayer } from "@/lib/graph/org";
 import { Tracer } from "@/lib/graph/trace";
-import { ensureSandbox } from "@/lib/graph/tenancy";
+import { ensureSandbox, holdFor, release } from "@/lib/graph/tenancy";
 import { brainDirectory } from "@/lib/graph/tools/brain";
 import { loadNetwork } from "@/lib/network/data";
 import { allow, allowToday, friendlyError, visitorId, wantsNoModel } from "@/lib/server/http";
@@ -71,8 +71,12 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  let held: string | null = null;
   try {
     const visitor = await visitorId();
+    // Held for the request, so another visitor making room never deletes this graph mid-answer.
+    held = visitor;
+    await holdFor(visitor);
 
     if ("refresh" in parsed.data) {
       const allowed = (await allow(visitor, "agency-refresh", REFRESH_PER_HOUR).catch(() => false)) && (await allowToday("agency-refresh", REFRESH_PER_DAY).catch(() => false));
@@ -148,5 +152,7 @@ export async function POST(request: Request) {
     return Response.json(answer);
   } catch (error) {
     return Response.json({ error: friendlyError(error) }, { status: 503 });
+  } finally {
+    if (held) await release(held);
   }
 }

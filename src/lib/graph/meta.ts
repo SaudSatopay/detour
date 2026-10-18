@@ -17,10 +17,39 @@ export async function touchSandbox(visitor: string, now = Date.now()): Promise<v
   await run(META_GRAPH, "MERGE (s:Sandbox {visitor: $visitor}) SET s.seen = $now", { visitor, now });
 }
 
-/** Every sandbox the registry knows, with when it was last used. */
-export async function sandboxEntries(): Promise<{ id: string; seen: number }[]> {
+/**
+ * Marks a visitor's sandbox in use by one more request, for `ms` at most (a request that dies without releasing it
+ * stops counting then). Making room for another visitor never deletes a held sandbox, or its forks.
+ */
+export async function holdSandbox(visitor: string, ms: number, now = Date.now()): Promise<void> {
+  await run(
+    META_GRAPH,
+    `MERGE (s:Sandbox {visitor: $visitor})
+     SET s.seen = $now,
+         s.holds = CASE WHEN coalesce(s.heldUntil, 0) > $now THEN coalesce(s.holds, 0) + 1 ELSE 1 END,
+         s.heldUntil = $now + $ms`,
+    { visitor, now, ms },
+  );
+}
+
+/** Ends one request's hold on a visitor's sandbox. */
+export async function releaseSandbox(visitor: string, now = Date.now()): Promise<void> {
+  await run(
+    META_GRAPH,
+    "MATCH (s:Sandbox {visitor: $visitor}) SET s.seen = $now, s.holds = CASE WHEN coalesce(s.holds, 0) > 1 THEN s.holds - 1 ELSE 0 END",
+    { visitor, now },
+  );
+}
+
+/** Every sandbox the registry knows, with when it was last used and whether a request holds it now. */
+export async function sandboxEntries(now = Date.now()): Promise<{ id: string; seen: number; held: boolean }[]> {
   if (!(await graphExists(META_GRAPH))) return [];
-  const res = await run<{ id: string; seen: number }>(META_GRAPH, "MATCH (s:Sandbox) RETURN s.visitor AS id, s.seen AS seen", {}, { readOnly: true });
+  const res = await run<{ id: string; seen: number; held: boolean }>(
+    META_GRAPH,
+    "MATCH (s:Sandbox) RETURN s.visitor AS id, s.seen AS seen, coalesce(s.holds, 0) > 0 AND coalesce(s.heldUntil, 0) > $now AS held",
+    { now },
+    { readOnly: true },
+  );
   return res.rows;
 }
 

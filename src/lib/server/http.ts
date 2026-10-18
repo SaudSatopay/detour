@@ -16,8 +16,11 @@ export async function visitorId(): Promise<string> {
   return id;
 }
 
-/** Streams newline-delimited JSON events; errors become a final error event instead of a broken stream. */
-export function ndjson<E>(run: (emit: (event: E) => void) => Promise<void>, onError: (message: string) => E): Response {
+/**
+ * Streams newline-delimited JSON events; errors become a final error event instead of a broken stream. `after` runs
+ * once the run ends, before the stream closes (a request releasing what it held).
+ */
+export function ndjson<E>(run: (emit: (event: E) => void) => Promise<void>, onError: (message: string) => E, after?: () => Promise<unknown>): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -35,6 +38,7 @@ export function ndjson<E>(run: (emit: (event: E) => void) => Promise<void>, onEr
       } catch (error) {
         emit(onError(friendlyError(error)));
       } finally {
+        await after?.().catch(() => undefined);
         open = false;
         controller.close();
       }

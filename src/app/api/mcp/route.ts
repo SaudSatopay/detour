@@ -4,7 +4,7 @@ import { forClient, forModel, recordEpisode } from "@/lib/agent/catalog";
 import { TOOLBOX } from "@/lib/agent/toolbox";
 import { copyGraph, deleteGraph, run } from "@/lib/graph/db";
 import { newVisitorId, sandboxGraph, TEMPLATE_GRAPH } from "@/lib/graph/names";
-import { dropForks, ensureBase, ensureSandbox } from "@/lib/graph/tenancy";
+import { dropForks, ensureBase, ensureSandbox, whileHeld } from "@/lib/graph/tenancy";
 import { Tracer } from "@/lib/graph/trace";
 import { affectedRiders } from "@/lib/graph/tools/impact";
 import { closeLine } from "@/lib/graph/tools/incident";
@@ -128,7 +128,8 @@ const handler = createMcpHandler(
           if (!caller.inApp && !(await allow(clientOf(extra), "mcp", 240))) return failure("Rate limited: 240 tool calls an hour per client. Try again later.");
           if (def.session && !caller.own) return failure(`${def.name} works on a graph of your own: call open_session first, then pass its session.`);
           const ctx = caller.ctx();
-          const r = await def.run(ctx, args);
+          // A session's sandbox is held while the tool runs, so making room for another visitor never deletes it mid-call.
+          const r = caller.own ? await whileHeld(ctx.visitorId, () => def.run(ctx, args)) : await def.run(ctx, args);
           if (!caller.inApp && caller.own) void recordEpisode(ctx, r, { input: args, model: "outside agent" });
           // The text is what a model reads; the structured result carries the whole answer (and its Cypher) for a UI.
           return { content: [{ type: "text" as const, text: JSON.stringify(forModel(r)) }], structuredContent: { result: forClient(r) }, isError: false };
