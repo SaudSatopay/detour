@@ -1,30 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CypherBlock } from "@/components/cypher-block";
+import { CertificateSection } from "@/components/proof/certificate";
+import { HeldOutSection } from "@/components/proof/held-out";
+import { n, REPO, SectionHead } from "@/components/proof/section-head";
+import { VerifierCoverageSection } from "@/components/proof/verifier-coverage";
 import { agreement, BENCH, cypherCatalog, depthAgreement, META, toolCosts } from "@/lib/proof";
 import { TOOL_TITLE } from "@/lib/tool-titles";
 
 export const metadata: Metadata = {
   title: "Proof",
   description:
-    "FalkorDB's max flow, min cut and displaced-rider counts checked against an independent NetworkX implementation, a concurrency benchmark across tenant graphs, and every Cypher query the agents run.",
+    "FalkorDB's max flow (certified, with a fallback solver), min cut, fastest-path reroute and displaced-rider counts checked against an independent NetworkX implementation on the demo closures and 48 held-out ones, a concurrency benchmark across tenant graphs, and every Cypher query the agents run.",
 };
 
-const n = (x: number) => Math.round(x).toLocaleString("en-US");
-const REPO = "https://github.com/SaudSatopay/detour/blob/main";
-
-function SectionHead({ id, kicker, title, children }: { id: string; kicker: string; title: string; children?: React.ReactNode }) {
-  return (
-    <header className="flex max-w-prose flex-col gap-2">
-      {/* A small station sign over each check, so the paper half keeps the night stage's signage. */}
-      <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">{kicker}</p>
-      <h2 id={id} className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
-        {title}
-      </h2>
-      {children ? <div className="text-ink-700">{children}</div> : null}
-    </header>
-  );
-}
+/** Tools the shared title list does not name yet. */
+const MORE_TITLES: Record<string, string> = { measure_headroom: "Measure headroom" };
 
 export default function ProofPage() {
   const rows = agreement();
@@ -46,12 +37,16 @@ export default function ProofPage() {
           </h1>
           <p className="max-w-prose text-lg text-ink-700">
             FalkorDB does the work: the agents&apos; tools run Cypher and graph algorithms on your copy of the subway graph. A separate Python
-            program built on NetworkX reads the same data files, follows the same written spec, and recomputes the answers. Where they meet, the
-            numbers are right; where they would differ, the build fails.
+            program built on NetworkX reads the same data files, follows the same written spec, and recomputes the answers. Every max flow also
+            carries a certificate that proves it maximal. Where a number would differ, the checks that compare them stop with an error:{" "}
+            <code className="font-mono text-base">pnpm judge</code> re-measures every README number on a FalkorDB and fails on any mismatch.
           </p>
           <nav aria-label="On this page" className="flex flex-wrap gap-2">
             {[
               ["agreement", "FalkorDB vs NetworkX"],
+              ["certificate", "Certified max flow"],
+              ["held-out", "Held-out closures"],
+              ["coverage", "What is recomputed"],
               ["concurrency", "Many agents at once"],
               ["cost", "What each tool costs"],
               ["data", "Data and assumptions"],
@@ -154,24 +149,31 @@ export default function ProofPage() {
                   in Python with NetworkX 3.7, which also checks that the min cut&apos;s capacity equals the max flow.
                 </li>
                 <li>
-                  <span className="font-semibold text-ink-900">Run on every change.</span>{" "}
+                  <span className="font-semibold text-ink-900">Run by hand, not yet in CI.</span>{" "}
                   <a className="underline decoration-line-strong underline-offset-4" href={`${REPO}/scripts/ci/run-scenarios.ts`}>
                     run-scenarios.ts
                   </a>{" "}
-                  seeds FalkorDB, runs every tool on all three closures and fails when a number drifts from NetworkX by more than rounding.
+                  seeds FalkorDB, runs every tool on all three closures and exits with an error when a number drifts from NetworkX by more than
+                  rounding. A GitHub workflow for it is written but not switched on, so each run is started by hand before results are committed.
                 </li>
                 <li>
-                  <span className="font-semibold text-ink-900">Where the min cut sits.</span> On the L, both programs put the bottleneck at 1 Av: its
-                  only rail links are the closed L segments, so no amount of spare capacity elsewhere reaches its riders. That is why the recommended
-                  shuttle starts there.
+                  <span className="font-semibold text-ink-900">Where the min cut sits.</span> On the L, the min cut holds no open segment: the open
+                  network has room everywhere the riders can reach. Only stations the closure cuts off limit the flow, 1 Av as an origin and 3 Av as a
+                  destination, both served only by the L and with no walking link. That is why the recommended shuttle starts at 1 Av.
                 </li>
               </ul>
             </div>
           </div>
         </section>
 
+        <CertificateSection />
+
+        <HeldOutSection />
+
+        <VerifierCoverageSection />
+
         <section className="deferred flex flex-col gap-6" aria-labelledby="concurrency">
-          <SectionHead id="concurrency" kicker="Check 2" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>
+          <SectionHead id="concurrency" kicker="Check 5" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>
             <p>
               Every visitor gets a graph of their own. The benchmark runs {BENCH.readers} reader agents and {BENCH.writers} writer agents for{" "}
               {BENCH.seconds} seconds across {BENCH.tenants} tenant graphs over {BENCH.connections} connections, then checks that a closure written
@@ -201,14 +203,14 @@ export default function ProofPage() {
         </section>
 
         <section className="deferred flex flex-col gap-6" aria-labelledby="cost">
-          <SectionHead id="cost" kicker="Check 3" title="What each tool costs on the L closure.">
+          <SectionHead id="cost" kicker="Check 6" title="What each tool costs on the L closure.">
             <p>Summed query time per call, from the same run. The expensive tools fork the graph, rebuild the flow network and reroute two thousand trips.</p>
           </SectionHead>
           <ol className="flex flex-col gap-2">
             {costs.map((c) => (
               <li key={c.key} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_7.5rem] items-center gap-3 text-sm sm:grid-cols-[14rem_minmax(0,1fr)_7.5rem]">
                 <span className="min-w-0 break-words text-ink-900" title={c.summary}>
-                  {TOOL_TITLE[c.tool] ?? c.tool}
+                  {TOOL_TITLE[c.tool] ?? MORE_TITLES[c.tool] ?? c.tool}
                   <span className="ml-1.5 font-mono text-xs text-ink-500">{c.key.startsWith("route-") ? c.key.slice(6) : ""}</span>
                 </span>
                 <span className="block h-2 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
@@ -279,7 +281,7 @@ export default function ProofPage() {
                   <span aria-hidden="true" className="inline-block text-ink-500 transition-transform duration-150 group-open:rotate-90">
                     ›
                   </span>
-                  <span className="font-display text-lg font-semibold">{TOOL_TITLE[c.tool] ?? c.tool}</span>
+                  <span className="font-display text-lg font-semibold">{TOOL_TITLE[c.tool] ?? MORE_TITLES[c.tool] ?? c.tool}</span>
                   <code className="font-mono text-xs text-ink-500">{c.tool}</code>
                   <span className="tabular ml-auto font-mono text-xs text-ink-500">{c.queries.length}</span>
                 </summary>
