@@ -1,9 +1,13 @@
 import type { ToolResult } from "../graph/tools/types";
 
 /**
- * Checks a model's brief against the run's tool results: every figure it states must be one a tool returned (to
- * rounding), or, for a percentage, a percentage or a ratio of two numbers in the same result. What fails is shown to
- * the dispatcher next to the brief, so a number the model invented cannot pass as the graph's.
+ * Checks a model's brief against the run's tool results. Every figure of 10 or more it states must be a quantity a
+ * tool returned, to the precision the brief writes it (half a unit in its last digit), and every percentage must be
+ * one a tool stated, in its text or in a field it names as a share. Ids, station codes and endpoints are not
+ * quantities, so they cannot vouch for a figure. What fails is shown to the dispatcher next to the brief.
+ *
+ * The check says a figure exists in the results, not that the brief uses it correctly: a true number attached to the
+ * wrong station still passes.
  */
 export interface Grounding {
   checked: number;
@@ -13,9 +17,9 @@ export interface Grounding {
 const FIGURE = /(?<![\w.-])\d{1,3}(?:,\d{3})+(?:\.\d+)?%?(?![\w-])|(?<![\w.-])\d+(?:\.\d+)?%?(?![\w-])/g;
 const MONTH = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*$/i;
 
-/** The figures worth checking: percentages, and quantities of 100 or more (small counts are stops, legs and depths). */
-export function figuresIn(text: string): { raw: string; value: number; pct: boolean }[] {
-  const out: { raw: string; value: number; pct: boolean }[] = [];
+/** The figures worth checking: percentages, and quantities of 10 or more (0 to 9 are stops, legs and depths). */
+export function figuresIn(text: string): { raw: string; value: number; pct: boolean; decimals: number }[] {
+  const out: { raw: string; value: number; pct: boolean; decimals: number }[] = [];
   for (const m of text.matchAll(FIGURE)) {
     const raw = m[0];
     const pct = raw.endsWith("%");
@@ -23,35 +27,60 @@ export function figuresIn(text: string): { raw: string; value: number; pct: bool
     if (!Number.isFinite(value)) continue;
     const before = text.slice(Math.max(0, (m.index ?? 0) - 12), m.index);
     if (MONTH.test(before)) continue; // a date, like Oct 14
-    if (!pct && (value < 100 || (value >= 1900 && value <= 2100 && Number.isInteger(value)))) continue;
-    out.push({ raw, value, pct });
+    if (!pct && (value < 10 || (value >= 1900 && value <= 2100 && Number.isInteger(value)))) continue;
+    const decimals = raw.includes(".") ? raw.replace(/%$/, "").split(".")[1].length : 0;
+    out.push({ raw, value, pct, decimals });
   }
   return out;
 }
 
-function numbersOf(value: unknown, into: number[], budget = { left: 20_000 }): number[] {
-  if (budget.left-- <= 0) return into;
-  if (typeof value === "number" && Number.isFinite(value)) into.push(value);
-  else if (typeof value === "string") for (const f of value.matchAll(/\d[\d,]*(?:\.\d+)?/g)) into.push(Number(f[0].replace(/,/g, "")));
-  else if (Array.isArray(value)) for (const v of value) numbersOf(v, into, budget);
-  else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) if (k !== "trace" && k !== "cypher" && k !== "params") numbersOf(v, into, budget);
-  return into;
+/** Keys that hold identifiers or endpoints rather than quantities: "o", "eids", "from", "stationId", "closedEids". */
+const ID_KEYS = new Set(["o", "d", "id", "ids", "eid", "eids", "bid", "wid", "from", "to", "via", "route", "routes", "station", "stations", "key", "label", "name"]);
+const notAQuantity = (key: string) => ID_KEYS.has(key) || /(Id|Ids|Eids)$/.test(key);
+/** Keys that hold a share as a percentage. */
+const PERCENT_KEY = /pct|percent/i;
+
+interface Pool {
+  quantities: number[];
+  percents: number[];
 }
 
-const near = (a: number, b: number) => Math.abs(a - b) <= Math.max(0.5, Math.abs(b) * 0.005);
+function collect(value: unknown, key: string, into: Pool, budget: { left: number }): void {
+  if (budget.left-- <= 0) return;
+  if (key === "trace" || key === "cypher" || key === "params") return;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (PERCENT_KEY.test(key)) into.percents.push(value);
+    else if (!notAQuantity(key)) into.quantities.push(value);
+  } else if (typeof value === "string") {
+    if (notAQuantity(key)) return;
+    // "[120]" in a summary is a station id, not a quantity.
+    for (const f of value.matchAll(/(?<![\w.[-])(\d[\d,]*(?:\.\d+)?)(%?)(?!\])/g)) {
+      const n = Number(f[1].replace(/,/g, ""));
+      if (!Number.isFinite(n)) continue;
+      (f[2] ? into.percents : into.quantities).push(n);
+    }
+  } else if (Array.isArray(value)) {
+    for (const v of value) collect(v, key, into, budget);
+  } else if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    // A share a result implies with its own fields: absorbed of required.
+    if (typeof o.absorbed === "number" && typeof o.required === "number" && o.required > 0) into.percents.push((o.absorbed / o.required) * 100);
+    for (const [k, v] of Object.entries(o)) collect(v, k, into, budget);
+  }
+}
 
 export function ground(text: string, results: ToolResult[]): Grounding {
-  const perResult = results.map((r) => numbersOf([r.summary, r.data], []));
-  const all = perResult.flat();
+  const pool: Pool = { quantities: [], percents: [] };
+  for (const r of results) {
+    collect(r.summary, "summary", pool, { left: 20_000 });
+    collect(r.data, "data", pool, { left: 20_000 });
+  }
   const figures = figuresIn(text);
   const unmatched = figures.filter((f) => {
-    if (all.some((v) => near(v, f.value))) return false;
-    if (!f.pct) return true;
-    // A share the model worked out from one result, like absorbed / required.
-    return !perResult.some((nums) => {
-      const big = nums.filter((n) => n > 0).slice(0, 400);
-      return big.some((a) => big.some((b) => b > 0 && Math.abs((a / b) * 100 - f.value) <= 0.6));
-    });
+    // Half a unit in the last digit the brief writes: "17,167" covers 17,166.7, "33.3" covers 33.25 to 33.35.
+    const tolerance = 0.5 * 10 ** -f.decimals + 1e-9;
+    const candidates = f.pct ? pool.percents : pool.quantities;
+    return !candidates.some((v) => Math.abs(v - f.value) <= tolerance);
   });
   return { checked: figures.length, unmatched: [...new Set(unmatched.map((f) => f.raw))] };
 }

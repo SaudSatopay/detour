@@ -28,6 +28,7 @@
     "judge": "tsx scripts/judge/judge.ts",
     "judge:maxflow": "tsx scripts/judge/maxflow-repro.ts",
     "eval:brain": "tsx scripts/eval/brain-eval.ts",
+    "eval:grounding": "tsx scripts/eval/grounding-check.ts",
     "agency:snapshot": "tsx scripts/agency/fetch-snapshot.ts",
     "deadcode": "knip"
   },
