@@ -1,0 +1,180 @@
+{
+  "scenario": "l-canarsie",
+  "label": "1 Av \u2194 Astor Pl at 25 buses an hour (the controller's recommended plan in the README)",
+  "maxFlow": "networkx.algorithms.flow.edmonds_karp",
+  "reroute": {
+    "before": {
+      "rerouted": 18756,
+      "stranded": 4689,
+      "strandedPairs": 397,
+      "overflow": 24078
+    },
+    "after": {
+      "rerouted": 22822,
+      "stranded": 623,
+      "strandedPairs": 80,
+      "overflow": 28762,
+      "strandedByStation": [
+        {
+          "station": "118",
+          "riders": 622.7
+        },
+        {
+          "station": "120",
+          "riders": 97.6
+        },
+        {
+          "station": "629",
+          "riders": 41.8
+        },
+        {
+          "station": "127",
+          "riders": 35.1
+        },
+        {
+          "station": "630",
+          "riders": 33.3
+        },
+        {
+          "station": "122",
+          "riders": 31.1
+        },
+        {
+          "station": "164",
+          "riders": 24.8
+        },
+        {
+          "station": "618",
+          "riders": 21.9
+        }
+      ]
+    },
+    "overloadedAfter": [
+      {
+        "kind": "RUNS",
+        "eid": 930,
+        "route": "G",
+        "from": "283",
+        "to": "282",
+        "load": 12419,
+        "baseline": 3589,
+        "capacity": 5075,
+        "pct": 245
+      },
+      {
+        "kind": "RUNS",
+        "eid": 932,
+        "route": "G",
+        "from": "284",
+        "to": "283",
+        "load": 11658,
+        "baseline": 3098,
+        "capacity": 5800,
+        "pct": 201
+      },
+      {
+        "kind": "RUNS",
+        "eid": 929,
+        "route": "G",
+        "from": "282",
+        "to": "606",
+        "load": 11503,
+        "baseline": 2671,
+        "capacity": 5800,
+        "pct": 198
+      },
+      {
+        "kind": "RUNS",
+        "eid": 951,
+        "route": "G",
+        "from": "629",
+        "to": "284",
+        "load": 11025,
+        "baseline": 2607,
+        "capacity": 5800,
+        "pct": 190
+      },
+      {
+        "kind": "BUS",
+        "bid": 0,
+        "route": "BUS",
+        "from": "119",
+        "to": "407",
+        "load": 4066,
+        "baseline": 0,
+        "capacity": 1750.0,
+        "pct": 232
+      },
+      {
+        "kind": "BUS",
+        "bid": 0,
+        "route": "BUS",
+        "from": "407",
+        "to": "119",
+        "load": 4066,
+        "baseline": 0,
+        "capacity": 1750.0,
+        "pct": 232
+      }
+    ]
+  },
+  "buses": [
+    {
+      "from": "119",
+      "to": "407",
+      "busesPerHour": 25,
+      "capacityEachWay": 1750.0,
+      "minutes": 6.4
+    }
+  ],
+  "directions": {
+    "forward": {
+      "required": 18432.4,
+      "absorbedBefore": 17166.7,
+      "absorbedAfter": 18117.4,
+      "gain": 950.7,
+      "unmetBefore": 1265.7,
+      "unmetAfter": 315.0,
+      "cutCheckAfter": {
+        "capacity": 18117.4,
+        "maxFlow": 18117.4
+      },
+      "bottleneckEidsAfter": [
+        1027,
+        1062
+      ],
+      "busEdgesInCutAfter": [],
+      "cutOffAfter": [
+        {
+          "station": "118",
+          "side": "destination",
+          "riders": 315.0
+        }
+      ]
+    },
+    "backward": {
+      "required": 2423.1,
+      "absorbedBefore": 2033.4,
+      "absorbedAfter": 2389.8,
+      "gain": 356.4,
+      "unmetBefore": 389.7,
+      "unmetAfter": 33.3,
+      "cutCheckAfter": {
+        "capacity": 2389.8,
+        "maxFlow": 2389.8
+      },
+      "bottleneckEidsAfter": [
+        1027,
+        1062
+      ],
+      "busEdgesInCutAfter": [],
+      "cutOffAfter": [
+        {
+          "station": "118",
+          "side": "destination",
+          "riders": 33.3
+        }
+      ]
+    }
+  }
+}

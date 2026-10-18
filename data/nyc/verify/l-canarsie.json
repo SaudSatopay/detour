@@ -874,6 +874,53 @@
             "capacity": 8.8
           }
         ]
+      },
+      "cutOff": [
+        {
+          "station": "119",
+          "side": "origin",
+          "riders": 1265.7
+        },
+        {
+          "station": "118",
+          "side": "destination",
+          "riders": 315.0
+        }
+      ],
+      "headroom": {
+        "connected": 17166.7,
+        "multiplier": 1.768728,
+        "saturating": [
+          {
+            "kind": "RUNS",
+            "id": 930,
+            "from": "283",
+            "to": "282",
+            "spare": 1504.3
+          },
+          {
+            "kind": "RUNS",
+            "id": 952,
+            "from": "629",
+            "to": "286",
+            "spare": 4908.2
+          },
+          {
+            "kind": "RUNS",
+            "id": 1085,
+            "from": "114",
+            "to": "97",
+            "spare": 6862.0
+          },
+          {
+            "kind": "RUNS",
+            "id": 1046,
+            "from": "130",
+            "to": "131",
+            "spare": 12223.3
+          }
+        ],
+        "solves": 3
       }
     },
     "backward": {
@@ -1154,6 +1201,24 @@
             "capacity": 61.6
           }
         ]
+      },
+      "cutOff": [
+        {
+          "station": "119",
+          "side": "destination",
+          "riders": 356.4
+        },
+        {
+          "station": "118",
+          "side": "destination",
+          "riders": 33.3
+        }
+      ],
+      "headroom": {
+        "connected": 2033.4,
+        "multiplier": null,
+        "saturating": [],
+        "solves": 1
       }
     }
   },
@@ -1764,5 +1829,98 @@
         ]
       }
     ]
+  },
+  "reroute": {
+    "costModel": "BOARD 3 min + min(30, 30/tph); RIDE segment minutes; ALIGHT 0; WALK minutes; BUS 4 min + 3 min/km; closed RIDE deleted",
+    "pairs": 2021,
+    "rerouted": 18756,
+    "stranded": 4689,
+    "strandedPairs": 397,
+    "strandedByStation": [
+      {
+        "station": "119",
+        "riders": 4072.7
+      },
+      {
+        "station": "118",
+        "riders": 622.7
+      },
+      {
+        "station": "120",
+        "riders": 340.5
+      },
+      {
+        "station": "610",
+        "riders": 232.0
+      },
+      {
+        "station": "611",
+        "riders": 184.8
+      },
+      {
+        "station": "164",
+        "riders": 182.5
+      },
+      {
+        "station": "225",
+        "riders": 160.3
+      },
+      {
+        "station": "629",
+        "riders": 133.1
+      }
+    ],
+    "overflow": 24078,
+    "overloaded": [
+      {
+        "kind": "RUNS",
+        "eid": 930,
+        "route": "G",
+        "from": "283",
+        "to": "282",
+        "load": 12397,
+        "baseline": 3589,
+        "capacity": 5075,
+        "pct": 244
+      },
+      {
+        "kind": "RUNS",
+        "eid": 932,
+        "route": "G",
+        "from": "284",
+        "to": "283",
+        "load": 11650,
+        "baseline": 3098,
+        "capacity": 5800,
+        "pct": 201
+      },
+      {
+        "kind": "RUNS",
+        "eid": 929,
+        "route": "G",
+        "from": "282",
+        "to": "606",
+        "load": 11481,
+        "baseline": 2671,
+        "capacity": 5800,
+        "pct": 198
+      },
+      {
+        "kind": "RUNS",
+        "eid": 951,
+        "route": "G",
+        "from": "629",
+        "to": "284",
+        "load": 11025,
+        "baseline": 2607,
+        "capacity": 5800,
+        "pct": 190
+      }
+    ],
+    "overflowRange": {
+      "min": 24078,
+      "max": 24122,
+      "tieBreaks": 8
+    }
   }
 }
