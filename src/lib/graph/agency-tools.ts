@@ -349,8 +349,14 @@ export async function equipmentStatus(ctx: ToolContext, input: { query: string }
       sampleAssignee: current ? sampleAssignee(String(current.properties.id)) : null,
     };
   });
+  // The units an answer is about come first, so the cap below never drops a source it cites: the units asked about,
+  // then those out of service, then the rest.
+  const rank = (u: GNode) => {
+    const id = String(u.properties.id);
+    return asked.includes(id) ? 0 : facts.find((f) => f.id === id)?.current ? 1 : 2;
+  };
   const sources: BrainSource[] = [];
-  for (const u of units) {
+  for (const u of [...units].sort((a, b) => rank(a) - rank(b))) {
     const id = String(u.properties.id);
     for (const o of (byUnit.get(id) ?? []).slice(0, 3)) sources.push(toAgencySource(o));
     sources.push(toAgencySource(u));

@@ -349,6 +349,12 @@ function composeOwns(d: OwnsData, book: SourceBook, question: string): string {
   const elevator = /elevator|escalator|accessib|step-free|wheelchair|outage|ticket|broken|fault/i.test(question);
   if (ticketSentence && elevator) parts.push(ticketSentence);
   if (d.real && elevator) parts.push(realUnitsSentence(d.real, book));
+  // Sample records and the MTA's feed can disagree; say so rather than state both as true.
+  if (open && elevator && d.real && /out of service|broken|stuck|outage|not working/i.test(open.title) && !d.real.units.some((u) => u.state === "out of service")) {
+    parts.push(
+      `The two disagree: sample ticket ${open.id} says an elevator here is out, while the MTA's latest feed lists none out at ${d.real.station?.name ?? "this station"}. The ticket is sample data; the feed is the MTA's.`,
+    );
+  }
   const owners = [...d.owners].sort((a, b) => (elevator ? Number(b.via.startsWith("maintains")) - Number(a.via.startsWith("maintains")) : 0));
   if (owners.length) {
     parts.push(capital(`${d.real ? "in the sample org, " : ""}${listJoin(owners.slice(0, 3).map((o) => `${o.name} ${o.via}${o.people.length ? ` (${o.people.map((p) => p.name).join(", ")})` : ""}`))}.`));
