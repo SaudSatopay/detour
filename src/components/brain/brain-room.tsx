@@ -158,6 +158,7 @@ function toDirectory(d: BrainDirectory): BrainDirectory {
     suggestions: list<string>(d.suggestions).filter((s) => typeof s === "string" && s.trim().length >= MIN),
     history: list<BrainTurn>(d.history).map((t) => ({ ...t, cites: list<string>(t.cites) })),
     agency: toAgency(d.agency),
+    recorded: d.recorded && typeof d.recorded.at === "string" ? { at: d.recorded.at } : null,
   };
 }
 
@@ -175,6 +176,10 @@ function toAnswer(a: BrainAnswer, asked: string): BrainAnswer {
     steps: list<BrainStep>(a.steps).map((s) => ({ ...s, trace: list<CypherTrace>(s.trace) })),
   };
 }
+
+/** The day something was recorded on the deployment. */
+const recordedDay = (iso: string | undefined) =>
+  iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "earlier";
 
 // The visitor's own turns are shown in their own time zone.
 const when = (ms: number) => new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -240,12 +245,12 @@ const INTAKE_EXAMPLES: { label: string; kind: IntakeKind; text: string }[] = [
 type IntakeState = { status: "idle" } | { status: "pending" } | { status: "done"; data: BrainIntake } | { status: "error"; error: string };
 
 /** Adds a chat message, ticket or note to the brain, and shows what it was linked to and what work it created. */
-function Intake({ colors, onAdded, onAskChanged }: { colors: Colors; onAdded: () => void; onAskChanged: () => void }) {
+function Intake({ colors, onAdded, onAskChanged, offline }: { colors: Colors; onAdded: () => void; onAskChanged: () => void; offline: boolean }) {
   const [kind, setKind] = useState<IntakeKind>("message");
   const [text, setText] = useState("");
   const [state, setState] = useState<IntakeState>({ status: "idle" });
   const pending = state.status === "pending";
-  const blocked = pending || text.trim().length < 8;
+  const blocked = pending || offline || text.trim().length < 8;
   const submit = async () => {
     if (blocked) return;
     setState({ status: "pending" });
@@ -271,6 +276,7 @@ function Intake({ colors, onAdded, onAskChanged }: { colors: Colors; onAdded: ()
           Paste a chat message, a ticket or a note. The brain links it to the stations, lines and people it names. An elevator outage files a
           ticket with the team that maintains it and goes into memory, so step-free routes change; a fix resolves the ticket.
         </p>
+        {offline ? <p className="max-w-prose text-sm font-semibold text-ink-900">Adding needs the live graph database, which is unreachable right now.</p> : null}
       </div>
       <form
         className="flex flex-col gap-3"
@@ -479,7 +485,7 @@ function ModeBadge({ answer }: { answer: BrainAnswer }) {
   return (
     <span className={`label inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 ${live ? "bg-signal-strong text-signal-ink" : "border border-warn bg-warn-wash text-ink-900"}`}>
       {live ? <span aria-hidden="true" className="size-1.5 rounded-full bg-signal-ink" /> : null}
-      {live ? `Live · ${answer.model?.split(":").pop() || "model"}` : "Scripted · no model"}
+      {live ? `Live · ${answer.model?.split(":").pop() || "model"}` : answer.mode === "recorded" ? `Recorded · ${recordedDay(answer.recordedAt)}` : "Scripted · no model"}
     </span>
   );
 }
@@ -653,7 +659,7 @@ type Refresh = { status: "idle" } | { status: "pending" } | { status: "done"; te
  * The shared graph of real MTA records: as of when each source was read, what it holds, the newest outages, and a
  * control to read the live feeds again now.
  */
-function AgencyPanel({ agency, colors, onRefreshed }: { agency: AgencySummary | null; colors: Colors; onRefreshed: (a: AgencySummary) => void }) {
+function AgencyPanel({ agency, colors, onRefreshed, offline }: { agency: AgencySummary | null; colors: Colors; onRefreshed: (a: AgencySummary) => void; offline: boolean }) {
   const [state, setState] = useState<Refresh>({ status: "idle" });
   const pending = state.status === "pending";
   const refresh = async () => {
@@ -716,17 +722,21 @@ function AgencyPanel({ agency, colors, onRefreshed }: { agency: AgencySummary | 
         <Stat label="Alerts" value={fmt(c.alerts)} />
         <Stat label="Projects" value={fmt(c.projects)} />
       </dl>
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => void refresh()}
-          aria-disabled={pending}
-          className={`rounded-md border border-ink-900 px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 ${pending ? "cursor-not-allowed opacity-60" : "hover:bg-sunk"}`}
-        >
-          {pending ? "Reading the feeds…" : "Refresh from the MTA"}
-        </button>
-        {agency.lastRefresh ? <span className="text-xs text-ink-500">Last refresh {moment(agency.lastRefresh.atMs)}</span> : null}
-      </div>
+      {offline ? (
+        <p className="text-sm text-ink-700">Reading the feeds again needs the live graph database, which is unreachable right now.</p>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            aria-disabled={pending}
+            className={`rounded-md border border-ink-900 px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 ${pending ? "cursor-not-allowed opacity-60" : "hover:bg-sunk"}`}
+          >
+            {pending ? "Reading the feeds…" : "Refresh from the MTA"}
+          </button>
+          {agency.lastRefresh ? <span className="text-xs text-ink-500">Last refresh {moment(agency.lastRefresh.atMs)}</span> : null}
+        </div>
+      )}
       <p aria-live="polite" className="text-sm empty:hidden">
         {state.status === "done" ? <span className="text-ink-700">{state.text}</span> : state.status === "error" ? <span className="text-crit">{state.error}</span> : null}
       </p>
@@ -989,6 +999,7 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
   };
   const answer = run.status === "done" ? run.answer : null;
   const suggestions = dir.status === "ready" ? dir.data.suggestions : [];
+  const offline = dir.status === "ready" && Boolean(dir.data.recorded);
 
   return (
     <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] lg:gap-10">
@@ -1148,7 +1159,7 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
           {answer?.steps.length ? <Steps steps={answer.steps} /> : null}
         </section>
 
-        <Intake colors={routeColors} onAdded={refresh} onAskChanged={() => void ask("What changed in the last 1 days?", true)} />
+        <Intake colors={routeColors} onAdded={refresh} onAskChanged={() => void ask("What changed in the last 1 days?", true)} offline={offline} />
 
         {dir.status === "ready" ? <History turns={dir.data.history} pending={pending} onAsk={(q) => void ask(q, true)} /> : null}
 
@@ -1185,9 +1196,19 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
           </div>
         ) : (
           <>
+            {dir.data.recorded ? (
+              <div role="status" className="flex flex-col gap-1 rounded-md border border-warn bg-warn-wash p-4">
+                <p className="font-display text-lg font-semibold leading-tight text-ink-900">The graph database is unreachable right now.</p>
+                <p className="text-sm text-ink-700">
+                  This is the directory as recorded on {recordedDay(dir.data.recorded.at)}, and the suggested questions answer from that recording,
+                  labeled as such. Other questions need the live graph.
+                </p>
+              </div>
+            ) : null}
             <AgencyPanel
               agency={dir.data.agency}
               colors={routeColors}
+              offline={offline}
               onRefreshed={(agency) => setDir((d) => (d.status === "ready" ? { status: "ready", data: { ...d.data, agency } } : d))}
             />
             <div className="flex flex-col gap-1">

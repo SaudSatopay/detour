@@ -10,6 +10,7 @@ import { ingest, extractMentions } from "@/lib/graph/intake";
 import { ensureOrgLayer } from "@/lib/graph/org";
 import { Tracer } from "@/lib/graph/trace";
 import { ensureSandbox, holdFor, release } from "@/lib/graph/tenancy";
+import { recordedAnswer, recordedDirectory } from "@/lib/brain/recorded";
 import { brainDirectory } from "@/lib/graph/tools/brain";
 import { loadNetwork } from "@/lib/network/data";
 import { allow, allowToday, friendlyError, visitorId, wantsNoModel } from "@/lib/server/http";
@@ -52,6 +53,9 @@ export async function GET() {
     ]);
     return Response.json({ ...directory, agency });
   } catch (error) {
+    // The database is unreachable: the directory as recorded on the deployment, labeled, rather than nothing.
+    const recorded = await recordedDirectory();
+    if (recorded) return Response.json(recorded);
     return Response.json({ error: friendlyError(error) }, { status: 503 });
   }
 }
@@ -151,6 +155,9 @@ export async function POST(request: Request) {
     ]);
     return Response.json(answer);
   } catch (error) {
+    // The database is unreachable: a question with a recorded answer gets it, labeled with when it was recorded.
+    const recorded = "question" in parsed.data ? await recordedAnswer(parsed.data.question) : null;
+    if (recorded) return Response.json(recorded);
     return Response.json({ error: friendlyError(error) }, { status: 503 });
   } finally {
     if (held) await release(held);

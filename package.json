@@ -18,6 +18,7 @@
     "ci:scenarios": "tsx scripts/ci/run-scenarios.ts && node scripts/ci/trim-proof.mjs",
     "ci:bench": "tsx scripts/ci/bench.ts",
     "record": "tsx scripts/record-replay.ts",
+    "record:brain": "tsx scripts/record-brain.ts",
     "eval": "tsx scripts/eval/run-eval.ts && tsx scripts/eval/analyze.ts",
     "eval:questions": "tsx scripts/eval/build-questions.ts",
     "eval:fetch": "tsx scripts/eval/fetch-results.ts",

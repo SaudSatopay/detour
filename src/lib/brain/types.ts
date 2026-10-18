@@ -72,8 +72,12 @@ export interface BrainStep {
 }
 
 export interface BrainAnswer {
-  /** live: a free model chose the tools and wrote the answer. scripted: no model quota, the standard procedure did. */
-  mode: "live" | "scripted";
+  /**
+   * live: a free model chose the tools and wrote the answer. scripted: no model quota, the standard procedure did.
+   * recorded: the graph database is unreachable, so an answer recorded on the deployment is shown (see recordedAt).
+   */
+  mode: "live" | "scripted" | "recorded";
+  recordedAt?: string;
   note: string | null;
   question: string;
   /** Plain text. Citations are written as [1], [2], … and index into `sources` (1-based). */
@@ -155,6 +159,8 @@ export interface BrainDirectory {
   history: BrainTurn[];
   /** The shared graph of real MTA records; null when it could not be read. */
   agency: AgencySummary | null;
+  /** Set when the graph database is unreachable and this is the directory recorded on the deployment. */
+  recorded?: { at: string } | null;
 }
 
 export type IntakeKind = "message" | "ticket" | "note";

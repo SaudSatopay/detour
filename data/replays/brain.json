@@ -1,0 +1,2270 @@
+{
+ "recordedAt": "2026-10-18T22:08:02.467Z",
+ "directory": {
+  "counts": {
+   "people": 10,
+   "teams": 7,
+   "documents": 7,
+   "tickets": 3,
+   "messages": 6,
+   "decisions": 4
+  },
+  "teams": [
+   {
+    "id": "RCC",
+    "name": "Rail Control Center",
+    "mission": "Runs the response to every service disruption, around the clock.",
+    "people": [
+     {
+      "id": "P-ALVAREZ",
+      "name": "Renee Alvarez",
+      "role": "Superintendent, Rail Control Center"
+     },
+     {
+      "id": "P-BELL",
+      "name": "Marcus Bell",
+      "role": "Desk dispatcher"
+     }
+    ],
+    "owns": []
+   },
+   {
+    "id": "SPB",
+    "name": "Service Planning, B Division",
+    "mission": "Plans service and disruption playbooks for the lettered lines.",
+    "people": [
+     {
+      "id": "P-RAMAN",
+      "name": "Priya Raman",
+      "role": "Senior planner, L, M and G"
+     },
+     {
+      "id": "P-FITZGERALD",
+      "name": "Owen Fitzgerald",
+      "role": "Planner, A and C"
+     }
+    ],
+    "owns": [
+     {
+      "kind": "playbook",
+      "id": "PB-L-TUBE",
+      "label": "Canarsie Tube closure"
+     },
+     {
+      "kind": "route",
+      "id": "A",
+      "label": "A"
+     },
+     {
+      "kind": "route",
+      "id": "C",
+      "label": "C"
+     },
+     {
+      "kind": "route",
+      "id": "E",
+      "label": "E"
+     },
+     {
+      "kind": "route",
+      "id": "B",
+      "label": "B"
+     },
+     {
+      "kind": "route",
+      "id": "D",
+      "label": "D"
+     },
+     {
+      "kind": "route",
+      "id": "F",
+      "label": "F"
+     },
+     {
+      "kind": "route",
+      "id": "M",
+      "label": "M"
+     },
+     {
+      "kind": "route",
+      "id": "G",
+      "label": "G"
+     },
+     {
+      "kind": "route",
+      "id": "J",
+      "label": "J"
+     },
+     {
+      "kind": "route",
+      "id": "Z",
+      "label": "Z"
+     },
+     {
+      "kind": "route",
+      "id": "L",
+      "label": "L"
+     },
+     {
+      "kind": "route",
+      "id": "N",
+      "label": "N"
+     },
+     {
+      "kind": "route",
+      "id": "Q",
+      "label": "Q"
+     },
+     {
+      "kind": "route",
+      "id": "R",
+      "label": "R"
+     },
+     {
+      "kind": "route",
+      "id": "W",
+      "label": "W"
+     },
+     {
+      "kind": "route",
+      "id": "FS",
+      "label": "FS"
+     },
+     {
+      "kind": "route",
+      "id": "H",
+      "label": "H"
+     }
+    ]
+   },
+   {
+    "id": "SPA",
+    "name": "Service Planning, A Division",
+    "mission": "Plans service and disruption playbooks for the numbered lines.",
+    "people": [
+     {
+      "id": "P-CHO",
+      "name": "Hannah Cho",
+      "role": "Planner, Lexington Av lines"
+     }
+    ],
+    "owns": [
+     {
+      "kind": "route",
+      "id": "GS",
+      "label": "GS"
+     },
+     {
+      "kind": "route",
+      "id": "1",
+      "label": "1"
+     },
+     {
+      "kind": "route",
+      "id": "2",
+      "label": "2"
+     },
+     {
+      "kind": "route",
+      "id": "3",
+      "label": "3"
+     },
+     {
+      "kind": "route",
+      "id": "4",
+      "label": "4"
+     },
+     {
+      "kind": "route",
+      "id": "5",
+      "label": "5"
+     },
+     {
+      "kind": "route",
+      "id": "6",
+      "label": "6"
+     },
+     {
+      "kind": "route",
+      "id": "7",
+      "label": "7"
+     }
+    ]
+   },
+   {
+    "id": "BUS",
+    "name": "Bus Operations",
+    "mission": "Runs the shuttle bus bridges that replace closed rail segments.",
+    "people": [
+     {
+      "id": "P-OKAFOR",
+      "name": "Tunde Okafor",
+      "role": "Bus bridge coordinator"
+     }
+    ],
+    "owns": []
+   },
+   {
+    "id": "EE",
+    "name": "Elevator and Escalator Maintenance",
+    "mission": "Keeps the elevators at every accessible station in service.",
+    "people": [
+     {
+      "id": "P-MENDEZ",
+      "name": "Gloria Méndez",
+      "role": "Elevator maintenance lead"
+     },
+     {
+      "id": "P-HADDAD",
+      "name": "Sami Haddad",
+      "role": "Elevator technician"
+     }
+    ],
+    "owns": [
+     {
+      "kind": "station",
+      "id": "101",
+      "label": "Marcy Av"
+     },
+     {
+      "kind": "station",
+      "id": "120",
+      "label": "Bedford Av"
+     },
+     {
+      "kind": "station",
+      "id": "602",
+      "label": "14 St-Union Sq"
+     },
+     {
+      "kind": "station",
+      "id": "630",
+      "label": "Myrtle-Wyckoff Avs"
+     }
+    ]
+   },
+   {
+    "id": "ACC",
+    "name": "Accessibility Office",
+    "mission": "Sets step-free routing policy for the rider desk.",
+    "people": [
+     {
+      "id": "P-LEE",
+      "name": "Jordan Lee",
+      "role": "Accessibility coordinator"
+     }
+    ],
+    "owns": []
+   },
+   {
+    "id": "COM",
+    "name": "Customer Communications",
+    "mission": "Writes service notices and accessibility alerts.",
+    "people": [
+     {
+      "id": "P-PETROVA",
+      "name": "Elena Petrova",
+      "role": "Service notices editor"
+     }
+    ],
+    "owns": []
+   }
+  ],
+  "openTickets": [
+   {
+    "kind": "ticket",
+    "id": "EE-1207",
+    "title": "Myrtle-Wyckoff Avs: L platform elevator out of service",
+    "by": "Marcus Bell",
+    "team": "Rail Control Center",
+    "atMs": 1791956700000,
+    "status": "open",
+    "snippet": "Motor controller fault. Replacement part ordered.",
+    "about": [
+     "Myrtle-Wyckoff Avs",
+     "L"
+    ],
+    "origin": "sample",
+    "receipt": null
+   }
+  ],
+  "decisions": [
+   {
+    "kind": "decision",
+    "id": "DEC-1014-SF",
+    "title": "Route step-free riders around the Myrtle-Wyckoff Avs L platform until EE-1207 is resolved",
+    "by": "Jordan Lee",
+    "team": "Accessibility Office",
+    "atMs": 1791961200000,
+    "status": "in force",
+    "snippet": "Ticket EE-1207 reports the L platform elevator out of service; the step-free routing policy blocks a platform while its elevator ticket is open.",
+    "about": [
+     "Myrtle-Wyckoff Avs",
+     "M",
+     "L"
+    ],
+    "origin": "sample",
+    "receipt": null
+   },
+   {
+    "kind": "decision",
+    "id": "DEC-0620-BUSES",
+    "title": "Divide every bus bridge estimate by the corridor's observed share of plan",
+    "by": "Tunde Okafor",
+    "team": "Bus Operations",
+    "atMs": 1781946000000,
+    "status": "in force",
+    "snippet": "It generalizes the L tube rule to every corridor: with the last L tube bridge at 79% of plan, the controller adds 27% more buses than the raw estimate; on the A and C, at 93%, it adds 8%.",
+    "about": [
+     "A",
+     "C",
+     "L"
+    ],
+    "origin": "sample",
+    "receipt": null
+   },
+   {
+    "kind": "decision",
+    "id": "DEC-0616-G",
+    "title": "Add two G trains an hour when the Canarsie Tube closes",
+    "by": "Priya Raman",
+    "team": "Service Planning, B Division",
+    "atMs": 1781602200000,
+    "status": "in force",
+    "snippet": "Metropolitan Av/Lorimer St G platform crowding hit the safety limit 26 minutes into the June 12 closure.",
+    "about": [
+     "Metropolitan Av/Lorimer St",
+     "G",
+     "L"
+    ],
+    "origin": "sample",
+    "receipt": null
+   },
+   {
+    "kind": "decision",
+    "id": "DEC-0616-SIZE",
+    "title": "Size L tube bus bridges on observed throughput",
+    "by": "Renee Alvarez",
+    "team": "Rail Control Center",
+    "atMs": 1781600400000,
+    "status": "in force",
+    "snippet": "The June 12 bridge carried 79% of plan because buses queued on the Williamsburg Bridge approach; sizing on nominal bus capacity left riders stranded.",
+    "about": [
+     "Marcy Av",
+     "Bedford Av",
+     "L"
+    ],
+    "origin": "sample",
+    "receipt": null
+   }
+  ],
+  "suggestions": [
+   "Who owns the Myrtle-Wyckoff elevator outage?",
+   "Why do L tube bus bridges get 27% more buses?",
+   "Which stations on the A have an elevator out of service?",
+   "What is the MTA's alternative route when elevator EL293 is out?",
+   "What milestones has the ADA project at Broadway Junction reached?",
+   "What changed in the last 7 days?"
+  ],
+  "history": [],
+  "agency": {
+   "asOf": {
+    "outagesMs": 1792356135338,
+    "alertsMs": 1792356135338,
+    "equipmentMs": 1792356135338,
+    "assetsMs": 1792353117263,
+    "noticesMs": 1792353117263,
+    "complaintsMs": 1792353117263,
+    "projectsMs": 1792353117263
+   },
+   "from": "snapshot",
+   "counts": {
+    "equipment": 759,
+    "outagesOpen": 40,
+    "outagesPlanned": 55,
+    "outagesResolved": 2,
+    "alerts": 198,
+    "notices": 5505,
+    "complaints": 832,
+    "projects": 22
+   },
+   "lastRefresh": {
+    "atMs": 1792360209195,
+    "from": "snapshot",
+    "ok": true,
+    "opened": 97,
+    "resolved": 2,
+    "error": null
+   },
+   "sources": [
+    {
+     "id": "mta-ene-equipment",
+     "name": "MTA elevator and escalator equipment feed",
+     "page": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json"
+    },
+    {
+     "id": "mta-ene-outages",
+     "name": "MTA elevator and escalator outages feed",
+     "page": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json"
+    },
+    {
+     "id": "mta-ene-upcoming",
+     "name": "MTA planned elevator and escalator outages feed",
+     "page": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_upcoming.json"
+    },
+    {
+     "id": "mta-subway-alerts",
+     "name": "MTA subway service alerts feed (GTFS-realtime)",
+     "page": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json"
+    },
+    {
+     "id": "39hk-dx4f",
+     "name": "MTA Subway Stations (data.ny.gov)",
+     "page": "https://data.ny.gov/d/39hk-dx4f"
+    },
+    {
+     "id": "94fv-bak7",
+     "name": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+     "page": "https://data.ny.gov/d/94fv-bak7"
+    },
+    {
+     "id": "7kct-peq7",
+     "name": "MTA Service Alerts: Beginning April 2020 (data.ny.gov)",
+     "page": "https://data.ny.gov/d/7kct-peq7"
+    },
+    {
+     "id": "nh7m-at3e",
+     "name": "MTA Customer Feedback: Beginning 2018 (data.ny.gov)",
+     "page": "https://data.ny.gov/d/nh7m-at3e"
+    },
+    {
+     "id": "9hy6-8j6t",
+     "name": "MTA Capital Project Details (data.ny.gov)",
+     "page": "https://data.ny.gov/d/9hy6-8j6t"
+    },
+    {
+     "id": "nswv-d6bz",
+     "name": "MTA Capital Project Schedules (data.ny.gov)",
+     "page": "https://data.ny.gov/d/nswv-d6bz"
+    }
+   ],
+   "outages": [
+    {
+     "kind": "outage",
+     "id": "ES117@2026-10-18 16:30",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "181 St",
+      "A"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES117 at 181 St: out of service",
+     "atMs": 1792355400000,
+     "status": "open",
+     "snippet": "Reason: Inspection. Estimated return 2026-10-18 23:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES117 (ES) at 181 St, A; serving: upper mezzanine (181 St & Fort Washington Ave) to lower mezzanine; outagedate: 10/18/2026 04:30:00 PM; estimatedreturntoservice: 10/18/2026 11:00:00 PM; reason: Inspection; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "881b75c716bec2b2"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "ES310@2026-10-18 16:24",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Atlantic Av-Barclays Ctr",
+      "B",
+      "Q"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES310 at Atlantic Av-Barclays Ctr: out of service",
+     "atMs": 1792355040000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 01:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES310 (ES) at Atlantic Av-Barclays Ctr, B/D/N/Q/R/2/3/4/5/LIRR; serving: B/Q lower mezzanine to upper mezzanine for LIRR and Hanson Pl & Flatbush Ave exit; outagedate: 10/18/2026 04:24:00 PM; estimatedreturntoservice: 10/19/2026 01:00:00 AM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "b40cc8fb37259f60"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "ES411@2026-10-18 16:07",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Roosevelt Island",
+      "F",
+      "M"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES411 at Roosevelt Island: out of service",
+     "atMs": 1792354020000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 01:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES411 (ES) at Roosevelt Island, F/M; serving: W Rd entrance to intermediate mezzanine; outagedate: 10/18/2026 04:07:00 PM; estimatedreturntoservice: 10/19/2026 01:00:00 AM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "64ef89381334a6df"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL281@2026-10-18 16:05",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "57 St-7 Av",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL281 at 57 St-7 Av: out of service",
+     "atMs": 1792353900000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 16:29.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL281 (EL) at 57 St-7 Av, N/Q/R/W; serving: 57 St & 7th Ave (SW corner) to mezzanine for service in both directions; outagedate: 10/18/2026 04:05:00 PM; estimatedreturntoservice: 10/19/2026 04:29:00 PM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "ef104a9365e9c71c"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL388@2026-10-18 15:36",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "59 St",
+      "N",
+      "R"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL388 at 59 St: out of service",
+     "atMs": 1792352160000,
+     "status": "open",
+     "snippet": "Reason: Planned Work. Estimated return 2026-10-18 23:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL388 (EL) at 59 St, N/R; serving: mezzanine to Manhattan-bound platform; outagedate: 10/18/2026 03:36:00 PM; estimatedreturntoservice: 10/18/2026 11:00:00 PM; reason: Planned Work; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "857596089b58ca17"
+     }
+    }
+   ]
+  },
+  "recorded": null
+ },
+ "answers": [
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "Who owns the Myrtle-Wyckoff elevator outage?",
+   "answer": "Ticket EE-1207, “Myrtle-Wyckoff Avs: L platform elevator out of service”, is open and assigned to Gloria Méndez, Elevator maintenance lead (Elevator and Escalator Maintenance) [1]. In the MTA's own records, Myrtle-Wyckoff Avs has 3 elevators and escalators, maintained by NYCT (3) per the asset inventory; none is out of service in the latest feed [4]. In the sample org, Elevator and Escalator Maintenance maintains the elevators at Myrtle-Wyckoff Avs (Gloria Méndez, Sami Haddad) and Service Planning, B Division plans the M (Priya Raman, Owen Fitzgerald). Gloria Méndez, Elevator maintenance lead, knows it best: ticket EE-1207 is assigned to them [1]; next is Sami Haddad, Elevator technician.",
+   "sources": [
+    {
+     "kind": "ticket",
+     "id": "EE-1207",
+     "title": "Myrtle-Wyckoff Avs: L platform elevator out of service",
+     "by": "Marcus Bell",
+     "team": "Rail Control Center",
+     "atMs": 1791956700000,
+     "status": "open",
+     "snippet": "Motor controller fault. Replacement part ordered.",
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "message",
+     "id": "MSG-1014-1",
+     "title": "Myrtle-Wyckoff L platform elevator is down with a motor controller fault. Part ordered.",
+     "by": "Sami Haddad",
+     "team": "Elevator and Escalator Maintenance",
+     "atMs": 1791957120000,
+     "status": null,
+     "snippet": null,
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "document",
+     "id": "DOC-NOTICE-MW",
+     "title": "Accessibility alert: Myrtle-Wyckoff Avs L platform elevator out of service",
+     "by": "Elena Petrova",
+     "team": "Customer Communications",
+     "atMs": 1791959400000,
+     "status": null,
+     "snippet": "The elevator to the L platform at Myrtle-Wyckoff Avs is out of service; the M platform elevator works. Step-free riders are routed by the M until the repair is done.",
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "M",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL396",
+     "title": "Asset inventory: EL396 is maintained by NYCT",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Installed-Functioning-In Service",
+     "snippet": "Installed by CANTON, in service since 2008-02-26",
+     "about": [
+      "Myrtle-Wyckoff Avs"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL396",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL396; maintained_by: NYCT; installer: CANTON; service_status: Installed-Functioning-In Service; nyct_owned: YES",
+      "hash": "3765040e156a601e"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "who_owns",
+     "outcome": "answered",
+     "summary": "Service Planning, B Division (plans the M); Elevator and Escalator Maintenance (maintains the elevators at Myrtle-Wyckoff Avs). Open ticket EE-1207 is assigned to Gloria Méndez. Knows it best: Gloria Méndez (assigned EE-1207), Sami Haddad (1 records). MTA records: 3 units at Myrtle-Wyckoff Avs, maintained by NYCT (3); 0 out of service.",
+     "trace": [
+      {
+       "label": "find the station named in the question",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "CALL db.idx.fulltext.queryNodes('Station', $q) YIELD node, score\nRETURN node.id AS id, node.name AS name, node.routes AS routes, score\nORDER BY score DESC LIMIT 8",
+       "params": {
+        "q": "myrtle|wyckoff"
+       },
+       "ms": 1.34,
+       "serverMs": 0.33,
+       "rows": 3
+      },
+      {
+       "label": "teams that own or maintain it, and their people",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (t:Team)-[rel:OWNS|MAINTAINS]->(n)\nWHERE (n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes)\nOR (n:Route AND size($routes) = 0 AND n.id IN $stationRoutes)\nOR ((n:Playbook OR n:Incident) AND n.id IN $ids)\nWITH t, collect(DISTINCT CASE WHEN type(rel) = 'MAINTAINS' THEN 'maintains the elevators at ' + n.name\nWHEN hasLabels(n, ['Route']) THEN 'plans the ' + n.id\nELSE 'owns ' + coalesce(n.title, n.id) END) AS via\nOPTIONAL MATCH (p:Person)-[:MEMBER_OF]->(t)\nRETURN t.id AS team, t.name AS name, t.mission AS mission, t.ord AS ord, via[0] AS via,\ncollect(DISTINCT {id: p.id, name: p.name, role: p.role}) AS people\nORDER BY ord",
+       "params": {
+        "stations": [
+         "630"
+        ],
+        "routes": [],
+        "ids": [],
+        "stationRoutes": [
+         "M",
+         "L"
+        ]
+       },
+       "ms": 3.57,
+       "serverMs": 2.77,
+       "rows": 2
+      },
+      {
+       "label": "tickets about it, open first",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (k:Ticket)\nOPTIONAL MATCH (k)-[:MENTIONS]->(n) WHERE (n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes AND size($stations) = 0)\nWITH k, count(n) AS hits\nWHERE hits > 0 OR k.id IN $ids\nOPTIONAL MATCH (k)-[:ASSIGNED_TO]->(a:Person)\nOPTIONAL MATCH (a)-[:MEMBER_OF]->(t:Team)\nRETURN k.id AS id, k.title AS title, k.status AS status, a.name AS assignee, a.role AS role, t.name AS team\nORDER BY CASE k.status WHEN 'open' THEN 0 ELSE 1 END, k.openedMs DESC\nLIMIT 4",
+       "params": {
+        "ids": [],
+        "stations": [
+         "630"
+        ],
+        "routes": []
+       },
+       "ms": 1.51,
+       "serverMs": 0.92,
+       "rows": 1
+      },
+      {
+       "label": "who wrote, posted, filed or decided records about it",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (p:Person)-[:AUTHORED|POSTED|FILED|DECIDED]->(x)-[:MENTIONS]->(n)\nWHERE ((n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes) OR (n:Incident AND n.id IN $ids)) AND p.id <> 'P-YOU'\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nRETURN p.name AS name, p.role AS role, t.name AS team, count(DISTINCT x) AS items, collect(DISTINCT x.id) AS ids",
+       "params": {
+        "stations": [
+         "630"
+        ],
+        "routes": [],
+        "ids": []
+       },
+       "ms": 1.59,
+       "serverMs": 0.84,
+       "rows": 4
+      },
+      {
+       "label": "who is assigned tickets about it",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (x:Ticket)-[:MENTIONS]->(n) WHERE (n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes) OR (n:Incident AND n.id IN $ids)\nMATCH (x)-[:ASSIGNED_TO]->(p:Person)\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nRETURN p.name AS name, p.role AS role, t.name AS team, count(DISTINCT x) AS items, collect(DISTINCT x.id) AS ids",
+       "params": {
+        "stations": [
+         "630"
+        ],
+        "routes": [],
+        "ids": []
+       },
+       "ms": 2.32,
+       "serverMs": 1.7,
+       "rows": 1
+      },
+      {
+       "label": "the sources, with who wrote them and when",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "UNWIND $ids AS sid\nMATCH (x) WHERE x.id = sid AND (x:Document OR x:Ticket OR x:Message OR x:Decision OR x:Finding OR x:Playbook OR x:Plan)\nOPTIONAL MATCH (p:Person)-[:AUTHORED|POSTED|FILED|DECIDED]->(x)\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nOPTIONAL MATCH (ag:Agent)-[:WROTE]->(x)\nOPTIONAL MATCH (x)-[:MENTIONS|ABOUT]->(m) WHERE m:Station OR m:Route\nRETURN labels(x)[0] AS label, x.id AS id, coalesce(x.title, x.label) AS title, coalesce(x.text, x.rationale) AS text,\ncoalesce(p.name, ag.name, x.approvedBy) AS by, t.name AS team,\ncoalesce(x.decidedMs, x.openedMs, x.publishedMs, x.createdMs, x.atMs, x.validFromMs, x.lastUsedMs) AS atMs,\nx.status AS status, x.validToMs AS validToMs,\ncollect(DISTINCT CASE WHEN hasLabels(m, ['Route']) THEN m.id ELSE m.name END) AS about",
+       "params": {
+        "ids": [
+         "EE-1207",
+         "MSG-1014-1",
+         "DOC-NOTICE-MW"
+        ]
+       },
+       "ms": 2.19,
+       "serverMs": 1.44,
+       "rows": 3
+      },
+      {
+       "label": "the elevators and escalators at the station",
+       "graph": "detour:agency",
+       "cypher": "MATCH (e:Equipment {station: $station}) WHERE $kind = '' OR e.kind = $kind\nRETURN e, e.id AS id ORDER BY id LIMIT 80",
+       "params": {
+        "station": "630",
+        "kind": "elevator"
+       },
+       "ms": 3.63,
+       "serverMs": 0.14,
+       "rows": 3
+      },
+      {
+       "label": "their outages, current, planned and resolved",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage) WHERE o.equipment IN $ids AND ($history OR o.status <> 'resolved')\nRETURN o, o.openedMs AS t ORDER BY t DESC",
+       "params": {
+        "ids": [
+         "EL396",
+         "EL397",
+         "EL398"
+        ],
+        "history": true
+       },
+       "ms": 0.67,
+       "serverMs": 0.12,
+       "rows": 0
+      },
+      {
+       "label": "the MTA's alternative routes for them",
+       "graph": "detour:agency",
+       "cypher": "MATCH (d:AltRoute)-[:FOR]->(e:Equipment) WHERE e.id IN $ids RETURN d",
+       "params": {
+        "ids": [
+         "EL396",
+         "EL397",
+         "EL398"
+        ]
+       },
+       "ms": 2.43,
+       "serverMs": 0.22,
+       "rows": 3
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 52,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "Why do L tube bus bridges get 27% more buses?",
+   "answer": "“Divide every bus bridge estimate by the corridor's observed share of plan” was decided by Tunde Okafor, Bus bridge coordinator, on Jun 20, 2026 [1]. It generalizes the L tube rule to every corridor: with the last L tube bridge at 79% of plan, the controller adds 27% more buses than the raw estimate; on the A and C, at 93%, it adds 8%. It rests on Renee Alvarez's decision “Size L tube bus bridges on observed throughput” [2], Tunde Okafor's chat message [3] and finding F-0612-1 [4]. Finding F-0612-1 traces back to Renee Alvarez's after-action report [5], ticket BUS-0612-07 [6] and Tunde Okafor's chat message [3]. It changed “Bus bridge sizing procedure”. It is still in force.",
+   "sources": [
+    {
+     "kind": "decision",
+     "id": "DEC-0620-BUSES",
+     "title": "Divide every bus bridge estimate by the corridor's observed share of plan",
+     "by": "Tunde Okafor",
+     "team": "Bus Operations",
+     "atMs": 1781946000000,
+     "status": "in force",
+     "snippet": "It generalizes the L tube rule to every corridor: with the last L tube bridge at 79% of plan, the controller adds 27% more buses than the raw estimate; on the A and C, at 93%, it adds 8%.",
+     "about": [
+      "A",
+      "C",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "decision",
+     "id": "DEC-0616-SIZE",
+     "title": "Size L tube bus bridges on observed throughput",
+     "by": "Renee Alvarez",
+     "team": "Rail Control Center",
+     "atMs": 1781600400000,
+     "status": "in force",
+     "snippet": "The June 12 bridge carried 79% of plan because buses queued on the Williamsburg Bridge approach; sizing on nominal bus capacity left riders stranded.",
+     "about": [
+      "Marcy Av",
+      "Bedford Av",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "message",
+     "id": "MSG-0612-3",
+     "title": "The bridge carried about 79% of plan today. Next time we should size it on observed throughput, not nominal capacity.",
+     "by": "Tunde Okafor",
+     "team": "Bus Operations",
+     "atMs": 1781262120000,
+     "status": null,
+     "snippet": null,
+     "about": [
+      "Marcy Av",
+      "Bedford Av",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "finding",
+     "id": "F-0612-1",
+     "title": "The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach.",
+     "by": "Scribe",
+     "team": null,
+     "atMs": 1781260200000,
+     "status": "current",
+     "snippet": null,
+     "about": [
+      "Marcy Av",
+      "Bedford Av",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "document",
+     "id": "DOC-AAR-0612",
+     "title": "After-action report: smoke in the Canarsie Tube, June 12",
+     "by": "Renee Alvarez",
+     "team": "Rail Control Center",
+     "atMs": 1781272800000,
+     "status": null,
+     "snippet": "The L was suspended between Bedford Av and 8 Av for 2 h 10 min. The Bedford Av to Marcy Av bus bridge was planned for 2,100 riders an hour and carried 1,650, 79% of plan: buses queued on the Williamsburg Bridge approach. G platform…",
+     "about": [
+      "Marcy Av",
+      "Bedford Av",
+      "Metropolitan Av/Lorimer St",
+      "G",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "ticket",
+     "id": "BUS-0612-07",
+     "title": "Williamsburg Bridge approach congestion delayed bridge buses",
+     "by": "Tunde Okafor",
+     "team": "Bus Operations",
+     "atMs": 1781253300000,
+     "status": "resolved",
+     "snippet": "Bridge buses queued 12 to 18 minutes on the Williamsburg Bridge approach; throughput fell to 79% of plan.",
+     "about": [
+      "Marcy Av",
+      "Bedford Av",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    }
+   ],
+   "steps": [
+    {
+     "tool": "trace_decision",
+     "outcome": "answered",
+     "summary": "DEC-0620-BUSES “Divide every bus bridge estimate by the corridor's observed share of plan”, decided by Tunde Okafor, rests on DEC-0616-SIZE, MSG-0612-3, F-0612-1; F-0612-1 came from DOC-AAR-0612, BUS-0612-07, MSG-0612-3.",
+     "trace": [
+      {
+       "label": "find the decision the question is about",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (d:Decision)\nWITH d, toLower(d.title + ' ' + d.rationale) AS hay\nWITH d, size([w IN $terms WHERE hay CONTAINS w]) AS score\nWHERE score > 0\nRETURN d.id AS id, score ORDER BY score DESC, d.decidedMs DESC LIMIT 1",
+       "params": {
+        "terms": [
+         "tube",
+         "bus",
+         "bridge",
+         "27"
+        ]
+       },
+       "ms": 1.85,
+       "serverMs": 0.75,
+       "rows": 1
+      },
+      {
+       "label": "the decision, who made it, and what it rests on",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (d:Decision {id: $id})\nOPTIONAL MATCH (p:Person)-[:DECIDED]->(d)\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nOPTIONAL MATCH (d)-[:BASED_ON]->(b)\nOPTIONAL MATCH (d)-[:CHANGED]->(c)\nOPTIONAL MATCH (later:Decision)-[:BASED_ON]->(d)\nRETURN d.id AS id, d.title AS title, d.rationale AS rationale, d.decidedMs AS decidedMs, d.status AS status,\nd.liftedMs AS liftedMs, p.name AS by, p.role AS role, t.name AS team,\ncollect(DISTINCT b.id) AS basedOn, collect(DISTINCT coalesce(c.title, c.id)) AS changed, collect(DISTINCT later.id) AS later",
+       "params": {
+        "id": "DEC-0620-BUSES"
+       },
+       "ms": 2.46,
+       "serverMs": 1.83,
+       "rows": 1
+      },
+      {
+       "label": "where the findings it rests on came from",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (:Decision {id: $id})-[:BASED_ON]->(f:Finding)-[:SOURCED_FROM]->(s)\nRETURN f.id AS finding, collect(DISTINCT s.id) AS sources",
+       "params": {
+        "id": "DEC-0620-BUSES"
+       },
+       "ms": 1.78,
+       "serverMs": 1.23,
+       "rows": 1
+      },
+      {
+       "label": "the sources, with who wrote them and when",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "UNWIND $ids AS sid\nMATCH (x) WHERE x.id = sid AND (x:Document OR x:Ticket OR x:Message OR x:Decision OR x:Finding OR x:Playbook OR x:Plan)\nOPTIONAL MATCH (p:Person)-[:AUTHORED|POSTED|FILED|DECIDED]->(x)\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nOPTIONAL MATCH (ag:Agent)-[:WROTE]->(x)\nOPTIONAL MATCH (x)-[:MENTIONS|ABOUT]->(m) WHERE m:Station OR m:Route\nRETURN labels(x)[0] AS label, x.id AS id, coalesce(x.title, x.label) AS title, coalesce(x.text, x.rationale) AS text,\ncoalesce(p.name, ag.name, x.approvedBy) AS by, t.name AS team,\ncoalesce(x.decidedMs, x.openedMs, x.publishedMs, x.createdMs, x.atMs, x.validFromMs, x.lastUsedMs) AS atMs,\nx.status AS status, x.validToMs AS validToMs,\ncollect(DISTINCT CASE WHEN hasLabels(m, ['Route']) THEN m.id ELSE m.name END) AS about",
+       "params": {
+        "ids": [
+         "DEC-0620-BUSES",
+         "DEC-0616-SIZE",
+         "MSG-0612-3",
+         "F-0612-1",
+         "DOC-AAR-0612",
+         "BUS-0612-07"
+        ]
+       },
+       "ms": 3.28,
+       "serverMs": 2.46,
+       "rows": 6
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 12,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "Which stations on the A have an elevator out of service?",
+   "answer": "4 stations on the A have an elevator out of service now: 42St/Port Authority-Bus Terminal (EL290X, back Dec 31, 2026) [1], Far Rockaway-Mott Av (EL497, back Oct 18, 2026) [2], Fulton St (EL717X, back Oct 20, 2026) [3] and Rockaway Blvd (EL487, back Oct 18, 2026) [4].",
+   "sources": [
+    {
+     "kind": "outage",
+     "id": "EL290X@2024-10-28 06:26",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "42St/Port Authority-Bus Terminal",
+      "A",
+      "C",
+      "E"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL290X at 42St/Port Authority-Bus Terminal: out of service",
+     "atMs": 1730111160000,
+     "status": "open",
+     "snippet": "Reason: Repair. Estimated return 2026-12-31 23:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL290X (EL) at 42St/Port Authority-Bus Terminal, A/C/E/N/Q/R/W/1/2/3/7/S; serving: intermediate landing to mezzanine for A/C/E service in both directions; outagedate: 10/28/2024 06:26:00 AM; estimatedreturntoservice: 12/31/2026 11:00:00 PM; reason: Repair; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "19d9a810770b5bb9"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL497@2026-10-18 13:30",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Far Rockaway-Mott Av",
+      "A"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL497 at Far Rockaway-Mott Av: out of service",
+     "atMs": 1792344600000,
+     "status": "open",
+     "snippet": "Reason: Repair. Estimated return 2026-10-18 22:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL497 (EL) at Far Rockaway-Mott Av, A; serving: Beach 22nd & Mott Ave to platform for Manhattan-bound service; outagedate: 10/18/2026 01:30:00 PM; estimatedreturntoservice: 10/18/2026 10:00:00 PM; reason: Repair; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "b122e00ddf369f9f"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL717X@2026-10-15 18:54",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Fulton St",
+      "A",
+      "C",
+      "J",
+      "4",
+      "5",
+      "Z"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL717X at Fulton St: out of service",
+     "atMs": 1792104840000,
+     "status": "open",
+     "snippet": "Reason: Repair. Estimated return 2026-10-20 19:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL717X (EL) at Fulton St, A/C/J/2/3/4/5/Z; serving: Transit Center (near Broadway & John St) to uptown 4/5 platform and concourse for access to rest of complex; outagedate: 10/15/2026 06:54:00 PM; estimatedreturntoservice: 10/20/2026 07:00:00 PM; reason: Repair; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "46ad14eefffa1b20"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL487@2026-10-18 12:10",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Rockaway Blvd",
+      "A"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL487 at Rockaway Blvd: out of service",
+     "atMs": 1792339800000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-18 21:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL487 (EL) at Rockaway Blvd, A; serving: Street (NW corner of Liberty Av and Cross Bay Blvd) to Manhattan-bound A platform and transfer mezzanine to Lefferts Blvd and Far Rockaway-bound A.; outagedate: 10/18/2026 12:10:00 PM; estimatedreturntoservice: 10/18/2026 09:00:00 PM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "f3a830b0ab5b72d8"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "line_outages",
+     "outcome": "answered",
+     "summary": "4 stations on the A with a elevator out of service: 42St/Port Authority-Bus Terminal (EL290X); Far Rockaway-Mott Av (EL497); Fulton St (EL717X); Rockaway Blvd (EL487).",
+     "trace": [
+      {
+       "label": "elevator outages on the A now",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage {status: 'open'}) WHERE $route IN o.lines AND ($kind = '' OR o.kind = $kind)\nRETURN o, o.stationName AS station ORDER BY station",
+       "params": {
+        "route": "A",
+        "kind": "elevator"
+       },
+       "ms": 2.6,
+       "serverMs": 0.41,
+       "rows": 4
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 12,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "What is the MTA's alternative route when elevator EL293 is out?",
+   "answer": "Elevator EL293 at 1 Av (E 14 St and Avenue A (SW corner) to Canarsie-bound platform) is in service: the MTA's outage feed lists no current outage for it [1]. So there is no return time to give. The MTA's alternative route: “If you are on the street: Take a westbound M14A SBS or M14D SBS (E 14 St and 1 Av) to 4 Av for Union Sq-14 St station. Then use elevators for Canarsie-bound L service. If you are on the platform: Take a Canarsie-bound L to Bedford Av. Then transfer across the platform to an 8 Av-bound L to 1 Av.” [3]",
+   "sources": [
+    {
+     "kind": "equipment",
+     "id": "EL293",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "1 Av",
+      "L"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL293 at 1 Av: Street to Brooklyn-bound platform",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: E 14 St and Avenue A (SW corner) to Canarsie-bound platform; ADA: Y; lines: L; nextadanorth: 117, L; nextadasouth: 120, L",
+      "hash": "bbc192fe09a14a9b"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL293",
+     "title": "Asset inventory: EL293 is maintained by NYCT",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Installed-Functioning-In Service",
+     "snippet": "in service since 2020-08-05",
+     "about": [
+      "1 Av"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL293",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL293; maintained_by: NYCT; service_status: Installed-Functioning-In Service; nyct_owned: YES",
+      "hash": "7b4cb1089529939e"
+     }
+    },
+    {
+     "kind": "alternative",
+     "id": "ALT-EL293",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "MTA alternative route when EL293 is out",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "If you are on the street: Take a westbound M14A SBS or M14D SBS (E 14 St and 1 Av) to 4 Av for Union Sq-14 St station. Then use elevators for Canarsie-bound L service. If you are on the platform: Take a Canarsie-bound L to Bedford Av. Then transfer across the platform to an 8 Av-bound L to 1 Av.",
+      "hash": "bbc192fe09a14a9b"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "equipment_status",
+     "outcome": "answered",
+     "summary": "EL293 at 1 Av is in service.",
+     "trace": [
+      {
+       "label": "the units asked about",
+       "graph": "detour:agency",
+       "cypher": "MATCH (e:Equipment) WHERE e.id IN $ids RETURN e",
+       "params": {
+        "ids": [
+         "EL293"
+        ]
+       },
+       "ms": 3.28,
+       "serverMs": 0.11,
+       "rows": 1
+      },
+      {
+       "label": "their outages, current, planned and resolved",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage) WHERE o.equipment IN $ids AND ($history OR o.status <> 'resolved')\nRETURN o, o.openedMs AS t ORDER BY t DESC",
+       "params": {
+        "ids": [
+         "EL293"
+        ],
+        "history": true
+       },
+       "ms": 0.47,
+       "serverMs": 0.07,
+       "rows": 0
+      },
+      {
+       "label": "the MTA's alternative routes for them",
+       "graph": "detour:agency",
+       "cypher": "MATCH (d:AltRoute)-[:FOR]->(e:Equipment) WHERE e.id IN $ids RETURN d",
+       "params": {
+        "ids": [
+         "EL293"
+        ]
+       },
+       "ms": 1.49,
+       "serverMs": 0.17,
+       "rows": 1
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 6,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "What milestones has the ADA project at Broadway Junction reached?",
+   "answer": "Capital project 11134, “NYCT ADA Station Improvements: Broadway Junction”, is in Construction [1]. It started Dec 1, 2023, aimed to finish Sep 7, 2027 and is now estimated to finish Sep 7, 2027. Milestones: Baselines Set (Active) on Mar 1, 2024 [3], Progress Update (Active) on Apr 1, 2025 [4] and Progress Update (Active) on Jul 1, 2025 [5]. It names Broadway Junction.",
+   "sources": [
+    {
+     "kind": "project",
+     "id": "CP-11134",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "J",
+      "Z",
+      "L",
+      "A",
+      "C"
+     ],
+     "origin": "mta",
+     "title": "Capital project 11134: NYCT ADA Station Improvements: Broadway Junction",
+     "atMs": 1701406800000,
+     "status": "Construction",
+     "snippet": "We are making crucial investments to improve accessibility, circulation, and design at Broadway Junction, Brooklyn's third largest subway station. We’re adding 7 new elevators, a new entrance on Van Sinderen Avenue, refinishing platforms,…",
+     "receipt": {
+      "dataset": "9hy6-8j6t",
+      "source": "MTA Capital Project Details (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/9hy6-8j6t.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "title: NYCT ADA Station Improvements: Broadway Junction; stage: Construction; phase: Construction",
+      "hash": "6139383b6b844e14"
+     }
+    },
+    {
+     "kind": "milestone",
+     "id": "CP-11134-2-3",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "Procurement: Financial Commitment and Contract Award",
+     "atMs": 1701406800000,
+     "status": "Complete",
+     "snippet": "Contract awarded to ECCO III ENTERPRISES, INC.",
+     "receipt": {
+      "dataset": "nswv-d6bz",
+      "source": "MTA Capital Project Schedules (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/nswv-d6bz.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "Capital project 11134, Procurement (Complete): Financial Commitment and Contract Award on 2023-12-01. Contract awarded to ECCO III ENTERPRISES, INC.",
+      "hash": "229009e74f0a025c"
+     }
+    },
+    {
+     "kind": "milestone",
+     "id": "CP-11134-3-1",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "Construction: Baselines Set",
+     "atMs": 1709269200000,
+     "status": "Active",
+     "snippet": "Budget: $380,648,885; Goal Completion Date: 09/07/2027",
+     "receipt": {
+      "dataset": "nswv-d6bz",
+      "source": "MTA Capital Project Schedules (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/nswv-d6bz.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "Capital project 11134, Construction (Active): Baselines Set on 2024-03-01. Budget: $380,648,885; Goal Completion Date: 09/07/2027",
+      "hash": "fa548a50ba07aa55"
+     }
+    },
+    {
+     "kind": "milestone",
+     "id": "CP-11134-3-2",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "Construction: Progress Update",
+     "atMs": 1743480000000,
+     "status": "Active",
+     "snippet": "Work at Broadway Junction mentioned in our weekly newsletter.",
+     "receipt": {
+      "dataset": "nswv-d6bz",
+      "source": "MTA Capital Project Schedules (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/nswv-d6bz.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "Capital project 11134, Construction (Active): Progress Update on 2025-04-01. Work at Broadway Junction mentioned in our weekly newsletter.",
+      "hash": "aa4d1e52d800fcf3"
+     }
+    },
+    {
+     "kind": "milestone",
+     "id": "CP-11134-3-3",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "Construction: Progress Update",
+     "atMs": 1751342400000,
+     "status": "Active",
+     "snippet": "Work at Broadway Junction mentioned in our weekly newsletter.",
+     "receipt": {
+      "dataset": "nswv-d6bz",
+      "source": "MTA Capital Project Schedules (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/nswv-d6bz.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "Capital project 11134, Construction (Active): Progress Update on 2025-07-01. Work at Broadway Junction mentioned in our weekly newsletter.",
+      "hash": "0933bdd4a4372db1"
+     }
+    },
+    {
+     "kind": "milestone",
+     "id": "CP-11134-4-1",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "Financial Closeout",
+     "atMs": null,
+     "status": "Pending",
+     "snippet": null,
+     "receipt": {
+      "dataset": "nswv-d6bz",
+      "source": "MTA Capital Project Schedules (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/nswv-d6bz.json?project_id=11134",
+      "fetchedMs": 1792353117263,
+      "quote": "Capital project 11134, Financial Closeout (Pending)",
+      "hash": "2a847dd87bcd6762"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "project_trace",
+     "outcome": "answered",
+     "summary": "Capital project 11134, “NYCT ADA Station Improvements: Broadway Junction”, is in Construction, estimated to finish 2027-09-07; 8 milestones on record, the latest Progress Update on 2025-07-01.",
+     "trace": [
+      {
+       "label": "find the project by its title",
+       "graph": "detour:agency",
+       "cypher": "CALL db.idx.fulltext.queryNodes('Record', $q) YIELD node, score\nWITH node, score WHERE node:Project\nRETURN node.record AS id, score ORDER BY score DESC LIMIT 1",
+       "params": {
+        "q": "broadway*|junction*|reached*"
+       },
+       "ms": 1.2,
+       "serverMs": 0.52,
+       "rows": 1
+      },
+      {
+       "label": "the project and the stations it names",
+       "graph": "detour:agency",
+       "cypher": "MATCH (p:Project {id: $id})\nOPTIONAL MATCH (p)-[:AFFECTS]->(s:Station)\nRETURN p, collect(s.name) AS stations",
+       "params": {
+        "id": "CP-11134"
+       },
+       "ms": 1.96,
+       "serverMs": 0.46,
+       "rows": 1
+      },
+      {
+       "label": "its milestones, in order",
+       "graph": "detour:agency",
+       "cypher": "MATCH (:Project {id: $id})-[:HAS_MILESTONE]->(m:Milestone)\nRETURN m, m.sequence AS k, coalesce(m.atMs, m.phaseEndMs) AS t ORDER BY k, t",
+       "params": {
+        "id": "CP-11134"
+       },
+       "ms": 2.86,
+       "serverMs": 0.46,
+       "rows": 8
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 9,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "What changed in the last 7 days?",
+   "answer": "In the sample agency: in the last 7 days: Oct 14, 2026: Jordan Lee decided “Route step-free riders around the Myrtle-Wyckoff Avs L platform until EE-1207 is resolved” [1]; Oct 14, 2026: Elena Petrova wrote “Accessibility alert: Myrtle-Wyckoff Avs L platform elevator out of service” [2]; Oct 14, 2026: Sami Haddad posted “Myrtle-Wyckoff L platform elevator is down with a motor controller fault. Part ordered.” [3]; Oct 14, 2026: memory learned “Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator…” [4]; Oct 14, 2026: ticket EE-1207 opened (Myrtle-Wyckoff Avs: L platform elevator out of service) [5]. Since Oct 11, 2026, 6:08 PM, in the MTA's records: 18 outages began (ES117 at 181 St [8], ES310 at Atlantic Av-Barclays Ctr [9], ES411 at Roosevelt Island [10], EL281 at 57 St-7 Av [11] and EL388 at 59 St  and more); 2 left the feed as resolved (EL427 at Junction Blvd [6] and EL282 at 57 St-7 Av [7]); 20 alerts were issued.",
+   "sources": [
+    {
+     "kind": "decision",
+     "id": "DEC-1014-SF",
+     "title": "Route step-free riders around the Myrtle-Wyckoff Avs L platform until EE-1207 is resolved",
+     "by": "Jordan Lee",
+     "team": "Accessibility Office",
+     "atMs": 1791961200000,
+     "status": "in force",
+     "snippet": "Ticket EE-1207 reports the L platform elevator out of service; the step-free routing policy blocks a platform while its elevator ticket is open.",
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "M",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "document",
+     "id": "DOC-NOTICE-MW",
+     "title": "Accessibility alert: Myrtle-Wyckoff Avs L platform elevator out of service",
+     "by": "Elena Petrova",
+     "team": "Customer Communications",
+     "atMs": 1791959400000,
+     "status": null,
+     "snippet": "The elevator to the L platform at Myrtle-Wyckoff Avs is out of service; the M platform elevator works. Step-free riders are routed by the M until the repair is done.",
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "M",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "message",
+     "id": "MSG-1014-1",
+     "title": "Myrtle-Wyckoff L platform elevator is down with a motor controller fault. Part ordered.",
+     "by": "Sami Haddad",
+     "team": "Elevator and Escalator Maintenance",
+     "atMs": 1791957120000,
+     "status": null,
+     "snippet": null,
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "finding",
+     "id": "F-ELEV-2",
+     "title": "Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.",
+     "by": "Rider desk",
+     "team": null,
+     "atMs": 1791956700000,
+     "status": "current",
+     "snippet": null,
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "ticket",
+     "id": "EE-1207",
+     "title": "Myrtle-Wyckoff Avs: L platform elevator out of service",
+     "by": "Marcus Bell",
+     "team": "Rail Control Center",
+     "atMs": 1791956700000,
+     "status": "open",
+     "snippet": "Motor controller fault. Replacement part ordered.",
+     "about": [
+      "Myrtle-Wyckoff Avs",
+      "L"
+     ],
+     "origin": "sample",
+     "receipt": null
+    },
+    {
+     "kind": "outage",
+     "id": "EL427@2026-10-18 13:40",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Junction Blvd",
+      "7"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL427 at Junction Blvd: outage, resolved",
+     "atMs": 1792345200000,
+     "status": "resolved",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-18 22:00. Left the feed by 2026-10-18 16:30.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792354862756,
+      "quote": "EL427 (EL) at Junction Blvd, 7; serving: overpass to Flushing Main St-bound platform; outagedate: 10/18/2026 01:40:00 PM; estimatedreturntoservice: 10/18/2026 10:00:00 PM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "23d5834f4bc60b9d"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL282@2026-10-18 15:30",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "57 St-7 Av",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL282 at 57 St-7 Av: outage, resolved",
+     "atMs": 1792351800000,
+     "status": "resolved",
+     "snippet": "Reason: Planned Work. Estimated return 2026-10-18 22:00. Left the feed by 2026-10-18 16:21.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792353115361,
+      "quote": "EL282 (EL) at 57 St-7 Av, N/Q/R/W; serving: Mezzanine to platform for southbound NQRW service; outagedate: 10/18/2026 03:30:00 PM; estimatedreturntoservice: 10/18/2026 10:00:00 PM; reason: Planned Work; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "411a6ab43895eaa0"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "ES117@2026-10-18 16:30",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "181 St",
+      "A"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES117 at 181 St: out of service",
+     "atMs": 1792355400000,
+     "status": "open",
+     "snippet": "Reason: Inspection. Estimated return 2026-10-18 23:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES117 (ES) at 181 St, A; serving: upper mezzanine (181 St & Fort Washington Ave) to lower mezzanine; outagedate: 10/18/2026 04:30:00 PM; estimatedreturntoservice: 10/18/2026 11:00:00 PM; reason: Inspection; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "881b75c716bec2b2"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "ES310@2026-10-18 16:24",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Atlantic Av-Barclays Ctr",
+      "B",
+      "Q"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES310 at Atlantic Av-Barclays Ctr: out of service",
+     "atMs": 1792355040000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 01:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES310 (ES) at Atlantic Av-Barclays Ctr, B/D/N/Q/R/2/3/4/5/LIRR; serving: B/Q lower mezzanine to upper mezzanine for LIRR and Hanson Pl & Flatbush Ave exit; outagedate: 10/18/2026 04:24:00 PM; estimatedreturntoservice: 10/19/2026 01:00:00 AM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "b40cc8fb37259f60"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "ES411@2026-10-18 16:07",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Roosevelt Island",
+      "F",
+      "M"
+     ],
+     "origin": "mta",
+     "title": "Escalator ES411 at Roosevelt Island: out of service",
+     "atMs": 1792354020000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 01:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "ES411 (ES) at Roosevelt Island, F/M; serving: W Rd entrance to intermediate mezzanine; outagedate: 10/18/2026 04:07:00 PM; estimatedreturntoservice: 10/19/2026 01:00:00 AM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "64ef89381334a6df"
+     }
+    },
+    {
+     "kind": "outage",
+     "id": "EL281@2026-10-18 16:05",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "57 St-7 Av",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL281 at 57 St-7 Av: out of service",
+     "atMs": 1792353900000,
+     "status": "open",
+     "snippet": "Reason: Under Investigation. Estimated return 2026-10-19 16:29.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL281 (EL) at 57 St-7 Av, N/Q/R/W; serving: 57 St & 7th Ave (SW corner) to mezzanine for service in both directions; outagedate: 10/18/2026 04:05:00 PM; estimatedreturntoservice: 10/19/2026 04:29:00 PM; reason: Under Investigation; isupcomingoutage: N; ismaintenanceoutage: N",
+      "hash": "ef104a9365e9c71c"
+     }
+    },
+    {
+     "kind": "alert",
+     "id": "lmm:alert:272447:26",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "M"
+     ],
+     "origin": "mta",
+     "title": "[M] trains between Middle Village-Metropolitan Av and Myrtle-Wyckoff Avs are running with delays in both directions.",
+     "atMs": 1792355874000,
+     "status": "active",
+     "snippet": "What Happened? \nWe addressed a signal problem at Myrtle-Wyckoff Avs\n.\nPlanned Work Reminder:\n \nNo [M] service between Myrtle Av and Delancey St-Essex St. \nAll trains at Myrtle Av board from the Manhattan-bound platform. \n[M] service…",
+     "receipt": {
+      "dataset": "mta-subway-alerts",
+      "source": "MTA subway service alerts feed (GTFS-realtime)",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json",
+      "fetchedMs": 1792356135338,
+      "quote": "[M] trains between Middle Village-Metropolitan Av and Myrtle-Wyckoff Avs are running with delays in both directions. | What Happened? \nWe addressed a signal problem at Myrtle-Wyckoff Avs\n.\nPlanned Work Reminder:\n \nNo [M] service between Myrtle Av and Delancey St-Essex St. \nAll trains at Myrtle Av board from the Manhattan-bound platform. \n[M] service operates in two sections: \n1. Between Middle Village-Metropolitan Av and Myrtle-Wyckoff Avs\n.\n2. Between Myrtle-Wyckoff Avs and Myrtle Av.",
+      "hash": "f823a3b0045dc5e8"
+     }
+    },
+    {
+     "kind": "alert",
+     "id": "lmm:alert:272433:26",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "A",
+      "C",
+      "F"
+     ],
+     "origin": "mta",
+     "title": "[A][C][F] trains are running with delays in both directions after we requested medical assistance for someone in need on a train at York St\n.",
+     "atMs": 1792349822000,
+     "status": "active",
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-subway-alerts",
+      "source": "MTA subway service alerts feed (GTFS-realtime)",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json",
+      "fetchedMs": 1792356135338,
+      "quote": "[A][C][F] trains are running with delays in both directions after we requested medical assistance for someone in need on a train at York St\n.",
+      "hash": "62f545f8ad6f79a1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "whats_changed",
+     "outcome": "answered",
+     "summary": "5 changes in the last 7 days: DEC-1014-SF decided, DOC-NOTICE-MW written, MSG-1014-1 posted, F-ELEV-2 learned.",
+     "trace": [
+      {
+       "label": "changes in the last 7 days",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "MATCH (x) WHERE x:Finding OR x:Ticket OR x:Decision OR x:Document OR x:Message OR x:Plan\nUNWIND [['learned', x.validFromMs], ['closed', x.validToMs], ['opened', x.openedMs], ['resolved', x.resolvedMs],\n['decided', x.decidedMs], ['lifted', x.liftedMs], ['written', x.createdMs], ['posted', x.atMs],\n['published', x.publishedMs]] AS e\nWITH x, e[0] AS what, e[1] AS at\nWHERE at IS NOT NULL AND at >= $since\nRETURN x.id AS id, labels(x)[0] AS label, what, at\nORDER BY at DESC LIMIT 12",
+       "params": {
+        "since": 1791756482351
+       },
+       "ms": 3.49,
+       "serverMs": 2.72,
+       "rows": 5
+      },
+      {
+       "label": "the sources, with who wrote them and when",
+       "graph": "detour:sbx:xespuqx5fitdmlqc",
+       "cypher": "UNWIND $ids AS sid\nMATCH (x) WHERE x.id = sid AND (x:Document OR x:Ticket OR x:Message OR x:Decision OR x:Finding OR x:Playbook OR x:Plan)\nOPTIONAL MATCH (p:Person)-[:AUTHORED|POSTED|FILED|DECIDED]->(x)\nOPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)\nOPTIONAL MATCH (ag:Agent)-[:WROTE]->(x)\nOPTIONAL MATCH (x)-[:MENTIONS|ABOUT]->(m) WHERE m:Station OR m:Route\nRETURN labels(x)[0] AS label, x.id AS id, coalesce(x.title, x.label) AS title, coalesce(x.text, x.rationale) AS text,\ncoalesce(p.name, ag.name, x.approvedBy) AS by, t.name AS team,\ncoalesce(x.decidedMs, x.openedMs, x.publishedMs, x.createdMs, x.atMs, x.validFromMs, x.lastUsedMs) AS atMs,\nx.status AS status, x.validToMs AS validToMs,\ncollect(DISTINCT CASE WHEN hasLabels(m, ['Route']) THEN m.id ELSE m.name END) AS about",
+       "params": {
+        "ids": [
+         "DEC-1014-SF",
+         "DOC-NOTICE-MW",
+         "MSG-1014-1",
+         "F-ELEV-2",
+         "EE-1207"
+        ]
+       },
+       "ms": 2.97,
+       "serverMs": 2.14,
+       "rows": 5
+      }
+     ]
+    },
+    {
+     "tool": "agency_changes",
+     "outcome": "answered",
+     "summary": "Since 2026-10-11 18:08: 18 outages began, 2 outages resolved, 20 alerts issued.",
+     "trace": [
+      {
+       "label": "outages that began since then",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage) WHERE o.upcoming = false AND o.openedMs >= $since AND ($history OR o.status <> 'resolved')\nRETURN o, o.openedMs AS t ORDER BY t DESC LIMIT 60",
+       "params": {
+        "since": 1791756482359,
+        "history": true
+       },
+       "ms": 5.76,
+       "serverMs": 0.36,
+       "rows": 18
+      },
+      {
+       "label": "outages resolved since then",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage {status: 'resolved'}) WHERE o.resolvedMs >= $since RETURN o, o.resolvedMs AS t ORDER BY t DESC LIMIT 60",
+       "params": {
+        "since": 1791756482359
+       },
+       "ms": 2.11,
+       "serverMs": 0.31,
+       "rows": 2
+      },
+      {
+       "label": "alerts issued since then",
+       "graph": "detour:agency",
+       "cypher": "MATCH (a:Alert) WHERE coalesce(a.createdMs, a.startMs, a.firstSeenMs) >= $since AND ($history OR a.status = 'active')\nRETURN a, coalesce(a.createdMs, a.startMs, a.firstSeenMs) AS t ORDER BY t DESC LIMIT 20",
+       "params": {
+        "since": 1791756482359,
+        "history": true
+       },
+       "ms": 9.32,
+       "serverMs": 0.39,
+       "rows": 20
+      },
+      {
+       "label": "archived alert updates since then",
+       "graph": "detour:agency",
+       "cypher": "MATCH (n:Notice) WHERE n.atMs >= $since RETURN count(n) AS n",
+       "params": {
+        "since": 1791756482359
+       },
+       "ms": 1.32,
+       "serverMs": 0.85,
+       "rows": 1
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 29,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "Is the elevator at Times Sq-42 St working?",
+   "answer": "The MTA lists 10 elevators at Times Sq-42 St/Port Authority Bus Terminal, maintained by Private Contractor (5) and NYCT (3) and Third-Party Contractor (2). Elevator EL290X at 42St/Port Authority-Bus Terminal (intermediate landing to mezzanine for A/C/E service in both directions) is out of service since Oct 28, 2024, 6:26 AM, reason: Repair . The MTA estimates it back in service Dec 31, 2026, 11:00 PM. The MTA's asset inventory says EL290X is maintained by Private Contractor . The MTA's alternative route: “If you are on the intermediate landing: Take elevator to street level and proceed down 8 Av to Port Authority Bus Terminal for access to subway. If you are on the A/C/E mezzanine: Contact a station agent to re-enter through the faregate and follow signs to exit via Port Authority Bus Terminal.” ",
+   "sources": [
+    {
+     "kind": "outage",
+     "id": "EL229@2026-10-23 22:00",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Times Sq-42 St",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL229 at Times Sq-42 St: planned outage",
+     "atMs": 1792807200000,
+     "status": "upcoming",
+     "snippet": "Reason: Maintenance. Estimated return 2026-10-24 06:00.",
+     "receipt": {
+      "dataset": "mta-ene-outages",
+      "source": "MTA elevator and escalator outages feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json",
+      "fetchedMs": 1792356135338,
+      "quote": "EL229 (EL) at Times Sq-42 St, A/C/E/N/Q/R/W/1/2/3/7/S; serving: mezzanine to downtown N/Q/R/W platform; outagedate: 10/23/2026 10:00:00 PM; estimatedreturntoservice: 10/24/2026 06:00:00 AM; reason: Maintenance; isupcomingoutage: Y; ismaintenanceoutage: N",
+      "hash": "48d768881a08cdd2"
+     }
+    },
+    {
+     "kind": "equipment",
+     "id": "EL229",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Times Sq-42 St",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL229 at Times Sq-42 St: Mezzanine level (Front) Downtown N/Q/R/W Train Platform level (Rear)",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: mezzanine to downtown N/Q/R/W platform; ADA: Y; lines: N/Q/R/W; nextadanorth: 10, N, R, W / 223, Q; nextadasouth: 12, N, Q, R, W",
+      "hash": "e6dfa36f8fe26444"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL229",
+     "title": "Asset inventory: EL229 is maintained by Third-Party Contractor",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Removed-Non Functioning-Out of Service",
+     "snippet": "Installed by MID-AMERICAN, in service since 2025-12-23",
+     "about": [
+      "Times Sq-42 St"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL229",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL229; maintained_by: Third-Party Contractor; installer: MID-AMERICAN; service_status: Removed-Non Functioning-Out of Service; nyct_owned: YES",
+      "hash": "c171e007a767b781"
+     }
+    },
+    {
+     "kind": "alternative",
+     "id": "ALT-EL229",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "MTA alternative route when EL229 is out",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "If you are on the mezzanine: \nTake an uptown Q to 72 St and transfer across the platform to a downtown Q to Times Sq-42 St. Or, exit station and take a downtown M7 or M20 bus to 34 St/7 Av. 34 St-Herald Sq is one block east. \n\nIf you are on the platform: \nTake a downtown N,Q,R or W to 34 St-Herald Sq then either: Use elevators to transfer to an uptown N, Q, R or W to Times Sq-42 St. Or, exit station and take the M5, M7, or M55 (6 Av between 34 St and 35 St) to 42 St. Times Sq-42 St is one block west.",
+      "hash": "e6dfa36f8fe26444"
+     }
+    },
+    {
+     "kind": "equipment",
+     "id": "EL230",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Times Sq-42 St",
+      "N",
+      "Q",
+      "R",
+      "W"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL230 at Times Sq-42 St: Mezzanine to uptown N/Q/R/W.",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: mezzanine to uptown N/Q/R/W platform; ADA: Y; lines: N/Q/R/W; nextadanorth: 10, N, R, W / 223, Q; nextadasouth: 12, N, Q, R, W",
+      "hash": "2765d3f1aaa97b78"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL230",
+     "title": "Asset inventory: EL230 is maintained by Third-Party Contractor",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Installed-Functioning-In Service",
+     "snippet": "Installed by MID-AMERICAN, in service since 2025-06-19",
+     "about": [
+      "Times Sq-42 St"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL230",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL230; maintained_by: Third-Party Contractor; installer: MID-AMERICAN; service_status: Installed-Functioning-In Service; nyct_owned: YES",
+      "hash": "370c52b8716d8d6f"
+     }
+    },
+    {
+     "kind": "alternative",
+     "id": "ALT-EL230",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "MTA alternative route when EL230 is out",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "If you are on the mezzanine: \nExit the station and take a downtown M7 or M20 bus to 34 St/7 Av. Proceed one block east to 34 St-Herald Sq for N/Q/R/W service. \n\nIf you are on the platform: \nTake an uptown N, R or W to 49 St. Exit station and take a M7, M20, or M104 bus (7 Av between 49 St and 50 St) to 41 St. To transfer to 1/2/3/7/S service, see agent to re-enter the Times Sq - 42 St station.",
+      "hash": "2765d3f1aaa97b78"
+     }
+    },
+    {
+     "kind": "equipment",
+     "id": "EL231X",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Times Sq-42 St",
+      "N",
+      "Q",
+      "R",
+      "W",
+      "1",
+      "2",
+      "3",
+      "7",
+      "GS"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL231X at Times Sq-42 St: 42 St & 7 Av (SE corner) to mezzanine for service on all lines in both direction",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: 7th Ave & 42 St (SE corner) to mezzanine for service in both directions on all lines.; ADA: Y; lines: N/Q/R/W/1/2/3/7/GS; nextadanorth: 10, N, R, W / 223, Q / 313, 2, 3 / 315, 1 / 402, 7; nextadasouth: 12, N, Q, R, W / 318, 1, 2, 3 / 471, 7",
+      "hash": "50e23bb2179ef51a"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL231X",
+     "title": "Asset inventory: EL231X is maintained by Private Contractor",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Installed-Functioning-In Service",
+     "snippet": "Installed by CANTON, in service since 2010-07-22",
+     "about": [
+      "Times Sq-42 St"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL231X",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL231X; maintained_by: Private Contractor; installer: CANTON; service_status: Installed-Functioning-In Service; nyct_owned: NO",
+      "hash": "f05367c548d8d89d"
+     }
+    },
+    {
+     "kind": "alternative",
+     "id": "ALT-EL231X",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "MTA alternative route when EL231X is out",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "If you are on the street: \nUse  EL619 at the NW corner of 43 St and Broadway. \n\nIf you are on the mezzanine:\nFollow signs to exit at 43 St and Broadway and use EL619.",
+      "hash": "50e23bb2179ef51a"
+     }
+    },
+    {
+     "kind": "equipment",
+     "id": "EL232",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "Times Sq-42 St",
+      "1",
+      "2",
+      "3",
+      "7"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL232 at Times Sq-42 St: Mezzanine to 7 & downtown 1/2/3.",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: mezzanine to lower mezzanine A/C/E to downtown 1/2/3 platform and 7 platform for service in both directions; ADA: Y; lines: 1/2/3/7; nextadanorth: 313, 2, 3 / 315, 1 / 402, 7; nextadasouth: 318, 1, 2, 3 / 471, 7",
+      "hash": "7c5e01e79b88976c"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL232",
+     "title": "Asset inventory: EL232 is maintained by NYCT",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Removed-Non Functioning-Out of Service",
+     "snippet": "Installed by CANTON, in service since 2006-07-18",
+     "about": [
+      "Times Sq-42 St"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL232",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL232; maintained_by: NYCT; installer: CANTON; service_status: Removed-Non Functioning-Out of Service; nyct_owned: YES",
+      "hash": "8980a01ab62bcdac"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "equipment_status",
+     "outcome": "answered",
+     "summary": "Times Sq-42 St/Port Authority Bus Terminal: 10 units, 1 out of service (EL290X).",
+     "trace": [
+      {
+       "label": "the elevators and escalators at the station",
+       "graph": "detour:agency",
+       "cypher": "MATCH (e:Equipment {station: $station}) WHERE $kind = '' OR e.kind = $kind\nRETURN e, e.id AS id ORDER BY id LIMIT 80",
+       "params": {
+        "station": "611",
+        "kind": "elevator"
+       },
+       "ms": 3.23,
+       "serverMs": 0.13,
+       "rows": 10
+      },
+      {
+       "label": "their outages, current, planned and resolved",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage) WHERE o.equipment IN $ids AND ($history OR o.status <> 'resolved')\nRETURN o, o.openedMs AS t ORDER BY t DESC",
+       "params": {
+        "ids": [
+         "EL229",
+         "EL230",
+         "EL231X",
+         "EL232",
+         "EL233",
+         "… 5 more"
+        ],
+        "history": true
+       },
+       "ms": 1.84,
+       "serverMs": 0.09,
+       "rows": 2
+      },
+      {
+       "label": "the MTA's alternative routes for them",
+       "graph": "detour:agency",
+       "cypher": "MATCH (d:AltRoute)-[:FOR]->(e:Equipment) WHERE e.id IN $ids RETURN d",
+       "params": {
+        "ids": [
+         "EL229",
+         "EL230",
+         "EL231X",
+         "EL232",
+         "EL233",
+         "… 5 more"
+        ]
+       },
+       "ms": 2.2,
+       "serverMs": 0.21,
+       "rows": 10
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 14,
+   "followUp": null
+  },
+  {
+   "mode": "scripted",
+   "note": "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording.",
+   "question": "Who maintains elevator EL293?",
+   "answer": "Elevator EL293 at 1 Av (E 14 St and Avenue A (SW corner) to Canarsie-bound platform) is in service: the MTA's outage feed lists no current outage for it [1]. The MTA's asset inventory says EL293 is maintained by NYCT [2].",
+   "sources": [
+    {
+     "kind": "equipment",
+     "id": "EL293",
+     "by": "MTA",
+     "team": null,
+     "about": [
+      "1 Av",
+      "L"
+     ],
+     "origin": "mta",
+     "title": "Elevator EL293 at 1 Av: Street to Brooklyn-bound platform",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "serving: E 14 St and Avenue A (SW corner) to Canarsie-bound platform; ADA: Y; lines: L; nextadanorth: 117, L; nextadasouth: 120, L",
+      "hash": "bbc192fe09a14a9b"
+     }
+    },
+    {
+     "kind": "asset",
+     "id": "ASSET-EL293",
+     "title": "Asset inventory: EL293 is maintained by NYCT",
+     "by": "MTA",
+     "team": null,
+     "atMs": 1792353117263,
+     "status": "Installed-Functioning-In Service",
+     "snippet": "in service since 2020-08-05",
+     "about": [
+      "1 Av"
+     ],
+     "origin": "mta",
+     "receipt": {
+      "dataset": "94fv-bak7",
+      "source": "MTA Subway Elevator and Escalator Asset Inventory (data.ny.gov)",
+      "url": "https://data.ny.gov/resource/94fv-bak7.json?equipment_code=EL293",
+      "fetchedMs": 1792353117263,
+      "quote": "equipment_code: EL293; maintained_by: NYCT; service_status: Installed-Functioning-In Service; nyct_owned: YES",
+      "hash": "7b4cb1089529939e"
+     }
+    },
+    {
+     "kind": "alternative",
+     "id": "ALT-EL293",
+     "by": "MTA",
+     "team": null,
+     "about": [],
+     "origin": "mta",
+     "title": "MTA alternative route when EL293 is out",
+     "atMs": 1792356135338,
+     "status": null,
+     "snippet": null,
+     "receipt": {
+      "dataset": "mta-ene-equipment",
+      "source": "MTA elevator and escalator equipment feed",
+      "url": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json",
+      "fetchedMs": 1792356135338,
+      "quote": "If you are on the street: Take a westbound M14A SBS or M14D SBS (E 14 St and 1 Av) to 4 Av for Union Sq-14 St station. Then use elevators for Canarsie-bound L service. If you are on the platform: Take a Canarsie-bound L to Bedford Av. Then transfer across the platform to an 8 Av-bound L to 1 Av.",
+      "hash": "bbc192fe09a14a9b"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "tool": "equipment_status",
+     "outcome": "answered",
+     "summary": "EL293 at 1 Av is in service.",
+     "trace": [
+      {
+       "label": "the units asked about",
+       "graph": "detour:agency",
+       "cypher": "MATCH (e:Equipment) WHERE e.id IN $ids RETURN e",
+       "params": {
+        "ids": [
+         "EL293"
+        ]
+       },
+       "ms": 1.73,
+       "serverMs": 0.11,
+       "rows": 1
+      },
+      {
+       "label": "their outages, current, planned and resolved",
+       "graph": "detour:agency",
+       "cypher": "MATCH (o:Outage) WHERE o.equipment IN $ids AND ($history OR o.status <> 'resolved')\nRETURN o, o.openedMs AS t ORDER BY t DESC",
+       "params": {
+        "ids": [
+         "EL293"
+        ],
+        "history": true
+       },
+       "ms": 0.41,
+       "serverMs": 0.07,
+       "rows": 0
+      },
+      {
+       "label": "the MTA's alternative routes for them",
+       "graph": "detour:agency",
+       "cypher": "MATCH (d:AltRoute)-[:FOR]->(e:Equipment) WHERE e.id IN $ids RETURN d",
+       "params": {
+        "ids": [
+         "EL293"
+        ]
+       },
+       "ms": 1.3,
+       "serverMs": 0.16,
+       "rows": 1
+      }
+     ]
+    }
+   ],
+   "model": null,
+   "ms": 4,
+   "followUp": null
+  }
+ ]
+}
