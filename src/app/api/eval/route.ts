@@ -68,8 +68,11 @@ export async function POST(request: Request) {
     let current = await currentRun();
     // A run whose model arms met spent free quotas is reopened: those arms run again, every other result stays.
     if (current && parsed.data.retry) {
-      const cleared = await reopenRun(current.id, runOrder(QUESTIONS), unavailable);
-      current = { ...current, status: "running", finishedMs: null, order: runOrder(QUESTIONS) };
+      // The run keeps its own questions (a run started with skip has fewer), taken in the current run order.
+      const rank = new Map(runOrder(QUESTIONS).map((id, i) => [id, i]));
+      const order = [...current.order].sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0));
+      const cleared = await reopenRun(current.id, order, unavailable);
+      current = { ...current, status: "running", finishedMs: null, order };
       console.warn(`[eval] reopened ${current.id}: ${cleared} arms to run again`);
     }
     if (!current || current.status === "done") {
