@@ -14,4 +14,8 @@ export const TOOL_TITLE: Record<string, string> = {
   route_rider: "Route a rider",
   publish_plan: "Publish the plan",
   resolve_incident: "Resolve the incident",
+  who_owns: "Who owns it",
+  trace_decision: "Trace a decision",
+  whats_changed: "What changed",
+  search_knowledge: "Search knowledge",
 };

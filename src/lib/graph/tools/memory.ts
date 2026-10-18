@@ -192,6 +192,42 @@ export async function reportElevator(
     confidence: 1,
     supersedes: input.working ? outage?.id : working?.id,
   });
+  // Keep the agency's records current with the report: the platform's maintenance ticket resolves (or
+  // reopens), the new fact cites it, and decisions that rested on it are lifted (or back in force).
+  // Graphs without the agency layer have no tickets, so nothing changes there.
+  const ticket = await ctx.tracer.run<{ id: string }>(
+    input.working ? "resolve the platform's elevator ticket" : "reopen the platform's elevator ticket",
+    ctx.sandbox,
+    `MATCH (k:Ticket {station: $station, route: $route, status: $from})
+     WITH k ORDER BY k.openedMs DESC LIMIT 1
+     SET k.status = $to, k.resolvedMs = CASE WHEN $working THEN timestamp() ELSE null END
+     WITH k
+     MATCH (f:Finding {id: $finding})
+     CREATE (f)-[:SOURCED_FROM]->(k)
+     RETURN k.id AS id`,
+    {
+      station: input.station,
+      route: input.route,
+      working: input.working,
+      from: input.working ? "open" : "resolved",
+      to: input.working ? "resolved" : "open",
+      finding: written.data.id,
+    },
+  );
+  const ticketId = ticket.rows[0]?.id;
+  if (ticketId) {
+    await ctx.tracer.run(
+      input.working ? "lift decisions that rested on the ticket" : "put those decisions back in force",
+      ctx.sandbox,
+      `MATCH (d:Decision {status: $from, until: $ticket})
+       SET d.status = $to, d.liftedMs = CASE WHEN $working THEN timestamp() ELSE null END`,
+      { ticket: ticketId, working: input.working, from: input.working ? "in force" : "lifted", to: input.working ? "lifted" : "in force" },
+    );
+    written.trace.push(...ctx.tracer.traces.splice(0));
+    written.summary += ` Ticket ${ticketId} ${input.working ? "resolved" : "reopened"}.`;
+  } else {
+    written.trace.push(...ctx.tracer.traces.splice(0));
+  }
   // remember() returns every query this context ran, the lookup first.
   return written;
 }

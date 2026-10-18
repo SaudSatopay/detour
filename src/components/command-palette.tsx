@@ -156,8 +156,9 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
                       ))}
                     </span>
                   ) : null}
-                  <span className="shrink-0 font-display text-lg font-semibold">{item.label}</span>
-                  {item.hint ? <span className="ml-auto min-w-0 truncate text-sm text-ink-500">{item.hint}</span> : null}
+                  {/* The hint takes only the room left over; a label too long on its own (a brain question) wraps on a phone instead of scrolling the list sideways. */}
+                  <span className="min-w-0 font-display text-lg font-semibold">{item.label}</span>
+                  {item.hint ? <span className="min-w-0 flex-1 truncate text-right text-sm text-ink-500">{item.hint}</span> : null}
                 </div>
               ))}
             </div>

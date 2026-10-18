@@ -16,6 +16,13 @@ export interface PaletteItem {
 
 const COLOR = new Map(map.routes.map((r) => [r[0] as string, r[2] as string]));
 
+const BRAIN_QUESTIONS = [
+  "Who owns the Myrtle-Wyckoff elevator outage?",
+  "Why do L tube bus bridges get 27% more buses?",
+  "Who knows the most about the G at Metropolitan Av?",
+  "What changed in the last 7 days?",
+];
+
 export function paletteItems(): PaletteItem[] {
   const closures: PaletteItem[] = scenarios.map((s) => ({
     id: `closure-${s.id}`,
@@ -34,7 +41,24 @@ export function paletteItems(): PaletteItem[] {
     { id: "page-control", group: "Pages", label: "Control room", hint: "Close a line and watch the agents", href: "/control" },
     { id: "page-riders", group: "Pages", label: "Riders", hint: "Remembered riders and their routes", href: "/riders" },
     { id: "page-memory", group: "Pages", label: "Memory", hint: "Facts over time, episodes, handoffs", href: "/memory" },
+    {
+      id: "page-brain",
+      group: "Pages",
+      label: "Agency brain",
+      hint: "Who owns it, who knows it, and why",
+      href: "/brain",
+      keywords: "company brain teams people documents tickets chats decisions owner expert sources",
+    },
     { id: "page-proof", group: "Pages", label: "Proof", hint: "FalkorDB against NetworkX", href: "/proof" },
+    // Questions for the agency brain: the page asks ?q as it opens.
+    ...BRAIN_QUESTIONS.map((q, i) => ({
+      id: `brain-ask-${i + 1}`,
+      group: "Pages" as const,
+      label: q,
+      hint: "Ask the agency brain",
+      href: `/brain?q=${encodeURIComponent(q)}`,
+      keywords: "agency company brain ask question",
+    })),
   ];
   const story: PaletteItem[] = [
     ["who", "Who it hits", "riders by stops from the closure"],

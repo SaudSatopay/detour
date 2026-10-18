@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://detour-orpin.vercel.app"><img alt="Live demo: detour-orpin.vercel.app" src="https://img.shields.io/badge/live_demo-detour--orpin.vercel.app-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1 and 2" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1, 2 and 3" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2_%2B_3-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#why-a-graph"><img alt="FalkorDB: maxFlow, SPpaths, GRAPH.COPY" src="https://img.shields.io/badge/FalkorDB-maxFlow_%C2%B7_SPpaths_%C2%B7_GRAPH.COPY-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#use-it-from-an-agent"><img alt="MCP: streamable HTTP" src="https://img.shields.io/badge/MCP-streamable_HTTP-00848b?style=flat-square&labelColor=0d1013"></a>
 </p>
@@ -21,6 +21,7 @@
   <a href="https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1"><b>Control room</b></a> &nbsp;·&nbsp;
   <a href="https://detour-orpin.vercel.app/riders?rider=aisha"><b>Riders</b></a> &nbsp;·&nbsp;
   <a href="https://detour-orpin.vercel.app/memory"><b>Memory</b></a> &nbsp;·&nbsp;
+  <a href="https://detour-orpin.vercel.app/brain"><b>Brain</b></a> &nbsp;·&nbsp;
   <a href="https://detour-orpin.vercel.app/proof"><b>Proof</b></a> &nbsp;·&nbsp;
   <a href="#use-it-from-an-agent"><b>MCP</b></a>
 </p>
@@ -33,6 +34,7 @@ Agents work on a FalkorDB graph of the real subway, built from MTA open data. Wh
 2. **Measure** what the open network can absorb with `algo.maxFlow`, and name the bottleneck (min cut).
 3. **Test** shuttle-bus plans on forked copies of the graph.
 4. **Tell** every remembered rider what to take instead, after a person approves.
+5. **Explain** who owns what, who knows what and why each decision was made, from the agency's own documents, tickets, chats and decisions in the same graph.
 
 Memory lives in the same graph: facts carry dates, and a fact that stops being true is closed, not deleted, so it changes the next answer.
 
@@ -40,6 +42,7 @@ Memory lives in the same graph: facts carry dates, and a fact that stops being t
 |:---|:---|
 | **1 · Agents That Act on Connected Data** (primary) | The [control room](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1) runs the controller on your own copy of the graph and shows every tool call with its Cypher |
 | **2 · Agent Memory and Coordination** | On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), a superseded fact changes a wheelchair user's route; the [memory page](https://detour-orpin.vercel.app/memory) shows every episode, finding and handoff |
+| **3 · Company Brain** | The [brain page](https://detour-orpin.vercel.app/brain) answers who owns what, who knows what and why a decision was made, from the agency's teams, people, documents, tickets, chats and decisions in the same graph, with every answer citing its sources |
 
 ## What it finds on the L train
 
@@ -77,6 +80,7 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
 | **Control room** | Close a line and watch the controller's tool calls stream in with their Cypher. Scrub, step or replay the run at 1×, 2× or 4×, and link straight to a step with `?step=` |
 | **Riders** | Remembered riders and their routes. Report an elevator fixed and watch memory change a wheelchair user's route. With the database down, each rider shows the route the recorded run found |
 | **Memory** | Memory over time: each fact's validity window, closed facts and what replaced them, incidents and agent steps |
+| **Brain** | Ask who owns a station or line, who knows it best, why a decision was made, or what changed this week; each answer cites the documents, tickets, chats, decisions and findings it came from, with the Cypher behind it |
 | **Proof** | FalkorDB and NetworkX side by side, the concurrency benchmark, and every query |
 | **Every page** | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd>, or the search icon on a phone, opens a command palette for any closure, rider, page or proof check; the theme switch spreads paper or night service from where you click and remembers it |
 
@@ -304,6 +308,29 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider concurrently |
 | **Per tenant, under load** | One graph per visitor. 48 reader and 6 writer agents across 6 tenant graphs sustained 7,195 reads and 719 writes a second (p95 15.5 ms and 17.1 ms), 0 errors, and a closure in one tenant was invisible in the other five |
 
+## Track 3: a company brain for the agency
+
+The agency that runs the response lives in the same graph as the subway it runs. Its 7 teams and 10 people, 7 documents (after-action reports, playbooks, a procedure, a policy, notices), 3 maintenance tickets, 6 chat messages and 4 decisions are nodes linked to the same `Station`, `Route`, `Incident`, `Finding` and `Playbook` nodes the agents use. The agency side is sample data, labeled as such; the subway is real.
+
+On the [brain page](https://detour-orpin.vercel.app/brain), ask:
+
+| Question | What the graph does |
+|:---|:---|
+| *Who owns the Myrtle-Wyckoff elevator outage?* | Resolves the station with the full-text index, then follows `OWNS` and `MAINTAINS` to teams and their people, the open ticket and its assignee, and ranks who knows it best by the records they wrote, filed, posted or were assigned |
+| *Why do L tube bus bridges get 27% more buses?* | Finds the decision, then walks `BASED_ON` to the earlier decision, the chat message and the finding it rests on, and `SOURCED_FROM` from that finding back to the after-action report and the ticket: two hops to the original sources |
+| *What changed in the last 7 days?* | Every dated change in the graph: findings learned or closed, tickets opened or resolved, decisions made or lifted, documents, chats and published plans |
+| *Is the Myrtle-Wyckoff L elevator working?* | Searches documents, tickets, chats, decisions and findings, and leads with the ticket's status |
+
+Knowledge stays current. Report the Myrtle-Wyckoff elevator fixed on the riders page and three things change in one graph: the outage finding is superseded, ticket EE-1207 resolves and cites the new finding, and the decision to route step-free riders around that platform is lifted. Ask the brain what changed, and those are the first answers.
+
+```cypher
+// Why a decision was made, two hops back to where its evidence came from
+MATCH (d:Decision {id: $id})-[:BASED_ON]->(f:Finding)-[:SOURCED_FROM]->(s)
+RETURN f.id AS finding, collect(DISTINCT s.id) AS sources
+```
+
+Every answer is a list of numbered source nodes with who wrote each one, their team and the date, and the answer cites them as [1], [2]. A free model writes the answer when quota allows; otherwise the standard procedure picks the tool from the question and answers in templated words, labeled as such.
+
 ## Proof
 
 | Check | Result |
@@ -312,8 +339,8 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | Identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 73 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure and the eval grader |
-| End-to-end tests | 13 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, and axe accessibility checks on every page, after a run and after approval, in light and dark |
+| Unit tests | 87 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, and the brain's question routing and the integrity of its sample records |
+| End-to-end tests | 15 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, the brain tracing a decision and naming a ticket's owner, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 98; accessibility, best practices and SEO 100 |
 
 <p align="center">

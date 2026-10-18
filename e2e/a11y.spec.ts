@@ -10,7 +10,7 @@ async function violations(page: Page) {
 }
 
 test("every page has no serious accessibility violations at rest", async ({ page }) => {
-  for (const path of ["/", "/riders", "/memory", "/proof", "/control"]) {
+  for (const path of ["/", "/riders", "/memory", "/brain", "/proof", "/control"]) {
     await page.goto(path, { waitUntil: "networkidle" });
     expect(await violations(page), path).toEqual([]);
   }
@@ -34,7 +34,7 @@ test.describe("in the dark theme", () => {
   test.use({ colorScheme: "dark" });
 
   test("pages and the finished run have no serious accessibility violations", async ({ page }) => {
-    for (const path of ["/", "/memory", "/proof"]) {
+    for (const path of ["/", "/memory", "/brain", "/proof"]) {
       await page.goto(path, { waitUntil: "networkidle" });
       expect(await violations(page), path).toEqual([]);
     }
