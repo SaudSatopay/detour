@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { affectedRiders } from "../graph/tools/impact";
 import { closeLine } from "../graph/tools/incident";
-import { measureCapacity, shuttleCandidates, simulatePlan } from "../graph/tools/capacity";
+import { measureCapacity, measureHeadroom, shuttleCandidates, simulatePlan } from "../graph/tools/capacity";
 import { recall, remember } from "../graph/tools/memory";
 import { proposeSteering } from "../graph/tools/plan";
 import { resolvePlaces } from "../graph/tools/places";
@@ -102,6 +102,17 @@ export const TOOLBOX: ToolDef[] = [
     run: (ctx) => measureCapacity(ctx),
   },
   {
+    name: "measure_headroom",
+    title: "How much more the network can take",
+    description:
+      "How much more displaced demand the open network can take before an open segment saturates, on a forked graph: an exact parametric max flow (a few certified algo.maxFlow solves with the demand scaled). Returns the multiplier per direction, the segments that fill first, and the stations the closure cuts off. Run after measure_capacity.",
+    input: z.object({ max_scale: z.number().min(1.5).max(100).optional().describe("Largest demand multiplier to search; default 20") }),
+    roles: ["controller"],
+    session: true,
+    annotations: read,
+    run: (ctx, i: any) => measureHeadroom(ctx, { maxScale: i.max_scale }),
+  },
+  {
     name: "shuttle_candidates",
     title: "Where a shuttle bus could help",
     description:
@@ -141,7 +152,7 @@ export const TOOLBOX: ToolDef[] = [
     name: "propose_steering",
     title: "Propose steering with no buses",
     description:
-      "Record a plan with no buses, for when measure_capacity shows nobody stranded and no max-flow shortfall: riders are steered onto open lines. Publishable like a shuttle plan.",
+      "Record a plan with no buses, for when measure_capacity shows nobody stranded and no max-flow shortfall. Once published, the rider desk routes riders around the segments measure_capacity found over capacity. Publishable like a shuttle plan.",
     input: z.object({}),
     roles: ["controller"],
     session: true,
@@ -162,7 +173,7 @@ export const TOOLBOX: ToolDef[] = [
     name: "route_rider",
     title: "Route a rider",
     description:
-      "Fastest open route for a remembered rider (rider_id) or between two resolved station ids, using any published shuttle. step_free keeps boarding, transfer and exit stations accessible and skips stations with an elevator outage in memory.",
+      "Fastest open route for a remembered rider (rider_id) or between two resolved station ids, using any published shuttle. step_free keeps boarding, transfer and exit stations accessible and skips stations with an elevator outage in memory. While the incident's crowding is set, paths avoid segments over capacity when a reasonable alternative exists.",
     input: z.object({
       rider_id: z.string().max(20).optional(),
       from_station_id: z.string().optional(),
@@ -179,18 +190,19 @@ export const TOOLBOX: ToolDef[] = [
     name: "remember",
     title: "Write a finding to memory",
     description:
-      "Write a finding to memory with today's date and its provenance (stations, routes, this incident). Use supersedes with an older finding id when a fact changed; the old one is closed, not deleted.",
+      "Write a finding to memory with today's date and its provenance (stations, routes, this incident). Use supersedes with an older finding id when a fact changed; the old one is closed, not deleted. Set about_incident to false for a fact unrelated to the open closure.",
     input: z.object({
       text: z.string().min(10).max(400),
       kind: z.enum(["observation", "capacity", "accessibility", "crowding", "plan"]),
       station_ids: ids.optional(),
       routes: routeList.max(8).optional(),
       supersedes: z.string().max(40).optional(),
+      about_incident: z.boolean().optional(),
     }),
     roles: ["controller", "rider-desk"],
     session: true,
     annotations: write(false),
-    run: (ctx, i: any) => remember(ctx, { text: i.text, kind: i.kind, stations: i.station_ids, routes: i.routes, supersedes: i.supersedes }),
+    run: (ctx, i: any) => remember(ctx, { text: i.text, kind: i.kind, stations: i.station_ids, routes: i.routes, supersedes: i.supersedes, aboutIncident: i.about_incident }),
   },
 ];
 /* eslint-enable @typescript-eslint/no-explicit-any */

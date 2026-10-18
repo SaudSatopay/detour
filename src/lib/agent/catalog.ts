@@ -25,13 +25,25 @@ export function forModel(r: ToolResult): unknown {
   const data = r.data as Record<string, unknown> | null;
   switch (r.tool) {
     case "measure_capacity": {
-      const d = r.data as { reroute?: { overloaded: unknown[]; stranded: number }; directions?: { direction: string; required: number; absorbed: number; unmet: number; cut: unknown[]; strandedAt: unknown[] }[] } | null;
+      const d = r.data as {
+        reroute?: { overloaded: unknown[]; stranded: number };
+        directions?: { direction: string; required: number; absorbed: number; unmet: number; cut: unknown[]; strandedAt: unknown[]; cutOff?: unknown[]; check?: { solver: string; checked: boolean } }[];
+      } | null;
       return {
         outcome: r.outcome,
         summary: r.summary,
         overloaded: d?.reroute?.overloaded.slice(0, 6),
         stranded: d?.reroute?.stranded,
-        directions: d?.directions?.map((x) => ({ direction: x.direction, required: x.required, absorbed: x.absorbed, unmet: x.unmet, cut: x.cut.slice(0, 6), strandedAt: x.strandedAt.slice(0, 6) })),
+        directions: d?.directions?.map((x) => ({
+          direction: x.direction,
+          required: x.required,
+          absorbed: x.absorbed,
+          unmet: x.unmet,
+          cut: x.cut.slice(0, 6),
+          cutOff: x.cutOff?.slice(0, 6),
+          strandedAt: x.strandedAt.slice(0, 6),
+          certified: x.check ? { solver: x.check.solver, checked: x.check.checked } : undefined,
+        })),
       };
     }
     case "simulate_plan": {

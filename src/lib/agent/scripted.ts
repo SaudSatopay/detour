@@ -103,7 +103,7 @@ export async function scriptedControl(
     say(why);
     const r = await step("propose_steering", {}, (ctx) => proposeSteering(ctx));
     const plan = r.data.plan;
-    return plan ? { planId: plan.id, text: `${plan.id}: no extra buses; the rider desk steers each remembered rider onto open lines.` } : null;
+    return plan ? { planId: plan.id, text: `${plan.id}: no extra buses; the rider desk routes each remembered rider around the segments that overflow, onto lines with room.` } : null;
   };
 
   if (!stranded && !unmet) {

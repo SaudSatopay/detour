@@ -6,6 +6,7 @@ export const TOOL_TITLE: Record<string, string> = {
   close_line: "Close the line",
   affected_riders: "Who rides through it",
   measure_capacity: "Measure capacity",
+  measure_headroom: "Measure headroom",
   shuttle_candidates: "Find shuttle bridges",
   simulate_plan: "Simulate a plan",
   propose_steering: "Steer riders, no buses",
