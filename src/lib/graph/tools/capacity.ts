@@ -4,7 +4,7 @@ import { copyGraph, deleteGraph, listGraphs } from "../db";
 import { busLeg, BUS_FLEET, directionOf, freedLoad, haversineMeters, minCut, netBalance, type Direction, type DisplacedPair, type FlowEdge } from "../flow";
 import { forkGraph } from "../names";
 import { displacedPairs } from "./impact";
-import { openIncident, type Incident } from "./incident";
+import { applyCrowding, crowdingOf, openIncident, type Incident } from "./incident";
 import { result, type CutHighlight, type FlowHighlight, type ToolContext, type ToolResult } from "./types";
 
 const DIRECTIONS: Direction[] = ["forward", "backward"];
@@ -391,6 +391,9 @@ export async function measureCapacity(ctx: ToolContext): Promise<ToolResult<Capa
     },
   );
 
+  // The rider desk routes around what overflows: each segment over capacity becomes a routing cost.
+  await applyCrowding(ctx, crowdingOf(re));
+
   const worst = re.overloaded.slice(0, 3).map((o) => `${describeSegment(n, o)} at ${o.pct}%`);
   const bottlenecks = peak?.cut.slice(0, 3).map((c) => describeSegment(n, c)) ?? [];
   const stranded = peak?.strandedAt.slice(0, 3).map((s) => `${n.get(s.id) ?? s.id} (${fmt(s.riders)})`) ?? [];
@@ -575,11 +578,13 @@ export async function simulatePlan(
       `MATCH (i:Incident {id: $incident}), (ag:Agent {id: $agent})
        CREATE (ag)-[:PROPOSED {atMs: timestamp()}]->(p:Plan {id: $id, label: $label, status: 'simulated', legs: $legsJson,
          vehicles: $vehicles, overflowBefore: $ob, overflowAfter: $oa, unmetBefore: $ub, unmetAfter: $ua,
-         strandedBefore: $sb, strandedAfter: $sa, createdMs: timestamp()})-[:FOR]->(i)`,
+         strandedBefore: $sb, strandedAfter: $sa, crowding: $crowding, createdMs: timestamp()})-[:FOR]->(i)`,
       {
         incident: incident.id,
         agent: ctx.agentId,
         id: planId,
+        // What still overflows with the buses running; publishing the plan makes it the riders' routing cost.
+        crowding: JSON.stringify(crowdingOf(afterRe)),
         label: input.label ?? legs.map((l) => `${n.get(l.from)} ↔ ${n.get(l.to)}`).join(" + "),
         legsJson: JSON.stringify(legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity, minutes: l.minutes, meters: l.meters }))),
         vehicles,

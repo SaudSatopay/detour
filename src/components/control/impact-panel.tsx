@@ -215,7 +215,8 @@ function Plan({
       </div>
       {overflowFromNewRiders ? (
         <p className="text-xs text-ink-500">
-          Overflow rises because {fmt(nowTravel)} riders who had no path can now travel. The rider desk steers them onto the lines max flow says have room.
+          Overflow rises because {fmt(nowTravel)} riders who had no path can now travel. Once published, the rider desk routes riders around the
+          segments still over capacity wherever a reasonable alternative exists.
         </p>
       ) : null}
       {comparison ? <p className="text-sm font-semibold text-ink-900">{comparison}</p> : null}

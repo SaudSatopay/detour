@@ -1,4 +1,4 @@
-import { openIncident, reopenAll } from "./incident";
+import { applyCrowding, openIncident, reopenAll } from "./incident";
 import { result, type ToolContext, type ToolResult } from "./types";
 
 export interface PlanLeg {
@@ -46,7 +46,10 @@ export async function listPlans(ctx: ToolContext, incidentId?: string): Promise<
 
 /**
  * The human-approved step: the plan becomes graph state. Its shuttle legs are added to the
- * sandbox as BUS edges (so rider routing uses them) and the controller hands off to the rider desk.
+ * sandbox as BUS edges (so rider routing uses them), what still overflows with the plan running
+ * (simulate_plan's reroute) becomes the rides' crowding cost, so the rider desk steers riders off
+ * those segments, and the controller hands off to the rider desk. A steering plan keeps the
+ * crowding measure_capacity set.
  */
 export async function publishPlan(ctx: ToolContext, input: { planId: string; approvedBy: string }): Promise<ToolResult<{ plan: PlanRecord | null }>> {
   const incident = await openIncident(ctx);
@@ -60,10 +63,19 @@ export async function publishPlan(ctx: ToolContext, input: { planId: string; app
     ctx.sandbox,
     `UNWIND $legs AS l
      MATCH (a:Station {id: l.from}), (b:Station {id: l.to})
-     CREATE (a)-[:BUS {bid: l.bid, plan: $plan, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour}]->(b),
-            (b)-[:BUS {bid: l.bid, plan: $plan, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour}]->(a)`,
+     CREATE (a)-[:BUS {bid: l.bid, plan: $plan, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, cost: l.minutes, busesPerHour: l.busesPerHour}]->(b),
+            (b)-[:BUS {bid: l.bid, plan: $plan, capacity: l.capacity, spare: l.capacity, minutes: l.minutes, cost: l.minutes, busesPerHour: l.busesPerHour}]->(a)`,
     { plan: plan.id, legs: plan.legs.map((l, bid) => ({ bid, from: l.from, to: l.to, capacity: l.capacity, minutes: l.minutes, busesPerHour: l.busesPerHour })) },
   );
+  const stored = await ctx.tracer.run<{ crowding: string | null }>(
+    "what overflows with the plan running",
+    ctx.sandbox,
+    "MATCH (p:Plan {id: $plan}) RETURN p.crowding AS crowding",
+    { plan: plan.id },
+    { readOnly: true },
+  );
+  const crowding = parseCrowding(stored.rows[0]?.crowding ?? null);
+  if (crowding) await applyCrowding(ctx, crowding);
   await ctx.tracer.run(
     "publish and hand off to the rider desk",
     ctx.sandbox,
@@ -81,8 +93,9 @@ export async function publishPlan(ctx: ToolContext, input: { planId: string; app
 const fmt = (n: number) => (Math.round(n) || 0).toLocaleString("en-US");
 
 /**
- * A plan with no buses, for closures the open network can absorb: riders are steered onto the lines
- * max flow uses. Recorded and published like a shuttle plan, so the rider desk still gets the handoff.
+ * A plan with no buses, for closures the open network can absorb: the rider desk steers riders off
+ * the segments the fastest paths overload (measure_capacity left them as a crowding cost) and onto
+ * lines with room. Recorded and published like a shuttle plan, so the rider desk still gets the handoff.
  */
 export async function proposeSteering(ctx: ToolContext): Promise<ToolResult<{ plan: PlanRecord | null }>> {
   const incident = await openIncident(ctx);
@@ -150,6 +163,18 @@ export async function writeAdvisory(
      FOREACH (_ IN CASE WHEN i IS NULL THEN [] ELSE [1] END | CREATE (a)-[:ABOUT]->(i))`,
     { rider: input.riderId, text: input.text, minutes: input.minutes ?? -1, stations: input.stations, stepFree: input.stepFree },
   );
+}
+
+/** The crowding a plan stored when it was simulated; null for plans without it (steering, older plans). */
+export function parseCrowding(json: string | null): { eid: number; pct: number }[] | null {
+  if (!json) return null;
+  try {
+    const rows = JSON.parse(json) as unknown;
+    if (!Array.isArray(rows)) return null;
+    return rows.filter((r): r is { eid: number; pct: number } => Number.isFinite(r?.eid) && Number.isFinite(r?.pct));
+  } catch {
+    return null;
+  }
 }
 
 /** Ends the incident: segments reopen, shuttles are removed, and what was observed is remembered. */
