@@ -1,0 +1,340 @@
+{
+ "runAt": "2026-10-18T20:24:51.965Z",
+ "seed": 20261019,
+ "elevators": {
+  "question": "A step-free rider can use one of two elevators (or escalators) at the same station. Which one is more likely to be running this month?",
+  "method": [
+   "Source: MTA NYCT Subway Elevator and Escalator Availability: Beginning 2015 (Metropolitan Transportation Authority, via data.ny.gov), retrieved 2026-10-19; 698 units, 140 months from Jan 2015.",
+   "Replay in time order. Each month's records reach memory only at the start of the next month; every decision reads only records valid before it (a check that throws on any later record found none).",
+   "Decisions: every month from Jan 2026 to Aug 2026, every pair of units of one kind at one station complex whose availability that month differs by more than half a point. Right means memory picked the unit that ran more.",
+   "No memory: a seeded coin. Placebo: every record ever read, kept forever (no validity window, no SUPERSEDES). Time-aware (Detour): records valid for 12 months, and a unit back from two months mostly out of service supersedes its older records, the way a superseded Finding is closed.",
+   "95% intervals: 2000 seeded bootstrap resamples of whole station complexes."
+  ],
+  "n": {
+   "decisions": 9360,
+   "stations": 115,
+   "months": 8,
+   "units": 698
+  },
+  "arms": {
+   "none": {
+    "accuracy": 0.502,
+    "ci": [
+     0.494,
+     0.51
+    ]
+   },
+   "placebo": {
+    "accuracy": 0.618,
+    "ci": [
+     0.573,
+     0.668
+    ]
+   },
+   "timeAware": {
+    "accuracy": 0.663,
+    "ci": [
+     0.613,
+     0.724
+    ]
+   }
+  },
+  "differences": {
+   "timeAwareVsNone": {
+    "value": 0.161,
+    "ci": [
+     0.109,
+     0.224
+    ]
+   },
+   "timeAwareVsPlacebo": {
+    "value": 0.045,
+    "ci": [
+     0.015,
+     0.077
+    ]
+   }
+  },
+  "byType": {
+   "Elevator": {
+    "n": 3657,
+    "none": 0.503,
+    "placebo": 0.587,
+    "timeAware": 0.634
+   },
+   "Escalator": {
+    "n": 5703,
+    "none": 0.502,
+    "placebo": 0.638,
+    "timeAware": 0.682
+   }
+  },
+  "sensitivity": [
+   {
+    "windowMonths": 3,
+    "accuracy": 0.663
+   },
+   {
+    "windowMonths": 6,
+    "accuracy": 0.67
+   },
+   {
+    "windowMonths": 12,
+    "accuracy": 0.663
+   },
+   {
+    "windowMonths": 24,
+    "accuracy": 0.667
+   }
+  ],
+  "failureProne": {
+   "question": "Which 50 units will have the most unscheduled outages a month, Jan 2026 to Aug 2026?",
+   "units": 669,
+   "worst": 67,
+   "k": 50,
+   "precision": {
+    "none": 0.08,
+    "baseRate": 0.1,
+    "placebo": 0.72,
+    "timeAware": 0.6
+   }
+  },
+  "failures": {
+   "wrong": 3153,
+   "share": 0.337,
+   "note": "Memory predicts from the past; a unit that breaks for the first time, or one just repaired, still fools it. These are its largest misses.",
+   "examples": [
+    {
+     "month": "Feb 2026",
+     "station": "Chambers St (A,C)/WTC (E)/Park Place (2,3)/Cortlandt St (R, W)",
+     "type": "Elevator",
+     "units": [
+      "EL17X",
+      "EL726X"
+     ],
+     "remembered": [
+      0.9284,
+      0.9813
+     ],
+     "actual": [
+      1,
+      0
+     ]
+    },
+    {
+     "month": "May 2026",
+     "station": "Lexington Av-53 St (E,M)/51 St (6)",
+     "type": "Elevator",
+     "units": [
+      "EL202",
+      "EL245"
+     ],
+     "remembered": [
+      0.9721,
+      0.9297
+     ],
+     "actual": [
+      0,
+      0.991
+     ]
+    },
+    {
+     "month": "Apr 2026",
+     "station": "Fulton St (A,C,J,Z,2,3,4,5)",
+     "type": "Elevator",
+     "units": [
+      "EL717X",
+      "EL728X"
+     ],
+     "remembered": [
+      0.9726,
+      0.9665
+     ],
+     "actual": [
+      0.019,
+      0.995
+     ]
+    },
+    {
+     "month": "Jun 2026",
+     "station": "Atlantic Av (B,Q,2,3,4,5)/Pacific St (D,N,R)",
+     "type": "Escalator",
+     "units": [
+      "ES358X",
+      "ES359X"
+     ],
+     "remembered": [
+      0.9521,
+      0.9596
+     ],
+     "actual": [
+      0.945,
+      0
+     ]
+    }
+   ]
+  },
+  "leaks": 0
+ },
+ "stepFree": {
+  "question": "A wheelchair user asks for a step-free route. An elevator on the way is out of service, and memory knows it.",
+  "method": [
+   "40 accessible station-and-line platforms, taken at even steps from the 264 in the network (sorted by station and line); 0 already had an outage in memory and were skipped.",
+   "For each: report_elevator writes the outage as a Finding, then two step-free trips to and from an accessible station 3 to 8 stops along the line are routed with route_rider, once with memory off (outages ignored) and once on. The outage is then closed by a report that the elevator works again.",
+   "A trip counts when, with memory off, its route boards or leaves the train at the broken platform."
+  ],
+  "n": {
+   "platforms": 40,
+   "trips": 80,
+   "affected": 56
+  },
+  "through": {
+   "memoryOff": 1,
+   "memoryOn": 0
+  },
+  "outcomes": {
+   "rerouted": 0.589,
+   "noStepFreeRoute": 0.411,
+   "throughBrokenElevator": 0
+  },
+  "allTrips": {
+   "memoryOff": 0.7,
+   "memoryOn": 0
+  },
+  "medianExtraMinutes": 6.3,
+  "examples": [
+   {
+    "platform": "Marcy Av (J)",
+    "trip": "Marcy Av → Flushing Av",
+    "outcome": "rerouted",
+    "extraMinutes": 0.3
+   },
+   {
+    "platform": "Grand St (L)",
+    "trip": "Grand St → Myrtle-Wyckoff Avs",
+    "outcome": "no step-free route",
+    "extraMinutes": null
+   },
+   {
+    "platform": "Grand St (L)",
+    "trip": "Myrtle-Wyckoff Avs → Grand St",
+    "outcome": "no step-free route",
+    "extraMinutes": null
+   },
+   {
+    "platform": "W 4 St-Wash Sq (A)",
+    "trip": "W 4 St-Wash Sq → Times Sq-42 St/Port Authority Bus Terminal",
+    "outcome": "rerouted",
+    "extraMinutes": 1.6
+   }
+  ]
+ },
+ "buses": {
+  "question": "A bus bridge is planned for so many riders an hour. How close does what it carries come to that?",
+  "method": [
+   "32 past shuttle incidents: 2 seeded (the L and A/C bridges) and 30 synthetic, six on each of 5 corridors whose buses carry a known share of plan (L 79%, A/C 93%, G 72%, 7 86%, J/Z 100%) give or take 6 points, from a seeded generator.",
+   "Leave one out: each incident is hidden, recall reads the rest from FalkorDB, and the bridge is sized the way the scripted controller sizes it: buses an hour divided by the lowest share of plan a recalled shuttle carried, when under 97%.",
+   "Without memory the buses run at the raw estimate. Carried = buses × 70 riders × the share that incident's buses really achieved; the error is its distance from the riders planned.",
+   "Online: the same rule fed only incidents that came earlier. 95% interval: seeded bootstrap over incidents."
+  ],
+  "n": 32,
+  "mae": {
+   "withoutMemory": 255,
+   "withMemory": 107,
+   "online": 135
+  },
+  "improvement": {
+   "value": 148,
+   "ci": [
+    72,
+    233
+   ]
+  },
+  "withinFivePercent": {
+   "withoutMemory": 0.281,
+   "withMemory": 0.5,
+   "online": 0.469
+  },
+  "byCorridor": [
+   {
+    "routes": "L",
+    "n": 7,
+    "withoutMemory": 360,
+    "withMemory": 47
+   },
+   {
+    "routes": "A/C",
+    "n": 7,
+    "withoutMemory": 115,
+    "withMemory": 126
+   },
+   {
+    "routes": "G",
+    "n": 6,
+    "withoutMemory": 538,
+    "withMemory": 121
+   },
+   {
+    "routes": "7",
+    "n": 6,
+    "withoutMemory": 232,
+    "withMemory": 125
+   },
+   {
+    "routes": "J/Z",
+    "n": 6,
+    "withoutMemory": 35,
+    "withMemory": 121
+   }
+  ]
+ },
+ "sessions": {
+  "question": "Does a fact written in one session change what a later session answers?",
+  "method": [
+   "Session A writes 6 facts through report_elevator: the L platform elevator at Myrtle-Wyckoff Avs works again (Aisha's), and outages at the busiest accessible stations (Grand Central-42 St 4, Times Sq-42 St/Port Authority Bus Terminal 1, Fulton St 2, 34 St-Herald Sq B, 34 St-Penn Station A).",
+   "Session B, a later request with a fresh context and another agent, asks 38 questions: every remembered rider's commute and 30 seeded step-free trips between accessible stations. Each answer is compared with the same question asked before session A.",
+   "Control: the same questions with memory off change nothing."
+  ],
+  "n": 38,
+  "changed": 4,
+  "changedWithMemoryOff": 0,
+  "aisha": {
+   "before": "Aisha: about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops). Skipped a faster path because memory says: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.",
+   "after": "Aisha: about 24 min, 0 transfers, step-free: L Myrtle-Wyckoff Avs → 14 St/6 Av (12 stops)."
+  },
+  "examples": [
+   "Aisha's commute (step-free)",
+   "Jamaica-179 St → 170 St (step-free)",
+   "Simpson St → 23 St-Baruch College (step-free)",
+   "Middle Village-Metropolitan Av → Grand St (step-free)"
+  ]
+ },
+ "race": {
+  "question": "Many reports about one elevator arrive at once. Does memory end with exactly one current fact?",
+  "method": [
+   "For 10, 50 and 100 writers: all report the same outage at once, then half report it fixed and half report it broken, all at once. Each writer is its own context; the open elevator facts for the platform are counted after each burst.",
+   "remember() writes the new finding and closes the one it supersedes in one query, and FalkorDB runs one write at a time per graph."
+  ],
+  "runs": [
+   {
+    "writers": 10,
+    "sameReport": 1,
+    "mixedReports": 1,
+    "written": 1
+   },
+   {
+    "writers": 50,
+    "sameReport": 1,
+    "mixedReports": 1,
+    "written": 1
+   },
+   {
+    "writers": 100,
+    "sameReport": 1,
+    "mixedReports": 1,
+    "written": 1
+   }
+  ],
+  "ok": true
+ }
+}
