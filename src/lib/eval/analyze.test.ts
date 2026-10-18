@@ -121,6 +121,17 @@ describe("summary", () => {
     expect(s.run.startedAt).toBe("2026-10-19T00:00:00.000Z");
   });
 
+  it("leaves out arms that met a spent free quota, and counts any other error wrong", () => {
+    const quota = r("a", "graph", false, { error: "No free model can answer right now: none is configured, or every one has spent its daily quota." });
+    const timeout = r("d", "graph", false, { error: "took longer than 100 s" });
+    const s = summarize(questions, [...records.filter((x) => !(x.arm === "graph" && ["a", "d"].includes(x.qid))), quota, timeout]);
+    expect(s.leftOut).toBe(1);
+    expect(s.coverage.graph).toBe(3);
+    expect(s.arms.graph.heldout).toMatchObject({ n: 2, correct: 1 });
+    expect(s.arms.graph.dev).toMatchObject({ n: 1, correct: 0 });
+    expect(s.arms.graph.errors).toBe(1);
+  });
+
   it("says when nothing has run", () => {
     expect(summarize(questions, []).status).toBe("not-run");
     expect(summarize(questions, records.filter((x) => x.arm === "rules")).status).toBe("partial");

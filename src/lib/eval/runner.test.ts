@@ -5,6 +5,7 @@ import { run } from "../graph/db";
 import { ensureBaseGraphs } from "../graph/seed";
 import { dropSandbox, ensureSandbox } from "../graph/tenancy";
 import { toolCheck } from "./analyze";
+import { unavailable } from "./availability";
 import type { EvalQuestion } from "./questions";
 import {
   evalToolset,
@@ -15,7 +16,6 @@ import {
   runGraphArm,
   runOrder,
   runQuestion,
-  unavailable,
   type ArmRecord,
   type Halt,
   type RunnerDeps,

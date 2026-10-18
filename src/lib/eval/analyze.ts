@@ -1,3 +1,4 @@
+import { unavailable } from "./availability";
 import { ABSTAIN, rng, SEED, type Category, type EvalQuestion } from "./questions";
 import type { Arm, ArmRecord, ToolCall } from "./runner";
 
@@ -84,6 +85,8 @@ export interface EvalSummary {
   questions: { total: number; heldout: number; dev: number; seed: number; byCategory: Record<string, { dev: number; heldout: number }> };
   /** Results present per arm (a partial run has fewer). */
   coverage: Record<Arm, number>;
+  /** Arms that met a spent free quota and so never ran: left out, not counted wrong. */
+  leftOut: number;
   arms: Record<Arm, ArmSummary>;
   /** Held-out accuracy per category and arm. */
   byCategory: { category: Category; n: number; graph: Interval; baseline: Interval; rules: Interval }[];
@@ -126,10 +129,12 @@ export function goldText(q: EvalQuestion): string {
 
 export function summarize(
   questions: EvalQuestion[],
-  records: ArmRecord[],
+  stored: ArmRecord[],
   run: { id?: string | null; startedMs?: number | null; finishedMs?: number | null } = {},
   now = new Date(),
 ): EvalSummary {
+  // An arm that met a spent free quota never ran, so it is left out; any other error counts as a wrong answer.
+  const records = stored.filter((r) => !(r.error && unavailable(r.error)));
   const arms: Arm[] = ["graph", "baseline", "rules"];
   const rec = new Map(records.map((r) => [`${r.qid}|${r.arm}`, r]));
   const get = (q: EvalQuestion, arm: Arm) => rec.get(`${q.id}|${arm}`);
@@ -208,6 +213,7 @@ export function summarize(
     },
     questions: { total: questions.length, heldout: heldout.length, dev: dev.length, seed: SEED, byCategory: byCategoryCount },
     coverage,
+    leftOut: stored.length - records.length,
     arms: Object.fromEntries(arms.map((a) => [a, armSummary(a)])) as Record<Arm, ArmSummary>,
     byCategory: categories.map((category) => {
       const qs = heldout.filter((q) => q.category === category);

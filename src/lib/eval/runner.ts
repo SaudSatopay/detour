@@ -8,6 +8,7 @@ import { runAgent } from "../agent/run";
 import { run } from "../graph/db";
 import { dropForks } from "../graph/tenancy";
 import type { ToolContext, ToolResult } from "../graph/tools/types";
+import { NO_MODEL } from "./availability";
 import { declines, finalAnswer, grade } from "./grade";
 import type { EvalQuestion } from "./questions";
 import { rulesAnswer } from "./rules";
@@ -257,18 +258,6 @@ export async function runRulesArm(q: EvalQuestion, deps: Pick<RunnerDeps, "base"
 
 /** Why a batch stopped before its time was up. */
 export type Halt = "paused" | "time";
-
-/** A model arm that failed only because no free model could answer: the run waits for the quotas instead of recording it. */
-export const NO_MODEL = /No free model can answer|No model is configured/;
-
-/**
- * Whether a recorded error is about the free models' availability (no model, a spent quota, a rate limit, a retired
- * model) rather than the arm's own work. Only these are run again when a run is reopened; a timeout or a tool's
- * failure stays a wrong answer.
- */
-export function unavailable(error: string): boolean {
-  return NO_MODEL.test(error) || classify(new Error(error)) !== "other";
-}
 
 /**
  * Whether a model arm can start: "ready" when a model can answer, after waiting out a per-minute cool-down if one

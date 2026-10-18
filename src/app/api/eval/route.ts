@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { liveChain, soonestModelMs } from "@/lib/agent/models";
-import { evalToolset, EVAL_VISITOR, runBatch, runOrder, unavailable } from "@/lib/eval/runner";
+import { unavailable } from "@/lib/eval/availability";
+import { evalToolset, EVAL_VISITOR, runBatch, runOrder } from "@/lib/eval/runner";
 import type { EvalQuestion } from "@/lib/eval/questions";
 import { countResults, currentRun, doneKeys, finishRun, getResult, reopenRun, resultPage, saveResult, startRun } from "@/lib/eval/store";
 import { releaseLock, takeLock } from "@/lib/graph/meta";

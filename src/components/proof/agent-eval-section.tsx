@@ -44,7 +44,10 @@ function Bar({ value, tone }: { value: Interval; tone: "signal" | "muted" }) {
 function Cell({ value }: { value: Interval }) {
   return value.n ? (
     <>
-      <span className="font-semibold text-ink-900">{pct(value.rate)}</span> <span className="text-ink-500">{ci(value)}</span>
+      <span className="font-semibold text-ink-900">{pct(value.rate)}</span>{" "}
+      <span className="text-ink-500">
+        {value.correct}/{value.n}
+      </span>
     </>
   ) : (
     <span className="text-ink-500">–</span>
@@ -57,8 +60,9 @@ export function AgentEvalSection() {
   const llm = arms.graph.heldout.n > 0 && arms.baseline.heldout.n > 0;
   const models = [...new Set([...Object.keys(arms.graph.models), ...Object.keys(arms.baseline.models)])].map((m) => m.split(":").slice(1).join(":") || m);
   const date = when(run.startedAt);
+  const partial = S.status === "partial";
   const title = llm
-    ? `With the graph, the agent answers ${pct(arms.graph.heldout.rate)} of held-out questions. The same model without it: ${pct(arms.baseline.heldout.rate)}.`
+    ? `With the graph, the agent answers ${pct(arms.graph.heldout.rate)} of ${partial ? `the ${arms.graph.heldout.n} held-out questions run so far` : "held-out questions"}. The same model without it: ${pct(arms.baseline.heldout.rate)}.`
     : "A held-out test of the agent against the same model without the graph.";
   const tg = S.toolChoice.graph;
   const gg = S.grounding.graph;
@@ -80,7 +84,7 @@ export function AgentEvalSection() {
           <p>
             {llm ? (
               <>
-                Ran {date ? `on ${date} ` : ""}on the deployment, on a sandbox graph of its own, with {models.length === 1 ? "the free model" : "the free models"}{" "}
+                {partial ? "Running since" : "Ran on"} {date ? `${date} ` : ""}on the deployment, on a sandbox graph of its own, with {models.length === 1 ? "the free model" : "the free models"}{" "}
                 {models.map((m, i) => (
                   <span key={m}>
                     {i ? (i === models.length - 1 ? " and " : ", ") : ""}
@@ -88,6 +92,14 @@ export function AgentEvalSection() {
                   </span>
                 ))}
                 . The baseline gets the model the graph arm ended on, the same question, and no tools.
+                {partial ? (
+                  <>
+                    {" "}
+                    The run is partial: {S.graphVsBaseline.n} of {questions.heldout} held-out questions have run on both model arms. The rest wait for
+                    the free models&rsquo; daily quotas, which the eval shares with visitors and never takes the last of
+                    {S.leftOut ? `; ${S.leftOut} arms that met a spent quota never ran and are left out, not counted wrong` : ""}.
+                  </>
+                ) : null}
               </>
             ) : (
               <>
@@ -132,7 +144,7 @@ export function AgentEvalSection() {
 
       <div tabIndex={0} role="region" aria-label="Held-out accuracy by kind of question" className="scroll-x-cue overflow-x-auto rounded-md border border-line">
         <table className="w-full min-w-[640px] border-collapse text-sm">
-          <caption className="sr-only">Held-out accuracy by kind of question, with 95% bootstrap intervals</caption>
+          <caption className="sr-only">Held-out accuracy by kind of question: the share right, then right of those run</caption>
           <thead className="bg-sunk text-left">
             <tr>
               <th scope="col" className="label px-3 py-2 text-ink-700">Held-out questions</th>
@@ -163,7 +175,7 @@ export function AgentEvalSection() {
       <div className="grid gap-6 lg:grid-cols-2">
         <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1.5 text-sm">
           {[
-            ["Declines what is not in the graph (graph · baseline)", llm ? `${pct(S.abstention.graph.shouldDecline.rate)} · ${pct(S.abstention.baseline.shouldDecline.rate)}` : "–"],
+            ["Declines what is not in the graph (graph · baseline)", llm && S.abstention.graph.shouldDecline.n ? `${pct(S.abstention.graph.shouldDecline.rate)} · ${pct(S.abstention.baseline.shouldDecline.rate)}` : "–"],
             ["Wrongly declines an answerable question", llm ? `${pct(S.abstention.graph.falseDecline.rate)} · ${pct(S.abstention.baseline.falseDecline.rate)}` : "–"],
             [
               "Riders within 1 stop of a closure, then 4 (graph)",
