@@ -13,9 +13,9 @@
 <p align="center">
   <a href="https://detour-orpin.vercel.app"><img alt="Live demo: detour-orpin.vercel.app" src="https://img.shields.io/badge/live_demo-detour--orpin.vercel.app-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1, 2 and 3" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2_%2B_3-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="#why-a-graph"><img alt="FalkorDB: maxFlow, SPpaths, GRAPH.COPY" src="https://img.shields.io/badge/FalkorDB-maxFlow_%C2%B7_SPpaths_%C2%B7_GRAPH.COPY-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="#use-it-from-an-agent"><img alt="MCP: streamable HTTP" src="https://img.shields.io/badge/MCP-streamable_HTTP-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="#proof"><img alt="Tests: 95 unit, 15 end-to-end" src="https://img.shields.io/badge/tests-95_unit_%C2%B7_15_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="#use-it-from-an-agent"><img alt="MCP: the agents' own tool path" src="https://img.shields.io/badge/MCP-the_agents'_own_tool_path-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="CLAIMS.md"><img alt="pnpm judge: 15 of 15 claims re-measured" src="https://img.shields.io/badge/pnpm_judge-15%2F15_claims_re--measured-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="#evidence"><img alt="Tests: 226 unit, 18 end-to-end" src="https://img.shields.io/badge/tests-226_unit_%C2%B7_18_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
 </p>
 
 <p align="center">
@@ -38,18 +38,57 @@
 Agents work on a FalkorDB graph of the real subway, built from MTA open data. When a line breaks, they:
 
 1. **Find** whose trips the closure breaks, including riders four stops away who never see it.
-2. **Measure** what the open network can absorb with `algo.maxFlow`, and name the bottleneck (min cut).
+2. **Measure** what the open network can absorb with `algo.maxFlow`, certify the answer, and name what limits it.
 3. **Test** shuttle-bus plans on forked copies of the graph.
-4. **Tell** every remembered rider what to take instead, after a person approves.
-5. **Explain** who owns what, who knows what and why each decision was made, from the agency's own documents, tickets, chats and decisions in the same graph.
+4. **Tell** every remembered rider what to take instead, routed around the segments that overflow, after a person approves.
+5. **Explain** who maintains what, what is broken right now and why each decision was made, from the MTA's own elevator, outage and alert records in the same graph.
 
-Memory lives in the same graph: facts carry dates, and a fact that stops being true is closed, not deleted, so it changes the next answer.
+The agents find their tools on Detour's own MCP server, the same one an outside agent connects to, and choose them toward a goal, saying before each call which result made them choose it. Memory lives in the same graph: facts carry dates, and a fact that stops being true is closed, not deleted, so it changes the next answer.
+
+## For judges: 60 seconds
+
+1. **[Run the L closure](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1).** A free model lists its tools over MCP and works through the closure. Each step shows the sentence that led to it, the arguments it passed, and the Cypher, time and rows behind the answer; every figure in the final brief is checked against the tool results. When the day's free models are spent, the standard procedure carries on from the last step and the trace says so.
+2. **[Report Aisha's elevator fixed](https://detour-orpin.vercel.app/riders?rider=aisha).** One memory write closes the old fact, resolves the ticket, lifts the decision that rested on it, and her step-free route changes from the M (33 min) to the L (24 min).
+3. **[Ask the brain](https://detour-orpin.vercel.app/brain)** *"Is the elevator at Times Sq-42 St working?"* The answer quotes the MTA's own feed and says when it was read.
+4. **[Open the proof](https://detour-orpin.vercel.app/proof)**, or re-measure everything yourself: `pnpm judge` checks the README's 15 headline claims against FalkorDB and an independent NetworkX program, and fails loudly on any mismatch ([CLAIMS.md](CLAIMS.md)).
+
+## Evidence
+
+Every result below is committed with the script that produced it; the proof page shows each one with its method.
+
+| What was tested | Result |
+|:---|:---|
+| **The agent with the graph against the same model without it** (101 held-out questions, split before any run, plus a rules-only floor) | On the 25 held-out questions both model arms have run so far: with the graph **92%** (23 of 25), the same free model without it **4%** (1 of 25); rules alone 101 of 101. The rest of the run waits for the free models' daily quotas ([Agent vs no graph](https://detour-orpin.vercel.app/proof#agent-eval)) |
+| **48 random closures held out** (seeded, 25 lines, 2 to 6 segments) | FalkorDB and NetworkX agree on closed segments, displaced riders, max flow, riders with no path, cut-off stations and headroom in **48 of 48** |
+| **Max flow, certified on every run** | Each answer is checked for feasibility and optimality before use. FalkorDB 4.22.1 returns 300 where the exact answer is 453 on a published 11-edge network, and a wrong flow on 13 of 100 random node-split networks; the certificate catches all of them, and none occurred on the subway |
+| **Memory on real MTA elevator records** (9,360 held-out decisions, Jan to Aug 2026) | Picks the unit that ran more **66.3%** of the time (95% CI 61.3 to 72.4), against 61.8% for a memory without validity windows and 50.2% with none |
+| **Step-free routing with memory off and on** | Routes through an out-of-service elevator: **100% → 0%** |
+| **Procedural memory** (leave-one-out over 32 incidents) | Bus-sizing error **255 → 107** riders an hour |
+| **Concurrency** | 100 writers racing on one fact leave exactly **1** current; 48 readers and 6 writers sustain 7,195 reads and 719 writes a second, 0 errors, tenants isolated |
+| **The company brain on real MTA records** (769 held-out questions) | Graph tools **100%** exact match, against 84.4% for keyword retrieval and 83.1% for the latest snapshot alone ([caveats](https://detour-orpin.vercel.app/proof#brain-eval)) |
+| **A live run on production** | The first model's daily quota was spent and the run handed over to the next; 9 tools discovered and called over MCP; **26 of 26** figures in the brief matched a tool result |
+| **Tests** | 226 unit tests, 18 Playwright tests on desktop and phone (axe accessibility on every page, after a run and after approval, in light and dark), Python verifier tests |
+
+## The judging guidance, point by point
+
+| What the organisers' guide asks for | In Detour |
+|:---|:---|
+| The graph does work the agent could not do without it | Max flow and its certificate, shortest paths over a platform layer, and what-ifs on graph copies; measured against the same model with no graph ([Evidence](#evidence)) |
+| The same question at depth 1 and depth 4 | Closing the L: **10,142** riders board within one stop of it, **14,713** within four |
+| Say when something is not in the graph | Every tool answers in one of four shapes: answered, from memory, not in the graph, unknown name |
+| Tool traces: arguments, timing, rows | Every step in the control room shows the arguments the agent passed, the Cypher, milliseconds and rows |
+| The model never writes Cypher | A fixed catalogue of typed tools; every query is listed on the [proof page](https://detour-orpin.vercel.app/proof#cypher) |
+| Tool selection through MCP | The controller and rider desk list their tools on Detour's MCP server (`tools/list`) and call them there (`tools/call`) |
+| Names checked against the graph | `resolve_places` first, through a full-text index; two stations that match about equally well come back as a choice to make by line |
+| Memory as nodes, read first | Findings with validity windows hang off the same `Station` and `Route` nodes; `recall_memory` runs before planning |
+| One graph per tenant | `GRAPH.COPY` gives every visitor and every MCP session a sandbox, and every what-if a throwaway fork |
+| Paths with answers | Routes come leg by leg; a decision is traced two hops back to the records it rests on |
 
 | Track | Where to see it |
 |:---|:---|
-| **1 · Agents That Act on Connected Data** | The [control room](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1) runs the controller on your own copy of the graph and shows every tool call with its Cypher |
-| **2 · Agent Memory and Coordination** | On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), a superseded fact changes a wheelchair user's route; the [memory page](https://detour-orpin.vercel.app/memory) shows every episode, finding and handoff |
-| **3 · Company Brain** | The [brain page](https://detour-orpin.vercel.app/brain) answers who owns what, who knows what and why a decision was made, from the agency's teams, people, documents, tickets, chats and decisions in the same graph, with every answer citing its sources |
+| **1 · Agents That Act on Connected Data** | The [control room](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1): a model choosing tools over MCP, certified max flow, plans tested on forks, a grounded brief |
+| **2 · Agent Memory and Coordination** | The [riders page](https://detour-orpin.vercel.app/riders?rider=aisha) and [memory page](https://detour-orpin.vercel.app/memory): memory that changes routes, playbooks that learn from what shuttles carried, and memory measured on real records |
+| **3 · Company Brain** | The [brain page](https://detour-orpin.vercel.app/brain): the MTA's real elevators, outages, alerts and projects in one graph with the agency's people and decisions, every answer quoting its sources |
 
 <p align="center">
   <a href="#see-it-run">See it run</a> &nbsp;·&nbsp;
@@ -57,15 +96,15 @@ Memory lives in the same graph: facts carry dates, and a fact that stops being t
   <a href="#graph-data-model">Data model</a> &nbsp;·&nbsp;
   <a href="#the-queries-it-depends-on">Queries</a> &nbsp;·&nbsp;
   <a href="#track-2-memory-you-can-watch-change-an-answer">Memory</a> &nbsp;·&nbsp;
-  <a href="#track-3-a-company-brain-for-the-agency">Company brain</a> &nbsp;·&nbsp;
-  <a href="#proof">Proof</a> &nbsp;·&nbsp;
+  <a href="#track-3-a-company-brain-on-the-mtas-own-records">Company brain</a> &nbsp;·&nbsp;
+  <a href="#where-we-lose">Where we lose</a> &nbsp;·&nbsp;
   <a href="#run-it-locally">Run it locally</a>
 </p>
 
 ## What it finds on the L train
 
 > [!NOTE]
-> Every number in this table comes from tool calls on FalkorDB and is recomputed by an independent NetworkX program.
+> Every number in this table comes from tool calls on FalkorDB and is recomputed by an independent NetworkX program. `pnpm judge` re-measures all of them.
 
 Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday:
 
@@ -73,12 +112,13 @@ Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday:
 |:---|:---|
 | Whose trips cross the closure? | **23,445** riders an hour (10,142 board within one stop of it; 14,713 within four) |
 | Where do they go if nobody steers them? | 4 G segments run at **190 to 244%** of capacity; 4,689 riders have no open path |
-| What can the open network carry if riders spread perfectly? *(max flow)* | **17,167 of 18,432** riders an hour toward Manhattan (93%) |
-| Where is the bottleneck? *(min cut)* | **1 Av**: its only rail links are the closed L, so no spare capacity elsewhere reaches its riders |
+| What can the open network carry if riders spread perfectly? *(max flow)* | **17,167 of 18,432** riders an hour toward Manhattan (93%), certified |
+| Where is the bottleneck? *(min cut)* | **1 Av**: its only rail links are the closed L. No open segment is in the cut; only the stations the closure cuts off (1 Av, and 3 Av as a destination) limit the flow |
+| How much margin is left? *(parametric max flow)* | Displaced demand can grow **1.77×** before an open segment, on the G, saturates |
 | Does a shuttle help? *(tested on a fork)* | 1 Av ↔ Astor Pl: riders with no path 4,689 → **623**; max-flow shortfall 1,266 → **315**. A two-leg plan does no better with 18 more buses |
 | Did memory change the plan? | The June bus bridge carried 79% of plan, so the controller adds **27%** more buses |
 
-With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 more riders can now travel, so the rider desk steers them onto lines with room. The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
+With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 more riders can now travel, so the rider desk routes them around the segments that overflow, onto lines with room. The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
 
 ## See it run
 
@@ -96,13 +136,13 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
 
 | Screen | What you can do |
 |:---|:---|
-| **Home** | Follow the L closure in six chapters on one sticky night map: who it hits, where they go, what max flow says the network can carry, the min cut, the shuttle tested on a fork, the riders rerouted. Every number comes from the run recorded on FalkorDB |
-| **Control room** | Close a line and watch the controller's tool calls stream in with their Cypher. Scrub, step or replay the run at 1×, 2× or 4×, and link straight to a step with `?step=` |
-| **Riders** | Remembered riders and their routes. Report an elevator fixed and watch memory change a wheelchair user's route. With the database down, each rider shows the route the recorded run found |
-| **Memory** | Memory over time: each fact's validity window, closed facts and what replaced them, incidents and agent steps |
-| **Brain** | Ask who owns a station or line, who knows it best, why a decision was made, or what changed this week; each answer cites the documents, tickets, chats, decisions and findings it came from, with the Cypher behind it. Paste a chat message, ticket or note to add it: it is linked to what it names, and an outage is filed with its owner. Your conversation is remembered in your graph |
-| **Proof** | FalkorDB and NetworkX side by side, the concurrency benchmark, and every query |
-| **Every page** | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd>, or the search icon on a phone, opens a command palette for any closure, rider, page or proof check; the theme switch spreads paper or night service from where you click and remembers it |
+| **Home** | Follow the L closure in six chapters on one sticky night map: who it hits, where they go, what max flow says the network can carry, the min cut, the shuttle tested on a fork, the riders rerouted |
+| **Control room** | Close a line and watch the controller choose its tools: the tools it discovered over MCP, the sentence before each call, its arguments, Cypher, time and rows, any model handover, and a brief whose figures are checked. Scrub, step or replay at 1×, 2× or 4×, and link to a step with `?step=`. After approval, close the incident with what the shuttle really carried, and the playbook learns |
+| **Riders** | Remembered riders and their routes, steered around crowded segments while a plan is in force. Report an elevator fixed and watch memory change a wheelchair user's route |
+| **Memory** | Each fact's validity window, closed facts and what replaced them, incidents and every agent step with the reason it gave |
+| **Brain** | Ask about the MTA's real elevators and escalators, current and past outages, service alerts, capital projects and complaints, or about the agency's sample people and decisions: who maintains it, what changed, why it was decided. Answers quote their records, and follow-ups such as *"When will it be back?"* resolve from the conversation |
+| **Proof** | FalkorDB beside NetworkX, the max-flow certificate, held-out closures, what the verifier recomputes, memory measured, the agent against no graph, the brain on real records, concurrency and every query |
+| **Every page** | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd>, or the search icon on a phone, opens a command palette for any closure, rider, page or proof check; the theme switch spreads paper or night service from where you click |
 
 ## How it works
 
@@ -111,19 +151,22 @@ flowchart LR
     dispatcher(["Dispatcher<br/>describes a closure"]) --> agents
     subgraph agents ["Agents"]
         direction TB
-        controller["Controller agent<br/>Gemini, then Groq, or<br/>its procedure as code"]
+        controller["Controller<br/>7 free models in turn,<br/>or its procedure as code"]
         approval{"A person<br/>approves"}
         desk["Rider desk<br/>one agent per<br/>affected rider"]
         controller -- "plans and a brief" --> approval
         approval -- "HANDED_OFF" --> desk
     end
-    agents -- "fixed tool catalogue<br/>13 tools · 83 queries" --> falkor
+    agents -- "tools/list · tools/call" --> mcp["Detour's MCP server<br/>/api/mcp"]
+    outside(["An outside agent"]) -- "open_session" --> mcp
+    mcp -- "typed tools · fixed queries" --> falkor
     subgraph falkor ["FalkorDB"]
         direction TB
         template[("detour:template<br/>network and seeded memory")]
         sandbox[("detour:sbx:‹visitor›<br/>your closures, plans, memory")]
         fork[("detour:fork:…<br/>one per what-if")]
         demand[("detour:demand<br/>30,205 origin-destination<br/>flows, read-only")]
+        agency[("detour:agency<br/>the MTA's elevator, outage,<br/>alert and project records")]
         template -- "GRAPH.COPY" --> sandbox
         sandbox -- "GRAPH.COPY" --> fork
     end
@@ -131,9 +174,10 @@ flowchart LR
     style falkor fill:transparent,stroke:#00848b,stroke-width:2px
 ```
 
-- **The model never writes Cypher.** It picks from a fixed catalogue of typed tools. Each returns one of four answer shapes (answered, from memory, not in the graph, unknown name), a one-line summary, the data, and the exact queries it ran with their timings, which the control room shows step by step.
-- **Three run modes, labeled in the interface.** *Live*: a free model (Gemini, then Groq) chooses the tools. *Scripted*: when the free quota is spent, the controller's procedure runs as code with the same tools on your graph. *Recorded*: when the database is unreachable, a run recorded on FalkorDB plays back.
-- **Every visitor gets a graph.** The first request copies the template into `detour:sbx:<visitor>`; what-if forks are copied from that and deleted after use. Visitors never write to the template, and the demand graph is shared and read-only.
+- **The model never writes Cypher.** It picks from a fixed catalogue of typed tools served over MCP. Each returns one of four answer shapes (answered, from memory, not in the graph, unknown name), a one-line summary, the data, and the exact queries it ran with their timings.
+- **The agents use MCP as their tool path.** The controller and the rider desk connect to `/api/mcp` with a signed session for the visitor's sandbox, list their tools and call them there. If the server is unreachable, the same tools run in-process and the trace says so.
+- **Seven free models, in turn.** Four Gemini and three Groq models; one whose daily quota is spent, or that its provider no longer serves, is noted in the graph and skipped until it can answer again. A model that stops before its brief is told to continue; if the models run out, the standard procedure finishes from the last step, with the same tools.
+- **Every visitor and MCP session gets a graph.** `GRAPH.COPY` copies the template into `detour:sbx:<visitor>`; what-if forks are copied from that and deleted after use. When the free tier's 100 MB fills, forks and the least recently used sandboxes make room.
 
 ## Why a graph
 
@@ -142,9 +186,10 @@ Each step is a graph question that a table or a vector store answers badly:
 | Question | How the graph answers it |
 |:---|:---|
 | **Whose trips cross the break?** | Demand edges carry the segment ids of their 8 a.m. path; stations upstream are found hop by hop over `RUNS` |
-| **What can the rest of the network carry?** | `algo.maxFlow` from a super source to a super sink over spare capacity, per direction of travel, on a fork without the closed segments. The min cut comes from the residual graph |
-| **Where do riders actually go?** | `algo.SPpaths` over a platform layer (board, ride, alight, walk, bus), so waits and transfers are priced the way the baseline assignment prices them |
+| **What can the rest of the network carry?** | `algo.maxFlow` from a super source to a super sink over spare capacity, per direction of travel, on a fork without the closed segments, then a certificate: the flow is feasible and leaves no augmenting path in the residual graph |
+| **Where do riders actually go?** | `algo.SPpaths` over a platform layer (board, ride, alight, walk, bus), so waits and transfers are priced; while a plan is in force, crowded segments cost more |
 | **What did we learn last time?** | Findings hang off the same `Station` and `Route` nodes, so recall is a match from the stations an agent is about to touch |
+| **Why was this decided, and is it still true?** | A decision's `BASED_ON` and `SOURCED_FROM` edges lead to the records it rests on; a record that changes closes the facts that depended on it |
 
 ## Graph data model
 
@@ -155,7 +200,7 @@ flowchart LR
     route(["Route"]) -- SERVES --> a(["Station"])
     a -- "RUNS · WALK · BUS<br/>capacity, load, spare" --> b(["Station"])
     a -- "BOARD<br/>3 min + half the headway" --> pa(["Platform"])
-    pa -- RIDE --> pb(["Platform"])
+    pa -- "RIDE<br/>minutes, crowding cost" --> pb(["Platform"])
     pb -- ALIGHT --> b
 ```
 
@@ -166,7 +211,7 @@ flowchart TB
     controller(["Agent<br/>controller"]) -- HANDED_OFF --> desk(["Agent<br/>rider desk"])
     controller -- OPENED --> incident(["Incident"])
     controller -- PROPOSED --> plan(["Plan"])
-    controller & desk -- ACTED --> episode(["Episode"])
+    controller & desk -- ACTED --> episode(["Episode<br/>tool, why, model, input"])
     controller & desk -- WROTE --> finding(["Finding<br/>valid from, valid to"])
     desk -- WROTE --> advisory(["Advisory"])
     plan -- FOR --> incident
@@ -181,9 +226,12 @@ flowchart TB
     rider -- "STARTS_AT · ENDS_AT" --> station
     finding -- ABOUT --> route(["Route"])
     playbook(["Playbook"]) -- FOR --> route
+    playbook -- SUPERSEDES --> revision(["PlaybookRevision"])
     classDef network stroke:#00848b,stroke-width:2px
     class station,route network
 ```
+
+**The agency** (`detour:agency`, one shared copy, refreshed from the MTA's feeds). 759 elevators and escalators with who maintains them and the MTA's alternative route, their outages (current, planned and resolved, never deleted), live service alerts and their update chains, complaints by station and quarter, and accessibility capital projects with their milestones. Every node carries its source dataset, record id and retrieval time. The agency's people, teams, documents and decisions are sample data in each sandbox, labeled as such, linked to the same stations, lines and records.
 
 The demand graph (`detour:demand`, shared and read-only) holds one `DEMAND` edge per station pair: 30,205 pairs, 404,040 of 446,230 riders at 8 a.m. Forks add `(:Hub {id: 'SRC_F' | 'SNK_F' | …})` and `FLOW {kind, spare, refs}` edges: spare capacity summed per corridor, because `algo.maxFlow` takes one relationship type and no parallel edges. The full spec both implementations follow is [docs/model.md](docs/model.md).
 
@@ -204,7 +252,8 @@ The demand graph (`detour:demand`, shared and read-only) holds one `DEMAND` edge
 (:Station)-[:WALK {wid, meters, minutes, capacity, spare}]->(:Station)
 // BOARD minutes = 3 + half the headway
 (:Station)-[:BOARD {minutes}]->(:Platform {id, station, route})
-(:Platform)-[:RIDE {eid, minutes, closed}]->(:Platform)-[:ALIGHT {minutes: 0}]->(:Station)
+// cost = minutes plus a crowding penalty while a plan is in force
+(:Platform)-[:RIDE {eid, minutes, cost, closed}]->(:Platform)-[:ALIGHT {minutes: 0}]->(:Station)
 // published shuttle legs
 (:Station)-[:BUS {bid, plan, capacity, minutes, busesPerHour}]->(:Station)
 ```
@@ -220,27 +269,31 @@ The demand graph (`detour:demand`, shared and read-only) holds one `DEMAND` edge
 
 ```cypher
 (:Agent)-[:WROTE]->(:Finding {id, text, kind, confidence, validFromMs, validToMs})-[:ABOUT]->(:Station | :Route)
-// a changed fact gets an end date and a successor
+// a changed fact gets an end date and a successor, in one query
 (:Finding)-[:SUPERSEDES]->(:Finding)
 (:Finding)-[:FROM]->(:Incident)
 (:Agent)-[:OPENED]->(:Incident {id, routes, stretch, closedEids, status, displaced,
                                 overflow, stranded, required, absorbed, unmet})-[:CLOSES]->(:Station)
-(:Agent)-[:ACTED]->(:Episode {tool, outcome, summary, queries, ms, atMs})-[:IN]->(:Incident)
+(:Agent)-[:ACTED]->(:Episode {tool, outcome, summary, queries, ms, atMs, why, model, input})-[:IN]->(:Incident)
 (:Agent)-[:PROPOSED]->(:Plan {id, legs, vehicles, strandedBefore, strandedAfter,
-                              unmetBefore, unmetAfter, …})-[:FOR]->(:Incident)
+                              unmetBefore, unmetAfter, crowding, …})-[:FOR]->(:Incident)
 (:Agent)-[:HANDED_OFF {plan, incident, note, atMs}]->(:Agent)
 (:Shuttle {busesPerHour, planned, observed})-[:FOR]->(:Incident)
-(:Playbook {title, steps, uses, lastUsedMs})-[:FOR]->(:Route)
+(:Playbook {title, steps, revision, uses, lastUsedMs})-[:FOR]->(:Route)
+(:Playbook)-[:SUPERSEDES]->(:PlaybookRevision {steps, revision})
 (:Rider {id, name, persona, stepFree, usualEids})-[:STARTS_AT|ENDS_AT]->(:Station)
 (:Rider)-[:PREFERS {validFromMs, validToMs}]->(:Preference {key, value})
 (:Agent)-[:WROTE]->(:Advisory {text, minutes, route, stepFree, atMs})-[:FOR]->(:Rider)
+(:Conversation)-[:HAS]->(:Turn {role, text, atMs})-[:NEXT]->(:Turn)
+(:Turn)-[:MENTIONS]->(:Station | :Route)
+(:Turn)-[:CITES]->()
 ```
 
 </details>
 
 ## The queries it depends on
 
-All 83 queries and graph commands are listed with their labels on the [proof page](https://detour-orpin.vercel.app/proof#cypher). The two that carry the reasoning:
+Every query and graph command is listed with its label on the [proof page](https://detour-orpin.vercel.app/proof#cypher). The two that carry the reasoning:
 
 ```cypher
 // On a fork without the closed segments: spare capacity summed per corridor, then max flow
@@ -304,54 +357,47 @@ RETURN f.id AS id, f.text AS text, f.validFromMs AS validFromMs,
 
 ## Track 2: memory you can watch change an answer
 
-On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), Aisha uses a wheelchair. Memory says the elevator to the L platform at Myrtle-Wyckoff Avs has been out since Oct 14, so her step-free route skips the faster L and takes the M (33 min). Report the elevator fixed: the rider desk writes a new finding that supersedes the outage (the old one gets an end date and stays queryable), and her next route is the L (24 min).
+On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), Aisha uses a wheelchair. Memory says the elevator to the L platform at Myrtle-Wyckoff Avs has been out since Oct 14, so her step-free route skips the faster L and takes the M (33 min). Route her once, then report the elevator fixed: the rider desk writes a finding that supersedes the outage (the old one gets an end date and stays queryable), and her next route is the L (24 min).
 
 <p align="center">
   <img src="docs/images/memory-changes-route.png" alt="Aisha's step-free route before and after the elevator outage was superseded in memory: the L in 24 minutes now, the M in 33 minutes before the memory changed.">
 </p>
 
-The write that changes her route:
+The write that changes her route, in one query so two reports at once can never leave two current facts:
 
 ```cypher
 // A fact that stopped being true is closed and linked to its successor, never deleted
-MATCH (old:Finding {id: $old}), (f:Finding {id: $id})
-WHERE old.validToMs IS NULL
+MATCH (old:Finding {id: $old}) WHERE old.validToMs IS NULL
 SET old.validToMs = timestamp()
-CREATE (f)-[:SUPERSEDES]->(old)
+CREATE (f:Finding {id: $id, text: $text, validFromMs: timestamp()})-[:SUPERSEDES]->(old)
 ```
 
-| Memory | How it lives in the graph |
+| Memory | How it lives in the graph, and what it is measured to do |
 |:---|:---|
-| **Episodic** | Every tool call becomes an `Episode` linked to its incident; the [memory page](https://detour-orpin.vercel.app/memory) draws every fact over its validity window on a timeline |
-| **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance (who wrote it, from which incident) |
-| **Procedural** | Playbooks per route; past shuttles keep planned against observed riders, and the controller sizes new bus plans by the worst ratio it remembers |
-| **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider concurrently |
-| **Persistent conversation history** | Every question and answer is a `Turn` node in the visitor's graph, chained by `NEXT`, the question linked to the stations and lines it mentions and the answer to the nodes it cites. The rider desk and the brain read their history back from the graph, so a returning visitor's conversation continues (a visitor's graph is kept for up to three days; the free tier holds the 8 most recently active, and frees the oldest when it fills) |
-| **Per tenant, under load** | One graph per visitor. 48 reader and 6 writer agents across 6 tenant graphs sustained 7,195 reads and 719 writes a second (p95 15.5 ms and 17.1 ms), 0 errors, and a closure in one tenant was invisible in the other five |
+| **Episodic** | Every tool call becomes an `Episode` with the reason the agent gave, the model and the input, linked to its incident; the [memory page](https://detour-orpin.vercel.app/memory) draws every fact over its validity window |
+| **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance. On 9,360 held-out decisions from the MTA's real elevator records, time-aware memory picks the unit that ran more 66.3% of the time, a memory that keeps every record forever 61.8%, and none 50.2% |
+| **Procedural, learning** | Closing an incident with what each shuttle carried writes it to memory and revises the route's playbook (the old steps stay as a `PlaybookRevision`); the next plan sizes buses from it. Leave-one-out over 32 incidents: bus-sizing error 255 → 107 riders an hour |
+| **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider and routes each around the segments the controller measured over capacity |
+| **Persistent conversation history** | Every question and answer is a `Turn` node, chained by `NEXT`, linked to the stations and lines it mentions and the nodes it cites. Follow-ups such as *"Who made that decision?"* resolve from the last turn even without a model. A visitor's graph is kept for up to three days; the free tier holds the 8 most recently active |
+| **Per tenant, under load** | One graph per visitor and per MCP session. 48 readers and 6 writers across 6 tenant graphs: 7,195 reads and 719 writes a second, 0 errors, isolation held; 10, 50 and 100 writers racing on one fact leave exactly one current |
 
-## Track 3: a company brain for the agency
+## Track 3: a company brain on the MTA's own records
 
-The agency that runs the response lives in the same graph as the subway it runs. Its 7 teams and 10 people, 7 documents (after-action reports, playbooks, a procedure, a policy, notices), 3 maintenance tickets, 6 chat messages and 4 decisions are nodes linked to the same `Station`, `Route`, `Incident`, `Finding` and `Playbook` nodes the agents use. The agency side is sample data, labeled as such; the subway is real.
+The brain answers from the MTA's real records, loaded into one shared graph and refreshed from the MTA's public feeds: 759 elevators and escalators with who maintains each (NYCT, a third party or a private owner) and the MTA's step-free alternative, their outages, current, planned and resolved, live service alerts and their update chains, complaints by station and quarter, and accessibility capital projects with dated milestones. They join the subway graph through the MTA's station complex ids, which Detour's stations already use. The agency's people, teams, documents, tickets, chats and decisions are sample data, labeled as such, linked to the same stations, lines and records.
 
 On the [brain page](https://detour-orpin.vercel.app/brain), ask:
 
 | Question | What the graph does |
 |:---|:---|
-| *Who owns the Myrtle-Wyckoff elevator outage?* | Resolves the station with the full-text index, then follows `OWNS` and `MAINTAINS` to teams and their people, the open ticket and its assignee, and ranks who knows it best by the records they wrote, filed, posted or were assigned |
-| *Why do L tube bus bridges get 27% more buses?* | Finds the decision, then walks `BASED_ON` to the earlier decision, the chat message and the finding it rests on, and `SOURCED_FROM` from that finding back to the after-action report and the ticket: two hops to the original sources |
-| *What changed in the last 7 days?* | Every dated change in the graph: findings learned or closed, tickets opened or resolved, decisions made or lifted, documents, chats and published plans |
-| *Is the Myrtle-Wyckoff L elevator working?* | Searches documents, tickets, chats, decisions and findings, and leads with the ticket's status |
+| *Is the elevator at Times Sq-42 St working?* | Finds the station's units and their open outages, and answers with the MTA's own text, its reason and expected return, and when the feed was read |
+| *Which stations on the A have an elevator out?* | Joins the line's stations to their units and current outages: a question keyword search answers 6% of the time on the held-out set |
+| *Who owns the Myrtle-Wyckoff elevator outage?* | Follows `OWNS` and `MAINTAINS` to teams and people, the open ticket and its assignee, and ranks who knows it best by the records they wrote, filed or were assigned |
+| *Why do L tube bus bridges get 27% more buses?* | Walks `BASED_ON` to the earlier decision, the chat message and the finding it rests on, then `SOURCED_FROM` back to the after-action report and the ticket |
+| *What changed in the last 7 days?* | Every dated change: outages begun or resolved, alerts, findings learned or closed, tickets and decisions, documents and published plans |
 
-Knowledge stays current. Report the Myrtle-Wyckoff elevator fixed on the riders page and three things change in one graph: the outage finding is superseded, ticket EE-1207 resolves and cites the new finding, and the decision to route step-free riders around that platform is lifted. Ask the brain what changed, and those are the first answers.
+Knowledge stays current. Report the Myrtle-Wyckoff elevator fixed and three things change in one graph: the outage finding is superseded, ticket EE-1207 resolves and cites it, and the decision to route step-free riders around that platform is lifted. An outage that leaves the MTA's feed is marked resolved with its time, never deleted, so *"what changed"* includes it.
 
-New knowledge comes in, and work goes out to its owner. Paste a chat message, ticket or note into **Add to the brain** and it becomes a node linked to the stations, lines and people it names (station names are matched with the longest name winning, and a name several stations share is settled by the line the text mentions). An elevator outage files a ticket with the maintenance team's lead, or joins the platform's open ticket instead of duplicating it, and writes the outage to memory, so step-free routes avoid that platform at once. A message saying it works again resolves the ticket and lifts the decisions that rested on it. Your own questions and answers are kept as conversation turns, so the brain shows them when you come back.
-
-| Pasted into the brain | What the graph does |
-|:---|:---|
-| *Elevator to the A platform at Jay St-MetroTech is stuck between floors.* | Links the message to Jay St-MetroTech and the A, files ticket EE-1208 with Gloria Méndez (Elevator and Escalator Maintenance), and writes the outage to memory |
-| *Still stuck: the A platform elevator at Jay St-MetroTech has not moved.* | Adds the report to EE-1208 instead of filing a second ticket |
-| *Signal problem on the G near Metropolitan* (as a ticket) | Resolves "Metropolitan" to Metropolitan Av/Lorimer St by the G and assigns it to the G's planner, Priya Raman |
-| *Myrtle-Wyckoff L platform elevator is back in service.* | Closes the outage in memory, resolves EE-1207 and lifts the step-free routing decision |
+New knowledge comes in, and work goes out to its owner. Paste a chat message, ticket or note into **Add to the brain** and it becomes a node linked to the stations, lines and people it names. An elevator outage files a ticket with the maintenance team's lead, or joins the platform's open ticket, and writes the outage to memory, so step-free routes avoid that platform at once. A message saying it works again resolves the ticket and lifts the decisions that rested on it.
 
 ```cypher
 // Why a decision was made, two hops back to where its evidence came from
@@ -359,19 +405,34 @@ MATCH (d:Decision {id: $id})-[:BASED_ON]->(f:Finding)-[:SOURCED_FROM]->(s)
 RETURN f.id AS finding, collect(DISTINCT s.id) AS sources
 ```
 
-Every answer is a list of numbered source nodes with who wrote each one, their team and the date, and the answer cites them as [1], [2]. A free model writes the answer when quota allows; otherwise the standard procedure picks the tool from the question and answers in templated words, labeled as such.
+Every answer is a list of numbered sources with who wrote each one, its team or dataset and its date, and quotes the exact text it rests on. On 769 held-out questions generated from the records, with answers computed outside FalkorDB, the brain's graph tools score 100% exact match, against 84.4% for keyword retrieval and 83.1% for a brain that keeps only the latest snapshot; the lead comes from joins and history. The questions are templates over the same records, so this shows the tools handle these forms, not open-ended questions.
+
+## Where we lose
+
+Results that went against Detour, or that it cannot show yet:
+
+- **The free models.** Live answers run on free-tier models. When every one of the day's quotas is spent, the standard procedure answers with the same tools and templated wording, labeled as such.
+- **The model against plain rules.** On the 25 held-out questions run so far, a rules router written against the question templates answers all 25 and the free model with the graph 23: once it misread the riders within four stops, and once a model stopped after its first tool. The full held-out run is still waiting on free quota.
+- **The most failure-prone units.** Ranking the 50 elevators most likely to fail, the memory that keeps every record forever is right 72% of the time and Detour's time-aware memory 60%.
+- **The controller's plan choice.** On 15 held-out closures that need buses, its pick has the best gain per bus on 13; the mean gap to the best plan is 3.9%, the worst 31%, because it simulates only the first candidate of each kind.
+- **Bus sizing on some lines.** Memory makes sizing worse on the J/Z and the A/C, where buses already run near plan.
+- **Ties in fastest paths.** On 6 of the 48 held-out closures, two paths take exactly the same minutes and FalkorDB and NetworkX pick different ones; overflow then differs within the range NetworkX itself finds over random tie-breaks.
+- **The brain's 100%.** Its questions are templates over the records its tools read, and the keyword baseline is given the question's ids; it measures joins and history, not open-ended language.
+- **The free database.** 100 MB holds the 8 most recently active visitors' graphs; an older one is copied fresh on the next visit.
 
 ## Proof
 
 | Check | Result |
 |:---|:---|
-| Max flow, FalkorDB `algo.maxFlow` vs NetworkX Edmonds-Karp | Agree in all 6 direction groups of the 3 closures |
+| Max flow, FalkorDB `algo.maxFlow` vs NetworkX Edmonds-Karp | Agree in all 6 direction groups of the 3 closures, and on 48 of 48 held-out closures, every answer certified |
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
-| Closed segments per scenario | Identical sets |
+| Fastest-path overflow, the G's overload, riders with no path | Recomputed by NetworkX: 24,078 overflow, the G at 244/201/198/190%, 4,689 with no path |
+| Headroom | 1.769 on FalkorDB, 1.768728 on NetworkX |
+| The README's headline claims | `pnpm judge`: all 15 re-measured and matched ([CLAIMS.md](CLAIMS.md)) |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 95 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, the brain's question routing and the integrity of its sample records, and how pasted text is read: stations, lines, people, an outage or a fix |
-| End-to-end tests | 15 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, the brain tracing a decision and naming a ticket's owner, and axe accessibility checks on every page, after a run and after approval, in light and dark |
-| Lighthouse, mobile (every page) | Performance 96 to 98; accessibility, best practices and SEO 100 |
+| Unit tests | 226 Vitest tests, among them the model chain and its failure handling, the grounding check, MCP sessions, the max-flow certificate and Dinic solver, crowding-aware routing, playbook learning, the race on one fact (with a database), the brain's feed parsing and question generation, and the eval's gold answers |
+| End-to-end tests | 18 Playwright tests, each on desktop and phone: the control flow and playback, riders and memory, the command palette, the brain's answers, receipts and follow-ups, and axe accessibility checks on every page, after a run and after approval, in light and dark |
+| Lighthouse, mobile (every page) | Performance 96 to 99; accessibility, best practices and SEO 100 |
 
 <p align="center">
   <img src="docs/images/proof.png" alt="The proof page: FalkorDB and NetworkX side by side for every closure.">
@@ -415,7 +476,7 @@ Every answer is a list of numbered source nodes with who wrote each one, their t
 
 ## Use it from an agent
 
-The same tools are served over MCP (Streamable HTTP) at `https://detour-orpin.vercel.app/api/mcp`. `assess_closure` runs on a private copy of the graph, so clients never see each other's closures.
+Detour's agents use this server themselves. It speaks MCP (Streamable HTTP) at `https://detour-orpin.vercel.app/api/mcp` and serves the whole catalogue with tool annotations. Reading tools run on the shared template graph; for anything that closes lines, tests plans or writes memory, call `open_session` and pass its token as `session`, and you get a sandbox of your own that nobody else can see. Publishing a plan to riders is not on the server: that takes a person in the control room.
 
 ```bash
 claude mcp add --transport http detour https://detour-orpin.vercel.app/api/mcp
@@ -423,10 +484,18 @@ claude mcp add --transport http detour https://detour-orpin.vercel.app/api/mcp
 
 | Tool | What it does |
 |:---|:---|
+| `open_session` | Copies the subway graph into a sandbox only you can change and returns a session token |
 | `resolve_places` | Resolves station and route names to graph ids, with ambiguous candidates or unknown names |
-| `route_trip` | The fastest route at 8 a.m. on a weekday; `step_free` keeps every boarding and exit accessible and skips platforms with a remembered elevator outage |
-| `recall_memory` | Dated facts, past incidents with planned versus observed shuttle capacity, and playbooks for the given routes and stations |
-| `assess_closure` | Closes routes between two stations on a private copy of the graph, then reports riders hit by distance, overflow, max flow with the min cut and, optionally, a shuttle plan (about 4 seconds; 30 an hour per client) |
+| `recall_memory` | Dated facts, past incidents with planned versus observed shuttle capacity, and playbooks |
+| `close_line` | Opens an incident: closes routes between two stations in your sandbox |
+| `affected_riders` | Riders an hour whose trips cross the closure, by how far from it they board |
+| `measure_capacity` | Fastest-path overflow, and certified max flow with what limits it |
+| `measure_headroom` | How much more displaced demand the open network takes before a segment saturates |
+| `shuttle_candidates`, `simulate_plan` | Shuttle bridges where riders are stuck, tested on a fork before and after |
+| `propose_steering` | A plan with no buses, when the network carries everyone |
+| `riders_affected`, `route_rider` | Remembered riders hit by the closure; the fastest open route, step-free if needed, around crowded segments |
+| `remember` | Writes a dated finding, superseding an older one when a fact changed |
+| `route_trip`, `assess_closure` | One-call conveniences: a route, or a whole closure assessment on a throwaway copy |
 
 ## Run it locally
 
@@ -440,23 +509,28 @@ pnpm seed    # loads the network, demand and memory into FalkorDB (about a secon
 pnpm dev     # http://localhost:3000
 ```
 
-From a clean checkout, install, type check, unit tests and a production build take about a minute (62 s with a warm pnpm cache). The built network is committed in `data/nyc/`; to rebuild it from MTA sources, run `pnpm fetch:data && pnpm build:data`.
+The built network is committed in `data/nyc/` and a snapshot of the MTA's records in `data/agency/`; to rebuild them, run `pnpm fetch:data && pnpm build:data` and `pnpm agency:snapshot`.
 
 | Command | What it checks |
 |:---|:---|
+| `pnpm judge` | Re-measures the README's 15 headline claims on FalkorDB and NetworkX; fails on any mismatch |
 | `pnpm test` | Unit tests (Vitest) |
 | `pnpm typecheck`, `pnpm lint` | Types and lint |
 | `pnpm test:e2e` | Playwright on desktop and phone; set `BASE_URL` to test a deployment |
-| `pnpm verify` | The NetworkX verifier (needs [uv](https://docs.astral.sh/uv/)) |
+| `pnpm verify`, `pnpm test:verify` | The NetworkX verifier and its tests (needs [uv](https://docs.astral.sh/uv/)) |
 | `pnpm ci:scenarios` | Every tool on all three closures against FalkorDB, compared with NetworkX |
+| `pnpm eval:closures` | The 48 held-out closures, FalkorDB against NetworkX, and the plan choice against a brute-force oracle |
+| `pnpm eval:memory` | Memory off and on: real elevator records, step-free routing, bus sizing, across sessions |
+| `pnpm eval:brain` | The brain's graph tools against keyword retrieval on held-out questions from the MTA's records |
+| `pnpm eval:fetch`, `pnpm eval:analyze` | The agent with the graph against the same model without it, run server-side on the deployment's models |
 | `pnpm ci:bench` | The concurrency and tenant-isolation benchmark |
 
-**Stack:** Next.js 16 (App Router, Cache Components), React 19, Tailwind 4, TypeScript, FalkorDB 4.22 via `falkordb` 6.8, Vercel AI SDK 7 with Gemini and Groq, and `mcp-handler`. Deployed on Vercel.
+**Stack:** Next.js 16 (App Router, Cache Components), React 19, Tailwind 4, TypeScript, FalkorDB 4.22 via `falkordb` 6.8, Vercel AI SDK 7 with Gemini and Groq, `@ai-sdk/mcp`, and `mcp-handler`. Deployed on Vercel.
 
 ## Data
 
-[MTA GTFS static](http://web.mta.info/developers/data/nyct/subway/google_transit.zip) (weekday trains departing 08:00 to 08:59 give trains per hour and capacity), [MTA Subway Stations](https://data.ny.gov/d/39hk-dx4f) and [Stations and Complexes](https://data.ny.gov/d/5f5g-n3cz) (accessibility), and the [MTA Subway Origin-Destination Ridership Estimate: 2025](https://data.ny.gov/d/y2qv-fytt) (a Wednesday in October 2025, 8 a.m.). Assumptions are listed on the [proof page](https://detour-orpin.vercel.app/proof#data). The remembered riders, past incidents and playbooks are example data and labeled as such. Detour is not affiliated with the MTA.
+[MTA GTFS static](http://web.mta.info/developers/data/nyct/subway/google_transit.zip) (weekday trains departing 08:00 to 08:59 give trains per hour and capacity), [MTA Subway Stations](https://data.ny.gov/d/39hk-dx4f) and [Stations and Complexes](https://data.ny.gov/d/5f5g-n3cz) (accessibility), and the [MTA Subway Origin-Destination Ridership Estimate: 2025](https://data.ny.gov/d/y2qv-fytt) (a Wednesday in October 2025, 8 a.m.). The brain reads the MTA's live [elevator and escalator](https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json) and [service alert](https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json) feeds, and from data.ny.gov the [elevator and escalator asset inventory](https://data.ny.gov/d/94fv-bak7), [availability](https://data.ny.gov/d/rc78-7x78), [service alerts](https://data.ny.gov/d/7kct-peq7), [customer feedback](https://data.ny.gov/d/nh7m-at3e) and [capital projects](https://data.ny.gov/d/9hy6-8j6t). Assumptions are listed on the [proof page](https://detour-orpin.vercel.app/proof#data). The remembered riders, past incidents, playbooks and the agency's people and decisions are sample data, labeled as such. Detour is not affiliated with the MTA.
 
 ## AI assistance
 
-Detour was built with [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, as a pair programmer: it did much of the research, design, code, tests and documentation under my direction. At runtime the agents use free-tier Gemini and Groq models. The graph model, queries and architecture are documented above, and every number the agents report is checked by the NetworkX verifier rather than by a language model.
+Detour was built with [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, as a pair programmer: it did much of the research, design, code, tests and documentation under my direction. At runtime the agents use free-tier Gemini and Groq models. The graph model, queries and architecture are documented above, and every number the agents report is checked by the NetworkX verifier, the max-flow certificate and the grounding check rather than by a language model.
