@@ -312,7 +312,7 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | Identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 71 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit and the eval grader |
+| Unit tests | 73 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure and the eval grader |
 | End-to-end tests | 13 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 98; accessibility, best practices and SEO 100 |
 
