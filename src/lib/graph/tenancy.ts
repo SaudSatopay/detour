@@ -8,7 +8,8 @@ import { ensureBaseGraphs } from "./seed";
  * plans and memory written during a visit never touch anyone else's graph. The free FalkorDB
  * tier has 100 MB, so sandboxes are capped and the least recently used ones are dropped.
  */
-const MAX_SANDBOXES = 12;
+/** Eight leaves room for the what-if forks each tool call makes, and for the shared graphs, inside 100 MB. */
+export const MAX_SANDBOXES = 8;
 /** Long enough for a returning visitor's memory and conversation to still be there; the cap above still bounds space. */
 const SANDBOX_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
@@ -35,6 +36,28 @@ async function freeSpace(keep: string): Promise<void> {
   }
   const others = entries.filter((e) => e.id !== keep).sort((a, b) => a.seen - b.seen);
   for (const e of others.slice(0, Math.ceil(others.length / 2))) await dropVisitor(e.id).catch(() => undefined);
+}
+
+/**
+ * Makes room for a what-if fork when the database is full, without touching forks in use: the least recently used
+ * half of the other visitors' sandboxes goes. Their owners get a fresh copy on their next visit.
+ */
+export async function makeRoom(keep: string): Promise<void> {
+  const others = (await sandboxEntries().catch(() => []))
+    .filter((e) => e.id !== keep)
+    .sort((a, b) => a.seen - b.seen);
+  for (const e of others.slice(0, Math.max(1, Math.ceil(others.length / 2)))) await dropVisitor(e.id).catch(() => undefined);
+}
+
+/** Copies a graph for a what-if; at the memory limit, makes room once and tries again. */
+export async function copyForWhatIf(visitorId: string, source: string, destination: string): Promise<void> {
+  try {
+    await copyGraph(source, destination);
+  } catch (error) {
+    if (!isDatabaseFull(error)) throw error;
+    await makeRoom(visitorId);
+    await copyGraph(source, destination);
+  }
 }
 
 let baseReady: Promise<void> | null = null;

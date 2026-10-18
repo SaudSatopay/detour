@@ -86,7 +86,7 @@ const handler = createMcpHandler(
       {
         title: "Open a session with a graph of your own",
         description:
-          "Copies the New York subway graph into a sandbox only you can change and returns a session token. Pass it as `session` to every tool that closes lines, measures capacity, tests plans or writes memory. A session lasts three days; the free database keeps the 12 most recently used sandboxes.",
+          "Copies the New York subway graph into a sandbox only you can change and returns a session token. Pass it as `session` to every tool that closes lines, measures capacity, tests plans or writes memory. A session lasts three days; the free database keeps the 8 most recently used sandboxes.",
         inputSchema: z.object({}),
         annotations: { title: "Open a session", readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       },

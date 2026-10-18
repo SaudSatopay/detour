@@ -1,6 +1,6 @@
 import { loadNetwork } from "../../network/data";
 import type { Network } from "../../network/types";
-import { copyGraph, deleteGraph, listGraphs } from "../db";
+import { deleteGraph, listGraphs } from "../db";
 import {
   busLeg,
   BUS_FLEET,
@@ -18,6 +18,7 @@ import {
   type FlowEdge,
 } from "../flow";
 import { forkGraph } from "../names";
+import { copyForWhatIf } from "../tenancy";
 import { displacedPairs } from "./impact";
 import { applyCrowding, crowdingOf, openIncident, type Incident } from "./incident";
 import { result, type CutHighlight, type FlowHighlight, type ToolContext, type ToolResult } from "./types";
@@ -74,7 +75,7 @@ async function withClosureFork<T>(ctx: ToolContext, incident: Incident, fn: (pre
 /** Copies the sandbox into the fork, deletes the closed segments, and frees displaced riders' capacity. */
 async function prepareClosureFork(ctx: ToolContext, incident: Incident, fork: string): Promise<Prepared> {
   const network = await loadNetwork();
-  await ctx.tracer.command("fork the sandbox", fork, `GRAPH.COPY ${ctx.sandbox} ${fork}`, () => copyGraph(ctx.sandbox, fork));
+  await ctx.tracer.command("fork the sandbox", fork, `GRAPH.COPY ${ctx.sandbox} ${fork}`, () => copyForWhatIf(ctx.visitorId, ctx.sandbox, fork));
   await ctx.tracer.run("drop closed segments in the fork", fork, "MATCH ()-[r:RUNS {closed: true}]->() DELETE r");
   await ctx.tracer.run("drop closed rides in the fork", fork, "MATCH ()-[r:RIDE {closed: true}]->() DELETE r");
 
@@ -780,7 +781,7 @@ export async function simulatePlan(
 
   const planId = `PLAN-${Date.now().toString(36).toUpperCase()}`;
   const planFork = forkGraph(ctx.visitorId, `p-${planId.toLowerCase()}`);
-  await ctx.tracer.command("fork for this plan", planFork, `GRAPH.COPY ${prepared.fork} ${planFork}`, () => copyGraph(prepared.fork, planFork));
+  await ctx.tracer.command("fork for this plan", planFork, `GRAPH.COPY ${prepared.fork} ${planFork}`, () => copyForWhatIf(ctx.visitorId, prepared.fork, planFork));
   try {
     await ctx.tracer.run(
       "add shuttle legs",
