@@ -18,7 +18,8 @@
     "ci:bench": "tsx scripts/ci/bench.ts",
     "record": "tsx scripts/record-replay.ts",
     "eval": "tsx scripts/eval/build-questions.ts && tsx scripts/eval/run-eval.ts",
-    "deadcode": "knip"
+    "deadcode": "knip",
+    "agency:snapshot": "tsx scripts/agency/fetch-snapshot.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.96",

@@ -323,10 +323,12 @@ export const FINDING_SOURCES: Record<string, string[]> = {
   "F-ELEV-2": ["EE-1207", "DOC-NOTICE-MW", "MSG-1014-1"],
 };
 
+/** Questions the brain page offers: the first two about the sample agency, the rest about the MTA's real records. */
 export const BRAIN_SUGGESTIONS = [
   "Who owns the Myrtle-Wyckoff elevator outage?",
   "Why do L tube bus bridges get 27% more buses?",
-  "Who knows the most about the G at Metropolitan Av?",
+  "Which stations on the A have an elevator out of service?",
+  "What is the MTA's alternative route when elevator EL293 is out?",
+  "What milestones has the ADA project at Broadway Junction reached?",
   "What changed in the last 7 days?",
-  "What do we know about the Williamsburg Bridge approach?",
 ];

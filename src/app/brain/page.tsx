@@ -5,7 +5,7 @@ import { BrainRoom } from "@/components/brain/brain-room";
 export const metadata: Metadata = {
   title: "Agency brain",
   description:
-    "Ask who owns what, who knows what, and why a decision was made: people, teams, documents, tickets, chats and decisions in the same FalkorDB graph as the subway, with sources.",
+    "Ask about the MTA's real elevators, outages, alerts and accessibility projects, and a sample agency's owners, tickets and decisions: one FalkorDB graph, every answer with its sources and receipts.",
 };
 
 // GTFS route colors (data, not brand tokens) by route id and by the name riders see ("GS" and "S"), built on the
@@ -30,10 +30,11 @@ export default function BrainPage() {
           </h1>
           <div className="flex max-w-prose flex-col gap-3">
             <p className="text-lg text-ink-700">
-              The people, teams, documents, tickets, chats and decisions behind the response live in the same FalkorDB graph as the subway. Every
-              answer cites the nodes it came from.
+              The MTA&apos;s own records (every elevator and escalator with who maintains it, every outage its feed has listed, live service alerts and
+              their history, rider complaints and accessibility projects) sit in one shared FalkorDB graph beside a sample agency&apos;s people, teams,
+              documents, tickets, chats and decisions. Every answer cites the records it came from, with the published text and when it was read.
             </p>
-            <p className="text-sm text-ink-500">The agency side is sample data; the subway is real MTA data.</p>
+            <p className="text-sm text-ink-500">MTA records are real and labeled as such; the agency&apos;s people and their documents are sample data.</p>
           </div>
         </div>
       </header>

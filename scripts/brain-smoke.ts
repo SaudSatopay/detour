@@ -1,20 +1,24 @@
 /**
  * Checks the agency brain against a real FalkorDB: copies the template into a scratch graph, installs
  * the org layer twice (the second is a no-op), answers the suggested questions with the standard
- * procedure, reports an elevator fixed and checks its ticket and decision follow, then deletes the copy.
+ * procedure, reports an elevator fixed and checks its ticket and decision follow, then asks about the
+ * shared graph of real MTA records (installed from the snapshot when missing), with follow-ups read from the
+ * conversation, and deletes the copy.
  *   tsx scripts/brain-smoke.ts
  */
 import { existsSync } from "node:fs";
-import { answerBrain } from "../src/lib/agent/brain";
-import { conversationPairs, recentTurns, rememberTurns } from "../src/lib/graph/conversation";
+import { answerBrain, resolveFollowUp } from "../src/lib/agent/brain";
+import { agencyStatus, currentOutages, ensureAgency } from "../src/lib/graph/agency";
+import { conversationPairs, lastExchange, recentTurns, rememberTurns } from "../src/lib/graph/conversation";
 import { connect, copyGraph, deleteGraph, listGraphs, run } from "../src/lib/graph/db";
-import { ingest } from "../src/lib/graph/intake";
+import { extractMentions, ingest } from "../src/lib/graph/intake";
 import { TEMPLATE_GRAPH } from "../src/lib/graph/names";
 import { ensureOrgLayer } from "../src/lib/graph/org";
 import { BRAIN_SUGGESTIONS } from "../src/lib/graph/seed-org";
 import { Tracer } from "../src/lib/graph/trace";
 import { brainDirectory, traceDecision, whatsChanged } from "../src/lib/graph/tools/brain";
 import { reportElevator } from "../src/lib/graph/tools/memory";
+import { loadNetwork } from "../src/lib/network/data";
 
 const SCRATCH = "detour:brain-smoke";
 
@@ -31,6 +35,8 @@ async function main() {
     t = performance.now();
     await ensureOrgLayer(SCRATCH);
     console.log(`second install (no-op): ${(performance.now() - t).toFixed(0)} ms`);
+    // The shared graph of real MTA records, installed from the snapshot when this database has none.
+    await ensureAgency();
 
     const dir = await brainDirectory(ctx());
     console.log("counts", JSON.stringify(dir.counts));
@@ -86,6 +92,47 @@ async function main() {
     console.log(`\nconversation: ${history.length} turns read back (${history.map((h) => h.role[0]).join("")}), ${pairs.length} pairs, ${chain.rows[0]?.n} NEXT links, ${cites.rows[0]?.n} CITES links`);
     const dir2 = await brainDirectory(ctx());
     console.log(`directory history: ${dir2.history.map((h) => `${h.id} "${h.question}" (${h.cites.length} cites)`).join(" | ")}; open tickets ${dir2.openTickets.map((t) => t.id).join(", ")}`);
+
+    // The shared agency graph of real MTA records: questions about it, receipts, and follow-ups read from the conversation.
+    t = performance.now();
+    await ensureAgency();
+    const status = await agencyStatus();
+    console.log(`\nagency graph ready in ${(performance.now() - t).toFixed(0)} ms: ${JSON.stringify(status.counts)}, from ${status.from}`);
+    const out = await currentOutages();
+    console.log(`currentOutages(): ${out.length}, first ${JSON.stringify(out[0])}`);
+    const unit = out.find((o) => o.kind === "elevator")?.equipment ?? "EL382";
+    const station = (await loadNetwork()).stations.find((s) => s.id === out[0]?.station)?.name ?? "Prospect Park";
+    let previous: { question: string; answer: Awaited<ReturnType<typeof answerBrain>> } | null = null;
+    for (const q of [
+      ...BRAIN_SUGGESTIONS.slice(2, 5),
+      `Is elevator ${unit} in service right now?`,
+      "When will it be back?",
+      "Who maintains it?",
+      `Who owns the elevator outages at ${station}?`,
+      "Any alerts there?",
+      "Which stations on the L have an elevator or escalator out of service right now?",
+      "How many rider complaints about elevator or escalator outages were filed for Prospect Park in 2026 Q1?",
+      "Why did we decide to route step-free riders around Myrtle-Wyckoff?",
+      "Who made that decision?",
+    ]) {
+      const prev = await lastExchange(SCRATCH, "brain");
+      const names = new Map((await loadNetwork()).stations.map((s) => [s.id, s.name]));
+      const follow = resolveFollowUp(q, prev ? { cites: prev.cites, stations: prev.stations.map((id) => ({ id, name: names.get(id) ?? id })) } : null);
+      const a = await answerBrain(base, follow?.question ?? q, { live: false });
+      const m = extractMentions(follow?.question ?? q, [...names].map(([id, name]) => ({ id, name, routes: [] })), [], []);
+      await rememberTurns(SCRATCH, "brain", [
+        { role: "user", text: q, stations: m.stations.map((s) => s.id) },
+        { role: "assistant", text: a.answer, mode: a.mode, cites: a.sources.map((s) => s.id) },
+      ]);
+      const receipts = a.sources.filter((s) => s.receipt).map((s) => `${s.id} [${s.receipt!.dataset}] “${s.receipt!.quote.slice(0, 70)}”`);
+      console.log(
+        `\nQ: ${q}${follow ? `  → read as: ${follow.question}` : ""}\n[${a.steps.map((s) => `${s.tool}:${s.outcome}:${s.trace.length}q`).join(" → ")}] ${a.ms} ms\nA: ${a.answer}\n   sources: ${a.sources
+          .map((s, i) => `[${i + 1}] ${s.id} (${s.origin})`)
+          .join(" ")}${receipts.length ? `\n   receipts: ${receipts.slice(0, 2).join(" | ")}` : ""}`,
+      );
+      previous = { question: q, answer: a };
+    }
+    if (!previous) throw new Error("no agency answers");
   } finally {
     await deleteGraph(SCRATCH);
     await (await connect()).close();

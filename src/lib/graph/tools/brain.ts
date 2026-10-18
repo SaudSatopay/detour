@@ -1,6 +1,8 @@
 import type { BrainDirectory, BrainOwned, BrainPerson, BrainSource, BrainTeam, SourceKind } from "../../brain/types";
 import { loadNetwork } from "../../network/data";
+import { equipmentStatus, type EquipmentData } from "../agency-tools";
 import { conversationPairs } from "../conversation";
+import { Tracer } from "../trace";
 import { BRAIN_SUGGESTIONS } from "../seed-org";
 import { result, type ToolContext, type ToolResult } from "./types";
 
@@ -68,6 +70,9 @@ function toSource(r: SourceRow): BrainSource {
     status,
     snippet: r.title && text ? clip(text, 240) : null,
     about: (r.about ?? []).filter(Boolean),
+    // The sample agency's records, or the visitor's own intake (written as "You").
+    origin: r.by === "You" ? "visitor" : "sample",
+    receipt: null,
   };
 }
 
@@ -163,6 +168,8 @@ export interface OwnsData {
   owners: OwnerTeam[];
   tickets: { id: string; title: string; status: string; assignee: string | null; role: string | null; team: string | null }[];
   knows: Knower[];
+  /** The real MTA units at the station asked about: who maintains them (asset inventory) and which are out. */
+  real: EquipmentData | null;
   sources: BrainSource[];
 }
 
@@ -172,9 +179,9 @@ const ID_PATTERN = /\b(EE-\d{3,5}|BUS-\d{4}-\d{2}|INC-[0-9A-Z]{3,10}|PB-[A-Z-]{3
 export function routesIn(text: string, known: string[]): string[] {
   const found = new Set<string>();
   const set = new Set(known);
-  for (const m of text.matchAll(/\b(?:the\s+)?([A-Z]{1,2}|[1-7])(?:\s+(?:train|line|lines|trains|tube|platform))?\b/g)) {
+  for (const m of text.matchAll(/\b(?:the\s+)?([A-Z]{1,2}|[1-7])(?:\s+(?:train|line|lines|trains|tube|platform|stations?))?\b/g)) {
     const id = m[1];
-    const explicit = /\b(?:the\s+\S+|\S+\s+(?:train|line|lines|trains|tube|platform))$/.test(m[0]);
+    const explicit = /\b(?:the\s+\S+|\S+\s+(?:train|line|lines|trains|tube|platform|stations?))$/.test(m[0]);
     if (set.has(id) && (explicit || (id.length === 1 && id !== "A" && id !== "I"))) found.add(id);
   }
   return [...found];
@@ -216,6 +223,7 @@ export async function whoOwns(ctx: ToolContext, input: { subject: string }): Pro
       owners: [],
       tickets: [],
       knows: [],
+      real: null,
       sources: [],
     });
   }
@@ -295,9 +303,24 @@ export async function whoOwns(ctx: ToolContext, input: { subject: string }): Pro
   const ownerRows = owners.rows.map((o) => ({ ...o, people: (o.people ?? []).filter((p) => p && p.id) }));
   const sourceIds = [...tickets.rows.filter((k) => k.status === "open").map((k) => k.id), ...knows.rows.flatMap((k) => [...k.assigned.slice(0, 1), ...k.ids.slice(0, 2)]), ...tickets.rows.filter((k) => k.status !== "open").map((k) => k.id)];
   const sources = await sourcesFor(ctx, sourceIds.slice(0, 8));
-  const data: OwnsData = { subject: { label, stations, routes, ids }, owners: ownerRows, tickets: tickets.rows, knows: knows.rows, sources };
 
-  if (!ownerRows.length && !tickets.rows.length && !knows.rows.length) {
+  // The real side: the MTA's units at the station and the organisations that maintain them.
+  let real: EquipmentData | null = null;
+  if (station) {
+    // Its own tracer, so its result does not take this tool's queries with it; its queries join this trace after.
+    const sub: ToolContext = { ...ctx, tracer: new Tracer() };
+    const units = await equipmentStatus(sub, { query: `${station.name} ${/escalator/i.test(input.subject) ? "escalator" : /elevator/i.test(input.subject) ? "elevator" : ""}` }).catch(() => null);
+    ctx.tracer.traces.push(...(units?.trace ?? sub.tracer.traces));
+    if (units?.outcome === "answered") {
+      real = units.data;
+      const out = units.data.units.filter((u) => u.state === "out of service").map((u) => u.id);
+      const pick = units.data.sources.filter((s) => (s.kind === "outage" && s.status === "open") || (s.kind === "asset" && out.some((id) => s.id === `ASSET-${id}`)));
+      sources.push(...(pick.length ? pick : units.data.sources.filter((s) => s.kind === "asset").slice(0, 1)).slice(0, 4));
+    }
+  }
+  const data: OwnsData = { subject: { label, stations, routes, ids }, owners: ownerRows, tickets: tickets.rows, knows: knows.rows, real, sources };
+
+  if (!ownerRows.length && !tickets.rows.length && !knows.rows.length && !real) {
     return result(ctx, "who_owns", "not_in_graph", `No team, ticket or person in the graph is connected to ${label}.`, data);
   }
   const open = tickets.rows.find((k) => k.status === "open");
@@ -305,10 +328,19 @@ export async function whoOwns(ctx: ToolContext, input: { subject: string }): Pro
     ownerRows.length ? `${ownerRows.map((o) => `${o.name} (${o.via})`).join("; ")}.` : `No team owns ${label} in the graph.`,
     open ? `Open ticket ${open.id} is assigned to ${open.assignee ?? "nobody"}.` : "",
     knows.rows.length ? `Knows it best: ${knows.rows.slice(0, 2).map((k) => `${k.name} (${k.assigned.length ? `assigned ${k.assigned.join(", ")}` : `${k.items} records`})`).join(", ")}.` : "",
+    real ? `MTA records: ${real.units.length} units at ${real.station?.name ?? label}, maintained by ${maintainerList(real)}; ${real.units.filter((u) => u.state === "out of service").length} out of service.` : "",
   ]
     .filter(Boolean)
     .join(" ");
   return result(ctx, "who_owns", "answered", summary, data);
+}
+
+/** "NYCT (4) and Private Contractor (1)": the real maintainers of a station's units, by how many each keeps. */
+export function maintainerList(d: EquipmentData): string {
+  const counts = new Map<string, number>();
+  for (const u of d.units) if (u.maintainedBy) counts.set(u.maintainedBy, (counts.get(u.maintainedBy) ?? 0) + 1);
+  const parts = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([org, n]) => `${org} (${n})`);
+  return parts.length ? parts.join(" and ") : "no one the asset inventory names";
 }
 
 // ---------------------------------------------------------------- trace_decision
@@ -509,5 +541,7 @@ export async function brainDirectory(ctx: ToolContext): Promise<BrainDirectory> 
     decisions: decisions.rows.map((r) => byId.get(r.id)).filter((s): s is BrainSource => Boolean(s)),
     suggestions: BRAIN_SUGGESTIONS,
     history: await conversationPairs(ctx.sandbox, "brain"),
+    // The shared graph of real MTA records is read by the route, which can say when it is unreachable.
+    agency: null,
   };
 }
