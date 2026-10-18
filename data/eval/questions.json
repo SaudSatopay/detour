@@ -1,194 +1,2743 @@
 [
  {
-  "id": "l-displaced",
+  "id": "impact-l-canarsie-total",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). How many riders an hour have trips that cross the closed stretch?",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. How many riders an hour have trips that cross the closed stretch?",
   "expect": {
    "kind": "number",
    "value": 23445,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "l-depth1",
+  "id": "impact-l-canarsie-depth1",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
   "expect": {
    "kind": "number",
    "value": 10142,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
  },
  {
-  "id": "l-fits",
+  "id": "impact-l-canarsie-depth4",
+  "category": "impact",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 14713,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "capacity-l-canarsie-fits",
   "category": "capacity",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. If the displaced riders were spread perfectly over the spare capacity of the open lines and walking links (max flow), could the network carry all of them in both directions? Answer yes or no.",
   "expect": {
    "kind": "yesno",
    "value": "no"
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "l-maxflow",
+  "id": "capacity-l-canarsie-absorbed",
   "category": "capacity",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour traveling in the direction of the peak demand could the open network carry?",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction could the open network carry?",
   "expect": {
    "kind": "number",
    "value": 17167,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "l-unmet",
+  "id": "capacity-l-canarsie-unmet",
   "category": "capacity",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction still could not move?",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction still could not move?",
   "expect": {
    "kind": "number",
    "value": 1266,
    "tolerance": 0.05
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "l-cut",
+  "id": "bottleneck-l-canarsie-cut",
   "category": "bottleneck",
-  "question": "At 8 a.m. on a weekday, the L train is closed in both directions between Bedford Av and 8 Av (14 St/8 Av). Which station's riders have no open alternative at all, so that no amount of spare capacity elsewhere can move them (the minimum cut of the max flow)?",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. Which station's riders have no open alternative at all, so that no spare capacity elsewhere can move them (the min cut of the max flow)?",
   "expect": {
    "kind": "contains",
    "any": [
     "1 Av"
    ]
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "lex-displaced",
+  "id": "impact-lex-express-total",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. How many riders an hour have trips that cross the closed stretch?",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. How many riders an hour have trips that cross the closed stretch?",
   "expect": {
    "kind": "number",
    "value": 31347,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "lex-depth1",
+  "id": "impact-lex-express-depth1",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
   "expect": {
    "kind": "number",
    "value": 11197,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
  },
  {
-  "id": "lex-fits",
+  "id": "impact-lex-express-depth4",
+  "category": "impact",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 22135,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "capacity-lex-express-fits",
   "category": "capacity",
-  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended between Grand Central-42 St and Brooklyn Bridge-City Hall. If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. If the displaced riders were spread perfectly over the spare capacity of the open lines and walking links (max flow), could the network carry all of them in both directions? Answer yes or no.",
   "expect": {
    "kind": "yesno",
    "value": "yes"
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "ac-displaced",
+  "id": "capacity-lex-express-absorbed",
+  "category": "capacity",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction could the open network carry?",
+  "expect": {
+   "kind": "number",
+   "value": 15022,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "capacity-lex-express-unmet",
+  "category": "capacity",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction still could not move?",
+  "expect": {
+   "kind": "number",
+   "value": 0,
+   "tolerance": 0.05
+  },
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-cranberry-total",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). How many riders an hour have trips that cross the closed stretch?",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. How many riders an hour have trips that cross the closed stretch?",
   "expect": {
    "kind": "number",
    "value": 16268,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "dev"
  },
  {
-  "id": "ac-depth1",
+  "id": "impact-cranberry-depth1",
   "category": "impact",
-  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). Of the riders whose trips cross the closure, how many an hour start their trip at a station no more than one stop before the closed stretch (including inside it)?",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
   "expect": {
    "kind": "number",
    "value": 2400,
    "tolerance": 0.03
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "dev"
  },
  {
-  "id": "ac-fits",
+  "id": "impact-cranberry-depth4",
+  "category": "impact",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 9993,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc; equals the NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "dev"
+ },
+ {
+  "id": "capacity-cranberry-fits",
   "category": "capacity",
-  "question": "At 8 a.m. on a weekday, the A and C trains are suspended between High St and Fulton St (Cranberry Street Tunnel). If the displaced riders were spread perfectly over the spare capacity of the open lines (and walking links), could the network carry all of them in both directions? Answer yes or no.",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. If the displaced riders were spread perfectly over the spare capacity of the open lines and walking links (max flow), could the network carry all of them in both directions? Answer yes or no.",
   "expect": {
    "kind": "yesno",
    "value": "yes"
   },
-  "source": "NetworkX verifier, data/nyc/verify"
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "dev"
  },
  {
-  "id": "mem-elevator-since",
-  "category": "memory",
-  "question": "Is the elevator to the L platform at Myrtle-Wyckoff Avs working? If not, since what date has it been out?",
+  "id": "capacity-cranberry-absorbed",
+  "category": "capacity",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction could the open network carry?",
   "expect": {
-   "kind": "contains",
-   "any": [
-    "Oct 14",
-    "October 14"
+   "kind": "number",
+   "value": 14268,
+   "tolerance": 0.03
+  },
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "capacity-cranberry-unmet",
+  "category": "capacity",
+  "group": "closure-cranberry",
+  "question": "At 8 a.m. on a weekday, the A and C trains are suspended in both directions between High St and Fulton St. Spreading displaced riders perfectly over spare capacity (max flow), how many riders an hour in the peak direction still could not move?",
+  "expect": {
+   "kind": "number",
+   "value": 0,
+   "tolerance": 0.05
+  },
+  "source": "NetworkX verifier, data/nyc/verify",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "measure_capacity"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "impact-R-273-8-total",
+  "category": "impact",
+  "group": "closure-R-273-8",
+  "question": "At 8 a.m. on a weekday, the R train is suspended in both directions between Queens Plaza and 5 Av/59 St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 4991,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "impact-R-273-8-depth1",
+  "category": "impact",
+  "group": "closure-R-273-8",
+  "question": "At 8 a.m. on a weekday, the R train is suspended in both directions between Queens Plaza and 5 Av/59 St. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 878,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "dev"
+ },
+ {
+  "id": "impact-R-273-8-depth4",
+  "category": "impact",
+  "group": "closure-R-273-8",
+  "question": "At 8 a.m. on a weekday, the R train is suspended in both directions between Queens Plaza and 5 Av/59 St. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 4668,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "dev"
+ },
+ {
+  "id": "impact-M-111-113-total",
+  "category": "impact",
+  "group": "closure-M-111-113",
+  "question": "At 8 a.m. on a weekday, the M train is suspended in both directions between Seneca Av and Knickerbocker Av. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 2405,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-M-111-113-depth1",
+  "category": "impact",
+  "group": "closure-M-111-113",
+  "question": "At 8 a.m. on a weekday, the M train is suspended in both directions between Seneca Av and Knickerbocker Av. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 1213,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-M-111-113-depth4",
+  "category": "impact",
+  "group": "closure-M-111-113",
+  "question": "At 8 a.m. on a weekday, the M train is suspended in both directions between Seneca Av and Knickerbocker Av. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 2338,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-L-630-124-total",
+  "category": "impact",
+  "group": "closure-L-630-124",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Myrtle-Wyckoff Avs and Montrose Av. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 9466,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-L-630-124-depth1",
+  "category": "impact",
+  "group": "closure-L-630-124",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Myrtle-Wyckoff Avs and Montrose Av. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 6112,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-L-630-124-depth4",
+  "category": "impact",
+  "group": "closure-L-630-124",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Myrtle-Wyckoff Avs and Montrose Av. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 7337,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-W-5-6-total",
+  "category": "impact",
+  "group": "closure-W-5-6",
+  "question": "At 8 a.m. on a weekday, the W train is suspended in both directions between 36 Av and 39 Av-Dutch Kills. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 3417,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-W-5-6-depth1",
+  "category": "impact",
+  "group": "closure-W-5-6",
+  "question": "At 8 a.m. on a weekday, the W train is suspended in both directions between 36 Av and 39 Av-Dutch Kills. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 840,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-W-5-6-depth4",
+  "category": "impact",
+  "group": "closure-W-5-6",
+  "question": "At 8 a.m. on a weekday, the W train is suspended in both directions between 36 Av and 39 Av-Dutch Kills. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 3417,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-NQ-611-607-total",
+  "category": "impact",
+  "group": "closure-NQ-611-607",
+  "question": "At 8 a.m. on a weekday, the N and Q trains are suspended in both directions between Times Sq-42 St/Port Authority Bus Terminal and 34 St-Herald Sq. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 15028,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-NQ-611-607-depth1",
+  "category": "impact",
+  "group": "closure-NQ-611-607",
+  "question": "At 8 a.m. on a weekday, the N and Q trains are suspended in both directions between Times Sq-42 St/Port Authority Bus Terminal and 34 St-Herald Sq. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 3402,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-NQ-611-607-depth4",
+  "category": "impact",
+  "group": "closure-NQ-611-607",
+  "question": "At 8 a.m. on a weekday, the N and Q trains are suspended in both directions between Times Sq-42 St/Port Authority Bus Terminal and 34 St-Herald Sq. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 8490,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-Q-50-48-total",
+  "category": "impact",
+  "group": "closure-Q-50-48",
+  "question": "At 8 a.m. on a weekday, the Q train is suspended in both directions between Avenue M and Avenue H. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 3081,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-Q-50-48-depth1",
+  "category": "impact",
+  "group": "closure-Q-50-48",
+  "question": "At 8 a.m. on a weekday, the Q train is suspended in both directions between Avenue M and Avenue H. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 1275,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-Q-50-48-depth4",
+  "category": "impact",
+  "group": "closure-Q-50-48",
+  "question": "At 8 a.m. on a weekday, the Q train is suspended in both directions between Avenue M and Avenue H. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 2767,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-E-606-612-total",
+  "category": "impact",
+  "group": "closure-E-606-612",
+  "question": "At 8 a.m. on a weekday, the E train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 18675,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-E-606-612-depth1",
+  "category": "impact",
+  "group": "closure-E-606-612",
+  "question": "At 8 a.m. on a weekday, the E train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 1660,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-E-606-612-depth4",
+  "category": "impact",
+  "group": "closure-E-606-612",
+  "question": "At 8 a.m. on a weekday, the E train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 12181,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-D-225-167-total",
+  "category": "impact",
+  "group": "closure-D-225-167",
+  "question": "At 8 a.m. on a weekday, the D train is suspended in both directions between 47-50 Sts-Rockefeller Ctr and W 4 St-Wash Sq. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 8424,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "impact-D-225-167-depth1",
+  "category": "impact",
+  "group": "closure-D-225-167",
+  "question": "At 8 a.m. on a weekday, the D train is suspended in both directions between 47-50 Sts-Rockefeller Ctr and W 4 St-Wash Sq. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 2094,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "dev"
+ },
+ {
+  "id": "impact-D-225-167-depth4",
+  "category": "impact",
+  "group": "closure-D-225-167",
+  "question": "At 8 a.m. on a weekday, the D train is suspended in both directions between 47-50 Sts-Rockefeller Ctr and W 4 St-Wash Sq. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 4265,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "dev"
+ },
+ {
+  "id": "impact-4-626-337-total",
+  "category": "impact",
+  "group": "closure-4-626-337",
+  "question": "At 8 a.m. on a weekday, the 4 train is suspended in both directions between Franklin Av-Medgar Evers College/Botanic Garden and Nevins St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 4451,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "impact-4-626-337-depth1",
+  "category": "impact",
+  "group": "closure-4-626-337",
+  "question": "At 8 a.m. on a weekday, the 4 train is suspended in both directions between Franklin Av-Medgar Evers College/Botanic Garden and Nevins St. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 3542,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "dev"
+ },
+ {
+  "id": "impact-4-626-337-depth4",
+  "category": "impact",
+  "group": "closure-4-626-337",
+  "question": "At 8 a.m. on a weekday, the 4 train is suspended in both directions between Franklin Av-Medgar Evers College/Botanic Garden and Nevins St. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 4258,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "dev"
+ },
+ {
+  "id": "impact-1-324-328-total",
+  "category": "impact",
+  "group": "closure-1-324-328",
+  "question": "At 8 a.m. on a weekday, the 1 train is suspended in both directions between Houston St and WTC Cortlandt. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 9585,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-1-324-328-depth1",
+  "category": "impact",
+  "group": "closure-1-324-328",
+  "question": "At 8 a.m. on a weekday, the 1 train is suspended in both directions between Houston St and WTC Cortlandt. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 2652,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-1-324-328-depth4",
+  "category": "impact",
+  "group": "closure-1-324-328",
+  "question": "At 8 a.m. on a weekday, the 1 train is suspended in both directions between Houston St and WTC Cortlandt. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 7373,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-C-167-618-total",
+  "category": "impact",
+  "group": "closure-C-167-618",
+  "question": "At 8 a.m. on a weekday, the C train is suspended in both directions between W 4 St-Wash Sq and 14 St/8 Av. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 1640,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-C-167-618-depth1",
+  "category": "impact",
+  "group": "closure-C-167-618",
+  "question": "At 8 a.m. on a weekday, the C train is suspended in both directions between W 4 St-Wash Sq and 14 St/8 Av. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 120,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-C-167-618-depth4",
+  "category": "impact",
+  "group": "closure-C-167-618",
+  "question": "At 8 a.m. on a weekday, the C train is suspended in both directions between W 4 St-Wash Sq and 14 St/8 Av. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 445,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-F-606-612-total",
+  "category": "impact",
+  "group": "closure-F-606-612",
+  "question": "At 8 a.m. on a weekday, the F train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "number",
+   "value": 14749,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "impact-F-606-612-depth1",
+  "category": "impact",
+  "group": "closure-F-606-612",
+  "question": "At 8 a.m. on a weekday, the F train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. Of the riders whose trips cross it, how many an hour start their trip within 1 stop of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 1549,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 1,
+  "split": "heldout"
+ },
+ {
+  "id": "impact-F-606-612-depth4",
+  "category": "impact",
+  "group": "closure-F-606-612",
+  "question": "At 8 a.m. on a weekday, the F train is suspended in both directions between Court Sq-23 St and Lexington Av/51-53 Sts. Of the riders whose trips cross it, how many an hour start their trip within 4 stops of the closed stretch (stations in the stretch count as zero stops)?",
+  "expect": {
+   "kind": "number",
+   "value": 9095,
+   "tolerance": 0.03
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "affected_riders"
+  ],
+  "depth": 4,
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-Q-50-48-49",
+  "category": "cut_off",
+  "group": "closure-Q-50-48",
+  "question": "At 8 a.m. on a weekday, the Q train is suspended in both directions between Avenue M and Avenue H. While it is closed, can a rider get from Avenue J to Euclid Av by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-l-canarsie-118",
+  "category": "cut_off",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. While it is closed, can a rider get from 3 Av to Hoyt-Schermerhorn Sts by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-L-630-124-126",
+  "category": "cut_off",
+  "group": "closure-L-630-124",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Myrtle-Wyckoff Avs and Montrose Av. While it is closed, can a rider get from Jefferson St to Seneca Av by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-l-canarsie-119",
+  "category": "cut_off",
+  "group": "closure-l-canarsie",
+  "question": "At 8 a.m. on a weekday, the L train is suspended in both directions between Bedford Av and 14 St/8 Av. While it is closed, can a rider get from 1 Av to Knickerbocker Av by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-D-225-167-609",
+  "category": "cut_off",
+  "group": "closure-D-225-167",
+  "question": "At 8 a.m. on a weekday, the D train is suspended in both directions between 47-50 Sts-Rockefeller Ctr and W 4 St-Wash Sq. While it is closed, can a rider get from 42 St-Bryant Pk/5 Av to Crown Hts-Utica Av by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "cutoff-lex-express-602",
+  "category": "cut_off",
+  "group": "closure-lex-express",
+  "question": "At 8 a.m. on a weekday, the 4 and 5 trains are suspended in both directions between Grand Central-42 St and Brooklyn Bridge-City Hall/Chambers St. While it is closed, can a rider get from 14 St-Union Sq to 238 St by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "cutoff-D-225-167-607",
+  "category": "cut_off",
+  "group": "closure-D-225-167",
+  "question": "At 8 a.m. on a weekday, the D train is suspended in both directions between 47-50 Sts-Rockefeller Ctr and W 4 St-Wash Sq. While it is closed, can a rider get from 34 St-Herald Sq to 110 St-Malcolm X Plaza by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "cutoff-1-324-328-327",
+  "category": "cut_off",
+  "group": "closure-1-324-328",
+  "question": "At 8 a.m. on a weekday, the 1 train is suspended in both directions between Houston St and WTC Cortlandt. While it is closed, can a rider get from Chambers St to Lexington Av/63 St by subway and the walking transfers between stations? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "breadth-first search over open segments and walks, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "close_line",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-367-429-minutes",
+  "category": "route",
+  "group": "trip-367-429",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from St Lawrence Av to Freeman St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 43.2,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-367-429-transfers",
+  "category": "route",
+  "group": "trip-367-429",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from St Lawrence Av to Freeman St (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-614-422-minutes",
+  "category": "route",
+  "group": "trip-614-422",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from 59 St-Columbus Circle to Burke Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 52.4,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-614-422-transfers",
+  "category": "route",
+  "group": "trip-614-422",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from 59 St-Columbus Circle to Burke Av (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-101-28-minutes",
+  "category": "route",
+  "group": "trip-101-28",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Marcy Av to Union St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 37.5,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-101-28-transfers",
+  "category": "route",
+  "group": "trip-101-28",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from Marcy Av to Union St (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 2,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-110-244-minutes",
+  "category": "route",
+  "group": "trip-110-244",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Forest Av to Ditmas Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 58.3,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "route-110-244-transfers",
+  "category": "route",
+  "group": "trip-110-244",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from Forest Av to Ditmas Av (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "route-459-403-minutes",
+  "category": "route",
+  "group": "trip-459-403",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from 40 St-Lowery St to 33 St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 24.8,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-459-403-transfers",
+  "category": "route",
+  "group": "trip-459-403",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from 40 St-Lowery St to 33 St (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-289-459-minutes",
+  "category": "route",
+  "group": "trip-289-459",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Bedford-Nostrand Avs to 40 St-Lowery St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 30.2,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-289-459-transfers",
+  "category": "route",
+  "group": "trip-289-459",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from Bedford-Nostrand Avs to 40 St-Lowery St (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-84-187-minutes",
+  "category": "route",
+  "group": "trip-84-187",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from 85 St-Forest Pkwy to Shepherd Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 30.4,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "route-84-187-transfers",
+  "category": "route",
+  "group": "trip-84-187",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from 85 St-Forest Pkwy to Shepherd Av (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 1,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "route-125-119-minutes",
+  "category": "route",
+  "group": "trip-125-119",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Morgan Av to 1 Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 15,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-125-119-transfers",
+  "category": "route",
+  "group": "trip-125-119",
+  "question": "At 8 a.m. on a weekday, how many times does a rider change trains on the fastest subway trip from Morgan Av to 1 Av (counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the headway)?",
+  "expect": {
+   "kind": "number",
+   "value": 0,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-188-355-minutes",
+  "category": "route",
+  "group": "trip-188-355",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Euclid Av to Winthrop St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 46.7,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-266-370-minutes",
+  "category": "route",
+  "group": "trip-266-370",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Elmhurst Av to Whitlock Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 56.5,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "route-100-358-minutes",
+  "category": "route",
+  "group": "trip-100-358",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Hewes St to Newkirk Av-Little Haiti take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 48,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "route-461-346-minutes",
+  "category": "route",
+  "group": "trip-461-346",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Queensboro Plaza to Sutter Av-Rutland Rd take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "number",
+   "value": 60.6,
+   "tolerance": 0.05
+  },
+  "source": "Dijkstra on the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "stepfree-327-622",
+  "category": "step_free",
+  "group": "stepfree-327-622",
+  "question": "Is there a step-free subway route from Chambers St to Brooklyn Bridge-City Hall/Chambers St at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-2-471",
+  "category": "step_free",
+  "group": "stepfree-2-471",
+  "question": "Is there a step-free subway route from Astoria Blvd to 34 St-Hudson Yards at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-188-610",
+  "category": "step_free",
+  "group": "stepfree-188-610",
+  "question": "Is there a step-free subway route from Euclid Av to Grand Central-42 St at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-36-85",
+  "category": "step_free",
+  "group": "stepfree-36-85",
+  "question": "Is there a step-free subway route from Bay Ridge Av to 75 St-Elderts Ln at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-84-248",
+  "category": "step_free",
+  "group": "stepfree-84-248",
+  "question": "Is there a step-free subway route from 85 St-Forest Pkwy to Avenue N at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-621-235",
+  "category": "step_free",
+  "group": "stepfree-621-235",
+  "question": "Is there a step-free subway route from Broadway Junction to York St at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "stepfree-39-99",
+  "category": "step_free",
+  "group": "stepfree-39-99",
+  "question": "Is there a step-free subway route from Bay Ridge-95 St to Lorimer St at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "Dijkstra with boarding and exits only at ADA stations without a current outage in memory, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "stepfree-630-601",
+  "category": "step_free",
+  "group": "stepfree-630-601",
+  "question": "Is there a step-free subway route from Myrtle-Wyckoff Avs to 14 St/6 Av at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "yes"
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc with the F-ELEV-2 outage from seeded memory",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "stepfree-630-601-minutes",
+  "category": "step_free",
+  "group": "stepfree-630-601",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest step-free subway trip from Myrtle-Wyckoff Avs to 14 St/6 Av take (accessible stations at every boarding, transfer and exit, no platform whose elevator is out of service, same cost of riding, walking and boarding)?",
+  "expect": {
+   "kind": "number",
+   "value": 33.3,
+   "tolerance": 0.05
+  },
+  "source": "src/lib/eval/gold.ts over data/nyc with the F-ELEV-2 outage from seeded memory",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "lines-175",
+  "category": "lines",
+  "group": "lines-175",
+  "question": "Which subway lines stop at Hoyt-Schermerhorn Sts in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "A",
+    "C",
+    "G"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
    ]
   },
-  "source": "seeded memory, F-ELEV-2"
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "mem-june-shuttle",
+  "id": "lines-107",
+  "category": "lines",
+  "group": "lines-107",
+  "question": "Which subway lines stop at Broad St in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "J",
+    "Z"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "lines-268",
+  "category": "lines",
+  "group": "lines-268",
+  "question": "Which subway lines stop at 65 St in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "M",
+    "R"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "lines-238",
+  "category": "lines",
+  "group": "lines-238",
+  "question": "Which subway lines stop at Smith-9 Sts in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "F",
+    "G"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "lines-100",
+  "category": "lines",
+  "group": "lines-100",
+  "question": "Which subway lines stop at Hewes St in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "J",
+    "M"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "lines-103",
+  "category": "lines",
+  "group": "lines-103",
+  "question": "Which subway lines stop at Bowery in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "J",
+    "Z"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "lines-353",
+  "category": "lines",
+  "group": "lines-353",
+  "question": "Which subway lines stop at President St-Medgar Evers College in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "2",
+    "5"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "lines-602",
+  "category": "lines",
+  "group": "lines-602",
+  "question": "Which subway lines stop at 14 St-Union Sq in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "4",
+    "5",
+    "6",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "lines-603",
+  "category": "lines",
+  "group": "lines-603",
+  "question": "Which subway lines stop at 149 St-Hostos in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "2",
+    "4",
+    "5"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "lines-31",
+  "category": "lines",
+  "group": "lines-31",
+  "question": "Which subway lines stop at 25 St in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "set",
+   "items": [
+    "R",
+    "W"
+   ],
+   "universe": [
+    "A",
+    "C",
+    "E",
+    "B",
+    "D",
+    "F",
+    "M",
+    "G",
+    "J",
+    "Z",
+    "L",
+    "N",
+    "Q",
+    "R",
+    "W",
+    "GS",
+    "FS",
+    "H",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "SI"
+   ]
+  },
+  "source": "station routes in data/nyc/network.json",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-myrtle-elevator-since",
   "category": "memory",
-  "question": "During the June 12, 2026 Canarsie Tube incident, what share of its planned riders did the Bedford Av to Marcy Av shuttle actually carry? Give a percentage.",
+  "group": "memory-elev2",
+  "question": "Since what date has the elevator to the L platform at Myrtle-Wyckoff Avs been out of service?",
+  "expect": {
+   "kind": "date",
+   "iso": "2026-10-14"
+  },
+  "source": "seeded memory, F-ELEV-2",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-union-sq-elevator-now",
+  "category": "memory",
+  "group": "memory-elev1",
+  "question": "Is the elevator to the L platform at 14 St-Union Sq out of service right now? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "seeded memory, F-ELEV-1 (closed)",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "memory-union-sq-elevator-back",
+  "category": "memory",
+  "group": "memory-elev1",
+  "question": "On what date was the elevator to the L platform at 14 St-Union Sq reported back in service?",
+  "expect": {
+   "kind": "date",
+   "iso": "2026-10-09"
+  },
+  "source": "seeded memory, F-ELEV-1",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "memory-union-sq-elevator-out",
+  "category": "memory",
+  "group": "memory-elev1",
+  "question": "On what date was the elevator to the L platform at 14 St-Union Sq first reported out of service?",
+  "expect": {
+   "kind": "date",
+   "iso": "2026-10-02"
+  },
+  "source": "seeded memory, F-ELEV-1",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "memory-june-share",
+  "category": "memory",
+  "group": "memory-inc0612",
+  "question": "What share of its planned riders did the shuttle bus carry during the remembered Canarsie Tube incident on the L? Give a percentage.",
   "expect": {
    "kind": "number",
    "value": 79,
    "tolerance": 0.02
   },
-  "source": "seeded memory, INC-0612"
+  "source": "seeded memory, INC-0612",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "mem-union-sq-elevator",
+  "id": "memory-june-planned",
   "category": "memory",
-  "question": "Is the elevator to the L platform at 14 St-Union Sq out of service right now?",
+  "group": "memory-inc0612",
+  "question": "How many riders an hour was the shuttle bus planned to carry during the remembered Canarsie Tube incident on the L?",
   "expect": {
-   "kind": "yesno",
-   "value": "no"
+   "kind": "number",
+   "value": 2100,
+   "tolerance": 0.01
   },
-  "source": "seeded memory, F-ELEV-1 (closed Oct 9, 2026)"
+  "source": "seeded memory, INC-0612",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "nig-staten-island",
+  "id": "memory-june-buses",
+  "category": "memory",
+  "group": "memory-inc0612",
+  "question": "How many buses an hour ran on the shuttle during the remembered Canarsie Tube incident on the L?",
+  "expect": {
+   "kind": "number",
+   "value": 30,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "seeded memory, INC-0612",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-june-date",
+  "category": "memory",
+  "group": "memory-inc0612",
+  "question": "On what date did the remembered smoke condition in the Canarsie Tube (L train) happen?",
+  "expect": {
+   "kind": "date",
+   "iso": "2026-06-12"
+  },
+  "source": "seeded memory, INC-0612",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-sept-share",
+  "category": "memory",
+  "group": "memory-inc0903",
+  "question": "What share of its planned riders did the shuttle bus carry during the remembered Cranberry Street Tunnel incident on the A and C? Give a percentage.",
+  "expect": {
+   "kind": "number",
+   "value": 93,
+   "tolerance": 0.02
+  },
+  "source": "seeded memory, INC-0903",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-sept-observed",
+  "category": "memory",
+  "group": "memory-inc0903",
+  "question": "How many riders an hour did the shuttle bus actually carry during the remembered Cranberry Street Tunnel incident on the A and C?",
+  "expect": {
+   "kind": "number",
+   "value": 1560,
+   "tolerance": 0.01
+  },
+  "source": "seeded memory, INC-0903",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-sept-date",
+  "category": "memory",
+  "group": "memory-inc0903",
+  "question": "On what date did the remembered water condition in the Cranberry Street Tunnel (A and C trains) happen?",
+  "expect": {
+   "kind": "date",
+   "iso": "2026-09-03"
+  },
+  "source": "seeded memory, INC-0903",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-g-crowding",
+  "category": "memory",
+  "group": "memory-f06122",
+  "question": "During the remembered L closure, how many minutes in did crowding on the G platform at Metropolitan Av/Lorimer St hit the safety limit?",
+  "expect": {
+   "kind": "number",
+   "value": 26,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "seeded memory, F-0612-2",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "memory-playbook-bus-share",
+  "category": "memory",
+  "group": "memory-pbltube",
+  "question": "What share of nominal bus capacity does the remembered playbook for a Canarsie Tube closure on the L say to plan for? Give a percentage.",
+  "expect": {
+   "kind": "number",
+   "value": 80,
+   "tolerance": 0,
+   "abs": 0
+  },
+  "source": "seeded memory, PB-L-TUBE",
+  "needs": [
+   "recall_memory"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "nig-unserved-W-17-459",
   "category": "not_in_graph",
-  "question": "Can a rider get from St George on Staten Island to Times Sq-42 St using only subway trains and the walking transfers in the subway network? Answer yes or no.",
+  "group": "nig-unserved-W-17-459",
+  "question": "At 8 a.m. on a weekday, the W train is suspended in both directions between Prince St and 40 St-Lowery St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no W stop pattern serves both stations (network.json)",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-unserved-E-624-337",
+  "category": "not_in_graph",
+  "group": "nig-unserved-E-624-337",
+  "question": "At 8 a.m. on a weekday, the E train is suspended in both directions between Chambers St/WTC/Park Place/Cortlandt St and Nevins St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no E stop pattern serves both stations (network.json)",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-unserved-5-602-235",
+  "category": "not_in_graph",
+  "group": "nig-unserved-5-602-235",
+  "question": "At 8 a.m. on a weekday, the 5 train is suspended in both directions between 14 St-Union Sq and York St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no 5 stop pattern serves both stations (network.json)",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-unserved-Q-57-374",
+  "category": "not_in_graph",
+  "group": "nig-unserved-Q-57-374",
+  "question": "At 8 a.m. on a weekday, the Q train is suspended in both directions between W 8 St-NY Aquarium and E 143 St-St Mary's St. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no Q stop pattern serves both stations (network.json)",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "nig-reach-507-224",
+  "category": "not_in_graph",
+  "group": "nig-si-507",
+  "question": "Can a rider get from Dongan Hills to 57 St using only subway trains and the walking transfers in the subway network? Answer yes or no.",
   "expect": {
    "kind": "yesno",
    "value": "no"
   },
-  "source": "breadth-first search over data/nyc/network.json"
+  "source": "breadth-first search over data/nyc/network.json",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
  },
  {
-  "id": "unk-hogwarts",
-  "category": "unknown_entity",
-  "question": "How many riders an hour are displaced if the Hogwarts Express is suspended between Kings Cross and Hogsmeade?",
+  "id": "nig-route-514-618",
+  "category": "not_in_graph",
+  "group": "nig-si-514",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Eltingville to 14 St/8 Av take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
   "expect": {
    "kind": "decline"
   },
-  "source": "no such route or stations in the network"
+  "source": "no path in the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
  },
  {
-  "id": "unk-penny-lane",
-  "category": "unknown_entity",
-  "question": "What is the fastest subway route from Penny Lane station to Times Sq-42 St?",
+  "id": "nig-reach-511-159",
+  "category": "not_in_graph",
+  "group": "nig-si-511",
+  "question": "Can a rider get from Oakwood Heights to 81 St-Museum of Natural History using only subway trains and the walking transfers in the subway network? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over data/nyc/network.json",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "nig-route-517-147",
+  "category": "not_in_graph",
+  "group": "nig-si-517",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Prince's Bay to 175 St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
   "expect": {
    "kind": "decline"
   },
-  "source": "no such station in the network"
+  "source": "no path in the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-reach-512-297",
+  "category": "not_in_graph",
+  "group": "nig-si-512",
+  "question": "Can a rider get from Bay Terrace to 215 St using only subway trains and the walking transfers in the subway network? Answer yes or no.",
+  "expect": {
+   "kind": "yesno",
+   "value": "no"
+  },
+  "source": "breadth-first search over data/nyc/network.json",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "nig-route-506-296",
+  "category": "not_in_graph",
+  "group": "nig-si-506",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Old Town to Marble Hill-225 St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no path in the platform layer, src/lib/eval/gold.ts over data/nyc",
+  "needs": [
+   "resolve_places",
+   "route_rider"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-elevator-451",
+  "category": "not_in_graph",
+  "group": "nig-elevator-451",
+  "question": "Since what date has the elevator to the 7 platform at Junction Blvd been out of service?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no elevator finding about this station in seeded memory",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "nig-elevator-20",
+  "category": "not_in_graph",
+  "group": "nig-elevator-20",
+  "question": "Since what date has the elevator to the R platform at City Hall been out of service?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "no elevator finding about this station in seeded memory",
+  "needs": [
+   "resolve_places",
+   "recall_memory"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-closure-1",
+  "category": "unknown_entity",
+  "group": "unk-Emerald City",
+  "question": "At 8 a.m. on a weekday, the 7 train is suspended in both directions between 69 St and Emerald City. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Emerald City\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-closure-2",
+  "category": "unknown_entity",
+  "group": "unk-Kings Landing",
+  "question": "At 8 a.m. on a weekday, the B train is suspended in both directions between Sheepshead Bay and Kings Landing. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Kings Landing\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "unk-closure-3",
+  "category": "unknown_entity",
+  "group": "unk-Gotham Central",
+  "question": "At 8 a.m. on a weekday, the 7 train is suspended in both directions between 82 St-Jackson Hts and Gotham Central. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Gotham Central\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-closure-4",
+  "category": "unknown_entity",
+  "group": "unk-Hogsmeade",
+  "question": "At 8 a.m. on a weekday, the 2 train is suspended in both directions between Simpson St and Hogsmeade. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Hogsmeade\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-route-T",
+  "category": "unknown_entity",
+  "group": "unk-route-T",
+  "question": "At 8 a.m. on a weekday, the T train is suspended in both directions between Sterling St and Brighton Beach. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "there is no T train in the network",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-route-K",
+  "category": "unknown_entity",
+  "group": "unk-route-K",
+  "question": "At 8 a.m. on a weekday, the K train is suspended in both directions between 219 St and 15 St-Prospect Park. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "there is no K train in the network",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "unk-route-V",
+  "category": "unknown_entity",
+  "group": "unk-route-V",
+  "question": "At 8 a.m. on a weekday, the V train is suspended in both directions between Queens Plaza and Lexington Av/51-53 Sts. How many riders an hour have trips that cross the closed stretch?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "there is no V train in the network",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "unk-trip-1",
+  "category": "unknown_entity",
+  "group": "unk-Rivendell",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Rivendell to 52 St take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Rivendell\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-trip-2",
+  "category": "unknown_entity",
+  "group": "unk-Bedrock Sq",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Westchester Sq-E Tremont Av to Bedrock Sq take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Bedrock Sq\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-trip-3",
+  "category": "unknown_entity",
+  "group": "unk-Penny Lane",
+  "question": "At 8 a.m. on a weekday, how many minutes does the fastest subway trip from Penny Lane to Grand Army Plaza take, counting riding, walking transfers and, at each boarding, a 3-minute penalty plus half the scheduled headway?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Penny Lane\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-lines-1",
+  "category": "unknown_entity",
+  "group": "unk-Mordor St",
+  "question": "Which subway lines stop at Mordor St in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Mordor St\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-lines-2",
+  "category": "unknown_entity",
+  "group": "unk-Narnia Av",
+  "question": "Which subway lines stop at Narnia Av in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Narnia Av\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-lines-3",
+  "category": "unknown_entity",
+  "group": "unk-Diagon Alley",
+  "question": "Which subway lines stop at Diagon Alley in the weekday 8 a.m. hour? List the line letters or numbers.",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Diagon Alley\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-stepfree-1",
+  "category": "unknown_entity",
+  "group": "unk-Bikini Bottom",
+  "question": "Is there a step-free subway route from Bikini Bottom to 30 Av at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Bikini Bottom\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "unk-stepfree-2",
+  "category": "unknown_entity",
+  "group": "unk-Sunnydale",
+  "question": "Is there a step-free subway route from Sunnydale to 161 St-Yankee Stadium at 8 a.m. on a weekday, with an accessible station at every boarding, transfer and exit and no platform whose elevator is out of service? Answer yes or no.",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Sunnydale\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
+ },
+ {
+  "id": "unk-elevator-1",
+  "category": "unknown_entity",
+  "group": "unk-Wakanda Blvd",
+  "question": "Since what date has the elevator to the A platform at Wakanda Blvd been out of service?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "\"Wakanda Blvd\" is not a station",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "heldout"
+ },
+ {
+  "id": "unk-route-V-trip",
+  "category": "unknown_entity",
+  "group": "unk-route-V",
+  "question": "How many stops does the V train make between Shepherd Av and 163 St-Amsterdam Av at 8 a.m. on a weekday?",
+  "expect": {
+   "kind": "decline"
+  },
+  "source": "there is no V train in the network",
+  "needs": [
+   "resolve_places"
+  ],
+  "split": "dev"
  }
 ]
