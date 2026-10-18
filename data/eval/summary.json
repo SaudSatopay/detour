@@ -1,0 +1,529 @@
+{
+ "status": "partial",
+ "generatedAt": "2026-10-18T20:41:13.741Z",
+ "run": {
+  "id": null,
+  "startedAt": "2026-10-18T20:35:21.050Z",
+  "finishedAt": "2026-10-18T20:35:32.981Z"
+ },
+ "questions": {
+  "total": 144,
+  "heldout": 101,
+  "dev": 43,
+  "seed": 20261018,
+  "byCategory": {
+   "impact": {
+    "dev": 12,
+    "heldout": 33
+   },
+   "capacity": {
+    "dev": 3,
+    "heldout": 6
+   },
+   "bottleneck": {
+    "dev": 0,
+    "heldout": 1
+   },
+   "cut_off": {
+    "dev": 2,
+    "heldout": 6
+   },
+   "route": {
+    "dev": 6,
+    "heldout": 14
+   },
+   "step_free": {
+    "dev": 3,
+    "heldout": 6
+   },
+   "lines": {
+    "dev": 3,
+    "heldout": 7
+   },
+   "memory": {
+    "dev": 4,
+    "heldout": 9
+   },
+   "not_in_graph": {
+    "dev": 4,
+    "heldout": 8
+   },
+   "unknown_entity": {
+    "dev": 6,
+    "heldout": 11
+   }
+  }
+ },
+ "coverage": {
+  "graph": 0,
+  "baseline": 0,
+  "rules": 144
+ },
+ "arms": {
+  "graph": {
+   "heldout": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "dev": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "all": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "errors": 0,
+   "models": {}
+  },
+  "baseline": {
+   "heldout": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "dev": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "all": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "errors": 0,
+   "models": {}
+  },
+  "rules": {
+   "heldout": {
+    "n": 101,
+    "correct": 97,
+    "rate": 0.9603960396039604,
+    "lo": 0.9207920792079208,
+    "hi": 0.9900990099009901
+   },
+   "dev": {
+    "n": 43,
+    "correct": 41,
+    "rate": 0.9534883720930233,
+    "lo": 0.8837209302325582,
+    "hi": 1
+   },
+   "all": {
+    "n": 144,
+    "correct": 138,
+    "rate": 0.9583333333333334,
+    "lo": 0.9236111111111112,
+    "hi": 0.9861111111111112
+   },
+   "errors": 0,
+   "models": {}
+  }
+ },
+ "byCategory": [
+  {
+   "category": "impact",
+   "n": 33,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 33,
+    "correct": 30,
+    "rate": 0.9090909090909091,
+    "lo": 0.8181818181818182,
+    "hi": 1
+   }
+  },
+  {
+   "category": "capacity",
+   "n": 6,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 6,
+    "correct": 6,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "bottleneck",
+   "n": 1,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 1,
+    "correct": 1,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "cut_off",
+   "n": 6,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 6,
+    "correct": 5,
+    "rate": 0.8333333333333334,
+    "lo": 0.5,
+    "hi": 1
+   }
+  },
+  {
+   "category": "route",
+   "n": 14,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 14,
+    "correct": 14,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "step_free",
+   "n": 6,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 6,
+    "correct": 6,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "lines",
+   "n": 7,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 7,
+    "correct": 7,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "memory",
+   "n": 9,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 9,
+    "correct": 9,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "not_in_graph",
+   "n": 8,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 8,
+    "correct": 8,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  },
+  {
+   "category": "unknown_entity",
+   "n": 11,
+   "graph": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "baseline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "rules": {
+    "n": 11,
+    "correct": 11,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   }
+  }
+ ],
+ "graphVsBaseline": {
+  "n": 0,
+  "diff": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "graphVsRules": {
+  "n": 0,
+  "diff": 0,
+  "lo": 0,
+  "hi": 0
+ },
+ "abstention": {
+  "graph": {
+   "shouldDecline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "falseDecline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   }
+  },
+  "baseline": {
+   "shouldDecline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "falseDecline": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   }
+  },
+  "rules": {
+   "shouldDecline": {
+    "n": 19,
+    "correct": 19,
+    "rate": 1,
+    "lo": 1,
+    "hi": 1
+   },
+   "falseDecline": {
+    "n": 82,
+    "correct": 4,
+    "rate": 0.04878048780487805,
+    "lo": 0.012195121951219513,
+    "hi": 0.0975609756097561
+   }
+  }
+ },
+ "depth": {
+  "pairs": 11,
+  "graph": {
+   "depth1": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "depth4": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   }
+  },
+  "baseline": {
+   "depth1": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   },
+   "depth4": {
+    "n": 0,
+    "correct": 0,
+    "rate": 0,
+    "lo": 0,
+    "hi": 0
+   }
+  }
+ },
+ "toolChoice": {
+  "graph": {
+   "n": 0,
+   "called": 0,
+   "ordered": 0,
+   "both": 0
+  },
+  "rules": {
+   "n": 101,
+   "called": 96,
+   "ordered": 101,
+   "both": 96
+  }
+ },
+ "grounding": {
+  "graph": {
+   "answers": 0,
+   "withFigures": 0,
+   "allGrounded": 0
+  },
+  "rules": {
+   "answers": 101,
+   "withFigures": 45,
+   "allGrounded": 45
+  }
+ },
+ "latency": {
+  "graph": {
+   "medianMs": 0,
+   "toolCalls": 0
+  },
+  "baseline": {
+   "medianMs": 0,
+   "toolCalls": 0
+  },
+  "rules": {
+   "medianMs": 3,
+   "toolCalls": 313
+  }
+ },
+ "lost": []
+}
