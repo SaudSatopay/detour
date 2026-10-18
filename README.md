@@ -306,7 +306,7 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance (who wrote it, from which incident) |
 | **Procedural** | Playbooks per route; past shuttles keep planned against observed riders, and the controller sizes new bus plans by the worst ratio it remembers |
 | **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider concurrently |
-| **Persistent conversation history** | Every question and answer is a `Turn` node in the visitor's graph, chained by `NEXT`, the question linked to the stations and lines it mentions and the answer to the nodes it cites. The rider desk and the brain read their history back from the graph, so a returning visitor's conversation continues (visitor graphs are kept for three days) |
+| **Persistent conversation history** | Every question and answer is a `Turn` node in the visitor's graph, chained by `NEXT`, the question linked to the stations and lines it mentions and the answer to the nodes it cites. The rider desk and the brain read their history back from the graph, so a returning visitor's conversation continues (a visitor's graph is kept for up to three days; the free tier holds the 12 most recently active, and frees the oldest when it fills) |
 | **Per tenant, under load** | One graph per visitor. 48 reader and 6 writer agents across 6 tenant graphs sustained 7,195 reads and 719 writes a second (p95 15.5 ms and 17.1 ms), 0 errors, and a closure in one tenant was invisible in the other five |
 
 ## Track 3: a company brain for the agency

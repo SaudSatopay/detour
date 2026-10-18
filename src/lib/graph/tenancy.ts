@@ -8,9 +8,34 @@ import { ensureBaseGraphs } from "./seed";
  * plans and memory written during a visit never touch anyone else's graph. The free FalkorDB
  * tier has 100 MB, so sandboxes are capped and the least recently used ones are dropped.
  */
-const MAX_SANDBOXES = 24;
+const MAX_SANDBOXES = 12;
 /** Long enough for a returning visitor's memory and conversation to still be there; the cap above still bounds space. */
 const SANDBOX_TTL_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** FalkorDB refuses writes once the instance is at its memory limit, and GRAPH.COPY cannot fork. */
+export function isDatabaseFull(error: unknown): boolean {
+  return /\bOOM\b|maxmemory|could not fork/i.test(error instanceof Error ? error.message : String(error));
+}
+
+/**
+ * Makes room when the database is full: every what-if fork goes (they are throwaway copies), then any sandbox
+ * graph the registry has lost, then the least recently used half of the sandboxes. The given visitor's own
+ * sandbox is kept. Deleting a graph is allowed at the memory limit, so this works even when writes do not.
+ */
+async function freeSpace(keep: string): Promise<void> {
+  const names = await listGraphs();
+  for (const name of names) {
+    if (name.startsWith(FORK_PREFIX)) await deleteGraph(name).catch(() => undefined);
+  }
+  const entries = await sandboxEntries().catch(() => []);
+  const known = new Set(entries.map((e) => e.id));
+  for (const name of names) {
+    const id = name.slice(SANDBOX_PREFIX.length);
+    if (name.startsWith(SANDBOX_PREFIX) && id !== keep && !known.has(id)) await deleteGraph(name).catch(() => undefined);
+  }
+  const others = entries.filter((e) => e.id !== keep).sort((a, b) => a.seen - b.seen);
+  for (const e of others.slice(0, Math.ceil(others.length / 2))) await dropVisitor(e.id).catch(() => undefined);
+}
 
 let baseReady: Promise<void> | null = null;
 
@@ -52,11 +77,26 @@ async function createSandbox(visitorId: string): Promise<Sandbox> {
       await copyGraph(TEMPLATE_GRAPH, graph);
       created = true;
     } catch (error) {
-      if (!(await graphExists(graph))) throw error;
+      if (await graphExists(graph)) {
+        // Another server instance made it first.
+      } else if (isDatabaseFull(error)) {
+        await freeSpace(visitorId);
+        await copyGraph(TEMPLATE_GRAPH, graph);
+        created = true;
+      } else {
+        throw error;
+      }
     }
     copyMs = performance.now() - started;
   }
-  await touchSandbox(visitorId);
+  try {
+    await touchSandbox(visitorId);
+  } catch (error) {
+    // A returning visitor finds the database full: make room, then carry on.
+    if (!isDatabaseFull(error)) throw error;
+    await freeSpace(visitorId);
+    await touchSandbox(visitorId);
+  }
   return { graph, created, copyMs };
 }
 
