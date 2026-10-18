@@ -2,7 +2,19 @@
 
 import { useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import type { BrainAnswer, BrainDirectory, BrainOwned, BrainPerson, BrainSource, BrainStep, BrainTeam, SourceKind } from "@/lib/brain/types";
+import type {
+  BrainAnswer,
+  BrainDirectory,
+  BrainIntake,
+  BrainOwned,
+  BrainPerson,
+  BrainSource,
+  BrainStep,
+  BrainTeam,
+  BrainTurn,
+  IntakeKind,
+  SourceKind,
+} from "@/lib/brain/types";
 import type { CypherTrace } from "@/lib/graph/trace";
 import { readable } from "@/lib/readable";
 import { TOOL_TITLE } from "@/lib/tool-titles";
@@ -81,6 +93,7 @@ function toDirectory(d: BrainDirectory): BrainDirectory {
     openTickets: list<BrainSource>(d.openTickets).map(toSource),
     decisions: list<BrainSource>(d.decisions).map(toSource),
     suggestions: list<string>(d.suggestions).filter((s) => typeof s === "string" && s.trim().length >= MIN),
+    history: list<BrainTurn>(d.history).map((t) => ({ ...t, cites: list<string>(t.cites) })),
   };
 }
 
@@ -92,6 +105,194 @@ function toAnswer(a: BrainAnswer, asked: string): BrainAnswer {
     sources: list<BrainSource>(a.sources).map(toSource),
     steps: list<BrainStep>(a.steps).map((s) => ({ ...s, trace: list<CypherTrace>(s.trace) })),
   };
+}
+
+// The visitor's own turns are shown in their own time zone.
+const when = (ms: number) => new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+const withoutCites = (text: string) => text.replace(/\s*\[\d{1,3}(?:\s*,\s*\d{1,3})*\]/g, "");
+
+/** Earlier questions and answers, read back from Turn nodes in the visitor's graph. Picking one asks it again. */
+function History({ turns, pending, onAsk }: { turns: BrainTurn[]; pending: boolean; onAsk: (q: string) => void }) {
+  if (!turns.length) return null;
+  return (
+    <section aria-labelledby="brain-history" className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h2 id="brain-history" className="font-display text-2xl font-bold">
+          Your conversation, remembered
+        </h2>
+        <p className="max-w-prose text-sm text-ink-700">
+          Each question and answer is a Turn node in your graph, chained in order and linked to the nodes it cited. The brain reads them back as
+          context, so they are still here when you come back.
+        </p>
+      </div>
+      <ol className="flex flex-col divide-y divide-line rounded-md border border-line">
+        {turns.map((t) => (
+          <li key={t.id} className="flex flex-col gap-1 px-3 py-2.5">
+            <span className="flex flex-wrap items-baseline gap-x-2">
+              <span className="break-all font-mono text-xs text-ink-500">{t.id}</span>
+              <span className="tabular ml-auto font-mono text-xs text-ink-500">
+                {when(t.atMs)}
+                {t.cites.length ? ` · ${count(t.cites.length, "source")}` : ""}
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (!pending) onAsk(t.question);
+              }}
+              aria-disabled={pending}
+              className={`w-fit max-w-full break-words rounded-sm text-left text-sm font-semibold text-ink-900 underline-offset-2 ${pending ? "cursor-not-allowed opacity-60" : "hover:underline"}`}
+            >
+              {t.question}
+            </button>
+            <p className="line-clamp-2 break-words text-sm text-ink-700">{withoutCites(t.answer)}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const INTAKE_KINDS: { kind: IntakeKind; label: string }[] = [
+  { kind: "message", label: "Chat message" },
+  { kind: "ticket", label: "Ticket" },
+  { kind: "note", label: "Note" },
+];
+
+const INTAKE_EXAMPLES: { label: string; kind: IntakeKind; text: string }[] = [
+  {
+    label: "Example: an outage",
+    kind: "message",
+    text: "Elevator to the A platform at Jay St-MetroTech is stuck between floors. Sending step-free riders to Borough Hall for now.",
+  },
+  { label: "Example: a fix", kind: "message", text: "Myrtle-Wyckoff L platform elevator is back in service: the motor controller was replaced." },
+];
+
+type IntakeState = { status: "idle" } | { status: "pending" } | { status: "done"; data: BrainIntake } | { status: "error"; error: string };
+
+/** Adds a chat message, ticket or note to the brain, and shows what it was linked to and what work it created. */
+function Intake({ colors, onAdded, onAskChanged }: { colors: Colors; onAdded: () => void; onAskChanged: () => void }) {
+  const [kind, setKind] = useState<IntakeKind>("message");
+  const [text, setText] = useState("");
+  const [state, setState] = useState<IntakeState>({ status: "idle" });
+  const pending = state.status === "pending";
+  const blocked = pending || text.trim().length < 8;
+  const submit = async () => {
+    if (blocked) return;
+    setState({ status: "pending" });
+    const res = await call<BrainIntake>("/api/brain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ intake: { kind, text: text.trim() } }),
+    });
+    if (!res.ok) {
+      setState({ status: "error", error: res.error });
+      return;
+    }
+    setState({ status: "done", data: { ...res.data, sources: list<BrainSource>(res.data.sources).map(toSource) } });
+    onAdded();
+  };
+  return (
+    <section aria-labelledby="brain-intake" className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="brain-intake" className="font-display text-2xl font-bold">
+          Add to the brain
+        </h2>
+        <p className="max-w-prose text-sm text-ink-700">
+          Paste a chat message, a ticket or a note. The brain links it to the stations, lines and people it names. An elevator outage files a
+          ticket with the team that maintains it and goes into memory, so step-free routes change; a fix resolves the ticket.
+        </p>
+      </div>
+      <form
+        className="flex flex-col gap-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+      >
+        <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <legend className="label mb-2 text-ink-500">It is a</legend>
+          {INTAKE_KINDS.map((k) => (
+            <label key={k.kind} className="flex cursor-pointer items-center gap-2 text-sm text-ink-900">
+              <input type="radio" name="brain-intake-kind" value={k.kind} checked={kind === k.kind} onChange={() => setKind(k.kind)} className="accent-current" />
+              {k.label}
+            </label>
+          ))}
+        </fieldset>
+        <label htmlFor="brain-intake-text" className="label text-ink-500">
+          Text
+        </label>
+        <textarea
+          id="brain-intake-text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={3}
+          maxLength={1200}
+          placeholder="Elevator to the A platform at Jay St-MetroTech is stuck between floors…"
+          className="resize-y rounded-md border border-line bg-panel px-3 py-2 text-base text-ink-900 placeholder:text-ink-500 focus:border-signal"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="submit"
+            aria-disabled={blocked}
+            className={`shrink-0 whitespace-nowrap rounded-md bg-ink-900 px-4 py-2 font-display text-lg font-semibold tracking-wide text-paper transition-transform duration-150 ease-out ${
+              blocked ? "cursor-not-allowed opacity-50" : "hover:-translate-y-px"
+            }`}
+          >
+            {pending ? "Adding…" : "Add to the brain"}
+          </button>
+          {INTAKE_EXAMPLES.map((ex) => (
+            <button
+              key={ex.label}
+              type="button"
+              onClick={() => {
+                setKind(ex.kind);
+                setText(ex.text);
+              }}
+              className="rounded-md border border-line bg-panel px-3 py-1.5 text-left text-sm text-ink-700 transition-colors duration-150 hover:border-line-strong hover:text-ink-900"
+            >
+              {ex.label}
+            </button>
+          ))}
+        </div>
+      </form>
+      <div aria-live="polite">
+        {state.status === "error" ? (
+          <p className="rounded-md border border-crit bg-crit-wash px-3 py-2 text-sm text-ink-900">
+            <span className="label mr-2 text-crit">Could not add it</span>
+            {state.error}
+          </p>
+        ) : state.status === "done" ? (
+          <div className="flex flex-col gap-3 rounded-md border border-line bg-panel p-4">
+            <p className="break-words text-base text-ink-900">{state.data.summary}</p>
+            {state.data.sources.length ? (
+              <ul className="flex flex-col divide-y divide-line rounded-md border border-line">
+                {state.data.sources.map((s) => (
+                  <li key={s.id} className="flex flex-col gap-1 px-3 py-2.5">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="label text-ink-500">{kindOf(s.kind)}</span>
+                      <span className="break-all font-mono text-xs text-ink-500">{s.id}</span>
+                      <StatusPill status={s.status} className="ml-auto" />
+                    </span>
+                    <span className="break-words text-sm text-ink-900">{s.title}</span>
+                    {byline(s) ? <span className="text-xs text-ink-500">{byline(s)}</span> : null}
+                    <About labels={s.about} colors={colors} />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <button
+              type="button"
+              onClick={onAskChanged}
+              className="w-fit rounded-md border border-ink-900 px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 hover:bg-sunk"
+            >
+              Ask what changed today
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
 }
 
 /** Open tickets and current findings call for attention; closed ones step back; a decision in force reads plainly. */
@@ -534,6 +735,13 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
     };
   }, [dirLoads]);
 
+  // After an answer or an intake the directory and the remembered conversation change: reload them without a skeleton.
+  const refresh = useCallback(() => {
+    void call<BrainDirectory>("/api/brain").then((res) => {
+      if (res.ok) setDir({ status: "ready", data: toDirectory(res.data) });
+    });
+  }, []);
+
   // A cited source stays lit for a moment after the jump; a new click (a new object) restarts the clock.
   useEffect(() => {
     if (!lit) return;
@@ -567,7 +775,8 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
     });
     if (ctrl.signal.aborted) return;
     setRun(res.ok ? { status: "done", id, answer: toAnswer(res.data, q) } : { status: "error", id, question: q, error: res.error });
-  }, []);
+    if (res.ok) refresh();
+  }, [refresh]);
 
   // The address already names the question on screen once it has been asked, so only a new ?q asks.
   const askFromUrl = useCallback((q: string) => {
@@ -747,6 +956,10 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
 
           {answer?.steps.length ? <Steps steps={answer.steps} /> : null}
         </section>
+
+        <Intake colors={routeColors} onAdded={refresh} onAskChanged={() => void ask("What changed in the last 1 days?", true)} />
+
+        {dir.status === "ready" ? <History turns={dir.data.history} pending={pending} onAsk={(q) => void ask(q, true)} /> : null}
 
         <Suspense fallback={null}>
           <AskFromUrl onAsk={askFromUrl} />

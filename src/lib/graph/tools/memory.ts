@@ -162,7 +162,7 @@ export async function remember(
  */
 export async function reportElevator(
   ctx: ToolContext,
-  input: { station: string; stationName: string; route: string; working: boolean },
+  input: { station: string; stationName: string; route: string; working: boolean; syncTicket?: boolean },
 ): Promise<ToolResult<{ id: string; superseded: string | null } | null>> {
   const current = await ctx.tracer.run<{ id: string; kind: string; text: string }>(
     "current elevator facts for this platform",
@@ -194,7 +194,11 @@ export async function reportElevator(
   });
   // Keep the agency's records current with the report: the platform's maintenance ticket resolves (or
   // reopens), the new fact cites it, and decisions that rested on it are lifted (or back in force).
-  // Graphs without the agency layer have no tickets, so nothing changes there.
+  // Graphs without the agency layer have no tickets, so nothing changes there. The intake files its own tickets.
+  if (input.syncTicket === false) {
+    written.trace.push(...ctx.tracer.traces.splice(0));
+    return written;
+  }
   const ticket = await ctx.tracer.run<{ id: string }>(
     input.working ? "resolve the platform's elevator ticket" : "reopen the platform's elevator ticket",
     ctx.sandbox,

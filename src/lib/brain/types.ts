@@ -63,6 +63,18 @@ export interface BrainTeam {
   owns: BrainOwned[];
 }
 
+/** One question and its answer, as stored in the visitor's graph: two Turn nodes chained by NEXT. */
+export interface BrainTurn {
+  /** The user turn's id. */
+  id: string;
+  question: string;
+  answer: string;
+  atMs: number;
+  mode: string | null;
+  /** Ids of the nodes the answer cited. */
+  cites: string[];
+}
+
 /** The org side of the graph, for the brain page's directory. */
 export interface BrainDirectory {
   counts: { people: number; teams: number; documents: number; tickets: number; messages: number; decisions: number };
@@ -70,4 +82,26 @@ export interface BrainDirectory {
   openTickets: BrainSource[];
   decisions: BrainSource[];
   suggestions: string[];
+  /** This visitor's earlier questions and answers, newest first, read back from their graph. */
+  history: BrainTurn[];
+}
+
+export type IntakeKind = "message" | "ticket" | "note";
+
+/** What adding a chat message, ticket or note to the brain did to the graph. */
+export interface BrainIntake {
+  kind: IntakeKind;
+  /** The new node's id. */
+  id: string;
+  /** One or two sentences: what it was linked to and what work it created. */
+  summary: string;
+  stations: { id: string; name: string }[];
+  routes: string[];
+  people: string[];
+  /** A ticket the intake filed (or the open one it joined), with its owner. */
+  ticket: { id: string; title: string; assignee: string | null; role: string | null; team: string | null; created: boolean } | null;
+  /** A memory finding the intake wrote or closed. */
+  finding: { id: string; text: string } | null;
+  sources: BrainSource[];
+  steps: BrainStep[];
 }

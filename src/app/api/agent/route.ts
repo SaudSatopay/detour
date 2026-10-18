@@ -6,6 +6,7 @@ import { ASK_INSTRUCTIONS, CONTROLLER_INSTRUCTIONS } from "@/lib/agent/prompts";
 import { recorder, replayRun } from "@/lib/agent/replay";
 import { runAgent } from "@/lib/agent/run";
 import { scriptedControl } from "@/lib/agent/scripted";
+import { recentTurns, rememberTurns } from "@/lib/graph/conversation";
 import { ensureSandbox } from "@/lib/graph/tenancy";
 import { loadScenarios } from "@/lib/network/data";
 import { allow, allowToday, ndjson, visitorId } from "@/lib/server/http";
@@ -99,8 +100,12 @@ export async function POST(request: Request) {
       emit = rec.emit;
       emit({ type: "run", runId, agent, mode: "live" });
       const tools = buildTools(base, emit, agent);
+      // The rider desk's conversation lives in the visitor's graph, so it carries over between visits; the
+      // browser's copy is only a fallback for a graph that has none yet.
+      const stored = body.mode === "ask" ? await recentTurns(sandbox.graph, agent, 8) : [];
+      const history = stored.length ? stored : (body.history ?? []);
       const messages: ModelMessage[] = [
-        ...(body.history ?? []).map((m) => ({ role: m.role, content: m.content }) as ModelMessage),
+        ...history.map((m) => ({ role: m.role, content: m.content }) as ModelMessage),
         { role: "user", content: body.message },
       ];
       let out: Awaited<ReturnType<typeof runAgent>>;
@@ -123,6 +128,12 @@ export async function POST(request: Request) {
         throw error;
       }
       emit({ type: "done", agent, text: out.text, steps: out.steps, model: out.model });
+      if (body.mode === "ask" && out.text.trim()) {
+        await rememberTurns(sandbox.graph, agent, [
+          { role: "user", text: body.message },
+          { role: "assistant", text: out.text, mode: "live" },
+        ]);
+      }
       await rec.save();
     },
     (message) => ({ type: "error", agent, message }),

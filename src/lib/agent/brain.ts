@@ -301,7 +301,7 @@ async function scripted(base: Omit<ToolContext, "tracer">, question: string, not
 export async function answerBrain(
   base: Omit<ToolContext, "tracer">,
   question: string,
-  opts: { live: boolean; note?: string; abortSignal?: AbortSignal },
+  opts: { live: boolean; note?: string; abortSignal?: AbortSignal; history?: { role: "user" | "assistant"; content: string }[] },
 ): Promise<BrainAnswer> {
   const started = Date.now();
   if (!opts.live) return scripted(base, question, opts.note ?? null, started);
@@ -311,7 +311,8 @@ export async function answerBrain(
     const out = await runAgent({
       agent: base.agentId,
       instructions: BRAIN_INSTRUCTIONS,
-      messages: [{ role: "user", content: question }],
+      // Earlier turns come from the visitor's graph, so follow-up questions keep their context across sessions.
+      messages: [...(opts.history ?? []), { role: "user", content: question }],
       tools: buildBrainTools(base, book, steps),
       emit: () => undefined,
       maxSteps: 5,

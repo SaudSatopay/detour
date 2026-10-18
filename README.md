@@ -80,7 +80,7 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
 | **Control room** | Close a line and watch the controller's tool calls stream in with their Cypher. Scrub, step or replay the run at 1×, 2× or 4×, and link straight to a step with `?step=` |
 | **Riders** | Remembered riders and their routes. Report an elevator fixed and watch memory change a wheelchair user's route. With the database down, each rider shows the route the recorded run found |
 | **Memory** | Memory over time: each fact's validity window, closed facts and what replaced them, incidents and agent steps |
-| **Brain** | Ask who owns a station or line, who knows it best, why a decision was made, or what changed this week; each answer cites the documents, tickets, chats, decisions and findings it came from, with the Cypher behind it |
+| **Brain** | Ask who owns a station or line, who knows it best, why a decision was made, or what changed this week; each answer cites the documents, tickets, chats, decisions and findings it came from, with the Cypher behind it. Paste a chat message, ticket or note to add it: it is linked to what it names, and an outage is filed with its owner. Your conversation is remembered in your graph |
 | **Proof** | FalkorDB and NetworkX side by side, the concurrency benchmark, and every query |
 | **Every page** | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd>, or the search icon on a phone, opens a command palette for any closure, rider, page or proof check; the theme switch spreads paper or night service from where you click and remembers it |
 
@@ -306,6 +306,7 @@ CREATE (f)-[:SUPERSEDES]->(old)
 | **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance (who wrote it, from which incident) |
 | **Procedural** | Playbooks per route; past shuttles keep planned against observed riders, and the controller sizes new bus plans by the worst ratio it remembers |
 | **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider concurrently |
+| **Persistent conversation history** | Every question and answer is a `Turn` node in the visitor's graph, chained by `NEXT`, the question linked to the stations and lines it mentions and the answer to the nodes it cites. The rider desk and the brain read their history back from the graph, so a returning visitor's conversation continues (visitor graphs are kept for three days) |
 | **Per tenant, under load** | One graph per visitor. 48 reader and 6 writer agents across 6 tenant graphs sustained 7,195 reads and 719 writes a second (p95 15.5 ms and 17.1 ms), 0 errors, and a closure in one tenant was invisible in the other five |
 
 ## Track 3: a company brain for the agency
@@ -323,6 +324,15 @@ On the [brain page](https://detour-orpin.vercel.app/brain), ask:
 
 Knowledge stays current. Report the Myrtle-Wyckoff elevator fixed on the riders page and three things change in one graph: the outage finding is superseded, ticket EE-1207 resolves and cites the new finding, and the decision to route step-free riders around that platform is lifted. Ask the brain what changed, and those are the first answers.
 
+New knowledge comes in, and work goes out to its owner. Paste a chat message, ticket or note into **Add to the brain** and it becomes a node linked to the stations, lines and people it names (station names are matched with the longest name winning, and a name several stations share is settled by the line the text mentions). An elevator outage files a ticket with the maintenance team's lead, or joins the platform's open ticket instead of duplicating it, and writes the outage to memory, so step-free routes avoid that platform at once. A message saying it works again resolves the ticket and lifts the decisions that rested on it. Your own questions and answers are kept as conversation turns, so the brain shows them when you come back.
+
+| Pasted into the brain | What the graph does |
+|:---|:---|
+| *Elevator to the A platform at Jay St-MetroTech is stuck between floors.* | Links the message to Jay St-MetroTech and the A, files ticket EE-1208 with Gloria Méndez (Elevator and Escalator Maintenance), and writes the outage to memory |
+| *Still stuck: the A platform elevator at Jay St-MetroTech has not moved.* | Adds the report to EE-1208 instead of filing a second ticket |
+| *Signal problem on the G near Metropolitan* (as a ticket) | Resolves "Metropolitan" to Metropolitan Av/Lorimer St by the G and assigns it to the G's planner, Priya Raman |
+| *Myrtle-Wyckoff L platform elevator is back in service.* | Closes the outage in memory, resolves EE-1207 and lifts the step-free routing decision |
+
 ```cypher
 // Why a decision was made, two hops back to where its evidence came from
 MATCH (d:Decision {id: $id})-[:BASED_ON]->(f:Finding)-[:SOURCED_FROM]->(s)
@@ -339,7 +349,7 @@ Every answer is a list of numbered source nodes with who wrote each one, their t
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | Identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 87 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, and the brain's question routing and the integrity of its sample records |
+| Unit tests | 93 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, the brain's question routing and the integrity of its sample records, and how pasted text is read: stations, lines, people, an outage or a fix |
 | End-to-end tests | 15 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, the brain tracing a decision and naming a ticket's owner, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 98; accessibility, best practices and SEO 100 |
 

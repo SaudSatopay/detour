@@ -9,7 +9,8 @@ import { ensureBaseGraphs } from "./seed";
  * tier has 100 MB, so sandboxes are capped and the least recently used ones are dropped.
  */
 const MAX_SANDBOXES = 24;
-const SANDBOX_TTL_MS = 6 * 60 * 60 * 1000;
+/** Long enough for a returning visitor's memory and conversation to still be there; the cap above still bounds space. */
+const SANDBOX_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
 let baseReady: Promise<void> | null = null;
 

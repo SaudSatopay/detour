@@ -1,5 +1,6 @@
 import type { BrainDirectory, BrainOwned, BrainPerson, BrainSource, BrainTeam, SourceKind } from "../../brain/types";
 import { loadNetwork } from "../../network/data";
+import { conversationPairs } from "../conversation";
 import { BRAIN_SUGGESTIONS } from "../seed-org";
 import { result, type ToolContext, type ToolResult } from "./types";
 
@@ -265,7 +266,7 @@ export async function whoOwns(ctx: ToolContext, input: { subject: string }): Pro
     "who wrote, posted, filed or decided records about it",
     ctx.sandbox,
     `MATCH (p:Person)-[:AUTHORED|POSTED|FILED|DECIDED]->(x)-[:MENTIONS]->(n)
-     WHERE ${MENTIONED}
+     WHERE (${MENTIONED}) AND p.id <> 'P-YOU'
      OPTIONAL MATCH (p)-[:MEMBER_OF]->(t:Team)
      RETURN p.name AS name, p.role AS role, t.name AS team, count(DISTINCT x) AS items, collect(DISTINCT x.id) AS ids`,
     { stations, routes, ids },
@@ -507,5 +508,6 @@ export async function brainDirectory(ctx: ToolContext): Promise<BrainDirectory> 
     openTickets: open.rows.map((r) => byId.get(r.id)).filter((s): s is BrainSource => Boolean(s)),
     decisions: decisions.rows.map((r) => byId.get(r.id)).filter((s): s is BrainSource => Boolean(s)),
     suggestions: BRAIN_SUGGESTIONS,
+    history: await conversationPairs(ctx.sandbox, "brain"),
   };
 }

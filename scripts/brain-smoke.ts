@@ -6,7 +6,9 @@
  */
 import { existsSync } from "node:fs";
 import { answerBrain } from "../src/lib/agent/brain";
+import { conversationPairs, recentTurns, rememberTurns } from "../src/lib/graph/conversation";
 import { connect, copyGraph, deleteGraph, listGraphs, run } from "../src/lib/graph/db";
+import { ingest } from "../src/lib/graph/intake";
 import { TEMPLATE_GRAPH } from "../src/lib/graph/names";
 import { ensureOrgLayer } from "../src/lib/graph/org";
 import { BRAIN_SUGGESTIONS } from "../src/lib/graph/seed-org";
@@ -51,6 +53,39 @@ async function main() {
     const broke = await reportElevator({ ...base, agentId: "rider-desk", tracer: new Tracer() }, { station: "630", stationName: "Myrtle-Wyckoff Avs", route: "L", working: false });
     const again = await run<{ status: string }>(SCRATCH, "MATCH (k:Ticket {id: 'EE-1207'}) RETURN k.status AS status");
     console.log(`report broken again: ${broke.summary} → EE-1207 is ${again.rows[0]?.status}`);
+
+    // Intake: an outage files a ticket with its owner and goes into memory; a repeat joins it; a fix resolves it.
+    for (const [kind, text] of [
+      ["message", "Elevator to the A platform at Jay St-MetroTech is stuck between floors. Sending step-free riders to Borough Hall for now."],
+      ["message", "Still stuck: the A platform elevator at Jay St-MetroTech has not moved."],
+      ["ticket", "Signal problem on the G near Metropolitan slowing trains in both directions."],
+      ["note", "Priya Raman wants the L tube playbook to mention the M at Myrtle-Wyckoff."],
+      ["message", "Myrtle-Wyckoff L platform elevator is back in service: the motor controller was replaced."],
+    ] as const) {
+      const r = await ingest(ctx(), { kind, text });
+      console.log(`\nintake ${kind}: ${r.data.summary}\n   ${r.trace.length} queries; sources ${r.data.sources.map((s) => `${s.id}(${s.status ?? s.kind})`).join(" ")}`);
+    }
+    const jay = await answerBrain(base, "Who owns the Jay St-MetroTech elevator outage?", { live: false });
+    console.log(`\nQ: Who owns the Jay St-MetroTech elevator outage?\nA: ${jay.answer}`);
+    const today = await answerBrain(base, "What changed in the last 1 days?", { live: false });
+    console.log(`\nQ: What changed today?\nA: ${today.answer}`);
+
+    // Conversation memory: turns are stored, chained, linked, and read back.
+    await rememberTurns(SCRATCH, "brain", [
+      { role: "user", text: "Who owns the Jay St-MetroTech elevator outage?", stations: ["636"], routes: ["A"] },
+      { role: "assistant", text: jay.answer, mode: jay.mode, cites: jay.sources.map((s) => s.id) },
+    ]);
+    await rememberTurns(SCRATCH, "brain", [
+      { role: "user", text: "What changed in the last 1 days?" },
+      { role: "assistant", text: today.answer, mode: today.mode, cites: today.sources.map((s) => s.id) },
+    ]);
+    const history = await recentTurns(SCRATCH, "brain", 8);
+    const pairs = await conversationPairs(SCRATCH, "brain", 6);
+    const chain = await run<{ n: number }>(SCRATCH, "MATCH (:Turn)-[r:NEXT]->(:Turn) RETURN count(r) AS n");
+    const cites = await run<{ n: number }>(SCRATCH, "MATCH (:Turn)-[r:CITES]->() RETURN count(r) AS n");
+    console.log(`\nconversation: ${history.length} turns read back (${history.map((h) => h.role[0]).join("")}), ${pairs.length} pairs, ${chain.rows[0]?.n} NEXT links, ${cites.rows[0]?.n} CITES links`);
+    const dir2 = await brainDirectory(ctx());
+    console.log(`directory history: ${dir2.history.map((h) => `${h.id} "${h.question}" (${h.cites.length} cites)`).join(" | ")}; open tickets ${dir2.openTickets.map((t) => t.id).join(", ")}`);
   } finally {
     await deleteGraph(SCRATCH);
     await (await connect()).close();
