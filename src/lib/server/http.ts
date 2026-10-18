@@ -62,6 +62,14 @@ export function friendlyError(error: unknown): string {
 }
 
 /**
+ * Whether the caller asked for the standard procedure rather than a live model (header `x-detour-no-model: 1`).
+ * The end-to-end tests send it, so checking a deployment never spends the free model quota a visitor's live run needs.
+ */
+export function wantsNoModel(request: Request): boolean {
+  return request.headers.get("x-detour-no-model") === "1";
+}
+
+/**
  * A fixed-window limiter kept in the graph database's bookkeeping graph: keeps one visitor from spending the
  * shared free model quota.
  */

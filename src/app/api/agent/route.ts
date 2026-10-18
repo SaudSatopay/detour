@@ -14,7 +14,7 @@ import { ensureSandbox } from "@/lib/graph/tenancy";
 import { Tracer } from "@/lib/graph/trace";
 import type { ToolResult } from "@/lib/graph/tools/types";
 import { loadScenarios } from "@/lib/network/data";
-import { allow, allowToday, ndjson, visitorId } from "@/lib/server/http";
+import { allow, allowToday, ndjson, visitorId, wantsNoModel } from "@/lib/server/http";
 
 export const maxDuration = 300;
 
@@ -74,7 +74,9 @@ export async function POST(request: Request) {
       }
       const base = { visitorId: visitor, sandbox: sandbox.graph, agentId: agent };
 
+      const noModel = wantsNoModel(request);
       const quota =
+        !noModel &&
         (await liveModelAvailable()) &&
         (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false)) &&
         (await allowToday(body.mode, LIVE_PER_DAY[body.mode]).catch(() => false));
@@ -97,13 +99,19 @@ export async function POST(request: Request) {
       };
       if (!quota) {
         if (body.mode === "ask") {
-          return scriptedRider("The free model runs are used up for now, so the rider desk answered with its rules: the same graph tools, with templated wording.");
+          return scriptedRider(
+            noModel
+              ? "This request asked for no model, so the rider desk answered with its rules: the same graph tools, with templated wording."
+              : "The free model runs are used up for now, so the rider desk answered with its rules: the same graph tools, with templated wording.",
+          );
         }
         if (body.mode === "control" && scenario) {
           return scripted(
-            hasLiveModel()
-              ? "The free model runs are used up for now, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
-              : "No model is configured, so the controller follows its standard procedure without one: the same tools on your own graph, with templated wording.",
+            noModel
+              ? "This request asked for no model, so the controller follows its standard procedure: the same tools on your own graph, with templated wording."
+              : hasLiveModel()
+                ? "The free model runs are used up for now, so the controller follows its standard procedure without a model: the same tools on your own graph, with templated wording."
+                : "No model is configured, so the controller follows its standard procedure without one: the same tools on your own graph, with templated wording.",
           );
         }
         emit({

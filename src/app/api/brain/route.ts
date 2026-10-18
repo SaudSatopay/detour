@@ -12,7 +12,7 @@ import { Tracer } from "@/lib/graph/trace";
 import { ensureSandbox } from "@/lib/graph/tenancy";
 import { brainDirectory } from "@/lib/graph/tools/brain";
 import { loadNetwork } from "@/lib/network/data";
-import { allow, allowToday, friendlyError, visitorId } from "@/lib/server/http";
+import { allow, allowToday, friendlyError, visitorId, wantsNoModel } from "@/lib/server/http";
 
 export const maxDuration = 120;
 
@@ -115,15 +115,19 @@ export async function POST(request: Request) {
     );
     const asked = follow?.question ?? question;
 
+    const noModel = wantsNoModel(request);
     const live =
+      !noModel &&
       (await liveModelAvailable()) &&
       (await allow(visitor, "brain", 20).catch(() => false)) &&
       (await allowToday("brain", LIVE_PER_DAY).catch(() => false));
     const note = live
       ? undefined
-      : hasLiveModel()
-        ? "The free model runs are used up for now, so the standard procedure answered: the same graph tools, with templated wording."
-        : "No model is configured, so the standard procedure answered: the same graph tools, with templated wording.";
+      : noModel
+        ? "This request asked for no model, so the standard procedure answered: the same graph tools, with templated wording."
+        : hasLiveModel()
+          ? "The free model runs are used up for now, so the standard procedure answered: the same graph tools, with templated wording."
+          : "No model is configured, so the standard procedure answered: the same graph tools, with templated wording.";
     const history = live ? await recentTurns(sandbox.graph, "brain", 8) : [];
     const answer = await answerBrain(base, asked, { live, note, abortSignal: request.signal, history });
     answer.question = question;
