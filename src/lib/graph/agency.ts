@@ -542,14 +542,20 @@ async function snapshotFromFeeds(): Promise<AgencySnapshot> {
 }
 
 let ready: Promise<void> | null = null;
+let checkedAt = 0;
+/** How often a warm server instance checks the agency graph again, so a database that came back empty heals itself. */
+const RECHECK_MS = 60_000;
 
 /** Makes sure the shared agency graph exists at the current version; the first caller installs it from the snapshot. */
 export function ensureAgency(graph = AGENCY_GRAPH): Promise<void> {
   if (graph !== AGENCY_GRAPH) return install(graph);
-  ready ??= install(graph).catch((error) => {
-    ready = null;
-    throw error;
-  });
+  if (!ready || Date.now() - checkedAt > RECHECK_MS) {
+    checkedAt = Date.now();
+    ready = install(graph).catch((error) => {
+      ready = null;
+      throw error;
+    });
+  }
   return ready;
 }
 

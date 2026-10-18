@@ -90,13 +90,22 @@ export async function copyForWhatIf(visitorId: string, source: string, destinati
 }
 
 let baseReady: Promise<void> | null = null;
+let baseCheckedAt = 0;
+/**
+ * How often a warm server instance checks the shared graphs again. A free instance that restarts can come back
+ * empty, and an instance that only remembered "seeded once" would never notice.
+ */
+const RECHECK_MS = 60_000;
 
-/** Seeds the shared graphs once per server instance (self-healing if the database was wiped). */
+/** Seeds the shared graphs, checking them again at most once a minute per server instance (self-healing after a wipe). */
 export function ensureBase(): Promise<void> {
-  baseReady ??= ensureBaseGraphs().catch((err) => {
-    baseReady = null;
-    throw err;
-  });
+  if (!baseReady || Date.now() - baseCheckedAt > RECHECK_MS) {
+    baseCheckedAt = Date.now();
+    baseReady = ensureBaseGraphs().catch((err) => {
+      baseReady = null;
+      throw err;
+    });
+  }
   return baseReady;
 }
 
