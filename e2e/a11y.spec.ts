@@ -5,6 +5,10 @@ import { expect, test, type Page } from "@playwright/test";
 const seen = (page: Page, text: string) => page.getByText(text).filter({ visible: true });
 
 async function violations(page: Page) {
+  // Cards fade in from transparent (.rise, 360 ms); axe would read their text colors mid-fade. Wait for every finite animation.
+  await page.waitForFunction(() =>
+    document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getTiming().iterations === Infinity),
+  );
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   return results.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id}: ${v.nodes.length} node(s)`);
 }

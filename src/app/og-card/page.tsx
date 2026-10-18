@@ -7,6 +7,8 @@ import { FACTS, fmt } from "@/lib/facts";
 export const metadata: Metadata = { title: "Social card", robots: { index: false, follow: false } };
 
 const L = FACTS.l;
+/** The three Graph Hacks tracks Detour is entered in, shortened to fit one row. */
+const TRACKS = ["Agents that act", "Memory and coordination", "Company brain"];
 
 export default function OgCard() {
   return (
@@ -16,11 +18,21 @@ export default function OgCard() {
         <div className="sign-band sign-rule flex h-16 shrink-0 items-center gap-3 px-10 pt-1">
           <DetourMark className="size-8" />
           <span className="font-display text-3xl font-bold tracking-wide">Detour</span>
-          <span className="label ml-auto text-sign-ink/80">Graph Hacks · FalkorDB · Tracks 1 and 2</span>
+          <span className="label ml-auto text-sign-ink/80">Graph Hacks · FalkorDB · All three tracks</span>
         </div>
         <div className="grid min-h-0 flex-1 grid-cols-[560px_1fr]">
           <div className="flex flex-col justify-between px-10 pb-9 pt-9">
-            <h1 className="font-display text-[4.1rem] font-bold leading-[0.92] tracking-[-0.012em]">When a subway line breaks, measure what the city can still carry.</h1>
+            <div className="flex flex-col gap-6">
+              <h1 className="font-display text-[4.1rem] font-bold leading-[0.92] tracking-[-0.012em]">When a subway line breaks, measure what the city can still carry.</h1>
+              <ul className="flex flex-wrap gap-2">
+                {TRACKS.map((t, i) => (
+                  <li key={t} className="label inline-flex items-center gap-2 rounded-sm border border-line-strong px-2 py-1 text-ink-700">
+                    <span className="tabular text-signal">{i + 1}</span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <dl className="grid grid-cols-3 gap-5 border-t border-line pt-5">
               <div>
                 <dt className="label text-ink-500">Displaced</dt>

@@ -15,6 +15,13 @@
   <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1, 2 and 3" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2_%2B_3-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#why-a-graph"><img alt="FalkorDB: maxFlow, SPpaths, GRAPH.COPY" src="https://img.shields.io/badge/FalkorDB-maxFlow_%C2%B7_SPpaths_%C2%B7_GRAPH.COPY-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#use-it-from-an-agent"><img alt="MCP: streamable HTTP" src="https://img.shields.io/badge/MCP-streamable_HTTP-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="#proof"><img alt="Tests: 95 unit, 15 end-to-end" src="https://img.shields.io/badge/tests-95_unit_%C2%B7_15_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/11xHEZ07rlw"><img alt="Watch the demo on YouTube" src="https://img.shields.io/badge/%E2%96%B6_watch_the_demo-YouTube-00848b?style=for-the-badge&labelColor=0d1013"></a>
+  &nbsp;
+  <a href="https://dev.to/saudsatopay/i-shut-down-the-l-train-in-a-graph-max-flow-min-cut-and-ai-agents-on-the-new-york-subway-40g7"><img alt="Read the build story on dev.to" src="https://img.shields.io/badge/read_the_build_story-dev.to-00848b?style=for-the-badge&labelColor=0d1013"></a>
 </p>
 
 <p align="center">
@@ -40,9 +47,20 @@ Memory lives in the same graph: facts carry dates, and a fact that stops being t
 
 | Track | Where to see it |
 |:---|:---|
-| **1 · Agents That Act on Connected Data** (primary) | The [control room](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1) runs the controller on your own copy of the graph and shows every tool call with its Cypher |
+| **1 · Agents That Act on Connected Data** | The [control room](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1) runs the controller on your own copy of the graph and shows every tool call with its Cypher |
 | **2 · Agent Memory and Coordination** | On the [riders page](https://detour-orpin.vercel.app/riders?rider=aisha), a superseded fact changes a wheelchair user's route; the [memory page](https://detour-orpin.vercel.app/memory) shows every episode, finding and handoff |
 | **3 · Company Brain** | The [brain page](https://detour-orpin.vercel.app/brain) answers who owns what, who knows what and why a decision was made, from the agency's teams, people, documents, tickets, chats and decisions in the same graph, with every answer citing its sources |
+
+<p align="center">
+  <a href="#see-it-run">See it run</a> &nbsp;·&nbsp;
+  <a href="#how-it-works">How it works</a> &nbsp;·&nbsp;
+  <a href="#graph-data-model">Data model</a> &nbsp;·&nbsp;
+  <a href="#the-queries-it-depends-on">Queries</a> &nbsp;·&nbsp;
+  <a href="#track-2-memory-you-can-watch-change-an-answer">Memory</a> &nbsp;·&nbsp;
+  <a href="#track-3-a-company-brain-for-the-agency">Company brain</a> &nbsp;·&nbsp;
+  <a href="#proof">Proof</a> &nbsp;·&nbsp;
+  <a href="#run-it-locally">Run it locally</a>
+</p>
 
 ## What it finds on the L train
 
@@ -70,6 +88,8 @@ With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 
   </a>
   <br>
   <sub>The controller on the L closure: each tool call streams into the trace, the night map shows its evidence, and the playback bar can replay any step.</sub>
+  <br><br>
+  <a href="https://youtu.be/11xHEZ07rlw"><b>▶ Watch the demo video on YouTube</b></a>
 </p>
 
 ## On screen
@@ -349,7 +369,7 @@ Every answer is a list of numbered source nodes with who wrote each one, their t
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Closed segments per scenario | Identical sets |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 93 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, the brain's question routing and the integrity of its sample records, and how pasted text is read: stations, lines, people, an outage or a fix |
+| Unit tests | 95 Vitest tests, including the control room's state and playback on recorded runs, the story's chapters, the memory timeline's layout on desktop and phone, the command palette's search, how tool summaries read, waiting out a model's rate limit, handing a spent daily quota to the standard procedure, the eval grader, the brain's question routing and the integrity of its sample records, and how pasted text is read: stations, lines, people, an outage or a fix |
 | End-to-end tests | 15 Playwright tests, each on desktop and phone: the control flow and playback, the riders page with the database down, the memory timeline, the command palette from the keyboard and on a phone, the brain tracing a decision and naming a ticket's owner, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 98; accessibility, best practices and SEO 100 |
 
