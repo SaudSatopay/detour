@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CypherBlock } from "@/components/cypher-block";
+import { AgentEvalSection } from "@/components/proof/agent-eval-section";
 import { CertificateSection } from "@/components/proof/certificate";
 import { HeldOutSection } from "@/components/proof/held-out";
 import { MemoryEvalSection } from "@/components/proof/memory-eval-section";
@@ -49,6 +50,7 @@ export default function ProofPage() {
               ["held-out", "Held-out closures"],
               ["coverage", "What is recomputed"],
               ["memory", "Memory, measured"],
+              ["agent-eval", "Agent vs no graph"],
               ["concurrency", "Many agents at once"],
               ["cost", "What each tool costs"],
               ["data", "Data and assumptions"],
@@ -175,6 +177,8 @@ export default function ProofPage() {
         <VerifierCoverageSection />
 
         <MemoryEvalSection />
+
+        <AgentEvalSection />
 
         <section className="deferred flex flex-col gap-6" aria-labelledby="concurrency">
           <SectionHead id="concurrency" kicker="Check 5" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>

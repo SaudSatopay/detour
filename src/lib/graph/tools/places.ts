@@ -73,10 +73,19 @@ export function normalizePlace(name: string): string {
 }
 
 /** RediSearch query text: words only, every term required, short numbers kept. */
-function fulltextQuery(name: string, fuzzy = false): string {
-  const terms = normalizePlace(name).split(" ").filter(Boolean);
+function fulltextQuery(words: string, fuzzy = false): string {
+  const terms = words.split(" ").filter(Boolean);
   if (!terms.length) return "";
   return terms.map((t) => (fuzzy && t.length >= 4 ? `%${t}%` : t)).join(" ");
+}
+
+/** The ways to search for a name: as written first (the MTA spells out "Broadway Junction", "Avenue H"), then in its short forms. */
+export function searchForms(name: string): string[] {
+  const written = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  return [...new Set([written, normalizePlace(name)])].filter(Boolean);
 }
 
 /**
@@ -105,20 +114,22 @@ export async function resolvePlaces(
     }
 
     let stations: StationMatch[] = [];
-    for (const fuzzy of [false, true]) {
-      const q = fulltextQuery(name, fuzzy);
-      if (!q) break;
-      const res = await ctx.tracer.run<StationMatch>(
-        `resolve "${name}"`,
-        ctx.sandbox,
-        `CALL db.idx.fulltext.queryNodes('Station', $q) YIELD node, score
-         RETURN node.id AS id, node.name AS name, node.label AS label, node.routes AS routes, node.ada AS ada, score
-         ORDER BY score DESC LIMIT 6`,
-        { q },
-        { readOnly: true },
-      );
-      stations = res.rows;
-      if (stations.length) break;
+    search: for (const fuzzy of [false, true]) {
+      for (const form of searchForms(name)) {
+        const q = fulltextQuery(form, fuzzy);
+        if (!q) continue;
+        const res = await ctx.tracer.run<StationMatch>(
+          `resolve "${name}"`,
+          ctx.sandbox,
+          `CALL db.idx.fulltext.queryNodes('Station', $q) YIELD node, score
+           RETURN node.id AS id, node.name AS name, node.label AS label, node.routes AS routes, node.ada AS ada, score
+           ORDER BY score DESC LIMIT 6`,
+          { q },
+          { readOnly: true },
+        );
+        stations = res.rows;
+        if (stations.length) break search;
+      }
     }
 
     if (hints.length) {

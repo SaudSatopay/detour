@@ -19,3 +19,14 @@ describe("reading a place the way people write it", () => {
     expect(normalizePlace("8 Av")).toBe("8 av");
   });
 });
+
+describe("the forms a name is searched in", () => {
+  it("tries the words as written before the MTA's short forms", async () => {
+    const { searchForms } = await import("./places");
+    expect(searchForms("Broadway Junction")).toEqual(["broadway junction", "broadway jct"]);
+    expect(searchForms("Avenue H")).toEqual(["avenue h", "av h"]);
+    expect(searchForms("Oakwood Heights")).toEqual(["oakwood heights", "oakwood hts"]);
+    expect(searchForms("Times Square")).toEqual(["times square", "times sq"]);
+    expect(searchForms("8 Av")).toEqual(["8 av"]);
+  });
+});

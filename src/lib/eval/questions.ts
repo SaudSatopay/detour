@@ -375,8 +375,8 @@ export function buildQuestions(inputs: Inputs, seed = SEED): EvalQuestion[] {
   mem("sept-date", "inc0903", "On what date did the remembered water condition in the Cranberry Street Tunnel (A and C trains) happen?", { kind: "date", iso: day(sept.openedAt) }, "INC-0903");
   const crowding = Number(/(\d+) minutes in/.exec(finding("F-0612-2").text)![1]);
   mem("g-crowding", "f06122", "During the remembered L closure, how many minutes in did crowding on the G platform at Metropolitan Av/Lorimer St hit the safety limit?", { kind: "number", value: crowding, tolerance: 0, abs: 0 }, "F-0612-2");
-  const busShare = Number(/(\d+)% of nominal/.exec(playbook.steps.join(" "))![1]);
-  mem("playbook-bus-share", "pbltube", "What share of nominal bus capacity does the remembered playbook for a Canarsie Tube closure on the L say to plan for? Give a percentage.", { kind: "number", value: busShare, tolerance: 0, abs: 0 }, "PB-L-TUBE");
+  const busShare = Number(/carried (\d+)% of plan/.exec(playbook.steps.join(" "))![1]);
+  mem("playbook-bus-share", "pbltube", "According to the remembered playbook for a Canarsie Tube closure on the L, what share of its plan did the June 12 bus bridge carry? Give a percentage.", { kind: "number", value: busShare, tolerance: 0, abs: 0 }, "PB-L-TUBE");
 
   // ---- not in the graph: real names, relations that do not exist
   const remembered = new Set(SEED_FINDINGS.flatMap((f) => f.about.stations ?? []));

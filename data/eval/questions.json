@@ -2310,10 +2310,10 @@
   "id": "memory-playbook-bus-share",
   "category": "memory",
   "group": "memory-pbltube",
-  "question": "What share of nominal bus capacity does the remembered playbook for a Canarsie Tube closure on the L say to plan for? Give a percentage.",
+  "question": "According to the remembered playbook for a Canarsie Tube closure on the L, what share of its plan did the June 12 bus bridge carry? Give a percentage.",
   "expect": {
    "kind": "number",
-   "value": 80,
+   "value": 79,
    "tolerance": 0,
    "abs": 0
   },
