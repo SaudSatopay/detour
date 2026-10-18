@@ -6,7 +6,7 @@ import { mcpToolset } from "@/lib/agent/mcp-tools";
 import { hasLiveModel, isRetryable, liveModelAvailable } from "@/lib/agent/models";
 import { ASK_INSTRUCTIONS, CONTROLLER_INSTRUCTIONS } from "@/lib/agent/prompts";
 import { recorder, replayRun } from "@/lib/agent/replay";
-import { NoModelError, runAgent } from "@/lib/agent/run";
+import { IncompleteRunError, NoModelError, runAgent } from "@/lib/agent/run";
 import { scriptedControl } from "@/lib/agent/scripted";
 import { scriptedAsk } from "@/lib/agent/scripted-ask";
 import { recentTurns, rememberTurns } from "@/lib/graph/conversation";
@@ -168,6 +168,8 @@ export async function POST(request: Request) {
           emit: tap,
           maxSteps: body.mode === "control" ? 12 : 6,
           abortSignal: request.signal,
+          // The controller is done when its brief is written; the rider desk's answer can be any length.
+          complete: body.mode === "control" ? (text) => text.includes("**What broke**") && text.includes("**Recommended plan**") : undefined,
         });
       } catch (error) {
         await closeTools().catch(() => undefined);
@@ -176,10 +178,14 @@ export async function POST(request: Request) {
         }
         // Free model quotas run out (a daily cap, or every provider rate limited): a preset closure finishes on the
         // controller's standard procedure, from the start, rather than stopping halfway.
-        if (body.mode === "control" && scenario && (isRetryable(error) || error instanceof NoModelError)) {
+        if (body.mode === "control" && scenario && (isRetryable(error) || error instanceof NoModelError || error instanceof IncompleteRunError)) {
           // An open handover: the procedure carries on from the live run's last answer instead of starting over.
           if (results.length) {
-            emit({ type: "model", agent, model: "standard procedure", reason: `every free model's quota ran out after ${results.length} steps; the standard procedure continues from here with the same tools` });
+            const why =
+              error instanceof IncompleteRunError
+                ? `${error.model.split(":").pop()} stopped after ${results.length} steps without a brief; the standard procedure finishes the run with the same tools`
+                : `every free model's quota ran out after ${results.length} steps; the standard procedure continues from here with the same tools`;
+            emit({ type: "model", agent, model: "standard procedure", reason: why });
           }
           return scripted(
             results.length

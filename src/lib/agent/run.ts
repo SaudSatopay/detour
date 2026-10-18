@@ -12,6 +12,8 @@ interface RunOptions {
   emit: Emit;
   maxSteps?: number;
   abortSignal?: AbortSignal;
+  /** Whether the final text is a finished answer; a model that stops short is told to continue, then handed over. */
+  complete?: (text: string) => boolean;
 }
 
 interface RunResult {
@@ -25,12 +27,13 @@ interface RunResult {
  * one mid-run without losing the conversation. Tools execute inside each step (they emit their own
  * events); the model's narration streams out as text events.
  */
-export async function runAgent({ agent, instructions, messages, tools, emit, maxSteps = 12, abortSignal }: RunOptions): Promise<RunResult> {
+export async function runAgent({ agent, instructions, messages, tools, emit, maxSteps = 12, abortSignal, complete }: RunOptions): Promise<RunResult> {
   const chain = await liveChain();
   if (!chain.length) throw new NoModelError();
   let current = 0;
   const history: ModelMessage[] = [...messages];
   let finalText = "";
+  let nudges = 0;
   emit({ type: "model", agent, model: chain[current].id });
 
   for (let step = 1; step <= maxSteps; step++) {
@@ -46,10 +49,25 @@ export async function runAgent({ agent, instructions, messages, tools, emit, max
     history.push(...stepOut.messages);
     if (stepOut.text.trim()) finalText = stepOut.text;
     if (stepOut.finishReason !== "tool-calls") {
-      return { text: finalText, steps: step, model: chain[current].id };
+      if (!complete || complete(finalText)) return { text: finalText, steps: step, model: chain[current].id };
+      // Smaller models sometimes say what they will check next, then stop. Tell it to carry on, twice at most.
+      if (nudges++ < 2) {
+        history.push({ role: "user", content: "You stopped before finishing. Call the next tool you named, or, if you have every answer, write the brief." });
+        continue;
+      }
+      throw new IncompleteRunError(chain[current].id);
     }
   }
+  if (complete && !complete(finalText)) throw new IncompleteRunError(chain[current].id);
   return { text: finalText, steps: maxSteps, model: chain[current].id };
+}
+
+/** The model stopped without a finished answer; what it already found is handed to the standard procedure. */
+export class IncompleteRunError extends Error {
+  constructor(readonly model: string) {
+    super(`${model} stopped before finishing`);
+    this.name = "IncompleteRunError";
+  }
 }
 
 /** Longest one step waits out the last model's rate limit before the run gives up. */
