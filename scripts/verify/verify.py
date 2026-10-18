@@ -466,9 +466,8 @@ class Model:
         Mirrors the FalkorDB tool (capacity.ts, reroute): new load = load - displacedLoad +
         rerouted riders on each segment a path rides; a segment is overloaded when that exceeds
         its capacity and its 8 a.m. load; overflow = load - max(capacity, baseline), summed
-        after rounding each load. Pairs with no open path are stranded. A BUS leg's load is the
-        riders on both of its directions, checked against one direction's capacity, as the
-        FalkorDB tool counts it.
+        after rounding each load. Pairs with no open path are stranded. A BUS leg carries its
+        capacity each way, so each direction's riders are checked against it on their own.
         """
         G = self.platform_graph(buses)
         pairs = [p for d in DIRECTIONS for p in self.displaced[d]]
@@ -481,7 +480,7 @@ class Model:
         for p in pairs:
             by_origin[p[0]].append(p)
         added: dict[int, float] = defaultdict(float)
-        bus_added: dict[int, float] = defaultdict(float)
+        bus_added: dict[tuple[int, str], float] = defaultdict(float)
         rerouted = 0.0
         stranded: list = []
         for origin, group in sorted(by_origin.items()):
@@ -498,7 +497,8 @@ class Model:
                     if data["kind"] == "RIDE":
                         added[data["eid"]] += riders
                     elif data["kind"] == "BUS":
-                        bus_added[data["bid"]] += riders
+                        # Keyed by the station the bus leaves from: each direction has its own capacity.
+                        bus_added[(data["bid"], a[1])] += riders
 
         overloaded = []
         for eid, n in added.items():
@@ -510,10 +510,12 @@ class Model:
                     "load": js_round(load), "baseline": js_round(seg["load"]), "capacity": seg["capacity"],
                     "pct": js_round(load / seg["capacity"] * 100),
                 })
+        bus_loads = []
         for i, bus in enumerate(buses or []):
             cap = float(bus["busesPerHour"]) * BUS_RIDERS
-            load = bus_added[i]
             for a, b in ((bus["from"], bus["to"]), (bus["to"], bus["from"])):
+                load = bus_added[(i, a)]
+                bus_loads.append({"bid": i, "from": a, "to": b, "load": js_round(load), "capacity": cap})
                 if load > cap:
                     overloaded.append({
                         "kind": "BUS", "bid": i, "route": "BUS", "from": a, "to": b, "load": js_round(load),
@@ -536,6 +538,7 @@ class Model:
             ],
             "overflow": js_round(sum(excess(o) for o in overloaded)),
             "overloaded": overloaded,
+            **({"busLoads": bus_loads} if buses else {}),
         }
 
     def overflow_range(self, tie_breaks: int = TIE_BREAKS) -> dict:
@@ -709,7 +712,7 @@ def evaluate_plan(model: Model, plan: dict) -> dict:
         "maxFlow": FLOW_FUNC_NAME,
         "reroute": {
             "before": {k: re_before[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow")},
-            "after": {k: re_after[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow", "strandedByStation")},
+            "after": {k: re_after[k] for k in ("rerouted", "stranded", "strandedPairs", "overflow", "strandedByStation", "busLoads")},
             "overloadedAfter": re_after["overloaded"][:12],
         },
         "buses": [

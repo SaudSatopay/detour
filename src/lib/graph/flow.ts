@@ -417,6 +417,23 @@ export function planGain(p: { before: { stranded: number; unmet: number }; after
   return p.before.stranded - p.after.stranded + (p.before.unmet - p.after.unmet);
 }
 
+/** Whether every leg of a plan carries its riders: its busier direction within its seats. A plan without loads fits. */
+export function planFits(p: { shuttles: { capacity: number; peak?: { load: number } }[] }): boolean {
+  return p.shuttles.every((s) => !s.peak || s.peak.load <= s.capacity);
+}
+
+type ChoosablePlan = Parameters<typeof planGain>[0] & Parameters<typeof planFits>[0] & { vehicles: number };
+
+/**
+ * The plan to recommend: the most stranded riders and max-flow shortfall cleared per bus on the road, among plans that
+ * help. A plan whose buses cannot carry their riders counts only when no tested plan fits.
+ */
+export function choosePlan<P extends ChoosablePlan>(plans: P[]): P | undefined {
+  const helping = plans.filter((p) => planGain(p) > 0);
+  const pool = helping.some(planFits) ? helping.filter(planFits) : helping;
+  return pool.sort((a, b) => planGain(b) / Math.max(1, b.vehicles) - planGain(a) / Math.max(1, a.vehicles))[0];
+}
+
 /**
  * Policy gap for one closure: how much gain per bus the controller's choice leaves on the table
  * against the best single leg an exhaustive search found, as a share of the best (0 = optimal).
@@ -440,7 +457,7 @@ export function haversineMeters(aLat: number, aLon: number, bLat: number, bLon: 
 }
 
 /** Bus planning numbers from docs/model.md: 70 riders per bus, 4 min + 3 min per km of street running. */
-const BUS_RIDERS = 70;
+export const BUS_RIDERS = 70;
 export const BUS_FLEET = 120;
 
 export function busLeg(meters: number, busesPerHour: number) {

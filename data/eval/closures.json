@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-18T20:24:10.630Z",
+ "generatedAt": "2026-10-18T22:56:24.015Z",
  "engine": "FalkorDB 4.22.1",
  "seed": 20261019,
  "count": 48,
@@ -174,7 +174,7 @@
     "reported 300.000 but the flows move 458.000 out of the source",
     "an augmenting path from source to sink remains in the residual graph"
    ],
-   "ms": 2.8
+   "ms": 1.8
   },
   "random": {
    "networks": 100,
@@ -244,7 +244,13 @@
       "capacity": 1750,
       "minutes": 6.4,
       "vehicles": 8,
-      "meters": 802
+      "meters": 802,
+      "peak": {
+       "from": "119",
+       "to": "407",
+       "load": 2487,
+       "busesPerHour": 36
+      }
      }
     ],
     "vehicles": 8,
@@ -255,7 +261,7 @@
      "unmet": 1266
     },
     "after": {
-     "overflow": 28762,
+     "overflow": 24867,
      "stranded": 623,
      "absorbed": 18117,
      "unmet": 315
@@ -572,31 +578,48 @@
   "oracle": "every shuttle candidate the controller saw, simulated alone on its own fork at the controller's sizing; best gain per bus (riders with no path plus max-flow shortfall cleared, per bus on the road)",
   "closures": 48,
   "needingBuses": 15,
-  "optimal": 13,
+  "optimal": 11,
   "meanGap": 0.039,
-  "maxGap": 0.31165892580683585,
+  "maxGap": 0.33333333333333337,
   "worst": [
+   {
+    "id": "h25-q",
+    "title": "Q: 72 St to 57 St-7 Av",
+    "gap": 0.333,
+    "chosen": {
+     "label": "477↔399@40",
+     "gain": 1120,
+     "vehicles": 12,
+     "perBus": 93.33333333333333
+    },
+    "oracle": {
+     "label": "475↔396@29",
+     "gain": 1120,
+     "vehicles": 8,
+     "perBus": 140
+    }
+   },
    {
     "id": "h33-7",
     "title": "7: Court Sq-23 St to Jackson Hts-Roosevelt Av/74 St-Broadway",
-    "gap": 0.312,
+    "gap": 0.19,
     "chosen": {
-     "label": "458↔272@23",
-     "gain": 5780,
-     "vehicles": 9,
-     "perBus": 642.2222222222222
+     "label": "458↔272@60",
+     "gain": 7167,
+     "vehicles": 22,
+     "perBus": 325.77272727272725
     },
     "oracle": {
-     "label": "457↔269@6",
-     "gain": 2799,
-     "vehicles": 3,
-     "perBus": 933
+     "label": "459↔272@18",
+     "gain": 2412,
+     "vehicles": 6,
+     "perBus": 402
     }
    },
    {
     "id": "h41-l",
     "title": "L: Grand St to DeKalb Av",
-    "gap": 0.279,
+    "gap": 0.039,
     "chosen": {
      "label": "126↔113@14",
      "gain": 1769,
@@ -604,15 +627,15 @@
      "perBus": 353.8
     },
     "oracle": {
-     "label": "125↔98@9",
+     "label": "125↔98@10",
      "gain": 1473,
-     "vehicles": 3,
-     "perBus": 491
+     "vehicles": 4,
+     "perBus": 368.25
     }
    }
   ]
  },
- "seconds": 129,
+ "seconds": 173,
  "closures": [
   {
    "id": "h01-m",
@@ -901,19 +924,19 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "346↔182@7",
+     "label": "346↔182@8",
      "gain": 1042,
-     "vehicles": 3,
-     "perBus": 347.3333333333333
+     "vehicles": 4,
+     "perBus": 260.5
     },
     "oracle": {
-     "label": "346↔182@7",
-     "gain": 1042,
+     "label": "347↔135@6",
+     "gain": 802,
      "vehicles": 3,
-     "perBus": 347.3333333333333
+     "perBus": 267.3333333333333
     },
-    "candidatesTried": 8,
-    "gap": 0
+    "candidatesTried": 10,
+    "gap": 0.025561097256857786
    }
   },
   {
@@ -1305,18 +1328,18 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "289↔627@11",
+     "label": "289↔627@18",
      "gain": 2067,
-     "vehicles": 4,
-     "perBus": 516.75
+     "vehicles": 6,
+     "perBus": 344.5
     },
     "oracle": {
-     "label": "289↔627@11",
+     "label": "289↔627@18",
      "gain": 2067,
-     "vehicles": 4,
-     "perBus": 516.75
+     "vehicles": 6,
+     "perBus": 344.5
     },
-    "candidatesTried": 8,
+    "candidatesTried": 12,
     "gap": 0
    }
   },
@@ -1779,12 +1802,12 @@
      "perBus": 448.2
     },
     "oracle": {
-     "label": "147↔301@15",
+     "label": "147↔301@16",
      "gain": 2241,
      "vehicles": 5,
      "perBus": 448.2
     },
-    "candidatesTried": 8,
+    "candidatesTried": 14,
     "gap": 0
    }
   },
@@ -1981,18 +2004,18 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "33↔35@11",
+     "label": "33↔35@14",
      "gain": 1807,
-     "vehicles": 4,
-     "perBus": 451.75
+     "vehicles": 5,
+     "perBus": 361.4
     },
     "oracle": {
-     "label": "33↔35@11",
+     "label": "33↔35@14",
      "gain": 1807,
-     "vehicles": 4,
-     "perBus": 451.75
+     "vehicles": 5,
+     "perBus": 361.4
     },
-    "candidatesTried": 8,
+    "candidatesTried": 10,
     "gap": 0
    }
   },
@@ -3135,19 +3158,19 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "477↔399@16",
+     "label": "477↔399@40",
      "gain": 1120,
-     "vehicles": 5,
-     "perBus": 224
+     "vehicles": 12,
+     "perBus": 93.33333333333333
     },
     "oracle": {
-     "label": "477↔399@16",
+     "label": "475↔396@29",
      "gain": 1120,
-     "vehicles": 5,
-     "perBus": 224
+     "vehicles": 8,
+     "perBus": 140
     },
-    "candidatesTried": 8,
-    "gap": 0
+    "candidatesTried": 11,
+    "gap": 0.33333333333333337
    }
   },
   {
@@ -3550,7 +3573,7 @@
      "vehicles": 3,
      "perBus": 177.66666666666666
     },
-    "candidatesTried": 8,
+    "candidatesTried": 14,
     "gap": 0
    }
   },
@@ -3957,19 +3980,19 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "458↔272@23",
-     "gain": 5780,
-     "vehicles": 9,
-     "perBus": 642.2222222222222
+     "label": "458↔272@60",
+     "gain": 7167,
+     "vehicles": 22,
+     "perBus": 325.77272727272725
     },
     "oracle": {
-     "label": "457↔269@6",
-     "gain": 2799,
-     "vehicles": 3,
-     "perBus": 933
+     "label": "459↔272@18",
+     "gain": 2412,
+     "vehicles": 6,
+     "perBus": 402
     },
-    "candidatesTried": 8,
-    "gap": 0.31165892580683585
+    "candidatesTried": 16,
+    "gap": 0.18962008141112624
    }
   },
   {
@@ -4537,18 +4560,18 @@
    "policy": {
     "needsBuses": true,
     "chosen": {
-     "label": "28↔339@13",
+     "label": "28↔339@16",
      "gain": 2140,
      "vehicles": 5,
      "perBus": 428
     },
     "oracle": {
-     "label": "28↔339@13",
+     "label": "28↔339@16",
      "gain": 2140,
      "vehicles": 5,
      "perBus": 428
     },
-    "candidatesTried": 8,
+    "candidatesTried": 12,
     "gap": 0
    }
   },
@@ -4854,13 +4877,13 @@
      "perBus": 353.8
     },
     "oracle": {
-     "label": "125↔98@9",
+     "label": "125↔98@10",
      "gain": 1473,
-     "vehicles": 3,
-     "perBus": 491
+     "vehicles": 4,
+     "perBus": 368.25
     },
-    "candidatesTried": 8,
-    "gap": 0.2794297352342159
+    "candidatesTried": 14,
+    "gap": 0.03923964697895448
    }
   },
   {

@@ -75,7 +75,9 @@ How much more displaced demand fits before an open segment saturates? Scale ever
 
 ## Shuttle plans
 
-A plan adds `BUS` edges in both directions between two stations: `capacity = buses per hour × 70 riders` (a standard 40-ft bus at crush load), with `minutes = 4 + straight-line km × 3` for street running. A plan is simulated on a fork of the closure graph (`GRAPH.COPY`), max flow is recomputed with `BUS` included, and the gain is the difference in absorbed riders.
+A plan adds `BUS` edges in both directions between two stations: `capacity = buses per hour × 70 riders` each way (a standard 40-ft bus at crush load), with `minutes = 4 + straight-line km × 3` for street running. A plan is simulated on a fork of the closure graph (`GRAPH.COPY`), max flow is recomputed with `BUS` included, and the gain is the difference in absorbed riders.
+
+In the fastest-path reroute, a leg's load is counted per direction, the riders whose paths board it at each end, and each direction is compared with its own capacity. A leg whose busier direction runs over its seats reports the buses an hour that would carry those riders (`ceil(load / 70)`); the controller tests the plan again at that size, divided by the lowest share of plan a remembered shuttle on the corridor carried.
 
 ## Rider routing
 

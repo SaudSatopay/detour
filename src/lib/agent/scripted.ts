@@ -1,4 +1,5 @@
 import { loadNetwork, type Scenario } from "../network/data";
+import { choosePlan } from "../graph/flow";
 import { Tracer } from "../graph/trace";
 import { affectedRiders, type ImpactData } from "../graph/tools/impact";
 import { closeLine } from "../graph/tools/incident";
@@ -124,8 +125,8 @@ export async function scriptedControl(
 
     // Plans the live run already tested count too; the procedure tests one only if none exists yet.
     const plans: PlanData[] = prior.filter((r) => r.tool === "simulate_plan" && r.data).map((r) => r.data as PlanData);
-    const simulate = async (legs: Candidate[]) => {
-      const shuttles = legs.map((c) => ({ from: c.fromId, to: c.toId, busesPerHour: size(c) }));
+    const simulate = async (legs: Candidate[], sized?: Map<string, number>) => {
+      const shuttles = legs.map((c) => ({ from: c.fromId, to: c.toId, busesPerHour: sized?.get(`${c.fromId}>${c.toId}`) ?? size(c) }));
       const r = await step(
         "simulate_plan",
         { shuttles: shuttles.map((l) => ({ from_station_id: l.from, to_station_id: l.to, buses_per_hour: l.busesPerHour })) },
@@ -143,9 +144,20 @@ export async function scriptedControl(
       if (options.length === 2) await simulate(options);
     }
 
-    // The plan that clears the most stranded riders and max-flow shortfall per bus; it has to help.
-    const gain = (p: PlanData) => p.before.stranded - p.after.stranded + (p.before.unmet - p.after.unmet);
-    const best = plans.filter((p) => gain(p) > 0).sort((a, b) => gain(b) / b.vehicles - gain(a) / a.vehicles)[0];
+    // A leg too small for the riders its fastest paths put on it is tested once more at the size they need, with
+    // memory's correction for what past shuttles really carried.
+    const tooSmall = plans.filter((p) => p.shuttles.some((s) => s.peak && s.peak.load > s.capacity));
+    for (const p of tooSmall.slice(0, 2)) {
+      const legs = p.shuttles.map((s) => options.find((c) => c.fromId === s.from && c.toId === s.to)).filter((c): c is Candidate => Boolean(c));
+      if (legs.length !== p.shuttles.length) continue;
+      const sized = new Map(p.shuttles.map((s) => [`${s.from}>${s.to}`, Math.min(60, Math.max(s.busesPerHour, Math.ceil((s.peak?.busesPerHour ?? 0) / (past?.ratio ?? 1))))]));
+      say(`${p.planId} is too small for the riders it carries, so testing it again with each leg sized to its busier direction.`);
+      await simulate(legs, sized);
+    }
+
+    // The plan that clears the most stranded riders and max-flow shortfall per bus, among plans whose buses carry
+    // their riders when any does (choosePlan, shared with the held-out policy eval).
+    const best = choosePlan(plans);
     if (best) {
       choice = {
         planId: best.planId,

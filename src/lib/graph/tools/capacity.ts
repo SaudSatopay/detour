@@ -4,6 +4,7 @@ import { deleteGraph, listGraphs } from "../db";
 import {
   busLeg,
   BUS_FLEET,
+  BUS_RIDERS,
   certifyMaxFlow,
   cutOffStations,
   dinicMaxFlow,
@@ -384,6 +385,8 @@ export interface RerouteRun {
   overloaded: { kind: "RUNS" | "BUS"; id: number; route: string; from: string; to: string; load: number; baseline: number; capacity: number; pct: number }[];
   overflow: number;
   flows: FlowHighlight[];
+  /** Each shuttle leg's riders in each direction, when the reroute could use buses. */
+  busLoads?: { bid: number; from: string; to: string; load: number; capacity: number }[];
 }
 
 /**
@@ -395,7 +398,7 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
   const segs = segmentsById(network);
   const types = ["BOARD", "RIDE", "ALIGHT", "WALK", ...(withBus ? ["BUS"] : [])];
 
-  const res = await ctx.tracer.run<{ o: string; d: string; minutes: number; eids: number[]; bids: number[]; walks: number[] }>(
+  const res = await ctx.tracer.run<{ o: string; d: string; minutes: number; eids: number[]; bids: [number, string][]; walks: number[] }>(
     "reroute displaced riders on fastest open paths",
     graph,
     `UNWIND $pairs AS p
@@ -404,7 +407,7 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
      YIELD path, pathWeight
      RETURN p.o AS o, p.d AS d, pathWeight AS minutes,
             [r IN relationships(path) WHERE type(r) = 'RIDE' | r.eid] AS eids,
-            [r IN relationships(path) WHERE type(r) = 'BUS' | r.bid] AS bids,
+            [r IN relationships(path) WHERE type(r) = 'BUS' | [r.bid, startNode(r).id]] AS bids,
             [r IN relationships(path) WHERE type(r) = 'WALK' | r.wid] AS walks`,
     { pairs: prepared.pairs.map((p) => ({ o: p.o, d: p.d })), types },
     { readOnly: true, timeoutMs: 45_000 },
@@ -412,7 +415,8 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
 
   const riders = new Map(prepared.pairs.map((p) => [`${p.o}>${p.d}`, p.riders]));
   const added = new Map<number, number>();
-  const busAdded = new Map<number, number>();
+  // A bus leg carries its capacity each way, so its riders are counted by the direction they ride: "bid>from".
+  const busAdded = new Map<string, number>();
   const walkAdded = new Map<number, number>();
   let rerouted = 0;
   const reached = new Set<string>();
@@ -423,7 +427,7 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
     reached.add(key);
     rerouted += n;
     for (const eid of r.eids) added.set(eid, (added.get(eid) ?? 0) + n);
-    for (const bid of r.bids) busAdded.set(bid, (busAdded.get(bid) ?? 0) + n);
+    for (const [bid, from] of r.bids) busAdded.set(`${bid}>${from}`, (busAdded.get(`${bid}>${from}`) ?? 0) + n);
     for (const wid of r.walks) walkAdded.set(wid, (walkAdded.get(wid) ?? 0) + n);
   }
   const strandedList = prepared.pairs.filter((p) => !reached.has(`${p.o}>${p.d}`));
@@ -448,7 +452,8 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
       });
     }
   }
-  if (withBus && busAdded.size) {
+  const busLoads: NonNullable<RerouteRun["busLoads"]> = [];
+  if (withBus) {
     const buses = await ctx.tracer.run<{ bid: number; a: string; b: string; cap: number }>(
       "bus legs",
       graph,
@@ -457,7 +462,8 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
       { readOnly: true },
     );
     for (const bus of buses.rows) {
-      const load = busAdded.get(bus.bid) ?? 0;
+      const load = busAdded.get(`${bus.bid}>${bus.a}`) ?? 0;
+      busLoads.push({ bid: bus.bid, from: bus.a, to: bus.b, load: Math.round(load), capacity: bus.cap });
       if (load > bus.cap) overloaded.push({ kind: "BUS", id: bus.bid, route: "BUS", from: bus.a, to: bus.b, load: Math.round(load), baseline: 0, capacity: bus.cap, pct: Math.round((load / bus.cap) * 100) });
     }
   }
@@ -478,6 +484,7 @@ async function reroute(ctx: ToolContext, graph: string, prepared: Prepared, with
     rerouted: Math.round(rerouted),
     stranded: Math.round(strandedList.reduce((s, p) => s + p.riders, 0)),
     strandedPairs: strandedList.length,
+    ...(withBus ? { busLoads } : {}),
     overloaded,
     overflow: Math.round(overloaded.reduce((s, o) => s + excess(o), 0)),
     flows,
@@ -733,7 +740,17 @@ export async function shuttleCandidates(ctx: ToolContext, input: { maxKm?: numbe
 
 export interface PlanData {
   planId: string;
-  shuttles: { from: string; to: string; busesPerHour: number; capacity: number; minutes: number; vehicles: number; meters: number }[];
+  shuttles: {
+    from: string;
+    to: string;
+    busesPerHour: number;
+    capacity: number;
+    minutes: number;
+    vehicles: number;
+    meters: number;
+    /** The leg's busier direction: the riders its fastest paths put on it, and the buses an hour that carry them. */
+    peak: { from: string; to: string; load: number; busesPerHour: number };
+  }[];
   vehicles: number;
   before: { overflow: number; stranded: number; absorbed: number; unmet: number };
   after: { overflow: number; stranded: number; absorbed: number; unmet: number };
@@ -834,13 +851,24 @@ export async function simulatePlan(
       },
     );
 
+    // Each leg's busier direction: a leg too small for the riders its fastest paths put on it says what it needs.
+    const peaks = legs.map((l) => {
+      const way = (afterRe.busLoads ?? []).filter((b) => b.bid === l.bid).sort((a, b) => b.load - a.load)[0];
+      const load = way?.load ?? 0;
+      return { from: way?.from ?? l.from, to: way?.to ?? l.to, load, busesPerHour: Math.ceil(load / BUS_RIDERS) };
+    });
+    const short = legs
+      .map((l, i) => ({ l, p: peaks[i] }))
+      .filter(({ l, p }) => p.load > l.capacity)
+      .map(({ l, p }) => ` The ${n.get(p.from)} → ${n.get(p.to)} bus runs at ${Math.round((p.load / l.capacity) * 100)}% of its ${fmt(l.capacity)} seats: ${p.busesPerHour} buses an hour would carry its ${fmt(p.load)} riders.`);
     const summary =
-      `${planId}: ${legs.map((l) => `${n.get(l.from)} ↔ ${n.get(l.to)} at ${l.busesPerHour} buses an hour (${fmt(l.capacity)} riders)`).join("; ")}; ${vehicles} buses on the road. ` +
+      `${planId}: ${legs.map((l) => `${n.get(l.from)} ↔ ${n.get(l.to)} at ${l.busesPerHour} buses an hour (${fmt(l.capacity)} riders each way)`).join("; ")}; ${vehicles} buses on the road. ` +
       `Riders with no path ${fmt(before.stranded)} → ${fmt(after.stranded)}; max-flow shortfall ${fmt(before.unmet)} → ${fmt(after.unmet)}; ` +
       `fastest-path overflow ${fmt(before.overflow)} → ${fmt(after.overflow)} riders an hour` +
       (after.overflow > before.overflow && after.stranded < before.stranded
         ? " (riders who had no path now travel and add load downstream)."
-        : ".");
+        : ".") +
+      short.join("");
     return result(
       ctx,
       "simulate_plan",
@@ -848,7 +876,7 @@ export async function simulatePlan(
       summary,
       {
         planId,
-        shuttles: legs.map((l) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity, minutes: l.minutes, vehicles: l.vehicles, meters: l.meters })),
+        shuttles: legs.map((l, i) => ({ from: l.from, to: l.to, busesPerHour: l.busesPerHour, capacity: l.capacity, minutes: l.minutes, vehicles: l.vehicles, meters: l.meters, peak: peaks[i] })),
         vehicles,
         before,
         after,

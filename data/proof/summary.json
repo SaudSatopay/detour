@@ -1,5 +1,5 @@
 {
-  "seedMs": 1214,
+  "seedMs": 1538,
   "l-canarsie": {
     "displaced": 23445,
     "overflow": 24078,
@@ -10,17 +10,166 @@
         "required": 18432,
         "absorbed": 17167,
         "unmet": 1266,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [
+          {
+            "id": "119",
+            "side": "origin",
+            "riders": 1266
+          },
+          {
+            "id": "118",
+            "side": "destination",
+            "riders": 315
+          }
+        ],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 17166.7,
+          "cutCapacity": 17166.699999999997,
+          "falkordb": {
+            "value": 17166.7,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "forward",
+          "required": 18432,
+          "connected": 17167,
+          "multiplier": 1.769,
+          "saturating": [
+            {
+              "kind": "RUNS",
+              "id": 930,
+              "from": "283",
+              "to": "282",
+              "spare": 1504,
+              "route": "G"
+            },
+            {
+              "kind": "RUNS",
+              "id": 952,
+              "from": "629",
+              "to": "286",
+              "spare": 4908,
+              "route": "G"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1085,
+              "from": "114",
+              "to": "97",
+              "spare": 6862,
+              "route": "M"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1046,
+              "from": "130",
+              "to": "131",
+              "spare": 12223,
+              "route": "L"
+            }
+          ],
+          "cutOff": [
+            {
+              "id": "119",
+              "side": "origin",
+              "riders": 1266
+            },
+            {
+              "id": "118",
+              "side": "destination",
+              "riders": 315
+            }
+          ],
+          "solves": 4,
+          "recomputed": 0,
+          "checked": true
+        }
       },
       {
         "direction": "backward",
         "required": 2423,
         "absorbed": 2033,
         "unmet": 390,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [
+          {
+            "id": "119",
+            "side": "destination",
+            "riders": 356
+          },
+          {
+            "id": "118",
+            "side": "destination",
+            "riders": 33
+          }
+        ],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 2033.4,
+          "cutCapacity": 2033.399999999999,
+          "falkordb": {
+            "value": 2033.4,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "backward",
+          "required": 2423,
+          "connected": 2033,
+          "multiplier": null,
+          "saturating": [],
+          "cutOff": [
+            {
+              "id": "119",
+              "side": "destination",
+              "riders": 356
+            },
+            {
+              "id": "118",
+              "side": "destination",
+              "riders": 33
+            }
+          ],
+          "solves": 2,
+          "recomputed": 0,
+          "checked": true
+        }
       }
     ],
-    "queries": 148
+    "overloaded": [
+      {
+        "route": "G",
+        "from": "283",
+        "to": "282",
+        "pct": 244
+      },
+      {
+        "route": "G",
+        "from": "284",
+        "to": "283",
+        "pct": 201
+      },
+      {
+        "route": "G",
+        "from": "282",
+        "to": "606",
+        "pct": 198
+      },
+      {
+        "route": "G",
+        "from": "629",
+        "to": "284",
+        "pct": 190
+      }
+    ],
+    "queries": 197
   },
   "lex-express": {
     "displaced": 31347,
@@ -32,17 +181,346 @@
         "required": 15022,
         "absorbed": 15022,
         "unmet": 0,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 15021.7,
+          "cutCapacity": 15021.700000000003,
+          "falkordb": {
+            "value": 15021.7,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "forward",
+          "required": 15022,
+          "connected": 15022,
+          "multiplier": 10.611,
+          "saturating": [
+            {
+              "kind": "RUNS",
+              "id": 988,
+              "from": "81",
+              "to": "83",
+              "spare": 2420,
+              "route": "J"
+            },
+            {
+              "kind": "RUNS",
+              "id": 933,
+              "from": "284",
+              "to": "629",
+              "spare": 3858,
+              "route": "G"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1449,
+              "from": "82",
+              "to": "83",
+              "spare": 2320,
+              "route": "Z"
+            },
+            {
+              "kind": "RUNS",
+              "id": 990,
+              "from": "82",
+              "to": "83",
+              "spare": 4486,
+              "route": "J"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1093,
+              "from": "223",
+              "to": "224",
+              "spare": 7208,
+              "route": "M"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1206,
+              "from": "223",
+              "to": "9",
+              "spare": 6610,
+              "route": "Q"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1146,
+              "from": "223",
+              "to": "9",
+              "spare": 1450,
+              "route": "N"
+            },
+            {
+              "kind": "RUNS",
+              "id": 953,
+              "from": "610",
+              "to": "611",
+              "spare": 8237,
+              "route": "GS"
+            },
+            {
+              "kind": "RUNS",
+              "id": 626,
+              "from": "604",
+              "to": "220",
+              "spare": 8381,
+              "route": "B"
+            },
+            {
+              "kind": "RUNS",
+              "id": 159,
+              "from": "603",
+              "to": "438",
+              "spare": 9238,
+              "route": "2"
+            },
+            {
+              "kind": "RUNS",
+              "id": 729,
+              "from": "215",
+              "to": "151",
+              "spare": 9607,
+              "route": "D"
+            },
+            {
+              "kind": "RUNS",
+              "id": 424,
+              "from": "404",
+              "to": "405",
+              "spare": 11925,
+              "route": "6"
+            },
+            {
+              "kind": "RUNS",
+              "id": 897,
+              "from": "612",
+              "to": "276",
+              "spare": 8248,
+              "route": "F"
+            },
+            {
+              "kind": "RUNS",
+              "id": 812,
+              "from": "612",
+              "to": "276",
+              "spare": 10213,
+              "route": "E"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1427,
+              "from": "613",
+              "to": "8",
+              "spare": 7715,
+              "route": "W"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1333,
+              "from": "613",
+              "to": "8",
+              "spare": 11862,
+              "route": "R"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1174,
+              "from": "613",
+              "to": "8",
+              "spare": 7186,
+              "route": "N"
+            },
+            {
+              "kind": "RUNS",
+              "id": 481,
+              "from": "610",
+              "to": "609",
+              "spare": 27303,
+              "route": "7"
+            }
+          ],
+          "cutOff": [],
+          "solves": 3,
+          "recomputed": 0,
+          "checked": true
+        }
       },
       {
         "direction": "backward",
         "required": 14487,
         "absorbed": 14487,
         "unmet": 0,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 14486.6,
+          "cutCapacity": 14486.599999999997,
+          "falkordb": {
+            "value": 14486.6,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "backward",
+          "required": 14487,
+          "connected": 14487,
+          "multiplier": 11.144,
+          "saturating": [
+            {
+              "kind": "RUNS",
+              "id": 930,
+              "from": "283",
+              "to": "282",
+              "spare": 1486,
+              "route": "G"
+            },
+            {
+              "kind": "RUNS",
+              "id": 989,
+              "from": "82",
+              "to": "81",
+              "spare": 5881,
+              "route": "J"
+            },
+            {
+              "kind": "RUNS",
+              "id": 425,
+              "from": "405",
+              "to": "404",
+              "spare": 11211,
+              "route": "6"
+            },
+            {
+              "kind": "RUNS",
+              "id": 178,
+              "from": "318",
+              "to": "611",
+              "spare": 8383,
+              "route": "3"
+            },
+            {
+              "kind": "RUNS",
+              "id": 79,
+              "from": "318",
+              "to": "611",
+              "spare": 6187,
+              "route": "2"
+            },
+            {
+              "kind": "RUNS",
+              "id": 44,
+              "from": "318",
+              "to": "611",
+              "spare": 8391,
+              "route": "1"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1124,
+              "from": "607",
+              "to": "609",
+              "spare": 6783,
+              "route": "M"
+            },
+            {
+              "kind": "RUNS",
+              "id": 892,
+              "from": "607",
+              "to": "609",
+              "spare": 6876,
+              "route": "F"
+            },
+            {
+              "kind": "RUNS",
+              "id": 750,
+              "from": "607",
+              "to": "609",
+              "spare": 8251,
+              "route": "D"
+            },
+            {
+              "kind": "RUNS",
+              "id": 628,
+              "from": "607",
+              "to": "609",
+              "spare": 10905,
+              "route": "B"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1423,
+              "from": "607",
+              "to": "611",
+              "spare": 8698,
+              "route": "W"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1327,
+              "from": "607",
+              "to": "611",
+              "spare": 10907,
+              "route": "R"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1252,
+              "from": "607",
+              "to": "611",
+              "spare": 6688,
+              "route": "Q"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1169,
+              "from": "607",
+              "to": "611",
+              "spare": 12256,
+              "route": "N"
+            },
+            {
+              "kind": "RUNS",
+              "id": 782,
+              "from": "164",
+              "to": "611",
+              "spare": 15397,
+              "route": "E"
+            },
+            {
+              "kind": "RUNS",
+              "id": 664,
+              "from": "164",
+              "to": "611",
+              "spare": 9058,
+              "route": "C"
+            },
+            {
+              "kind": "RUNS",
+              "id": 499,
+              "from": "164",
+              "to": "611",
+              "spare": 15804,
+              "route": "A"
+            }
+          ],
+          "cutOff": [],
+          "solves": 4,
+          "recomputed": 0,
+          "checked": true
+        }
       }
     ],
-    "queries": 139
+    "overloaded": [],
+    "queries": 180
   },
   "cranberry": {
     "displaced": 16268,
@@ -54,16 +532,127 @@
         "required": 14267,
         "absorbed": 14267,
         "unmet": 0,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 14267.5,
+          "cutCapacity": 14267.499999999998,
+          "falkordb": {
+            "value": 14267.5,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "forward",
+          "required": 14267,
+          "connected": 14267,
+          "multiplier": 7.115,
+          "saturating": [
+            {
+              "kind": "RUNS",
+              "id": 907,
+              "from": "141",
+              "to": "626",
+              "spare": 1891,
+              "route": "FS"
+            },
+            {
+              "kind": "WALK",
+              "id": 189,
+              "from": "135",
+              "to": "349",
+              "spare": 3000
+            },
+            {
+              "kind": "RUNS",
+              "id": 1020,
+              "from": "96",
+              "to": "97",
+              "spare": 3340,
+              "route": "J"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1457,
+              "from": "95",
+              "to": "97",
+              "spare": 4640,
+              "route": "Z"
+            },
+            {
+              "kind": "RUNS",
+              "id": 989,
+              "from": "82",
+              "to": "81",
+              "spare": 5884,
+              "route": "J"
+            },
+            {
+              "kind": "RUNS",
+              "id": 679,
+              "from": "177",
+              "to": "176",
+              "spare": 8783,
+              "route": "C"
+            },
+            {
+              "kind": "RUNS",
+              "id": 1044,
+              "from": "129",
+              "to": "630",
+              "spare": 12735,
+              "route": "L"
+            },
+            {
+              "kind": "RUNS",
+              "id": 509,
+              "from": "179",
+              "to": "175",
+              "spare": 18359,
+              "route": "A"
+            }
+          ],
+          "cutOff": [],
+          "solves": 4,
+          "recomputed": 0,
+          "checked": true
+        }
       },
       {
         "direction": "backward",
         "required": 2001,
         "absorbed": 2001,
         "unmet": 0,
-        "cut": 0
+        "cut": 0,
+        "cutOff": [],
+        "check": {
+          "checked": true,
+          "solver": "falkordb",
+          "value": 2000.6,
+          "cutCapacity": 2000.5999999999995,
+          "falkordb": {
+            "value": 2000.6,
+            "checked": true,
+            "problems": []
+          }
+        },
+        "headroom": {
+          "direction": "backward",
+          "required": 2001,
+          "connected": 2001,
+          "multiplier": null,
+          "saturating": [],
+          "cutOff": [],
+          "solves": 2,
+          "recomputed": 0,
+          "checked": true
+        }
       }
     ],
-    "queries": 138
+    "overloaded": [],
+    "queries": 177
   }
 }

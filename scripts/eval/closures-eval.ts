@@ -17,7 +17,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { AgentEvent } from "../../src/lib/agent/catalog";
 import { scriptedControl } from "../../src/lib/agent/scripted";
 import { connect } from "../../src/lib/graph/db";
-import { heldOutClosures, planGain, policyGap, type ClosureSpec } from "../../src/lib/graph/flow";
+import { choosePlan, heldOutClosures, planFits, planGain, policyGap, type ClosureSpec } from "../../src/lib/graph/flow";
 import { ensureBaseGraphs } from "../../src/lib/graph/seed";
 import { ensureSandbox, resetSandbox } from "../../src/lib/graph/tenancy";
 import { Tracer } from "../../src/lib/graph/trace";
@@ -180,7 +180,8 @@ async function evaluate(spec: ClosureSpec, nx: NxClosure, visitor: string): Prom
   const needsBuses = Boolean(cap && (cap.reroute.stranded > 0 || cap.directions.some((d) => d.unmet > 0)));
   const perBus = (p: PlanData) => (p.vehicles ? planGain(p) / p.vehicles : 0);
   const label = (p: PlanData) => p.shuttles.map((s) => `${s.from}↔${s.to}@${s.busesPerHour}`).join(" + ");
-  const best = plans.filter((p) => planGain(p) > 0).sort((a, b) => perBus(b) - perBus(a))[0] ?? null;
+  // The controller's own choice rule (choosePlan), so the eval cannot drift from it.
+  const best = choosePlan(plans) ?? null;
   const chosen = best ? { label: label(best), gain: planGain(best), vehicles: best.vehicles, perBus: perBus(best) } : null;
   let oracle: Row["policy"]["oracle"] = null;
   let tried = 0;
@@ -191,9 +192,17 @@ async function evaluate(spec: ClosureSpec, nx: NxClosure, visitor: string): Prom
     const ratios = (memory?.incidents ?? []).flatMap((i) => i.shuttles.filter((s) => s.planned && s.observed).map((s) => s.observed / s.planned));
     const ratio = ratios.length && Math.min(...ratios) < 0.97 ? Math.min(...ratios) : 1;
     for (const c of candidates) {
+      // Sized as the controller sizes a leg: the raw estimate with memory's correction, then, if its busier direction
+      // runs over its seats, the buses its riders need with the same correction.
       const bph = Math.min(60, Math.ceil(c.suggestedBusesPerHour / ratio));
-      const r = await simulatePlan(ctx(), { shuttles: [{ from: c.fromId, to: c.toId, busesPerHour: bph }], label: "oracle" });
+      let r = await simulatePlan(ctx(), { shuttles: [{ from: c.fromId, to: c.toId, busesPerHour: bph }], label: "oracle" });
       tried++;
+      const peak = r.data?.shuttles[0]?.peak;
+      if (r.data && !planFits(r.data) && peak) {
+        const sized = Math.min(60, Math.max(bph, Math.ceil(peak.busesPerHour / ratio)));
+        r = await simulatePlan(ctx(), { shuttles: [{ from: c.fromId, to: c.toId, busesPerHour: sized }], label: "oracle, sized" });
+        tried++;
+      }
       if (!r.data || planGain(r.data) <= 0) continue;
       const row = { label: label(r.data), gain: planGain(r.data), vehicles: r.data.vehicles, perBus: perBus(r.data) };
       if (!oracle || row.perBus > oracle.perBus) oracle = row;

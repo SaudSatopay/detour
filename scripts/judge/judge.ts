@@ -48,7 +48,10 @@ type VerifyScenario = {
   reroute: { stranded: number; overflow: number; overloaded: { route: string; pct: number }[] };
 };
 type VerifyPlan = {
-  reroute: { before: { stranded: number; overflow: number }; after: { stranded: number; overflow: number } };
+  reroute: {
+    before: { stranded: number; overflow: number };
+    after: { stranded: number; overflow: number; busLoads?: { bid: number; from: string; to: string; load: number; capacity: number }[] };
+  };
   directions: Record<string, { unmetBefore: number; unmetAfter: number }>;
 };
 
@@ -93,21 +96,25 @@ async function main() {
   const memory = (await recall(ctx(), { routes: ["L"], stations: ["120", "618"] })).data as RecallData;
   const cap = (await measureCapacity(ctx())).data as CapacityData;
   const head = (await measureHeadroom(ctx())).data as HeadroomData;
-  const plan = (await simulatePlan(ctx(), { shuttles: [{ from: "119", to: "407", busesPerHour: 25 }], label: "judge: 1 Av - Astor Pl" })).data as PlanData;
-  const twoLeg = (
-    await simulatePlan(ctx(), {
-      shuttles: [
-        { from: "119", to: "407", busesPerHour: 25 },
-        { from: "120", to: "629", busesPerHour: 60 },
-      ],
-      label: "judge: two legs",
-    })
-  ).data as PlanData;
+  // The same plans the NetworkX verifier evaluates, so the two cannot drift apart.
+  const plans = JSON.parse(readFileSync("scripts/verify/plans.json", "utf8")) as { id: string; buses: { from: string; to: string; busesPerHour: number }[] }[];
+  const legsOf = (id: string) => plans.find((p) => p.id === id)!.buses;
+  const plan = (await simulatePlan(ctx(), { shuttles: legsOf("l-canarsie-1av-astor"), label: "judge: 1 Av - Astor Pl" })).data as PlanData;
+  const twoLeg = (await simulatePlan(ctx(), { shuttles: legsOf("l-canarsie-two-leg"), label: "judge: two legs" })).data as PlanData;
   await resetSandbox(visitor);
 
   const v = nx.scenario;
   const peak = cap.directions.find((d) => d.direction === cap.peak)!;
   const vPeak = v.flow.forward;
+  // The recommended plan's bus, in its busier direction: riders an hour against its seats.
+  const busLoad = (p: PlanData) => {
+    const peak = p.shuttles[0]?.peak;
+    return peak ? `${fmt(peak.load)} of ${fmt(p.shuttles[0].capacity)}` : "none";
+  };
+  const nxBusLoad = (p: VerifyPlan) => {
+    const ways = (p.reroute.after.busLoads ?? []).filter((b) => b.bid === 0).sort((a, b) => b.load - a.load);
+    return ways[0] ? `${fmt(ways[0].load)} of ${fmt(ways[0].capacity)}` : "none";
+  };
   const g = (rows: { route: string; pct: number }[]) => {
     const pcts = rows.map((o) => o.pct);
     return `${rows.length} ${[...new Set(rows.map((o) => o.route))].join("/")} segments at ${Math.min(...pcts)} to ${Math.max(...pcts)}%`;
@@ -130,7 +137,8 @@ async function main() {
     { id: "bottleneck station", readme: "**1 Av**: its only rail links are the closed L", expected: "1 Av", falkordb: cutOff(peak.cutOff), networkx: cutOff(vPeak.cutOff) },
     { id: "shuttle: no path", readme: "riders with no path 4,689 → **623**", expected: "4,689 → 623", falkordb: `${fmt(plan.before.stranded)} → ${fmt(plan.after.stranded)}`, networkx: `${fmt(nx.plan.reroute.before.stranded)} → ${fmt(nx.plan.reroute.after.stranded)}` },
     { id: "shuttle: shortfall", readme: "max-flow shortfall 1,266 → **315**", expected: "1,266 → 315", falkordb: `${fmt(plan.before.unmet)} → ${fmt(plan.after.unmet)}`, networkx: `${fmt(nx.plan.directions.forward.unmetBefore)} → ${fmt(nx.plan.directions.forward.unmetAfter)}` },
-    { id: "shuttle: overflow", readme: "(24,078 → 28,762)", expected: "24,078 → 28,762", falkordb: `${fmt(plan.before.overflow)} → ${fmt(plan.after.overflow)}`, networkx: `${fmt(nx.plan.reroute.before.overflow)} → ${fmt(nx.plan.reroute.after.overflow)}` },
+    { id: "shuttle: overflow", readme: "(24,078 → 24,130)", expected: "24,078 → 24,130", falkordb: `${fmt(plan.before.overflow)} → ${fmt(plan.after.overflow)}`, networkx: `${fmt(nx.plan.reroute.before.overflow)} → ${fmt(nx.plan.reroute.after.overflow)}` },
+    { id: "shuttle: bus load", readme: "carries **2,487** riders an hour on 3,220 seats", expected: "2,487 of 3,220", falkordb: busLoad(plan), networkx: nxBusLoad(nx.plan) },
     { id: "two legs do no better", readme: "A two-leg plan does no better with 18 more buses", expected: "623 / 315 with 18 more buses", falkordb: `${fmt(twoLeg.after.stranded)} / ${fmt(twoLeg.after.unmet)} with ${twoLeg.vehicles - plan.vehicles} more buses`, networkx: `${fmt(nx.twoLeg.reroute.after.stranded)} / ${fmt(nx.twoLeg.directions.forward.unmetAfter)} with ${twoLeg.vehicles - plan.vehicles} more buses` },
     { id: "memory: carried", readme: "carried 79% of plan", expected: "79%", falkordb: `${Math.round(ratio * 100)}%`, networkx: `${Math.round(seedRatio * 100)}%`, note: "from the seed data; a memory claim has no NetworkX equivalent" },
     { id: "memory: more buses", readme: "adds **27%** more buses", expected: "27%", falkordb: `${Math.round((1 / ratio - 1) * 100)}%`, networkx: `${Math.round((1 / seedRatio - 1) * 100)}%`, note: "from the seed data; a memory claim has no NetworkX equivalent" },
