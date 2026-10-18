@@ -14,8 +14,8 @@
   <a href="https://detour-orpin.vercel.app"><img alt="Live demo: detour-orpin.vercel.app" src="https://img.shields.io/badge/live_demo-detour--orpin.vercel.app-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1, 2 and 3" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2_%2B_3-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#use-it-from-an-agent"><img alt="MCP: the agents' own tool path" src="https://img.shields.io/badge/MCP-the_agents'_own_tool_path-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="CLAIMS.md"><img alt="pnpm judge: 15 of 15 claims re-measured" src="https://img.shields.io/badge/pnpm_judge-15%2F15_claims_re--measured-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="#evidence"><img alt="Tests: 229 unit, 19 end-to-end" src="https://img.shields.io/badge/tests-229_unit_%C2%B7_19_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="CLAIMS.md"><img alt="pnpm judge: 16 of 16 claims re-measured" src="https://img.shields.io/badge/pnpm_judge-16%2F16_claims_re--measured-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="#evidence"><img alt="Tests: 231 unit, 19 end-to-end" src="https://img.shields.io/badge/tests-231_unit_%C2%B7_19_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
 </p>
 
 <p align="center">
@@ -53,7 +53,7 @@ The agents find their tools on Detour's own MCP server, the same one an outside 
 1. **[Report Aisha's elevator fixed](https://detour-orpin.vercel.app/riders?rider=aisha)** first. One memory write closes the old fact, resolves the ticket, lifts the decision that rested on it, and her step-free route changes from the M (33 min) to the L (24 min). (After step 2 closes the L in your sandbox, her route stays on the M whatever memory says.)
 2. **[Run the L closure](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1).** A free model lists its tools over MCP and works through the closure. Each step shows the arguments it passed, the model's sentence before it when it wrote one, and the Cypher, time and rows behind the answer; each figure in the final brief is then looked up in the tool results, a check that the figures exist there, not that they are used correctly. When the day's free models are spent, the standard procedure carries on from the last step and the trace says so.
 3. **[Ask the brain](https://detour-orpin.vercel.app/brain)** *"Is the elevator at Times Sq-42 St working?"* The answer quotes the MTA's own feed and says when it was read.
-4. **[Open the proof](https://detour-orpin.vercel.app/proof)**, or re-measure everything yourself: `pnpm judge` checks the README's 15 headline claims against FalkorDB and an independent NetworkX program, and fails loudly on any mismatch ([CLAIMS.md](CLAIMS.md)).
+4. **[Open the proof](https://detour-orpin.vercel.app/proof)**, or re-measure everything yourself: `pnpm judge` checks the README's 16 headline claims against FalkorDB and an independent NetworkX program, and fails loudly on any mismatch ([CLAIMS.md](CLAIMS.md)).
 
 ## Evidence
 
@@ -69,8 +69,8 @@ Every result below is committed with the script that produced it; the proof page
 | **Procedural memory** (leave-one-out over 32 incidents, 30 of them synthetic, on FalkorDB) | Bus-sizing error **255 → 107** riders an hour |
 | **Concurrency** | 100 writers racing on one fact leave exactly **1** current; 48 readers and 6 writers sustain 7,195 reads and 719 writes a second, 0 errors, tenants isolated |
 | **The company brain on real MTA records** (769 held-out template questions, the brain's tools without a model) | Graph tools **100%** exact match, against 84.4% for keyword retrieval and 83.1% for the latest snapshot alone; one fix, full station names read before partial ones, came after a held-out run that scored 99.4% ([caveats](https://detour-orpin.vercel.app/proof#brain-eval)) |
-| **A recorded live run** ([data/replays/l-canarsie-control.ndjson](data/replays/l-canarsie-control.ndjson)) | `gemini-flash-lite-latest` found 10 tools over MCP and made 8 calls in 19.5 s; **23 of 23** figures in its brief were found in the tool results. It tested only a two-leg plan, which leaves the same 623 riders with no path and the same 315 max-flow shortfall as the one-leg plan the standard procedure picks, with 22 buses on the road instead of 8 |
-| **Tests** | 229 unit tests, 19 Playwright tests on desktop and phone (axe accessibility on every page, after a run and after approval, in light and dark), Python verifier tests |
+| **A recorded live run** ([data/replays/l-canarsie-control.ndjson](data/replays/l-canarsie-control.ndjson)) | `gemini-flash-lite-latest` found 10 tools over MCP and made 8 calls in 19.5 s; **23 of 23** figures in its brief passed the check of the time. The stricter check now in use (figures of 10 or more, percentages only where a tool stated them) finds all 30 of its figures, and passes 8 of 400 random figures and 13 of 300 random percentages against the same results (`pnpm eval:grounding`). It tested only a two-leg plan, which leaves the same 623 riders with no path and the same 315 max-flow shortfall as one leg alone, with more buses. Recorded before the bus counting was fixed, so its bus loads are overstated |
+| **Tests** | 231 unit tests, 19 Playwright tests on desktop and phone (axe accessibility on every page, after a run and after approval, in light and dark), Python verifier tests |
 
 ## After the deadline
 
@@ -128,10 +128,10 @@ Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday:
 | What can the open network carry if riders spread perfectly? *(max flow)* | **17,167 of 18,432** riders an hour toward Manhattan (93%), certified. An upper bound: max flow treats riders as interchangeable, so the 315 an hour bound for 3 Av, which the closure also cuts off, are not subtracted |
 | Where is the bottleneck? *(min cut)* | **1 Av**: its only rail links are the closed L. No open segment is in the cut; only the stations the closure cuts off (1 Av, and 3 Av as a destination) limit the flow |
 | How much margin is left? *(parametric max flow)* | Displaced demand can grow **1.77×** before an open segment, on the G, saturates |
-| Does a shuttle help? *(tested on a fork)* | 1 Av ↔ Astor Pl: riders with no path 4,689 → **623**; max-flow shortfall 1,266 → **315**. A two-leg plan does no better with 18 more buses |
+| Does a shuttle help? *(tested on a fork)* | 1 Av ↔ Astor Pl at 46 buses an hour, sized to its busier direction, which carries **2,487** riders an hour on 3,220 seats: riders with no path 4,689 → **623**; max-flow shortfall 1,266 → **315**. A two-leg plan does no better with 18 more buses |
 | Did memory change the plan? | The June bus bridge carried 79% of plan, so the controller adds **27%** more buses |
 
-With the shuttle, the reported fastest-path overflow rises (24,078 → 28,762), but most of that rise is a counting error a reviewer found after the deadline: the bus leg's riders are added over both directions and its excess is counted twice (see [Where we lose](#where-we-lose)). The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
+With the shuttle, fastest-path overflow barely moves (24,078 → 24,130) although 4,066 riders who had no path can now travel. The first plan the controller tests, 25 buses an hour, is too small: its bus would run at 142% of its seats toward Astor Pl, so it tests the plan again at the 36 buses an hour those riders need, plus 27% because the June bridge carried 79% of plan. The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
 
 ## See it run
 
@@ -424,12 +424,12 @@ Every answer is a list of numbered sources with who wrote each one, its team or 
 
 Results that went against Detour, or that it cannot show yet:
 
-- **A counting error in the shuttle's load.** A shuttle leg is two directed `BUS` edges with one id, and the fastest-path reroute adds the riders of both directions under that id, then compares them with one direction's capacity once per edge. That inflates the overflow with the shuttle (24,078 → 28,762, about 4,600 of it this error) and the bus's load (reported 232%; at least 116% in the busier direction, so the 25-bus plan is too small). The NetworkX verifier copied the same counting, so they agreed. Found after the deadline by a reviewer; being fixed.
+- **A counting error, fixed after the deadline.** A shuttle leg is two directed `BUS` edges with one id, and the fastest-path reroute added the riders of both directions under that id, then compared them with one direction's capacity once per edge. That showed overflow with the shuttle rising to 28,762 and the bus at 232%, and hid that the 25-bus plan was too small (142% in its busier direction). The NetworkX verifier had copied the same counting, so they agreed. A reviewer found it; both programs now count each direction on its own, the controller sizes legs from the riders they carry, and `pnpm judge` checks the bus's load. The submitted v1.0.0 still has the error.
 
 - **The free models.** Live answers run on free-tier models. When every one of the day's quotas is spent, the standard procedure answers with the same tools and templated wording, labeled as such.
 - **The model against plain rules.** On the held-out questions run so far, a rules router written against the question templates answers every one, and the free model with the graph 26 of 28: once it misread the riders within four stops, and once a model stopped after its first tool. The full held-out run is still waiting on free quota.
 - **The most failure-prone units.** Ranking the 50 elevators most likely to fail, the memory that keeps every record forever is right 72% of the time and Detour's time-aware memory 60%.
-- **The controller's plan choice.** On 15 held-out closures that need buses, its pick has the best gain per bus on 13; the mean gap to the best plan is 3.9%, the worst 31%, because it simulates only the first candidate of each kind.
+- **The controller's plan choice.** On 15 held-out closures that need buses, its pick has the best gain per bus on 11 (on 13 before legs were sized to the riders they carry); the mean gap to the best plan is 3.9%, the worst 33%, because it simulates only the first candidate of each kind.
 - **Bus sizing on some lines.** Memory makes sizing worse on the J/Z and the A/C, where buses already run near plan.
 - **Ties in fastest paths.** On 6 of the 48 held-out closures, two paths take exactly the same minutes and FalkorDB and NetworkX pick different ones; overflow then differs within the range NetworkX itself finds over random tie-breaks.
 - **The brain's 100%.** Its questions are templates over the records its tools read, and the keyword baseline is given the question's ids; it measures joins and history, not open-ended language.
@@ -443,9 +443,9 @@ Results that went against Detour, or that it cannot show yet:
 | Riders hit by distance from the L closure | Agree at every depth, 0 to 6 stops |
 | Fastest-path overflow, the G's overload, riders with no path | Recomputed by NetworkX: 24,078 overflow, the G at 244/201/198/190%, 4,689 with no path |
 | Headroom | 1.769 on FalkorDB, 1.768728 on NetworkX |
-| The README's headline claims | `pnpm judge`: all 15 re-measured and matched ([CLAIMS.md](CLAIMS.md)) |
+| The README's headline claims | `pnpm judge`: all 16 re-measured and matched ([CLAIMS.md](CLAIMS.md)) |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 229 Vitest tests, among them the model chain and its failure handling, the grounding check, MCP sessions, the max-flow certificate and Dinic solver, crowding-aware routing, playbook learning, the race on one fact (with a database), the brain's feed parsing and question generation, and the eval's gold answers |
+| Unit tests | 231 Vitest tests, among them the model chain and its failure handling, the grounding check, MCP sessions, the max-flow certificate and Dinic solver, crowding-aware routing, playbook learning, the race on one fact (with a database), the brain's feed parsing and question generation, and the eval's gold answers |
 | End-to-end tests | 19 Playwright tests, each on desktop and phone: the control flow and playback, riders and memory, the command palette, the brain's answers, receipts and follow-ups, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 99; accessibility, best practices and SEO 100 |
 
@@ -528,7 +528,7 @@ The built network is committed in `data/nyc/` and a snapshot of the MTA's record
 
 | Command | What it checks |
 |:---|:---|
-| `pnpm judge` | Re-measures the README's 15 headline claims on FalkorDB and NetworkX; fails on any mismatch |
+| `pnpm judge` | Re-measures the README's 16 headline claims on FalkorDB and NetworkX; fails on any mismatch |
 | `pnpm test` | Unit tests (Vitest) |
 | `pnpm typecheck`, `pnpm lint` | Types and lint |
 | `pnpm test:e2e` | Playwright on desktop and phone; set `BASE_URL` to test a deployment |
@@ -537,6 +537,7 @@ The built network is committed in `data/nyc/` and a snapshot of the MTA's record
 | `pnpm eval:closures` | The 48 held-out closures, FalkorDB against NetworkX, and the plan choice against a brute-force oracle |
 | `pnpm eval:memory` | Memory off and on: real elevator records, step-free routing, bus sizing, across sessions |
 | `pnpm eval:brain` | The brain's graph tools against keyword retrieval on held-out questions from the MTA's records |
+| `pnpm eval:grounding` | How strict the check of a brief's figures is: the recorded briefs, and how many random figures would pass |
 | `pnpm eval:fetch`, `pnpm eval:analyze` | The agent with the graph against the same model without it, run server-side on the deployment's models |
 | `pnpm ci:bench` | The concurrency and tenant-isolation benchmark |
 
@@ -546,6 +547,8 @@ The built network is committed in `data/nyc/` and a snapshot of the MTA's record
 
 [MTA GTFS static](http://web.mta.info/developers/data/nyct/subway/google_transit.zip) (weekday trains departing 08:00 to 08:59 give trains per hour and capacity), [MTA Subway Stations](https://data.ny.gov/d/39hk-dx4f) and [Stations and Complexes](https://data.ny.gov/d/5f5g-n3cz) (accessibility), and the [MTA Subway Origin-Destination Ridership Estimate: 2025](https://data.ny.gov/d/y2qv-fytt) (a Wednesday in October 2025, 8 a.m.). The brain reads the MTA's live [elevator and escalator](https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json) and [service alert](https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json) feeds, and from data.ny.gov the [elevator and escalator asset inventory](https://data.ny.gov/d/94fv-bak7), [availability](https://data.ny.gov/d/rc78-7x78), [service alerts](https://data.ny.gov/d/7kct-peq7), [customer feedback](https://data.ny.gov/d/nh7m-at3e) and [capital projects](https://data.ny.gov/d/9hy6-8j6t). Assumptions are listed on the [proof page](https://detour-orpin.vercel.app/proof#data). The remembered riders, past incidents, playbooks and the agency's people and decisions are sample data, labeled as such. Detour is not affiliated with the MTA.
 
-## AI assistance
+## Team and AI assistance
 
-Detour was built with [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, as a pair programmer: it did much of the research, design, code, tests and documentation under my direction. At runtime the agents use free-tier Gemini and Groq models. The graph model, queries and architecture are documented above, and every number the agents report is checked by the NetworkX verifier, the max-flow certificate and the grounding check rather than by a language model.
+Detour is the Graph Hacks entry of team All Stars: Saud Satopay and Harsh Mishra.
+
+Detour was built with [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, as a pair programmer: it did much of the research, design, code, tests and documentation under my direction. At runtime the agents use free-tier Gemini and Groq models. The graph model, queries and architecture are documented above. The network numbers the agents report are recomputed by the NetworkX verifier, every max flow carries a certificate, and the figures in a brief are looked up in the tool results; memory, the brain and the agent are measured against baselines instead.
