@@ -1,3 +1,4 @@
+import { redact } from "../graph/db";
 import { cookies } from "next/headers";
 import { bump } from "../graph/meta";
 import { isVisitorId, newVisitorId, VISITOR_COOKIE, VISITOR_MAX_AGE } from "../graph/names";
@@ -52,6 +53,8 @@ export function friendlyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (/FALKORDB_URL/.test(message)) return message;
   if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT|Socket closed|connect/i.test(message)) {
+    // The visitor gets the plain sentence; the log keeps the cause (without credentials) for whoever runs the site.
+    console.warn(`[graph] unreachable: ${redact(error)}`);
     return "Can't reach the graph database right now. If the free FalkorDB instance went to sleep, it wakes on the next try; retry in a few seconds.";
   }
   if (/rate|quota|429/i.test(message)) return "Every free model is rate limited at the moment. Retry in a minute, or play a recorded run.";
