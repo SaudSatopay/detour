@@ -44,7 +44,10 @@ const templateCtx = (): ToolContext => ({ visitorId: "mcptemplate", sandbox: TEM
 
 /** An outside agent's steps are recorded as episodes under an agent of its own. */
 async function ensureMcpAgent(graph: string): Promise<void> {
-  await run(graph, "MERGE (a:Agent {id: 'mcp'}) ON CREATE SET a.name = 'Outside agent over MCP', a.role = 'An agent connected through Detour''s MCP server'");
+  await run(graph, "MERGE (a:Agent {id: 'mcp'}) ON CREATE SET a.name = $name, a.role = $role", {
+    name: "Outside agent over MCP",
+    role: "An agent connected through Detour's MCP server",
+  });
 }
 
 interface Caller {
