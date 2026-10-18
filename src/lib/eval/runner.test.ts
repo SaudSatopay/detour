@@ -6,8 +6,21 @@ import { ensureBaseGraphs } from "../graph/seed";
 import { dropSandbox, ensureSandbox } from "../graph/tenancy";
 import { toolCheck } from "./analyze";
 import type { EvalQuestion } from "./questions";
-import { evalToolset, EVAL_VISITOR, runBaselineArm, runBatch, runGraphArm, runOrder, runQuestion, type ArmRecord, type RunnerDeps } from "./runner";
-import { currentRun, doneKeys, finishRun, getResult, resultPage, saveResult, startRun } from "./store";
+import {
+  evalToolset,
+  EVAL_VISITOR,
+  modelReady,
+  runBaselineArm,
+  runBatch,
+  runGraphArm,
+  runOrder,
+  runQuestion,
+  unavailable,
+  type ArmRecord,
+  type Halt,
+  type RunnerDeps,
+} from "./runner";
+import { currentRun, doneKeys, finishRun, getResult, reopenRun, resultPage, saveResult, startRun } from "./store";
 
 /*
  * Integration: the runner against a live FalkorDB (skipped when FALKORDB_URL is unset). The model is the AI SDK's
@@ -46,6 +59,46 @@ function scriptedModel() {
   let i = 0;
   return new MockLanguageModelV4({ modelId: "scripted", doStream: async () => ({ stream: steps[Math.min(i++, steps.length - 1)] }) });
 }
+
+describe("eval pacing on free models", () => {
+  const q = byId("impact-l-canarsie-total");
+  const base = { visitorId: EVAL_VISITOR, sandbox: "unused", agentId: "controller" };
+  const toolset = async () => ({ tools: {}, via: "in-process" as const, close: async () => undefined });
+
+  it("runs held-out questions first, one category at a time, so a run cut short covers every kind", () => {
+    const order = runOrder(questions);
+    const heldout = questions.filter((x) => x.split === "heldout");
+    expect(new Set(order).size).toBe(questions.length);
+    expect(order.slice(0, heldout.length).every((id) => byId(id).split === "heldout")).toBe(true);
+    const categories = new Set(heldout.map((x) => x.category));
+    expect(new Set(order.slice(0, categories.size).map((id) => byId(id).category)).size).toBe(categories.size);
+  });
+
+  it("pauses without recording anything when no model will be free soon", async () => {
+    const saved: ArmRecord[] = [];
+    const halt: { value: Halt | null } = { value: null };
+    const deps: RunnerDeps = { base, toolset, chain: async () => [], soonest: async () => null };
+    expect(await runQuestion(q, deps, { arms: ["graph", "baseline"], save: async (r) => void saved.push(r), halt })).toEqual([]);
+    expect([saved.length, halt.value]).toEqual([0, "paused"]);
+  });
+
+  it("waits out a short cool-down, and leaves a longer one to the next batch", async () => {
+    let calls = 0;
+    const deps: RunnerDeps = { base, toolset, chain: async () => (calls++ ? [{ id: "mock:x", model: {} as never }] : []), soonest: async () => 30 };
+    expect(await modelReady(deps)).toBe("ready");
+    expect(calls).toBe(2);
+    expect(await modelReady({ ...deps, chain: async () => [], soonest: async () => 60_000 }, Date.now() + 1_000)).toBe("later");
+  });
+
+  it("runs again only the arms that met the free models' limits", () => {
+    expect(unavailable("No free model can answer right now: none is configured, or every one has spent its daily quota.")).toBe(true);
+    expect(unavailable("The model `qwen/qwen3-32b` does not exist or you do not have access to it.")).toBe(true);
+    expect(unavailable("You exceeded your current quota. Quota exceeded for metric: generate_content_free_tier_requests, limit: 20 PerDay")).toBe(true);
+    expect(unavailable("Rate limit reached for model `openai/gpt-oss-120b` on tokens per day (TPD): Limit 200000")).toBe(true);
+    expect(unavailable("took longer than 100 s")).toBe(false);
+    expect(unavailable("Can't reach the graph database right now.")).toBe(false);
+  });
+});
 
 describe.skipIf(!process.env.FALKORDB_URL)("eval runner on a live FalkorDB", () => {
   let deps: RunnerDeps;
@@ -122,7 +175,7 @@ describe.skipIf(!process.env.FALKORDB_URL)("eval runner on a live FalkorDB", () 
 
     // Out of time before the first arm: nothing runs, everything remains.
     const none = await runBatch({ questions, order, deps, done: new Set(), save: (r) => saveResult("eval-test", r), graphModel: async () => null, until: Date.now(), arms: ["rules"] });
-    expect(none).toEqual({ ran: [], remaining: 2 });
+    expect(none).toEqual({ ran: [], remaining: 2, paused: false });
 
     const batch = await runBatch({ questions, order, deps, done: await doneKeys("eval-test"), save: (r) => saveResult("eval-test", r), graphModel: async () => null, until: Date.now() + 200_000, arms: ["rules"] });
     expect(batch.remaining).toBe(0);
@@ -131,5 +184,15 @@ describe.skipIf(!process.env.FALKORDB_URL)("eval runner on a live FalkorDB", () 
     expect((await getResult("eval-test", order[0], "rules"))?.arm).toBe("rules");
     await finishRun("eval-test");
     expect((await currentRun())?.status).toBe("done");
+
+    // Reopening runs again only the arms that met the free models' limits; a timeout stays a wrong answer.
+    const rec = (await getResult("eval-test", order[0], "rules"))!;
+    await saveResult("eval-test", { ...rec, arm: "graph", error: "No free model can answer right now." });
+    await saveResult("eval-test", { ...rec, qid: order[1], arm: "graph", error: "took longer than 100 s" });
+    expect(await reopenRun("eval-test", order, unavailable)).toBe(1);
+    expect((await currentRun())?.status).toBe("running");
+    const keys = await doneKeys("eval-test");
+    expect([keys.has(`${order[0]}|graph`), keys.has(`${order[1]}|graph`), keys.has(`${order[0]}|rules`)]).toEqual([false, true, true]);
+    await finishRun("eval-test");
   }, 240_000);
 });

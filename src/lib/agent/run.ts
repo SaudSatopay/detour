@@ -14,6 +14,8 @@ interface RunOptions {
   abortSignal?: AbortSignal;
   /** Whether the final text is a finished answer; a model that stops short is told to continue, then handed over. */
   complete?: (text: string) => boolean;
+  /** The models to try, in order; by default every configured model that can answer now. */
+  chain?: ChainedModel[];
 }
 
 interface RunResult {
@@ -27,8 +29,8 @@ interface RunResult {
  * one mid-run without losing the conversation. Tools execute inside each step (they emit their own
  * events); the model's narration streams out as text events.
  */
-export async function runAgent({ agent, instructions, messages, tools, emit, maxSteps = 12, abortSignal, complete }: RunOptions): Promise<RunResult> {
-  const chain = await liveChain();
+export async function runAgent({ agent, instructions, messages, tools, emit, maxSteps = 12, abortSignal, complete, chain: given }: RunOptions): Promise<RunResult> {
+  const chain = given ?? (await liveChain());
   if (!chain.length) throw new NoModelError();
   let current = 0;
   const history: ModelMessage[] = [...messages];

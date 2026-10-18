@@ -24,7 +24,6 @@ const DEFAULTS = [
   "groq:openai/gpt-oss-120b",
   "groq:moonshotai/kimi-k2-instruct-0905",
   "groq:llama-3.3-70b-versatile",
-  "groq:qwen/qwen3-32b",
 ];
 
 /** The model specs to try, in order, without repeats. */
@@ -69,6 +68,19 @@ export async function liveChain(now = Date.now()): Promise<ChainedModel[]> {
   if (!chain.length) return chain;
   const blocked = await blockedModels(now).catch(() => new Map<string, number>());
   return chain.filter((m) => !blocked.has(m.id) && !((cooling.get(m.id) ?? 0) > now));
+}
+
+/**
+ * How long until a model that is only cooling off after a per-minute limit can answer again, or null when every
+ * unavailable model is out for longer (a spent daily quota, a retired model) or none is configured.
+ */
+export async function soonestModelMs(now = Date.now()): Promise<number | null> {
+  const blocked = await blockedModels(now).catch(() => new Map<string, number>());
+  const waits = modelChain()
+    .filter((m) => !blocked.has(m.id))
+    .map((m) => (cooling.get(m.id) ?? 0) - now)
+    .filter((w) => w > 0);
+  return waits.length ? Math.min(...waits) : null;
 }
 
 /** Whether any model can answer now: false sends a run straight to the standard procedure. */

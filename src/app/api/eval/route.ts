@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { liveChain } from "@/lib/agent/models";
-import { evalToolset, EVAL_VISITOR, runBatch, runOrder } from "@/lib/eval/runner";
+import { liveChain, soonestModelMs } from "@/lib/agent/models";
+import { evalToolset, EVAL_VISITOR, runBatch, runOrder, unavailable } from "@/lib/eval/runner";
 import type { EvalQuestion } from "@/lib/eval/questions";
-import { countResults, currentRun, doneKeys, finishRun, getResult, resultPage, saveResult, startRun } from "@/lib/eval/store";
+import { countResults, currentRun, doneKeys, finishRun, getResult, reopenRun, resultPage, saveResult, startRun } from "@/lib/eval/store";
 import { releaseLock, takeLock } from "@/lib/graph/meta";
 import { dropSandbox, ensureBase, ensureSandbox } from "@/lib/graph/tenancy";
 import { allow, allowToday, friendlyError } from "@/lib/server/http";
@@ -15,24 +15,32 @@ export const maxDuration = 300;
  *
  *   POST { "start": true }  begins a run (one a UTC day), then runs questions until about 270 s have passed
  *   POST {}                 runs the next batch of the run in progress
+ *   POST { "retry": true }  reopens the last run: its arms that met spent free quotas run again, in the next batches
  *   GET  ?offset=&limit=    progress and a page of per-question results
  *
  * Every batch works on one sandbox graph of its own (EVAL_VISITOR), runs no brain, publishes nothing and touches no
- * visitor's sandbox; the sandbox is dropped when the run finishes.
+ * visitor's sandbox; the sandbox is dropped when the run finishes. The model arms run on the live chain less its first
+ * models, which stay with visitors; when nothing else is left, a batch pauses and the run keeps its place.
  */
 const QUESTIONS = questionsJson as unknown as EvalQuestion[];
 const ARMS_PER_QUESTION = 3;
 const BATCH_MS = 270_000;
 const ARM_TIMEOUT_MS = 100_000;
+/**
+ * The first models of the live chain stay with visitors: the eval runs on the ones after them, and pauses when only
+ * these are left, so it never spends the free quota a judge's live run needs.
+ */
+const LEFT_FOR_VISITORS = 2;
+const evalChain = async () => (await liveChain()).slice(LEFT_FOR_VISITORS);
 
-const Body = z.object({ start: z.boolean().optional() }).strict();
+const Body = z.object({ start: z.boolean().optional(), retry: z.boolean().optional() }).strict();
 const enabled = () => process.env.EVAL_ENABLED === "1";
 const clientOf = (request: Request) => (request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anon").replace(/[^a-z0-9.:]/gi, "");
 
 export async function POST(request: Request) {
   if (!enabled()) return Response.json({ error: "The eval runner is off. The owner turns it on with EVAL_ENABLED=1." }, { status: 403 });
   const parsed = Body.safeParse(await request.json().catch(() => ({})));
-  if (!parsed.success) return Response.json({ error: 'Send {} to run the next batch, or { "start": true } to begin a run.' }, { status: 400 });
+  if (!parsed.success) return Response.json({ error: 'Send {} to run the next batch, { "start": true } to begin a run, or { "retry": true } to reopen the last one.' }, { status: 400 });
 
   const started = Date.now();
   const owner = crypto.randomUUID();
@@ -47,12 +55,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Before a run starts or the day's run is spent: with no model, the graph and baseline arms would only record errors.
-    const chain = await liveChain();
-    if (!chain.length) {
-      return Response.json({ error: "No model can answer right now (none configured, or every free quota is spent). Try again later; nothing ran." }, { status: 503 });
+    // Before a run starts or the day's run is spent: with no model, the graph and baseline arms could not run.
+    if (!(await evalChain()).length) {
+      return Response.json(
+        { error: `No model is free for the eval right now: it leaves the first ${LEFT_FOR_VISITORS} live models to visitors, and the rest are spent or cooling off. Try again later; nothing ran.` },
+        { status: 503 },
+      );
     }
     let current = await currentRun();
+    // A run whose model arms met spent free quotas is reopened: those arms run again, every other result stays.
+    if (current && parsed.data.retry) {
+      const cleared = await reopenRun(current.id, runOrder(QUESTIONS), unavailable);
+      current = { ...current, status: "running", finishedMs: null, order: runOrder(QUESTIONS) };
+      console.warn(`[eval] reopened ${current.id}: ${cleared} arms to run again`);
+    }
     if (!current || current.status === "done") {
       if (!parsed.data.start) {
         return Response.json({ error: 'No run is in progress. Send { "start": true } to begin one.', run: current }, { status: 409 });
@@ -68,10 +84,10 @@ export async function POST(request: Request) {
     const base = { visitorId: EVAL_VISITOR, sandbox: sandbox.graph, agentId: "controller" };
     const origin = new URL(request.url).origin;
     const runId = current.id;
-    const { ran, remaining } = await runBatch({
+    const { ran, remaining, paused } = await runBatch({
       questions: QUESTIONS,
       order: current.order,
-      deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: () => liveChain(), armTimeoutMs: ARM_TIMEOUT_MS },
+      deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: evalChain, soonest: () => soonestModelMs(), armTimeoutMs: ARM_TIMEOUT_MS },
       done: await doneKeys(runId),
       save: (r) => saveResult(runId, r),
       graphModel: async (qid) => (await getResult(runId, qid, "graph"))?.model ?? null,
@@ -85,6 +101,8 @@ export async function POST(request: Request) {
       run: runId,
       ran: ran.map((r) => ({ qid: r.qid, arm: r.arm, model: r.model, correct: r.correct, ms: r.ms, error: r.error })),
       remaining,
+      paused,
+      note: paused ? "No free model can answer right now; the run keeps its place. Send {} again once the quotas recover." : undefined,
       done: remaining === 0,
       seconds: Math.round((Date.now() - started) / 1000),
     });

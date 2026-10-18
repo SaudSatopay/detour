@@ -38,6 +38,23 @@ export async function startRun(r: EvalRun): Promise<void> {
   });
 }
 
+/**
+ * Reopens a run: drops the results whose error `retry` accepts (so those arms run again; every other result stays)
+ * and sets the order the remaining questions follow. Returns how many arms will run again.
+ */
+export async function reopenRun(id: string, order: string[], retry: (error: string) => boolean): Promise<number> {
+  const failed = await run<{ key: string; json: string }>(
+    EVAL_GRAPH,
+    "MATCH (x:EvalResult {run: $run}) WHERE x.json CONTAINS '\"error\":' RETURN x.key AS key, x.json AS json",
+    { run: id },
+    { readOnly: true },
+  );
+  const keys = failed.rows.filter((r) => retry((JSON.parse(r.json) as ArmRecord).error ?? "")).map((r) => r.key);
+  if (keys.length) await run(EVAL_GRAPH, "UNWIND $keys AS k MATCH (x:EvalResult {key: k}) DELETE x", { keys });
+  await run(EVAL_GRAPH, "MATCH (r:EvalRun {id: $id}) SET r.status = 'running', r.finishedMs = null, r.order = $order", { id, order: JSON.stringify(order) });
+  return keys.length;
+}
+
 export async function finishRun(id: string, now = Date.now()): Promise<void> {
   await run(EVAL_GRAPH, "MATCH (r:EvalRun {id: $id}) SET r.status = 'done', r.finishedMs = $now", { id, now });
 }

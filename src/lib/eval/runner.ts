@@ -71,8 +71,10 @@ export interface RunnerDeps {
   base: Omit<ToolContext, "tracer">;
   /** The graph arm's tools, wired to emit events (see evalToolset). */
   toolset: (emit: Emit) => Promise<Toolset>;
-  /** The models the baseline may use (the deployment's live chain). */
+  /** The models both model arms may use, in order (the deployment's live chain, less what it leaves to visitors). */
   chain: () => Promise<ChainedModel[]>;
+  /** How long until a model cooling off after a per-minute limit is back; null when none will be soon. */
+  soonest?: () => Promise<number | null>;
   /** One question's cap per arm, so a stuck model cannot eat the batch. */
   armTimeoutMs?: number;
 }
@@ -180,6 +182,7 @@ export async function runGraphArm(q: EvalQuestion, deps: RunnerDeps): Promise<Ar
       emit,
       maxSteps: 8,
       abortSignal: timeout.signal,
+      chain: await deps.chain(),
     });
     return record(q, "graph", {
       answer: out.text,
@@ -252,9 +255,43 @@ export async function runRulesArm(q: EvalQuestion, deps: Pick<RunnerDeps, "base"
   }
 }
 
+/** Why a batch stopped before its time was up. */
+export type Halt = "paused" | "time";
+
+/** A model arm that failed only because no free model could answer: the run waits for the quotas instead of recording it. */
+export const NO_MODEL = /No free model can answer|No model is configured/;
+
+/**
+ * Whether a recorded error is about the free models' availability (no model, a spent quota, a rate limit, a retired
+ * model) rather than the arm's own work. Only these are run again when a run is reopened; a timeout or a tool's
+ * failure stays a wrong answer.
+ */
+export function unavailable(error: string): boolean {
+  return NO_MODEL.test(error) || classify(new Error(error)) !== "other";
+}
+
+/**
+ * Whether a model arm can start: "ready" when a model can answer, after waiting out a per-minute cool-down if one
+ * ends in time; "later" when one will be back, but not before `until`; "none" when every model is out for longer
+ * (spent daily quotas), so the run pauses until the quotas recover.
+ */
+export async function modelReady(deps: RunnerDeps, until?: number): Promise<"ready" | "later" | "none"> {
+  const room = (deps.armTimeoutMs ?? 120_000) + 10_000;
+  for (let tries = 0; tries < 8; tries++) {
+    if ((await deps.chain()).length) return "ready";
+    const wait = (await deps.soonest?.()) ?? null;
+    if (wait === null) return "none";
+    if (until !== undefined && Date.now() + wait + room > until) return "later";
+    await new Promise((resolve) => setTimeout(resolve, wait + 250));
+  }
+  return "none";
+}
+
 /**
  * The arms of one question that have no result yet, graph first (the baseline uses its model), each on a clean
- * sandbox. `save` stores each record as soon as it exists, so a batch cut short loses at most one arm.
+ * sandbox. `save` stores each record as soon as it exists, so a batch cut short loses at most one arm. A model arm
+ * that finds no model is not recorded: it sets `halt` ("paused" until the quotas recover, "time" when a cooling
+ * model is back only after `until`) and runs in a later batch.
  */
 export async function runQuestion(
   q: EvalQuestion,
@@ -262,6 +299,8 @@ export async function runQuestion(
   o: {
     arms?: Arm[];
     done?: Set<string>;
+    /** Set when a model arm cannot run now: the batch stops there. */
+    halt?: { value: Halt | null };
     save: (r: ArmRecord) => Promise<void>;
     /** The model a graph arm from an earlier batch ended on. */
     graphModel?: () => Promise<string | null>;
@@ -275,9 +314,20 @@ export async function runQuestion(
   let model: string | null | undefined;
   for (const arm of todo) {
     if (o.until !== undefined && Date.now() + room > o.until) break;
+    if (arm !== "rules") {
+      const ready = await modelReady(deps, o.until);
+      if (ready !== "ready") {
+        if (o.halt) o.halt.value = ready === "none" ? "paused" : "time";
+        break;
+      }
+    }
     if (arm !== "baseline") await cleanSandbox(deps.base);
     if (arm === "baseline" && model === undefined) model = (await o.graphModel?.()) ?? null;
     const r = arm === "graph" ? await runGraphArm(q, deps) : arm === "baseline" ? await runBaselineArm(q, model ?? null, deps) : await runRulesArm(q, deps);
+    if (arm !== "rules" && r.error && NO_MODEL.test(r.error)) {
+      if (o.halt) o.halt.value = "paused";
+      break;
+    }
     if (arm === "graph") model = r.model;
     await o.save(r);
     o.done?.add(`${q.id}|${arm}`);
@@ -300,21 +350,34 @@ export async function runBatch(o: {
   graphModel: (qid: string) => Promise<string | null>;
   until: number;
   arms?: Arm[];
-}): Promise<{ ran: ArmRecord[]; remaining: number }> {
+}): Promise<{ ran: ArmRecord[]; remaining: number; paused: boolean }> {
   const arms = o.arms ?? ARMS;
   const byId = new Map(o.questions.map((q) => [q.id, q]));
   const ran: ArmRecord[] = [];
+  const halt: { value: Halt | null } = { value: null };
   for (const id of o.order) {
     const q = byId.get(id);
     if (!q || arms.every((a) => o.done.has(`${id}|${a}`))) continue;
     if (Date.now() + (o.deps.armTimeoutMs ?? 120_000) + 10_000 > o.until) break;
-    ran.push(...(await runQuestion(q, o.deps, { arms, done: o.done, save: o.save, graphModel: () => o.graphModel(id), until: o.until })));
+    ran.push(...(await runQuestion(q, o.deps, { arms, done: o.done, save: o.save, graphModel: () => o.graphModel(id), until: o.until, halt })));
+    if (halt.value) break;
   }
   const remaining = o.order.reduce((n, id) => n + arms.filter((a) => !o.done.has(`${id}|${a}`)).length, 0);
-  return { ran, remaining };
+  return { ran, remaining, paused: halt.value === "paused" };
 }
 
-/** Held-out questions first, then dev, each in file order: a run cut short still has its headline. */
+/**
+ * Held-out questions first, then dev, taking one question from each category in turn: a run cut short (a spent free
+ * quota) still has its headline, across every kind of question rather than the first category in the file.
+ */
 export function runOrder(questions: EvalQuestion[]): string[] {
-  return [...questions.filter((q) => q.split === "heldout"), ...questions.filter((q) => q.split === "dev")].map((q) => q.id);
+  const interleave = (qs: EvalQuestion[]) => {
+    const byCategory = new Map<string, EvalQuestion[]>();
+    for (const q of qs) byCategory.set(q.category, [...(byCategory.get(q.category) ?? []), q]);
+    const queues = [...byCategory.values()];
+    const out: string[] = [];
+    while (queues.some((list) => list.length)) for (const list of queues) if (list.length) out.push(list.shift()!.id);
+    return out;
+  };
+  return [...interleave(questions.filter((q) => q.split === "heldout")), ...interleave(questions.filter((q) => q.split === "dev"))];
 }

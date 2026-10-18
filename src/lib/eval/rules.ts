@@ -159,8 +159,8 @@ export async function rulesAnswer(base: Omit<ToolContext, "tracer">, question: s
     const m = memory.findings.map((f) => /(\d+) minutes in/.exec(f.text)).find(Boolean);
     if (m) return done(m[1], recalled.summary);
   }
-  if (/nominal bus capacity/.test(question)) {
-    const m = memory.playbooks.map((p) => /(\d+)% of nominal/.exec(p.steps.join(" "))).find(Boolean);
+  if (/nominal bus capacity|share of its plan/.test(question)) {
+    const m = memory.playbooks.map((p) => /(\d+)% of (?:nominal|plan)/.exec(p.steps.join(" "))).find(Boolean);
     if (m) return done(`${m[1]}%`, recalled.summary);
   }
   return done("unknown: nothing remembered", recalled.summary);
