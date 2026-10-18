@@ -1,115 +1,72 @@
 /**
- * Graph agent against the same model without the graph, on data/eval/questions.json. For each question
- * the graph agent gets a fresh sandbox and the product's tool catalogue; the baseline gets the question
- * alone. Answers are graded against ground truth that does not come from FalkorDB (see build-questions.ts).
- * Writes data/eval/results.json, which the proof page shows.
+ * Runs the eval locally against a FalkorDB of your own, with the same runner the deployment's /api/eval uses. The
+ * model keys live only in the deployment, so locally this is normally the rules-only arm (no model); the graph and
+ * baseline arms run here too if a key happens to be set. Writes data/eval/results.json (merged with what is there,
+ * so a local rules run and a fetched production run can sit together).
  *
- *   FALKORDB_URL=... GOOGLE_GENERATIVE_AI_API_KEY=... pnpm tsx scripts/eval/run-eval.ts [--only id,id] [--pace 4]
+ *   FALKORDB_URL=falkor://127.0.0.1:6380 pnpm tsx scripts/eval/run-eval.ts [--arms rules] [--only id,id] [--split heldout]
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { generateText } from "ai";
-import { buildTools, type AgentEvent } from "../../src/lib/agent/catalog";
-import { modelChain } from "../../src/lib/agent/models";
-import { BASELINE_INSTRUCTIONS, EVAL_INSTRUCTIONS } from "../../src/lib/agent/prompts";
-import { runAgent } from "../../src/lib/agent/run";
-import { grade, finalAnswer, type Expect } from "../../src/lib/eval/grade";
+import { liveChain } from "../../src/lib/agent/models";
+import type { EvalQuestion } from "../../src/lib/eval/questions";
+import { ARMS, evalToolset, EVAL_VISITOR, runQuestion, runOrder, type Arm, type ArmRecord } from "../../src/lib/eval/runner";
 import { ensureBaseGraphs } from "../../src/lib/graph/seed";
 import { dropSandbox, ensureSandbox } from "../../src/lib/graph/tenancy";
-
-interface Question {
-  id: string;
-  category: string;
-  question: string;
-  expect: Expect;
-  source: string;
-}
-
-interface Attempt {
-  answer: string;
-  correct: boolean;
-  model: string | null;
-  ms: number;
-  tools?: { tool: string; outcome: string | null }[];
-  error?: string;
-}
 
 const arg = (name: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 ? process.argv[i + 1] : undefined;
 };
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export interface ResultsFile {
+  source: string;
+  run: { id: string | null; startedMs: number | null; finishedMs: number | null };
+  fetchedAt: string;
+  results: ArmRecord[];
+}
 
 async function main() {
   if (existsSync(".env.local")) process.loadEnvFile(".env.local");
-  const chain = modelChain();
-  if (!chain.length) throw new Error("Set GOOGLE_GENERATIVE_AI_API_KEY or GROQ_API_KEY: the eval compares a model with and without the graph.");
-  await ensureBaseGraphs((m) => console.log(`seed: ${m}`), false);
-
+  const arms = (arg("arms")?.split(",") ?? ARMS) as Arm[];
   const only = arg("only")?.split(",");
-  const pace = Number(arg("pace") ?? 4) * 1000;
-  const questions = (JSON.parse(readFileSync("data/eval/questions.json", "utf8")) as Question[]).filter((q) => !only || only.includes(q.id));
-  const rows: { id: string; category: string; question: string; expect: Expect; source: string; graph: Attempt; baseline: Attempt }[] = [];
-
-  for (const [i, q] of questions.entries()) {
-    const visitor = `eval${i}${Date.now().toString(36)}`;
-    const sandbox = await ensureSandbox(visitor);
-    const tools: Attempt["tools"] = [];
-    const emit = (e: AgentEvent) => {
-      if (e.type === "tool-result") tools.push({ tool: e.result.tool, outcome: e.result.outcome });
-      if (e.type === "tool-error") tools.push({ tool: e.tool, outcome: null });
-    };
-
-    let graph: Attempt;
-    let started = performance.now();
-    try {
-      const out = await runAgent({
-        agent: "controller",
-        instructions: EVAL_INSTRUCTIONS,
-        messages: [{ role: "user", content: q.question }],
-        tools: buildTools({ visitorId: visitor, sandbox: sandbox.graph, agentId: "controller" }, emit, "controller"),
-        emit,
-        maxSteps: 8,
-      });
-      graph = { answer: out.text, correct: grade(out.text, q.expect), model: out.model, ms: Math.round(performance.now() - started), tools };
-    } catch (error) {
-      graph = { answer: "", correct: false, model: null, ms: Math.round(performance.now() - started), tools, error: String(error) };
-    } finally {
-      await dropSandbox(visitor).catch(() => undefined);
-    }
-
-    // Same model as the graph agent ended on, so the comparison is like for like.
-    const model = chain.find((m) => m.id === graph.model) ?? chain[0];
-    let baseline: Attempt;
-    started = performance.now();
-    try {
-      const res = await generateText({ model: model.model, instructions: BASELINE_INSTRUCTIONS, prompt: q.question, maxRetries: 2 });
-      baseline = { answer: res.text, correct: grade(res.text, q.expect), model: model.id, ms: Math.round(performance.now() - started) };
-    } catch (error) {
-      baseline = { answer: "", correct: false, model: model.id, ms: Math.round(performance.now() - started), error: String(error) };
-    }
-
-    rows.push({ id: q.id, category: q.category, question: q.question, expect: q.expect, source: q.source, graph, baseline });
-    console.log(
-      `${q.id.padEnd(22)} graph ${graph.correct ? "ok " : "MISS"} (${finalAnswer(graph.answer).slice(0, 50)})  baseline ${baseline.correct ? "ok " : "MISS"} (${finalAnswer(baseline.answer).slice(0, 50)})`,
-    );
-    if (i < questions.length - 1) await sleep(pace);
+  const split = arg("split");
+  const questions = JSON.parse(readFileSync("data/eval/questions.json", "utf8")) as EvalQuestion[];
+  const order = runOrder(questions).filter((id) => (!only || only.includes(id)) && (!split || questions.find((q) => q.id === id)!.split === split));
+  if (arms.some((a) => a !== "rules") && !(await liveChain()).length) {
+    throw new Error("The graph and baseline arms need a model key; locally run --arms rules, or run the eval on the deployment (POST /api/eval).");
   }
 
-  const tally = (pick: (r: (typeof rows)[number]) => Attempt) => {
-    const byCategory: Record<string, { correct: number; total: number }> = {};
-    for (const r of rows) {
-      const c = (byCategory[r.category] ??= { correct: 0, total: 0 });
-      c.total++;
-      if (pick(r).correct) c.correct++;
+  await ensureBaseGraphs((m) => console.log(`seed: ${m}`), false);
+  const sandbox = await ensureSandbox(EVAL_VISITOR);
+  const base = { visitorId: EVAL_VISITOR, sandbox: sandbox.graph, agentId: "controller" };
+  const deps = { base, toolset: (emit: Parameters<typeof evalToolset>[1]) => evalToolset(base, emit), chain: () => liveChain(), armTimeoutMs: 120_000 };
+
+  const path = "data/eval/results.json";
+  const previous: ResultsFile | null = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as ResultsFile) : null;
+  const records = new Map((previous?.results ?? []).map((r) => [`${r.qid}|${r.arm}`, r]));
+  const started = Date.now();
+  try {
+    for (const id of order) {
+      const q = questions.find((x) => x.id === id)!;
+      const out = await runQuestion(q, deps, { arms, save: async (r) => void records.set(`${r.qid}|${r.arm}`, r) });
+      console.log(`${q.id.padEnd(36)} ${out.map((r) => `${r.arm} ${r.correct ? "ok  " : "MISS"} ${r.final.slice(0, 40)}`).join(" | ")}`);
     }
-    return { correct: rows.filter((r) => pick(r).correct).length, total: rows.length, byCategory };
+  } finally {
+    await dropSandbox(EVAL_VISITOR).catch(() => undefined);
+  }
+
+  const file: ResultsFile = {
+    source: previous?.source && previous.source !== "local" ? `${previous.source} + local` : "local",
+    run: previous?.run ?? { id: null, startedMs: started, finishedMs: Date.now() },
+    fetchedAt: new Date().toISOString(),
+    results: [...records.values()],
   };
-  const summary = { graph: tally((r) => r.graph), baseline: tally((r) => r.baseline) };
-  writeFileSync(
-    "data/eval/results.json",
-    JSON.stringify({ runAt: new Date().toISOString(), models: [...new Set(rows.flatMap((r) => [r.graph.model, r.baseline.model]))], summary, rows }, null, 1) + "\n",
-  );
-  console.log(`\ngraph agent ${summary.graph.correct}/${summary.graph.total} · same model without the graph ${summary.baseline.correct}/${summary.baseline.total}`);
+  writeFileSync(path, JSON.stringify(file, null, 1) + "\n");
+  const mine = file.results.filter((r) => arms.includes(r.arm) && order.includes(r.qid));
+  for (const a of arms) {
+    const rs = mine.filter((r) => r.arm === a);
+    console.log(`${a}: ${rs.filter((r) => r.correct).length}/${rs.length}`);
+  }
   process.exit(0);
 }
 
