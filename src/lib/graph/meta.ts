@@ -60,11 +60,28 @@ export async function bump(key: string, ttlMs: number, now = Date.now()): Promis
   return res.rows[0]?.n ?? 1;
 }
 
-/** Drops counters and locks past their time (the daily cron). */
+/** Takes a model out of every run until `until`: its daily quota is spent, or the provider does not serve it. */
+export async function blockModel(model: string, until: number, reason: string): Promise<void> {
+  await run(META_GRAPH, "MERGE (b:Block {key: $key}) SET b.until = $until, b.reason = $reason", { key: `model:${model}`, until, reason });
+}
+
+/** The models taken out of the chain right now, with when each comes back. */
+export async function blockedModels(now = Date.now()): Promise<Map<string, number>> {
+  if (!(await graphExists(META_GRAPH))) return new Map();
+  const res = await run<{ key: string; until: number }>(
+    META_GRAPH,
+    "MATCH (b:Block) WHERE b.until > $now AND b.key STARTS WITH 'model:' RETURN b.key AS key, b.until AS until",
+    { now },
+    { readOnly: true },
+  );
+  return new Map(res.rows.map((r) => [r.key.slice("model:".length), r.until]));
+}
+
+/** Drops counters, locks and blocks past their time (the daily cron). */
 export async function dropExpired(now = Date.now()): Promise<number> {
   if (!(await graphExists(META_GRAPH))) return 0;
   let dropped = 0;
-  for (const label of ["Counter", "Lock"]) {
+  for (const label of ["Counter", "Lock", "Block"]) {
     const res = await run(META_GRAPH, `MATCH (n:${label}) WHERE n.until < $now DELETE n`, { now });
     dropped += res.stats["Nodes deleted"] ?? 0;
   }

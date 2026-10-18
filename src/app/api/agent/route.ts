@@ -1,10 +1,10 @@
 import type { ModelMessage } from "ai";
 import { z } from "zod";
 import { buildTools, type AgentEvent } from "@/lib/agent/catalog";
-import { hasLiveModel, isRetryable } from "@/lib/agent/models";
+import { hasLiveModel, isRetryable, liveModelAvailable } from "@/lib/agent/models";
 import { ASK_INSTRUCTIONS, CONTROLLER_INSTRUCTIONS } from "@/lib/agent/prompts";
 import { recorder, replayRun } from "@/lib/agent/replay";
-import { runAgent } from "@/lib/agent/run";
+import { NoModelError, runAgent } from "@/lib/agent/run";
 import { scriptedControl } from "@/lib/agent/scripted";
 import { recentTurns, rememberTurns } from "@/lib/graph/conversation";
 import { ensureSandbox } from "@/lib/graph/tenancy";
@@ -13,8 +13,8 @@ import { allow, allowToday, ndjson, visitorId } from "@/lib/server/http";
 
 export const maxDuration = 300;
 
-/** Live runs a day across all visitors: what the free Gemini and Groq tiers carry, with room for the demo. */
-const LIVE_PER_DAY = { control: 20, ask: 80 } as const;
+/** Live runs a day across all visitors: what the chain of free Gemini and Groq models carries, with room for the demo. */
+const LIVE_PER_DAY = { control: 40, ask: 150 } as const;
 
 const Body = z.object({
   mode: z.enum(["control", "ask"]),
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       const base = { visitorId: visitor, sandbox: sandbox.graph, agentId: agent };
 
       const quota =
-        hasLiveModel() &&
+        (await liveModelAvailable()) &&
         (await allow(visitor, body.mode, body.mode === "control" ? 8 : 30).catch(() => false)) &&
         (await allowToday(body.mode, LIVE_PER_DAY[body.mode]).catch(() => false));
       /** The controller's standard procedure: the same tools on the visitor's graph, without a model. */
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
       } catch (error) {
         // Free model quotas run out (a daily cap, or every provider rate limited): a preset closure finishes on the
         // controller's standard procedure, from the start, rather than stopping halfway.
-        if (body.mode === "control" && scenario && isRetryable(error)) {
+        if (body.mode === "control" && scenario && (isRetryable(error) || error instanceof NoModelError)) {
           return scripted("The free model's quota ran out, so the controller finished with its standard procedure: the same tools on your own graph, with templated wording.");
         }
         throw error;

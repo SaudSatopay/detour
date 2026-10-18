@@ -5,7 +5,7 @@ import { ridersAffected, routeRider, type RiderProfile, type RouteAnswer } from 
 import { writeAdvisory } from "../graph/tools/plan";
 import type { ToolContext } from "../graph/tools/types";
 import { recordEpisode, type Emit } from "./catalog";
-import { isRetryable, modelChain } from "./models";
+import { benchModel, classify, liveChain } from "./models";
 import { RIDER_ADVISORY_INSTRUCTIONS } from "./prompts";
 
 interface Advisory {
@@ -53,7 +53,7 @@ export async function runRiderDesk(base: Omit<ToolContext, "tracer" | "agentId">
   const affected = await ridersAffected(deskCtx);
   emit({ type: "tool-result", agent: "rider-desk", id: "riders-affected", result: affected });
   const riders = affected.data.affected;
-  const chain = modelChain();
+  const chain = await liveChain();
 
   return pool(riders, 3, async (rider) => {
     const agent = `rider:${rider.id}`;
@@ -82,7 +82,9 @@ export async function runRiderDesk(base: Omit<ToolContext, "tracer" | "agentId">
         model = m.id;
         break;
       } catch (error) {
-        if (!isRetryable(error)) break;
+        const failure = classify(error);
+        if (failure === "other") break;
+        await benchModel(m.id, failure).catch(() => undefined);
       }
     }
     if (!text) text = templateAdvisory(rider, answer, names);

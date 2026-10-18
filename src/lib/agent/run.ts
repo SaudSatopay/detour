@@ -1,6 +1,8 @@
 import { isStepCount, streamText, type ModelMessage, type ToolSet } from "ai";
-import { isRetryable, modelChain, type ChainedModel } from "./models";
+import { benchModel, causes, classify, errorText, liveChain, type ChainedModel, type ModelFailure } from "./models";
 import type { Emit } from "./catalog";
+
+export { isDailyQuota } from "./models";
 
 interface RunOptions {
   agent: string;
@@ -24,7 +26,7 @@ interface RunResult {
  * events); the model's narration streams out as text events.
  */
 export async function runAgent({ agent, instructions, messages, tools, emit, maxSteps = 12, abortSignal }: RunOptions): Promise<RunResult> {
-  const chain = modelChain();
+  const chain = await liveChain();
   if (!chain.length) throw new NoModelError();
   let current = 0;
   const history: ModelMessage[] = [...messages];
@@ -58,17 +60,6 @@ const MAX_WAIT_MS = 60_000;
  */
 const FIRST_STEP_WAIT_MS = 8_000;
 
-type ProviderError = { message?: string; responseBody?: string; responseHeaders?: Record<string, string>; lastError?: unknown; errors?: unknown[]; cause?: unknown };
-
-/** The error and the provider errors it wraps (the AI SDK's retry error keeps them in lastError and errors). */
-function causes(error: unknown, depth = 0): ProviderError[] {
-  if (!error || typeof error !== "object" || depth > 3) return [];
-  const e = error as ProviderError;
-  return [e, ...causes(e.lastError, depth + 1), ...(e.errors ?? []).flatMap((x) => causes(x, depth + 1)), ...causes(e.cause, depth + 1)];
-}
-
-const errorText = (error: unknown) => causes(error).map((e) => `${e.message ?? ""} ${e.responseBody ?? ""}`).join(" ");
-
 /** The wait a rate-limited provider asks for (a Retry-After header, or Gemini's "retry in 41.2s"), else a backoff. */
 export function retryDelayMs(error: unknown, attempt: number): number {
   for (const e of causes(error)) {
@@ -86,11 +77,6 @@ function asksForDelay(error: unknown): boolean {
   return causes(error).some((e) => Number(e.responseHeaders?.["retry-after"]) > 0) || /retry in [\d.]+\s*s|"retryDelay"/i.test(errorText(error));
 }
 
-/** A provider's daily cap (Gemini names the quota "...PerDay..."): waiting a minute will not lift it. */
-export function isDailyQuota(error: unknown): boolean {
-  return /per ?day|daily/i.test(errorText(error));
-}
-
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(resolve, ms);
@@ -105,12 +91,19 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-class NoModelError extends Error {
+export class NoModelError extends Error {
   constructor() {
-    super("No LLM key is configured (GOOGLE_GENERATIVE_AI_API_KEY or GROQ_API_KEY).");
+    super("No free model can answer right now: none is configured, or every one has spent its daily quota.");
     this.name = "NoModelError";
   }
 }
+
+/** What a visitor reads when the run moves to the next model. */
+const SWITCH_REASON: Record<Exclude<ModelFailure, "other">, string> = {
+  daily: "its daily free quota is spent",
+  missing: "the provider no longer serves it",
+  rate: "it is rate limited",
+};
 
 async function stepWithFallback(
   chain: ChainedModel[],
@@ -146,16 +139,19 @@ async function stepWithFallback(
       if (text) o.emit({ type: "text", agent: o.agent, delta: "\n" });
       return { messages, finishReason, text };
     } catch (error) {
-      if (!isRetryable(error)) throw error;
+      const failure = classify(error);
+      if (failure === "other") throw error;
+      await benchModel(m.id, failure).catch(() => undefined);
       const next = getCurrent() + 1;
       if (next < chain.length) {
         setCurrent(next);
-        o.emit({ type: "model", agent: o.agent, model: chain[next].id, reason: "rate limited, switching provider" });
+        o.emit({ type: "model", agent: o.agent, model: chain[next].id, reason: `${m.id.split(":").pop()}: ${SWITCH_REASON[failure]}` });
         continue;
       }
-      // The last model in the chain: wait out its rate limit (a free tier allows a few calls a minute) rather
-      // than end the run halfway, unless the wait it asks for would pass the cap.
-      if (isDailyQuota(error)) throw error;
+      // The last model in the chain: wait out a per-minute rate limit (a free tier allows a few calls a minute)
+      // rather than end the run halfway, unless the wait it asks for would pass the cap. A spent daily quota or a
+      // retired model will not come back within the run.
+      if (failure !== "rate") throw error;
       if (o.maxWaitMs < MAX_WAIT_MS && !asksForDelay(error)) throw error;
       const delay = retryDelayMs(error, attempt++) + 500;
       if (waited + delay > o.maxWaitMs) throw error;

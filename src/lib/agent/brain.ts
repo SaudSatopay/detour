@@ -15,7 +15,7 @@ import {
 import type { ToolContext, ToolResult } from "../graph/tools/types";
 import { clip, recordEpisode } from "./catalog";
 import { isRetryable } from "./models";
-import { runAgent } from "./run";
+import { NoModelError, runAgent } from "./run";
 
 export const BRAIN_INSTRUCTIONS = `You are the agency brain of the control center that runs New York City subway disruptions in Detour. The graph holds the agency's teams and people, its documents (after-action reports, playbooks, procedures, policies, notices), maintenance tickets, chat messages and decisions, connected to the same stations, routes, incidents and findings the control room uses. The agency side is sample data; the subway is real MTA data.
 
@@ -324,7 +324,7 @@ export async function answerBrain(
     }
     return scripted(base, question, "The model answered without checking the graph, so the standard procedure answered instead: the same graph tools, with templated wording.", started);
   } catch (error) {
-    if (!isRetryable(error)) throw error;
+    if (!isRetryable(error) && !(error instanceof NoModelError)) throw error;
     return scripted(base, question, "The free model's quota ran out, so the standard procedure answered instead: the same graph tools, with templated wording.", started);
   }
 }

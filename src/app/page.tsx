@@ -112,7 +112,7 @@ export default function Home() {
           <div className="pointer-events-auto relative isolate max-w-[min(60rem,100%)]">
             {/* A soft shade behind the words so they hold over the busiest part of the map. */}
             <div aria-hidden="true" className="absolute -inset-x-8 -inset-y-10 -z-10 bg-[radial-gradient(closest-side,var(--paper)_55%,transparent)] opacity-90" />
-            <p className="label text-ink-500">Graph Hacks · FalkorDB · Tracks 1 and 2</p>
+            <p className="label text-ink-500">Graph Hacks · FalkorDB · All three tracks</p>
             <h1 id="story-title" className="lift poster mt-4 max-w-[16ch]">
               When a subway line breaks, Detour measures what the city can still carry.
             </h1>

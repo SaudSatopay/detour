@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { answerBrain } from "@/lib/agent/brain";
 import { recordEpisode } from "@/lib/agent/catalog";
-import { hasLiveModel } from "@/lib/agent/models";
+import { hasLiveModel, liveModelAvailable } from "@/lib/agent/models";
 import { recentTurns, rememberTurns } from "@/lib/graph/conversation";
 import { ingest, extractMentions } from "@/lib/graph/intake";
 import { ensureOrgLayer } from "@/lib/graph/org";
@@ -14,7 +14,7 @@ import { allow, allowToday, friendlyError, visitorId } from "@/lib/server/http";
 export const maxDuration = 120;
 
 /** Live brain answers a day across all visitors, alongside the control room's and rider desk's share of the free tiers. */
-const LIVE_PER_DAY = 60;
+const LIVE_PER_DAY = 150;
 
 const Body = z.union([
   z.object({ question: z.string().trim().min(2).max(400) }),
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     const question = parsed.data.question;
     const live =
-      hasLiveModel() &&
+      (await liveModelAvailable()) &&
       (await allow(visitor, "brain", 20).catch(() => false)) &&
       (await allowToday("brain", LIVE_PER_DAY).catch(() => false));
     const note = live
