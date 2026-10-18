@@ -103,54 +103,139 @@ export async function recall(
   return result(ctx, "recall", "memory", parts.join(" | "), { findings: f, incidents: inc, playbooks: pb });
 }
 
-/** Writes a finding with its validity window and provenance. A superseded finding is closed, not deleted. */
+/**
+ * What the next shuttle plan on these routes sizes buses at: the lowest share of plan any recalled shuttle
+ * carried, when it fell short (under 97%). The scripted controller applies the same rule to recall's data.
+ */
+export function shuttleShare(incidents: RememberedIncident[]): { ratio: number; incident: string; from: string; to: string; openedMs: number } | null {
+  let worst: { ratio: number; incident: string; from: string; to: string; openedMs: number } | null = null;
+  for (const inc of incidents) {
+    for (const s of inc.shuttles) {
+      if (!s.planned || !s.observed) continue;
+      const ratio = s.observed / s.planned;
+      if (!worst || ratio < worst.ratio) worst = { ratio, incident: inc.id, from: s.from, to: s.to, openedMs: inc.openedMs };
+    }
+  }
+  return worst && worst.ratio < 0.97 ? worst : null;
+}
+
+/**
+ * Whether a new finding is about the open incident, and so gets a FROM link to it: it names one of the
+ * closed routes, or a station in the closed stretch. A caller can decide instead (`explicit`), or ask for
+ * stations alone ("stations"): a platform elevator is about a closure only when it is in the closed stretch.
+ */
+export function concernsIncident(
+  finding: { stations?: string[]; routes?: string[] },
+  incident: { routes: string[]; stretch: string[] } | null,
+  explicit?: boolean | "stations",
+): boolean {
+  if (!incident) return false;
+  if (typeof explicit === "boolean") return explicit;
+  const stretch = new Set(incident.stretch);
+  const atStretch = (finding.stations ?? []).some((s) => stretch.has(s));
+  if (explicit === "stations") return atStretch;
+  const routes = new Set(incident.routes.map((r) => r.toUpperCase()));
+  return atStretch || (finding.routes ?? []).some((r) => routes.has(r.toUpperCase()));
+}
+
+/** Finding ids stay unique when many writers report in the same millisecond. */
+export function findingId(now = Date.now(), random = Math.random()): string {
+  const tail = Math.floor(random * 36 ** 3)
+    .toString(36)
+    .padStart(3, "0");
+  return `F-${now.toString(36)}${tail}`.toUpperCase();
+}
+
+/** One platform elevator's facts: at most one of them is open at a time. */
+interface Slot {
+  station: string;
+  route: string;
+  prefix: string;
+}
+
+type FindingKind = "observation" | "capacity" | "accessibility" | "crowding" | "plan";
+
+/**
+ * Writes a finding with its validity window and provenance. A superseded finding is closed, not deleted.
+ * Writing the finding and closing what it supersedes is one query, and FalkorDB runs one write at a time
+ * per graph, so two reports at once cannot both supersede the same fact and leave two open: a finding
+ * that would supersede a fact another report already closed is not written.
+ */
 export async function remember(
   ctx: ToolContext,
-  input: { text: string; kind: "observation" | "capacity" | "accessibility" | "crowding" | "plan"; stations?: string[]; routes?: string[]; confidence?: number; supersedes?: string },
+  input: {
+    text: string;
+    kind: FindingKind;
+    stations?: string[];
+    routes?: string[];
+    confidence?: number;
+    supersedes?: string;
+    /** Link to the open incident regardless of what the finding names (true or false), or by its stations alone. */
+    aboutIncident?: boolean | "stations";
+    /** Replace the platform's current elevator fact, unless it already says the same (see reportElevator). */
+    slot?: Slot;
+  },
 ): Promise<ToolResult<{ id: string; superseded: string | null }>> {
-  const id = `F-${Date.now().toString(36).toUpperCase()}`;
-  await ctx.tracer.run(
-    "write finding",
+  const id = findingId();
+  const stations = input.stations ?? [];
+  const routes = (input.routes ?? []).map((r) => r.toUpperCase());
+  const incident = await openIncident(ctx);
+  const link = concernsIncident({ stations, routes }, incident, input.aboutIncident);
+
+  // What the new finding replaces, matched inside the write so the check and the write cannot interleave.
+  const current = input.slot
+    ? `OPTIONAL MATCH (cur:Finding)-[:ABOUT]->(:Station {id: $slotStation}), (cur)-[:ABOUT]->(:Route {id: $slotRoute})
+     WHERE cur.validToMs IS NULL AND cur.text STARTS WITH $slotPrefix
+     WITH ag, collect(DISTINCT cur) AS current
+     WHERE none(c IN current WHERE c.kind = $kind)`
+    : input.supersedes
+      ? `OPTIONAL MATCH (old:Finding {id: $old})
+     WITH ag, old
+     WHERE old IS NULL OR old.validToMs IS NULL
+     WITH ag, CASE WHEN old IS NULL THEN [] ELSE [old] END AS current`
+      : "WITH ag, [] AS current";
+  const res = await ctx.tracer.run<{ id: string; superseded: string[] }>(
+    input.supersedes || input.slot ? "write finding and close the one it supersedes" : "write finding",
     ctx.sandbox,
     `MATCH (ag:Agent {id: $agent})
-     CREATE (ag)-[:WROTE]->(:Finding {id: $id, text: $text, kind: $kind, confidence: $confidence,
-       validFromMs: timestamp(), learnedMs: timestamp()})`,
-    { agent: ctx.agentId, id, text: input.text.slice(0, 400), kind: input.kind, confidence: input.confidence ?? 0.8 },
-  );
-  await ctx.tracer.run(
-    "link finding to what it is about",
-    ctx.sandbox,
-    `MATCH (f:Finding {id: $id}), (n)
-     WHERE (n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes)
-     CREATE (f)-[:ABOUT]->(n)`,
-    { id, stations: input.stations ?? [], routes: (input.routes ?? []).map((r) => r.toUpperCase()) },
-  );
-  const incident = await openIncident(ctx);
-  if (incident) {
-    await ctx.tracer.run("link finding to the incident", ctx.sandbox, "MATCH (f:Finding {id: $id}), (i:Incident {id: $incident}) CREATE (f)-[:FROM]->(i)", {
+     ${current}
+     CREATE (ag)-[:WROTE]->(f:Finding {id: $id, text: $text, kind: $kind, confidence: $confidence,
+       validFromMs: timestamp(), learnedMs: timestamp()})
+     FOREACH (c IN current | SET c.validToMs = timestamp() CREATE (f)-[:SUPERSEDES]->(c))
+     WITH f, [c IN current | c.id] AS superseded
+     OPTIONAL MATCH (n) WHERE (n:Station AND n.id IN $stations) OR (n:Route AND n.id IN $routes)
+     WITH f, superseded, collect(n) AS about
+     FOREACH (x IN about | CREATE (f)-[:ABOUT]->(x))
+     WITH f, superseded
+     OPTIONAL MATCH (i:Incident {id: $incident})
+     FOREACH (_ IN CASE WHEN i IS NULL THEN [] ELSE [1] END | CREATE (f)-[:FROM]->(i))
+     RETURN f.id AS id, superseded`,
+    {
+      agent: ctx.agentId,
       id,
-      incident: incident.id,
-    });
+      text: input.text.slice(0, 400),
+      kind: input.kind,
+      confidence: input.confidence ?? 0.8,
+      stations,
+      routes,
+      incident: link && incident ? incident.id : "",
+      old: input.supersedes ?? null,
+      slotStation: input.slot?.station ?? null,
+      slotRoute: input.slot?.route ?? null,
+      slotPrefix: input.slot?.prefix ?? null,
+    },
+  );
+  const row = res.rows[0];
+  if (!row) {
+    const why = input.slot ? "Memory already holds this as the current fact" : `${input.supersedes} was already superseded by another report`;
+    return result(ctx, "remember", "memory", `${why}; nothing new was written.`, { id: "", superseded: null });
   }
-  let superseded: string | null = null;
-  if (input.supersedes) {
-    const res = await ctx.tracer.run<{ old: string }>(
-      "close the superseded finding",
-      ctx.sandbox,
-      `MATCH (old:Finding {id: $old}), (f:Finding {id: $id})
-       WHERE old.validToMs IS NULL
-       SET old.validToMs = timestamp()
-       CREATE (f)-[:SUPERSEDES]->(old)
-       RETURN old.id AS old`,
-      { old: input.supersedes, id },
-    );
-    superseded = res.rows[0]?.old ?? null;
-  }
+  const superseded = row.superseded?.[0] ?? null;
   return result(
     ctx,
     "remember",
     "answered",
-    `Remembered ${id}${superseded ? `, closing ${superseded}` : ""}: ${input.text.slice(0, 160)}`,
+    `Remembered ${id}${superseded ? `, closing ${superseded}` : ""}${link && incident ? `, from ${incident.id}` : ""}: ${input.text.slice(0, 160)}`,
     { id, superseded },
   );
 }
@@ -175,7 +260,6 @@ export async function reportElevator(
     { readOnly: true },
   );
   const outage = current.rows.find((f) => f.kind === "accessibility");
-  const working = current.rows.find((f) => f.kind !== "accessibility");
   if (input.working && !outage) {
     return result(ctx, "remember", "not_in_graph", `Memory has no current elevator outage on the ${input.route} platform at ${input.stationName}.`, null);
   }
@@ -190,8 +274,13 @@ export async function reportElevator(
     stations: [input.station],
     routes: [input.route],
     confidence: 1,
-    supersedes: input.working ? outage?.id : working?.id,
+    // A platform elevator concerns a closure only when the platform is in the closed stretch.
+    aboutIncident: "stations",
+    // Closes whichever elevator fact is current when the write runs, so simultaneous reports leave one open.
+    slot: { station: input.station, route: input.route, prefix: "Elevator" },
   });
+  // Another report got there first and memory already says this: nothing to sync.
+  if (!written.data.id) return written;
   // Keep the agency's records current with the report: the platform's maintenance ticket resolves (or
   // reopens), the new fact cites it, and decisions that rested on it are lifted (or back in force).
   // Graphs without the agency layer have no tickets, so nothing changes there. The intake files its own tickets.

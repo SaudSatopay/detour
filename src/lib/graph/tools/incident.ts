@@ -30,6 +30,49 @@ export async function openIncident(ctx: ToolContext): Promise<Incident | null> {
   return res.rows[0] ?? null;
 }
 
+/**
+ * How much longer a ride feels on a segment over capacity: riders wait for trains they can board and stand
+ * packed, so a segment at 200% costs 2.5 times its minutes. Capped so a crowded line is avoided when a
+ * reasonable alternative exists, never at any price.
+ */
+export function crowdFactor(pct: number): number {
+  if (!(pct > 100)) return 1;
+  return Math.min(4, 1 + 1.5 * (pct / 100 - 1));
+}
+
+/** The rail segments a reroute pushed over capacity (shuttle legs are not RIDE edges). */
+export function crowdingOf(reroute: { overloaded: { kind: string; id: number; pct: number }[] }): { eid: number; pct: number }[] {
+  return reroute.overloaded.filter((o) => o.kind === "RUNS" && o.pct > 100).map((o) => ({ eid: o.id, pct: o.pct }));
+}
+
+/** The platform-layer edges a rider's route can use; each gets a routing cost once crowding is known. */
+const ROUTED = "BOARD|ALIGHT|RIDE|WALK|BUS";
+
+/**
+ * Persists crowding as a routing cost: every platform-layer edge costs its minutes, and each RIDE over
+ * capacity costs its minutes times crowdFactor. route_rider weighs paths by this cost while it is set.
+ */
+export async function applyCrowding(ctx: ToolContext, segments: { eid: number; pct: number }[]): Promise<number> {
+  await ctx.tracer.run("routing cost is travel time", ctx.sandbox, `MATCH ()-[r:${ROUTED}]->() SET r.cost = r.minutes, r.crowd = null`);
+  const crowded = segments.filter((s) => s.pct > 100);
+  if (!crowded.length) return 0;
+  const res = await ctx.tracer.run<{ n: number }>(
+    "crowded rides cost more",
+    ctx.sandbox,
+    `UNWIND $segs AS c
+     MATCH ()-[r:RIDE {eid: c.eid}]->()
+     SET r.crowd = c.pct, r.cost = r.minutes * c.factor
+     RETURN count(r) AS n`,
+    { segs: crowded.map((s) => ({ eid: s.eid, pct: Math.round(s.pct), factor: crowdFactor(s.pct) })) },
+  );
+  return res.rows[0]?.n ?? 0;
+}
+
+/** Drops the crowding cost: routes go back to travel time alone. */
+export async function clearCrowding(ctx: ToolContext): Promise<void> {
+  await ctx.tracer.run("clear crowding costs", ctx.sandbox, `MATCH ()-[r:${ROUTED}]->() WHERE r.cost IS NOT NULL SET r.cost = null, r.crowd = null`);
+}
+
 /** Restores every closed segment and marks open incidents resolved (used before a new closure and on reset). */
 export async function reopenAll(ctx: ToolContext, status: "resolved" | "superseded"): Promise<number> {
   const res = await ctx.tracer.run<{ n: number }>(
@@ -45,6 +88,7 @@ export async function reopenAll(ctx: ToolContext, status: "resolved" | "supersed
     ctx.sandbox,
     "MATCH ()-[r:RIDE {closed: true}]->() SET r.closed = false, r.minutes = r.baseMinutes",
   );
+  await clearCrowding(ctx);
   await ctx.tracer.run(
     "close out incident",
     ctx.sandbox,

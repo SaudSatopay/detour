@@ -229,11 +229,21 @@ async function seedTemplate(log: (msg: string) => void) {
   for (const p of SEED_PLAYBOOKS) {
     await run(
       g,
-      `CREATE (p:Playbook {id: $id, title: $title, steps: $steps, uses: $uses, lastUsedMs: $lastUsedMs, example: true})
+      `CREATE (p:Playbook {id: $id, title: $title, steps: $steps, stations: $stations, revision: $revision, uses: $uses,
+         lastUsedMs: $lastUsedMs, example: true})
        WITH p
        MATCH (r:Route) WHERE r.id IN $routes
        CREATE (p)-[:FOR]->(r)`,
-      { id: p.id, title: p.title, steps: p.steps, uses: p.uses, lastUsedMs: Date.parse(p.lastUsed), routes: p.routes },
+      {
+        id: p.id,
+        title: p.title,
+        steps: p.steps,
+        stations: p.stations,
+        revision: p.revision,
+        uses: p.uses,
+        lastUsedMs: Date.parse(p.lastUsed),
+        routes: p.routes,
+      },
     );
   }
 

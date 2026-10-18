@@ -42,7 +42,10 @@ interface SeedPlaybook {
   id: string;
   title: string;
   routes: string[];
+  /** The stretch it is written for: an incident applies it only when its closure overlaps these stations. */
+  stations: string[];
   steps: string[];
+  revision: number;
   uses: number;
   lastUsed: string;
 }
@@ -216,12 +219,15 @@ export const SEED_PLAYBOOKS: SeedPlaybook[] = [
     id: "PB-L-TUBE",
     title: "Canarsie Tube closure",
     routes: ["L"],
+    stations: ["120", "119", "118", "602", "601", "618"],
+    // Revision 2 (DOC-PB-LTUBE), after decisions DEC-0616-SIZE and DEC-0616-G.
     steps: [
       "Close the L between Bedford Av and 8 Av in both directions.",
       "Measure what the J/M/Z and G can absorb toward Manhattan.",
-      "Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity.",
-      "Add G trains if Metropolitan Av/Lorimer St is in the min cut.",
+      "Bridge Bedford Av to Marcy Av with buses sized on the corridor's observed throughput: the June 12 bridge carried 79% of plan.",
+      "Add two G trains an hour if Metropolitan Av/Lorimer St is in the min cut.",
     ],
+    revision: 2,
     uses: 1,
     lastUsed: "2026-06-12T10:30:00",
   },

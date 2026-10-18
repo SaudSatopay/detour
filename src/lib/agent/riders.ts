@@ -1,7 +1,7 @@
 import { generateText } from "ai";
 import { loadNetwork } from "../network/data";
 import { Tracer } from "../graph/trace";
-import { ridersAffected, routeRider, type RiderProfile, type RouteAnswer } from "../graph/tools/riders";
+import { describeCrowded, ridersAffected, routeRider, type RiderProfile, type RouteAnswer } from "../graph/tools/riders";
 import { writeAdvisory } from "../graph/tools/plan";
 import type { ToolContext } from "../graph/tools/types";
 import { recordEpisode, type Emit } from "./catalog";
@@ -37,7 +37,13 @@ function templateAdvisory(rider: RiderProfile, answer: RouteAnswer | null, names
   const legs = answer.legs
     .map((l) => (l.kind === "WALK" ? `walk to ${names.get(l.to)}` : l.kind === "BUS" ? `take the shuttle bus to ${names.get(l.to)}` : `take the ${l.route} to ${names.get(l.to)}`))
     .join(", then ");
-  return `${legs[0].toUpperCase()}${legs.slice(1)}. About ${Math.round(answer.minutes)} minutes${rider.stepFree ? ", step-free" : ""}.`;
+  return `${legs[0].toUpperCase()}${legs.slice(1)}. About ${Math.round(answer.minutes)} minutes${rider.stepFree ? ", step-free" : ""}.${avoidance(answer, names)}`;
+}
+
+/** The crowded rides a route keeps the rider off: " It avoids the G between Nassau Av and Court Sq-23 St, running at 244% of capacity." */
+function avoidance(answer: RouteAnswer, names: Map<string, string>): string {
+  if (!answer.avoids?.length) return "";
+  return ` It avoids ${describeCrowded(answer.avoids, (id) => names.get(id) ?? id)}.`;
 }
 
 /**
@@ -69,6 +75,7 @@ export async function runRiderDesk(base: Omit<ToolContext, "tracer" | "agentId">
       rider.stepFree ? "Needs step-free stations." : "",
       rider.preferences.length ? `Preferences: ${rider.preferences.map((p) => `${p.key} ${p.value}`).join("; ")}.` : "",
       `Route now: ${routed.summary}`,
+      answer?.avoids?.length ? `Say why this route:${avoidance(answer, names)}` : "",
     ]
       .filter(Boolean)
       .join("\n");
@@ -88,6 +95,8 @@ export async function runRiderDesk(base: Omit<ToolContext, "tracer" | "agentId">
       }
     }
     if (!text) text = templateAdvisory(rider, answer, names);
+    // The rider is told why the route skips a faster line, whatever the model wrote.
+    else if (answer?.avoids?.length && !/capacity|crowd/i.test(text)) text += avoidance(answer, names);
 
     await writeAdvisory(ctx, { riderId: rider.id, text, minutes: answer?.minutes ?? null, stations: answer?.stations ?? [], stepFree: rider.stepFree });
     emit({ type: "text", agent, delta: text });
