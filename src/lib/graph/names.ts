@@ -11,6 +11,8 @@ export const TEMPLATE_GRAPH = "detour:template";
 export const SANDBOX_PREFIX = "detour:sbx:";
 export const FORK_PREFIX = "detour:fork:";
 export const META_GRAPH = "detour:meta";
+/** The agent eval's progress and per-question results (src/app/api/eval), one run at a time. */
+export const EVAL_GRAPH = "detour:eval";
 
 const VISITOR_ID = /^[a-z0-9]{8,32}$/;
 

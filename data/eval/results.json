@@ -1,0 +1,5539 @@
+{
+ "source": "local",
+ "run": {
+  "id": null,
+  "startedMs": 1792355721050,
+  "finishedMs": 1792355732981
+ },
+ "fetchedAt": "2026-10-18T20:35:32.981Z",
+ "results": [
+  {
+   "qid": "impact-l-canarsie-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 7,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 188,
+     "rows": 2317,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 23,445",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 123,
+   "final": "23,445",
+   "correct": true,
+   "declined": false,
+   "at": 1792355721180
+  },
+  {
+   "qid": "impact-l-canarsie-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 6,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 136,
+     "rows": 2317,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 10,142",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 85,
+   "final": "10,142",
+   "correct": true,
+   "declined": false,
+   "at": 1792355721275
+  },
+  {
+   "qid": "impact-l-canarsie-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 131,
+     "rows": 2317,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 14,713",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 83,
+   "final": "14,713",
+   "correct": true,
+   "declined": false,
+   "at": 1792355721368
+  },
+  {
+   "qid": "capacity-l-canarsie-fits",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 784,
+     "rows": 6546,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 817,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355722195
+  },
+  {
+   "qid": "capacity-l-canarsie-absorbed",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 759,
+     "rows": 6546,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 17,167",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 781,
+   "final": "17,167",
+   "correct": true,
+   "declined": false,
+   "at": 1792355722986
+  },
+  {
+   "qid": "capacity-l-canarsie-unmet",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 779,
+     "rows": 6546,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 1,266",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 799,
+   "final": "1,266",
+   "correct": true,
+   "declined": false,
+   "at": 1792355723795
+  },
+  {
+   "qid": "bottleneck-l-canarsie-cut",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "bottleneck",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 777,
+     "rows": 6546,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "23,445 displaced riders an hour. If each takes the fastest open path, 4 segments overflow by 24,078 riders an hour: G Greenpoint Av → 21 St at 244%; G Nassau Av → Greenpoint Av at 201%; G 21 St → Court Sq-23 St at 198%; 4,689 have no open path. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 17,167 of 18,432 (93%); 1,266 cannot move. Min cut is at the riders' own stations: 1 Av (1,266) have no open alternative.\nAnswer: 1 Av",
+   "grounding": {
+    "checked": 11,
+    "unmatched": []
+   },
+   "ms": 803,
+   "final": "1 Av",
+   "correct": true,
+   "declined": false,
+   "at": 1792355724609
+  },
+  {
+   "qid": "impact-lex-express-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 108,
+     "rows": 2097,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 31,347",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 67,
+   "final": "31,347",
+   "correct": true,
+   "declined": false,
+   "at": 1792355724685
+  },
+  {
+   "qid": "impact-lex-express-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 109,
+     "rows": 2097,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 11,197",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 67,
+   "final": "11,197",
+   "correct": true,
+   "declined": false,
+   "at": 1792355724761
+  },
+  {
+   "qid": "impact-lex-express-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 110,
+     "rows": 2097,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 22,135",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 68,
+   "final": "22,135",
+   "correct": true,
+   "declined": false,
+   "at": 1792355724837
+  },
+  {
+   "qid": "capacity-lex-express-fits",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 864,
+     "rows": 6499,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 891,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355725737
+  },
+  {
+   "qid": "capacity-lex-express-absorbed",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 856,
+     "rows": 6499,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 15,022",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 881,
+   "final": "15,022",
+   "correct": true,
+   "declined": false,
+   "at": 1792355726629
+  },
+  {
+   "qid": "capacity-lex-express-unmet",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 988,
+     "rows": 6499,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 0",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1015,
+   "final": "0",
+   "correct": true,
+   "declined": false,
+   "at": 1792355727657
+  },
+  {
+   "qid": "impact-M-111-113-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Seneca Av\",\"Knickerbocker Av\"],\"route_hint\":\"M\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"M\"],\"from_station_id\":\"111\",\"to_station_id\":\"113\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 92,
+     "rows": 357,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 2,405",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 58,
+   "final": "2,405",
+   "correct": true,
+   "declined": false,
+   "at": 1792355727727
+  },
+  {
+   "qid": "impact-M-111-113-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Seneca Av\",\"Knickerbocker Av\"],\"route_hint\":\"M\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"M\"],\"from_station_id\":\"111\",\"to_station_id\":\"113\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 93,
+     "rows": 357,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 1,213",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 59,
+   "final": "1,213",
+   "correct": true,
+   "declined": false,
+   "at": 1792355727795
+  },
+  {
+   "qid": "impact-M-111-113-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Seneca Av\",\"Knickerbocker Av\"],\"route_hint\":\"M\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"M\"],\"from_station_id\":\"111\",\"to_station_id\":\"113\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 94,
+     "rows": 357,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 2,338",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 58,
+   "final": "2,338",
+   "correct": true,
+   "declined": false,
+   "at": 1792355727863
+  },
+  {
+   "qid": "impact-L-630-124-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"Montrose Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"630\",\"to_station_id\":\"124\"}",
+     "outcome": "answered",
+     "ms": 6,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 108,
+     "rows": 1234,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 9,466",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 68,
+   "final": "9,466",
+   "correct": true,
+   "declined": false,
+   "at": 1792355727940
+  },
+  {
+   "qid": "impact-L-630-124-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"Montrose Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"630\",\"to_station_id\":\"124\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 110,
+     "rows": 1234,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 6,112",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 67,
+   "final": "6,112",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728017
+  },
+  {
+   "qid": "impact-L-630-124-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"Montrose Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"630\",\"to_station_id\":\"124\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 109,
+     "rows": 1234,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 7,337",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 67,
+   "final": "7,337",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728093
+  },
+  {
+   "qid": "impact-W-5-6-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"36 Av\",\"39 Av-Dutch Kills\"],\"route_hint\":\"W\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"W\"],\"from_station_id\":\"5\",\"to_station_id\":\"6\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 87,
+     "rows": 403,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 3,417",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 55,
+   "final": "3,417",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728157
+  },
+  {
+   "qid": "impact-W-5-6-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"36 Av\",\"39 Av-Dutch Kills\"],\"route_hint\":\"W\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"W\"],\"from_station_id\":\"5\",\"to_station_id\":\"6\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 98,
+     "rows": 403,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 840",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 61,
+   "final": "840",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728227
+  },
+  {
+   "qid": "impact-W-5-6-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"36 Av\",\"39 Av-Dutch Kills\"],\"route_hint\":\"W\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"W\"],\"from_station_id\":\"5\",\"to_station_id\":\"6\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 88,
+     "rows": 403,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 3,417",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 56,
+   "final": "3,417",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728293
+  },
+  {
+   "qid": "impact-NQ-611-607-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Times Sq-42 St/Port Authority Bus Terminal\",\"34 St-Herald Sq\"],\"route_hint\":\"N\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"N\",\"Q\"],\"from_station_id\":\"611\",\"to_station_id\":\"607\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 99,
+     "rows": 1458,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 15,028",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 62,
+   "final": "15,028",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728365
+  },
+  {
+   "qid": "impact-NQ-611-607-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Times Sq-42 St/Port Authority Bus Terminal\",\"34 St-Herald Sq\"],\"route_hint\":\"N\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"N\",\"Q\"],\"from_station_id\":\"611\",\"to_station_id\":\"607\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 100,
+     "rows": 1458,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 3,402",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 63,
+   "final": "3,402",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728437
+  },
+  {
+   "qid": "impact-NQ-611-607-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Times Sq-42 St/Port Authority Bus Terminal\",\"34 St-Herald Sq\"],\"route_hint\":\"N\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"N\",\"Q\"],\"from_station_id\":\"611\",\"to_station_id\":\"607\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 101,
+     "rows": 1458,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 8,490",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 63,
+   "final": "8,490",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728510
+  },
+  {
+   "qid": "impact-Q-50-48-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Avenue M\",\"Avenue H\"],\"route_hint\":\"Q\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 6,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Avenue H is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Avenue H is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355728521
+  },
+  {
+   "qid": "impact-Q-50-48-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Avenue M\",\"Avenue H\"],\"route_hint\":\"Q\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 6,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Avenue H is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Avenue H is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355728530
+  },
+  {
+   "qid": "impact-Q-50-48-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Avenue M\",\"Avenue H\"],\"route_hint\":\"Q\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 6,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Avenue H is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Avenue H is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355728539
+  },
+  {
+   "qid": "impact-E-606-612-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"E\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"E\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 97,
+     "rows": 1672,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 18,675",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 61,
+   "final": "18,675",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728608
+  },
+  {
+   "qid": "impact-E-606-612-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"E\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"E\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 105,
+     "rows": 1672,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 1,660",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 64,
+   "final": "1,660",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728683
+  },
+  {
+   "qid": "impact-E-606-612-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"E\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"E\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 103,
+     "rows": 1672,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 12,181",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 64,
+   "final": "12,181",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728756
+  },
+  {
+   "qid": "impact-1-324-328-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Houston St\",\"WTC Cortlandt\"],\"route_hint\":\"1\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"1\"],\"from_station_id\":\"324\",\"to_station_id\":\"328\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 107,
+     "rows": 960,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 9,585",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 66,
+   "final": "9,585",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728831
+  },
+  {
+   "qid": "impact-1-324-328-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Houston St\",\"WTC Cortlandt\"],\"route_hint\":\"1\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"1\"],\"from_station_id\":\"324\",\"to_station_id\":\"328\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 107,
+     "rows": 960,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 2,652",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 66,
+   "final": "2,652",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728906
+  },
+  {
+   "qid": "impact-1-324-328-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Houston St\",\"WTC Cortlandt\"],\"route_hint\":\"1\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"1\"],\"from_station_id\":\"324\",\"to_station_id\":\"328\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 106,
+     "rows": 960,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 7,373",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 65,
+   "final": "7,373",
+   "correct": true,
+   "declined": false,
+   "at": 1792355728979
+  },
+  {
+   "qid": "impact-C-167-618-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"W 4 St-Wash Sq\",\"14 St/8 Av\"],\"route_hint\":\"C\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"C\"],\"from_station_id\":\"167\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 91,
+     "rows": 396,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 1,640",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 57,
+   "final": "1,640",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729046
+  },
+  {
+   "qid": "impact-C-167-618-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"W 4 St-Wash Sq\",\"14 St/8 Av\"],\"route_hint\":\"C\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"C\"],\"from_station_id\":\"167\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 91,
+     "rows": 396,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 120",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 57,
+   "final": "120",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729112
+  },
+  {
+   "qid": "impact-C-167-618-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"W 4 St-Wash Sq\",\"14 St/8 Av\"],\"route_hint\":\"C\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"C\"],\"from_station_id\":\"167\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 88,
+     "rows": 396,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 445",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 55,
+   "final": "445",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729176
+  },
+  {
+   "qid": "impact-F-606-612-total",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"F\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"F\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 98,
+     "rows": 1291,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 14,749",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 61,
+   "final": "14,749",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729245
+  },
+  {
+   "qid": "impact-F-606-612-depth1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"F\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"F\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 97,
+     "rows": 1291,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 1,549",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 60,
+   "final": "1,549",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729314
+  },
+  {
+   "qid": "impact-F-606-612-depth4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Court Sq-23 St\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"F\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"F\"],\"from_station_id\":\"606\",\"to_station_id\":\"612\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 3,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 94,
+     "rows": 1291,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 9,095",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 58,
+   "final": "9,095",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729380
+  },
+  {
+   "qid": "cutoff-Q-50-48-49",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Avenue M\",\"Avenue H\"],\"route_hint\":\"Q\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 6,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Avenue H is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Avenue H is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355729390
+  },
+  {
+   "qid": "cutoff-l-canarsie-118",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"3 Av\",\"Hoyt-Schermerhorn Sts\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 7,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"118\",\"to_station_id\":\"175\"}",
+     "outcome": "not_in_graph",
+     "ms": 2,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "No open path connects 3 Av and Hoyt-Schermerhorn Sts in the subway graph while the closure stands.\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 9,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729407
+  },
+  {
+   "qid": "cutoff-L-630-124-126",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"Montrose Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"630\",\"to_station_id\":\"124\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Jefferson St\",\"Seneca Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"126\",\"to_station_id\":\"111\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "No open path connects Jefferson St and Seneca Av in the subway graph while the closure stands.\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 7,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729426
+  },
+  {
+   "qid": "cutoff-l-canarsie-119",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford Av\",\"14 St/8 Av\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"L\"],\"from_station_id\":\"120\",\"to_station_id\":\"618\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 11,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"1 Av\",\"Knickerbocker Av\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"119\",\"to_station_id\":\"113\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "No open path connects 1 Av and Knickerbocker Av in the subway graph while the closure stands.\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 8,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729442
+  },
+  {
+   "qid": "cutoff-lex-express-602",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Grand Central-42 St\",\"Brooklyn Bridge-City Hall/Chambers St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\",\"5\"],\"from_station_id\":\"610\",\"to_station_id\":\"622\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\",\"238 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"602\",\"to_station_id\":\"294\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "about 51 min, 2 transfers: Q 14 St-Union Sq → Times Sq-42 St/Port Authority Bus Terminal (2 stops), then A Times Sq-42 St/Port Authority Bus Terminal → 168 St-Washington Hts (4 stops), then 1 168 St-Washington Hts → 238 St (8 stops).\nAnswer: yes",
+   "grounding": {
+    "checked": 3,
+    "unmatched": []
+   },
+   "ms": 8,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729459
+  },
+  {
+   "qid": "cutoff-1-324-328-327",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Houston St\",\"WTC Cortlandt\"],\"route_hint\":\"1\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"1\"],\"from_station_id\":\"324\",\"to_station_id\":\"328\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 9,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Chambers St\",\"Lexington Av/63 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 4,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"327\",\"to_station_id\":\"223\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "about 27 min, 1 transfer: 2 Chambers St → Times Sq-42 St/Port Authority Bus Terminal (3 stops), then N Times Sq-42 St/Port Authority Bus Terminal → Lexington Av/63 St (2 stops).\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 7,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729474
+  },
+  {
+   "qid": "route-367-429-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"St Lawrence Av\",\"Freeman St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"367\",\"to_station_id\":\"429\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 43 min, 1 transfer: 6 St Lawrence Av → 125 St (6 stops), then 5 125 St → Freeman St (8 stops).\nAnswer: 43.2 minutes",
+   "grounding": {
+    "checked": 2,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "43.2 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729484
+  },
+  {
+   "qid": "route-367-429-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"St Lawrence Av\",\"Freeman St\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"367\",\"to_station_id\":\"429\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 43 min, 1 transfer: 6 St Lawrence Av → 125 St (6 stops), then 5 125 St → Freeman St (8 stops).\nAnswer: 1",
+   "grounding": {
+    "checked": 2,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729495
+  },
+  {
+   "qid": "route-614-422-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"59 St-Columbus Circle\",\"Burke Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"614\",\"to_station_id\":\"422\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 52 min, 1 transfer: 1 59 St-Columbus Circle → 72 St (2 stops), then 2 72 St → Burke Av (19 stops).\nAnswer: 52.4 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "52.4 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729505
+  },
+  {
+   "qid": "route-614-422-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"59 St-Columbus Circle\",\"Burke Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"614\",\"to_station_id\":\"422\"}",
+     "outcome": "answered",
+     "ms": 2,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 52 min, 1 transfer: 1 59 St-Columbus Circle → 72 St (2 stops), then 2 72 St → Burke Av (19 stops).\nAnswer: 1",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729515
+  },
+  {
+   "qid": "route-101-28-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Marcy Av\",\"Union St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"101\",\"to_station_id\":\"28\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 38 min, 2 transfers: J Marcy Av → Delancey St-Essex St (1 stop), then F Delancey St-Essex St → Jay St-MetroTech (3 stops), then R Jay St-MetroTech → Union St (3 stops).\nAnswer: 37.5 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "37.5 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729526
+  },
+  {
+   "qid": "route-101-28-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Marcy Av\",\"Union St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"101\",\"to_station_id\":\"28\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 38 min, 2 transfers: J Marcy Av → Delancey St-Essex St (1 stop), then F Delancey St-Essex St → Jay St-MetroTech (3 stops), then R Jay St-MetroTech → Union St (3 stops).\nAnswer: 2",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "2",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729536
+  },
+  {
+   "qid": "route-459-403-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"40 St-Lowery St\",\"33 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"459\",\"to_station_id\":\"403\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 25 min, 1 transfer: 7 40 St-Lowery St → Grand Central-42 St (6 stops), then 6 Grand Central-42 St → 33 St (1 stop).\nAnswer: 24.8 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "24.8 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729545
+  },
+  {
+   "qid": "route-459-403-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"40 St-Lowery St\",\"33 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"459\",\"to_station_id\":\"403\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 25 min, 1 transfer: 7 40 St-Lowery St → Grand Central-42 St (6 stops), then 6 Grand Central-42 St → 33 St (1 stop).\nAnswer: 1",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729555
+  },
+  {
+   "qid": "route-289-459-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford-Nostrand Avs\",\"40 St-Lowery St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"289\",\"to_station_id\":\"459\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 30 min, 1 transfer: G Bedford-Nostrand Avs → Court Sq-23 St (8 stops), then 7 Court Sq-23 St → 40 St-Lowery St (3 stops).\nAnswer: 30.2 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "30.2 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729565
+  },
+  {
+   "qid": "route-289-459-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bedford-Nostrand Avs\",\"40 St-Lowery St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"289\",\"to_station_id\":\"459\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 30 min, 1 transfer: G Bedford-Nostrand Avs → Court Sq-23 St (8 stops), then 7 Court Sq-23 St → 40 St-Lowery St (3 stops).\nAnswer: 1",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729574
+  },
+  {
+   "qid": "route-125-119-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Morgan Av\",\"1 Av\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"125\",\"to_station_id\":\"119\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 15 min, 0 transfers: L Morgan Av → 1 Av (6 stops).\nAnswer: 15 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "15 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729583
+  },
+  {
+   "qid": "route-125-119-transfers",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Morgan Av\",\"1 Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"125\",\"to_station_id\":\"119\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 15 min, 0 transfers: L Morgan Av → 1 Av (6 stops).\nAnswer: 0",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "0",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729593
+  },
+  {
+   "qid": "route-188-355-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Euclid Av\",\"Winthrop St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"188\",\"to_station_id\":\"355\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 47 min, 1 transfer: A Euclid Av → Hoyt-Schermerhorn Sts (4 stops), then walk Hoyt-Schermerhorn Sts → Nevins St, then 5 Nevins St → Winthrop St (5 stops).\nAnswer: 46.7 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "46.7 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729602
+  },
+  {
+   "qid": "route-266-370-minutes",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Elmhurst Av\",\"Whitlock Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"266\",\"to_station_id\":\"370\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 57 min, 1 transfer: R Elmhurst Av → Lexington Av/59 St (8 stops), then 6 Lexington Av/59 St → Whitlock Av (16 stops).\nAnswer: 56.5 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "56.5 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729614
+  },
+  {
+   "qid": "stepfree-327-622",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Chambers St\",\"Brooklyn Bridge-City Hall/Chambers St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 4,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"327\",\"to_station_id\":\"622\",\"step_free\":true}",
+     "outcome": "answered",
+     "ms": 2,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 12 min, 0 transfers, step-free: walk Chambers St → City Hall, then walk City Hall → Brooklyn Bridge-City Hall/Chambers St.\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 3,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729626
+  },
+  {
+   "qid": "stepfree-2-471",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Astoria Blvd\",\"34 St-Hudson Yards\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"2\",\"to_station_id\":\"471\",\"step_free\":true}",
+     "outcome": "answered",
+     "ms": 12,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 35 min, 1 transfer, step-free: N Astoria Blvd → Times Sq-42 St/Port Authority Bus Terminal (9 stops), then 7 Times Sq-42 St/Port Authority Bus Terminal → 34 St-Hudson Yards (1 stop).\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 13,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729646
+  },
+  {
+   "qid": "stepfree-188-610",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Euclid Av\",\"Grand Central-42 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"188\",\"to_station_id\":\"610\",\"step_free\":true}",
+     "outcome": "answered",
+     "ms": 6,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 46 min, 1 transfer, step-free: A Euclid Av → Fulton St (7 stops), then 4 Fulton St → Grand Central-42 St (3 stops).\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 7,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729662
+  },
+  {
+   "qid": "stepfree-36-85",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bay Ridge Av\",\"75 St-Elderts Ln\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"36\",\"to_station_id\":\"85\",\"step_free\":true}",
+     "outcome": "not_in_graph",
+     "ms": 43,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "None of the 10 fastest paths is step-free. The fastest (62.5 min) needs Bay Ridge Av (not accessible), Broadway Junction (not accessible), 75 St-Elderts Ln (not accessible).\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 44,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729714
+  },
+  {
+   "qid": "stepfree-84-248",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"85 St-Forest Pkwy\",\"Avenue N\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 7,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"84\",\"to_station_id\":\"5\",\"step_free\":true}",
+     "outcome": "not_in_graph",
+     "ms": 9,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "None of the 10 fastest paths is step-free. The fastest (61.4 min) needs 85 St-Forest Pkwy (not accessible), 36 Av (not accessible).\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 10,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729732
+  },
+  {
+   "qid": "stepfree-39-99",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bay Ridge-95 St\",\"Lorimer St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"39\",\"to_station_id\":\"99\",\"step_free\":true}",
+     "outcome": "not_in_graph",
+     "ms": 12,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "None of the 10 fastest paths is step-free. The fastest (56.7 min) needs 4 Av-9 St (not accessible), Broadway (not accessible).\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 13,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729754
+  },
+  {
+   "qid": "lines-175",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Hoyt-Schermerhorn Sts\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: A, C, G",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "A, C, G",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729763
+  },
+  {
+   "qid": "lines-107",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Broad St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: J, Z",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "J, Z",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729772
+  },
+  {
+   "qid": "lines-238",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Smith-9 Sts\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: F, G",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "F, G",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729780
+  },
+  {
+   "qid": "lines-100",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Hewes St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: M, J",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "M, J",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729788
+  },
+  {
+   "qid": "lines-353",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"President St-Medgar Evers College\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: 2, 5",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "2, 5",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729797
+  },
+  {
+   "qid": "lines-602",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: L, N, Q, R, W, 4, 5, 6",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "L, N, Q, R, W, 4, 5, 6",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729806
+  },
+  {
+   "qid": "lines-31",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"25 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: R, W",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "R, W",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729814
+  },
+  {
+   "qid": "memory-myrtle-elevator-since",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    },
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[\"630\"],\"routes\":[]}",
+     "outcome": "memory",
+     "ms": 3,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.\nAnswer: Oct 14, 2026",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 5,
+   "final": "Oct 14, 2026",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729827
+  },
+  {
+   "qid": "memory-june-share",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"L\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 5,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in both directions. Measure what the J/M/Z and G can absorb toward Manhattan. Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity. Add G trains if Metropolitan Av/Lorimer St is in the min cut.\nAnswer: 79%",
+   "grounding": {
+    "checked": 5,
+    "unmatched": []
+   },
+   "ms": 3,
+   "final": "79%",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729839
+  },
+  {
+   "qid": "memory-june-planned",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"L\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 5,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in both directions. Measure what the J/M/Z and G can absorb toward Manhattan. Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity. Add G trains if Metropolitan Av/Lorimer St is in the min cut.\nAnswer: 2,100",
+   "grounding": {
+    "checked": 4,
+    "unmatched": []
+   },
+   "ms": 3,
+   "final": "2,100",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729849
+  },
+  {
+   "qid": "memory-june-buses",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"L\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 5,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in both directions. Measure what the J/M/Z and G can absorb toward Manhattan. Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity. Add G trains if Metropolitan Av/Lorimer St is in the min cut.\nAnswer: 30",
+   "grounding": {
+    "checked": 4,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "30",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729860
+  },
+  {
+   "qid": "memory-june-date",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"L\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 5,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in both directions. Measure what the J/M/Z and G can absorb toward Manhattan. Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity. Add G trains if Metropolitan Av/Lorimer St is in the min cut.\nAnswer: Jun 12, 2026",
+   "grounding": {
+    "checked": 4,
+    "unmatched": []
+   },
+   "ms": 3,
+   "final": "Jun 12, 2026",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729870
+  },
+  {
+   "qid": "memory-sept-share",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"A\",\"C\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 2,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1,680, carried 1,560 riders an hour\nAnswer: 93%",
+   "grounding": {
+    "checked": 5,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "93%",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729880
+  },
+  {
+   "qid": "memory-sept-observed",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"A\",\"C\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 2,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1,680, carried 1,560 riders an hour\nAnswer: 1,560",
+   "grounding": {
+    "checked": 5,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1,560",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729891
+  },
+  {
+   "qid": "memory-sept-date",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"A\",\"C\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 2,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Sep 3, 2026: The Jay St-MetroTech to Fulton St shuttle carried 1,560 riders an hour, 93% of plan, using the Brooklyn Bridge bus lane. | INC-0903 on Sep 3, 2026 (Water condition, Cranberry Street Tunnel): Jay St-MetroTech ↔ Fulton St planned 1,680, carried 1,560 riders an hour\nAnswer: Sep 3, 2026",
+   "grounding": {
+    "checked": 4,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "Sep 3, 2026",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729902
+  },
+  {
+   "qid": "memory-g-crowding",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"G\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Jun 12, 2026: During the L closure, Metropolitan Av/Lorimer St G platform crowding hit the safety limit 26 minutes in; the G needed 2 more trains an hour.\nAnswer: 26",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "26",
+   "correct": true,
+   "declined": false,
+   "at": 1792355729912
+  },
+  {
+   "qid": "nig-unserved-W-17-459",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Prince St\",\"40 St-Lowery St\"],\"route_hint\":\"W\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"W\"],\"from_station_id\":\"17\",\"to_station_id\":\"459\"}",
+     "outcome": "not_in_graph",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (No scheduled W pattern runs between Prince St and 40 St-Lowery St, so there is no stretch to close.)",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (No scheduled W pattern runs between Prince St and 40 St-Lowery St, so there is no stretch to close.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729922
+  },
+  {
+   "qid": "nig-unserved-E-624-337",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Chambers St/WTC/Park Place/Cortlandt St\",\"Nevins St\"],\"route_hint\":\"E\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Chambers St/WTC/Park Place/Cortlandt St is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Chambers St/WTC/Park Place/Cortlandt St is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729931
+  },
+  {
+   "qid": "nig-unserved-5-602-235",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\",\"York St\"],\"route_hint\":\"5\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"5\"],\"from_station_id\":\"602\",\"to_station_id\":\"235\"}",
+     "outcome": "not_in_graph",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (No scheduled 5 pattern runs between 14 St-Union Sq and York St, so there is no stretch to close.)",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (No scheduled 5 pattern runs between 14 St-Union Sq and York St, so there is no stretch to close.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729940
+  },
+  {
+   "qid": "nig-route-514-618",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Eltingville\",\"14 St/8 Av\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"514\",\"to_station_id\":\"618\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 1,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No open path connects Eltingville and 14 St/8 Av in the subway graph.\nAnswer: unknown: no open path in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "unknown: no open path in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729953
+  },
+  {
+   "qid": "nig-route-517-147",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Prince's Bay\",\"175 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"517\",\"to_station_id\":\"147\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 1,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No open path connects Prince's Bay and 175 St in the subway graph.\nAnswer: unknown: no open path in the graph",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "unknown: no open path in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729965
+  },
+  {
+   "qid": "nig-route-506-296",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Old Town\",\"Marble Hill-225 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"506\",\"to_station_id\":\"296\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 1,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No open path connects Old Town and Marble Hill-225 St in the subway graph.\nAnswer: unknown: no open path in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: no open path in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729975
+  },
+  {
+   "qid": "nig-elevator-451",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Junction Blvd\"],\"route_hint\":\"7\"}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Junction Blvd is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Junction Blvd is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729984
+  },
+  {
+   "qid": "nig-elevator-20",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"City Hall\"],\"route_hint\":\"R\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 1
+    },
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[\"20\"],\"routes\":[]}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 0,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: nothing remembered about that elevator",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "unknown: nothing remembered about that elevator",
+   "correct": true,
+   "declined": true,
+   "at": 1792355729995
+  },
+  {
+   "qid": "unk-closure-1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"69 St\",\"Emerald City\"],\"route_hint\":\"7\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Emerald City is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Emerald City is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730005
+  },
+  {
+   "qid": "unk-closure-3",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"82 St-Jackson Hts\",\"Gotham Central\"],\"route_hint\":\"7\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Gotham Central is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Gotham Central is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730014
+  },
+  {
+   "qid": "unk-closure-4",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Simpson St\",\"Hogsmeade\"],\"route_hint\":\"2\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Hogsmeade is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Hogsmeade is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730023
+  },
+  {
+   "qid": "unk-route-T",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Sterling St\",\"Brighton Beach\"],\"route_hint\":\"T\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"T\"],\"from_station_id\":\"354\",\"to_station_id\":\"55\"}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (Not in the graph: route \"T\". Resolve names first.)",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (Not in the graph: route \"T\". Resolve names first.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730033
+  },
+  {
+   "qid": "unk-trip-1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Rivendell\",\"52 St\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Rivendell is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Rivendell is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730042
+  },
+  {
+   "qid": "unk-trip-2",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Westchester Sq-E Tremont Av\",\"Bedrock Sq\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Bedrock Sq is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Bedrock Sq is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730052
+  },
+  {
+   "qid": "unk-trip-3",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Penny Lane\",\"Grand Army Plaza\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Penny Lane is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Penny Lane is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730062
+  },
+  {
+   "qid": "unk-lines-1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Mordor St\"]}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Mordor St is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Mordor St is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730071
+  },
+  {
+   "qid": "unk-lines-2",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Narnia Av\"]}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Narnia Av is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Narnia Av is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730079
+  },
+  {
+   "qid": "unk-lines-3",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Diagon Alley\"]}",
+     "outcome": "unknown_entity",
+     "ms": 1,
+     "rows": 0,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Diagon Alley is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Diagon Alley is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730088
+  },
+  {
+   "qid": "unk-elevator-1",
+   "arm": "rules",
+   "split": "heldout",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Wakanda Blvd\"],\"route_hint\":\"A\"}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Wakanda Blvd is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Wakanda Blvd is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355730097
+  },
+  {
+   "qid": "impact-cranberry-total",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 102,
+     "rows": 1553,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 16,268",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 64,
+   "final": "16,268",
+   "correct": true,
+   "declined": false,
+   "at": 1792355730169
+  },
+  {
+   "qid": "impact-cranberry-depth1",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 102,
+     "rows": 1553,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 2,400",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 63,
+   "final": "2,400",
+   "correct": true,
+   "declined": false,
+   "at": 1792355730242
+  },
+  {
+   "qid": "impact-cranberry-depth4",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 102,
+     "rows": 1553,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 9,993",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 62,
+   "final": "9,993",
+   "correct": true,
+   "declined": false,
+   "at": 1792355730312
+  },
+  {
+   "qid": "capacity-cranberry-fits",
+   "arm": "rules",
+   "split": "dev",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 8,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 581,
+     "rows": 5407,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 601,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355730921
+  },
+  {
+   "qid": "capacity-cranberry-absorbed",
+   "arm": "rules",
+   "split": "dev",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 536,
+     "rows": 5407,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 14,267",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 552,
+   "final": "14,267",
+   "correct": true,
+   "declined": false,
+   "at": 1792355731483
+  },
+  {
+   "qid": "capacity-cranberry-unmet",
+   "arm": "rules",
+   "split": "dev",
+   "category": "capacity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"High St\",\"Fulton St\"],\"route_hint\":\"A\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"A\",\"C\"],\"from_station_id\":\"173\",\"to_station_id\":\"628\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "measure_capacity",
+     "input": "{}",
+     "outcome": "answered",
+     "ms": 579,
+     "rows": 5407,
+     "queries": 19
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 0",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 594,
+   "final": "0",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732087
+  },
+  {
+   "qid": "impact-R-273-8-total",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Queens Plaza\",\"5 Av/59 St\"],\"route_hint\":\"R\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"R\"],\"from_station_id\":\"273\",\"to_station_id\":\"8\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 93,
+     "rows": 781,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 4,991",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 58,
+   "final": "4,991",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732155
+  },
+  {
+   "qid": "impact-R-273-8-depth1",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Queens Plaza\",\"5 Av/59 St\"],\"route_hint\":\"R\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"R\"],\"from_station_id\":\"273\",\"to_station_id\":\"8\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 92,
+     "rows": 781,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 878",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 57,
+   "final": "878",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732221
+  },
+  {
+   "qid": "impact-R-273-8-depth4",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Queens Plaza\",\"5 Av/59 St\"],\"route_hint\":\"R\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"R\"],\"from_station_id\":\"273\",\"to_station_id\":\"8\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 95,
+     "rows": 781,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 4,668",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 59,
+   "final": "4,668",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732288
+  },
+  {
+   "qid": "impact-D-225-167-total",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"47-50 Sts-Rockefeller Ctr\",\"W 4 St-Wash Sq\"],\"route_hint\":\"D\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"D\"],\"from_station_id\":\"225\",\"to_station_id\":\"167\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 7,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 98,
+     "rows": 973,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 8,424",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 61,
+   "final": "8,424",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732357
+  },
+  {
+   "qid": "impact-D-225-167-depth1",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"47-50 Sts-Rockefeller Ctr\",\"W 4 St-Wash Sq\"],\"route_hint\":\"D\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"D\"],\"from_station_id\":\"225\",\"to_station_id\":\"167\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 7,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 98,
+     "rows": 973,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 2,094",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 60,
+   "final": "2,094",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732426
+  },
+  {
+   "qid": "impact-D-225-167-depth4",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"47-50 Sts-Rockefeller Ctr\",\"W 4 St-Wash Sq\"],\"route_hint\":\"D\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"D\"],\"from_station_id\":\"225\",\"to_station_id\":\"167\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 7,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 100,
+     "rows": 973,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 4,265",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 62,
+   "final": "4,265",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732496
+  },
+  {
+   "qid": "impact-4-626-337-total",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Franklin Av-Medgar Evers College/Botanic Garden\",\"Nevins St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\"],\"from_station_id\":\"626\",\"to_station_id\":\"337\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 89,
+     "rows": 614,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 4,451",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 56,
+   "final": "4,451",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732560
+  },
+  {
+   "qid": "impact-4-626-337-depth1",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Franklin Av-Medgar Evers College/Botanic Garden\",\"Nevins St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\"],\"from_station_id\":\"626\",\"to_station_id\":\"337\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":1}",
+     "outcome": "answered",
+     "ms": 95,
+     "rows": 614,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 3,542",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 59,
+   "final": "3,542",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732628
+  },
+  {
+   "qid": "impact-4-626-337-depth4",
+   "arm": "rules",
+   "split": "dev",
+   "category": "impact",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Franklin Av-Medgar Evers College/Botanic Garden\",\"Nevins St\"],\"route_hint\":\"4\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"4\"],\"from_station_id\":\"626\",\"to_station_id\":\"337\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 5,
+     "queries": 6
+    },
+    {
+     "tool": "affected_riders",
+     "input": "{\"depth\":4}",
+     "outcome": "answered",
+     "ms": 92,
+     "rows": 614,
+     "queries": 10
+    }
+   ],
+   "tokens": null,
+   "steps": 3,
+   "answer": "Answer: 4,258",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 57,
+   "final": "4,258",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732693
+  },
+  {
+   "qid": "cutoff-D-225-167-609",
+   "arm": "rules",
+   "split": "dev",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"47-50 Sts-Rockefeller Ctr\",\"W 4 St-Wash Sq\"],\"route_hint\":\"D\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"D\"],\"from_station_id\":\"225\",\"to_station_id\":\"167\"}",
+     "outcome": "answered",
+     "ms": 5,
+     "rows": 7,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"42 St-Bryant Pk/5 Av\",\"Crown Hts-Utica Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"609\",\"to_station_id\":\"345\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "about 39 min, 1 transfer: B 42 St-Bryant Pk/5 Av → Atlantic Av-Barclays Ctr (6 stops), then 5 Atlantic Av-Barclays Ctr → Crown Hts-Utica Av (2 stops).\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 7,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732709
+  },
+  {
+   "qid": "cutoff-D-225-167-607",
+   "arm": "rules",
+   "split": "dev",
+   "category": "cut_off",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"47-50 Sts-Rockefeller Ctr\",\"W 4 St-Wash Sq\"],\"route_hint\":\"D\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"D\"],\"from_station_id\":\"225\",\"to_station_id\":\"167\"}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 7,
+     "queries": 6
+    },
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"34 St-Herald Sq\",\"110 St-Malcolm X Plaza\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"607\",\"to_station_id\":\"441\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 4,
+   "answer": "about 25 min, 0 transfers: walk 34 St-Herald Sq → 34 St-Penn Station, then 2 34 St-Penn Station → 110 St-Malcolm X Plaza (4 stops).\nAnswer: yes",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 7,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732724
+  },
+  {
+   "qid": "route-110-244-minutes",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Forest Av\",\"Ditmas Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"110\",\"to_station_id\":\"244\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 58 min, 1 transfer: M Forest Av → Delancey St-Essex St (10 stops), then F Delancey St-Essex St → Ditmas Av (12 stops).\nAnswer: 58.3 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "58.3 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732734
+  },
+  {
+   "qid": "route-110-244-transfers",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Forest Av\",\"Ditmas Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"110\",\"to_station_id\":\"244\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 58 min, 1 transfer: M Forest Av → Delancey St-Essex St (10 stops), then F Delancey St-Essex St → Ditmas Av (12 stops).\nAnswer: 1",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732743
+  },
+  {
+   "qid": "route-84-187-minutes",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"85 St-Forest Pkwy\",\"Shepherd Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"84\",\"to_station_id\":\"187\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 30 min, 1 transfer: J 85 St-Forest Pkwy → Broadway Junction (5 stops), then C Broadway Junction → Shepherd Av (3 stops).\nAnswer: 30.4 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "30.4 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732753
+  },
+  {
+   "qid": "route-84-187-transfers",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"85 St-Forest Pkwy\",\"Shepherd Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"84\",\"to_station_id\":\"187\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 30 min, 1 transfer: J 85 St-Forest Pkwy → Broadway Junction (5 stops), then C Broadway Junction → Shepherd Av (3 stops).\nAnswer: 1",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "1",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732763
+  },
+  {
+   "qid": "route-100-358-minutes",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Hewes St\",\"Newkirk Av-Little Haiti\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"100\",\"to_station_id\":\"358\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 48 min, 1 transfer: walk Hewes St → Broadway, then G Broadway → Fulton St (6 stops), then walk Fulton St → Atlantic Av-Barclays Ctr, then 5 Atlantic Av-Barclays Ctr → Newkirk Av-Little Haiti (7 stops).\nAnswer: 48 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "48 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732773
+  },
+  {
+   "qid": "route-461-346-minutes",
+   "arm": "rules",
+   "split": "dev",
+   "category": "route",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Queensboro Plaza\",\"Sutter Av-Rutland Rd\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"461\",\"to_station_id\":\"346\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 61 min, 1 transfer: N Queensboro Plaza → Atlantic Av-Barclays Ctr (8 stops), then 3 Atlantic Av-Barclays Ctr → Sutter Av-Rutland Rd (8 stops).\nAnswer: 60.6 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "60.6 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732783
+  },
+  {
+   "qid": "stepfree-621-235",
+   "arm": "rules",
+   "split": "dev",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Broadway Junction\",\"York St\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Broadway Junction is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Broadway Junction is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355732792
+  },
+  {
+   "qid": "stepfree-630-601",
+   "arm": "rules",
+   "split": "dev",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"14 St/6 Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"630\",\"to_station_id\":\"601\",\"step_free\":true}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops). Skipped a faster path because memory says: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.\nAnswer: yes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 4,
+   "final": "yes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732804
+  },
+  {
+   "qid": "stepfree-630-601-minutes",
+   "arm": "rules",
+   "split": "dev",
+   "category": "step_free",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Myrtle-Wyckoff Avs\",\"14 St/6 Av\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"630\",\"to_station_id\":\"601\",\"step_free\":true}",
+     "outcome": "answered",
+     "ms": 4,
+     "rows": 11,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops). Skipped a faster path because memory says: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.\nAnswer: 33.3 minutes",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 4,
+   "final": "33.3 minutes",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732816
+  },
+  {
+   "qid": "lines-268",
+   "arm": "rules",
+   "split": "dev",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"65 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: M, R",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "M, R",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732824
+  },
+  {
+   "qid": "lines-103",
+   "arm": "rules",
+   "split": "dev",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bowery\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: J, Z",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "J, Z",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732833
+  },
+  {
+   "qid": "lines-603",
+   "arm": "rules",
+   "split": "dev",
+   "category": "lines",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"149 St-Hostos\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: 2, 4, 5",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 0,
+   "final": "2, 4, 5",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732841
+  },
+  {
+   "qid": "memory-union-sq-elevator-now",
+   "arm": "rules",
+   "split": "dev",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    },
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[\"602\"],\"routes\":[]}",
+     "outcome": "memory",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service.\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732851
+  },
+  {
+   "qid": "memory-union-sq-elevator-back",
+   "arm": "rules",
+   "split": "dev",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    },
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[\"602\"],\"routes\":[]}",
+     "outcome": "memory",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service.\nAnswer: Oct 9, 2026",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "Oct 9, 2026",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732861
+  },
+  {
+   "qid": "memory-union-sq-elevator-out",
+   "arm": "rules",
+   "split": "dev",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"14 St-Union Sq\"],\"route_hint\":\"L\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 1,
+     "queries": 1
+    },
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[\"602\"],\"routes\":[]}",
+     "outcome": "memory",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service.\nAnswer: Oct 2, 2026",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "Oct 2, 2026",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732871
+  },
+  {
+   "qid": "memory-playbook-bus-share",
+   "arm": "rules",
+   "split": "dev",
+   "category": "memory",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"L\"]}",
+     "outcome": "memory",
+     "ms": 2,
+     "rows": 5,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in both directions. Measure what the J/M/Z and G can absorb toward Manhattan. Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity. Add G trains if Metropolitan Av/Lorimer St is in the min cut.\nAnswer: 80%",
+   "grounding": {
+    "checked": 5,
+    "unmatched": []
+   },
+   "ms": 3,
+   "final": "80%",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732882
+  },
+  {
+   "qid": "nig-unserved-Q-57-374",
+   "arm": "rules",
+   "split": "dev",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"W 8 St-NY Aquarium\",\"E 143 St-St Mary's St\"],\"route_hint\":\"Q\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"Q\"],\"from_station_id\":\"57\",\"to_station_id\":\"374\"}",
+     "outcome": "not_in_graph",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (No scheduled Q pattern runs between W 8 St-NY Aquarium and E 143 St-St Mary's St, so there is no stretch to close.)",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (No scheduled Q pattern runs between W 8 St-NY Aquarium and E 143 St-St Mary's St, so there is no stretch to close.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732891
+  },
+  {
+   "qid": "nig-reach-507-224",
+   "arm": "rules",
+   "split": "dev",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Dongan Hills\",\"57 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 3,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"507\",\"to_station_id\":\"224\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 1,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No open path connects Dongan Hills and 57 St in the subway graph.\nAnswer: no",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732900
+  },
+  {
+   "qid": "nig-reach-511-159",
+   "arm": "rules",
+   "split": "dev",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Oakwood Heights\",\"81 St-Museum of Natural History\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Oakwood Heights is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Oakwood Heights is not in the graph",
+   "correct": false,
+   "declined": true,
+   "at": 1792355732909
+  },
+  {
+   "qid": "nig-reach-512-297",
+   "arm": "rules",
+   "split": "dev",
+   "category": "not_in_graph",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bay Terrace\",\"215 St\"]}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "route_rider",
+     "input": "{\"from_station_id\":\"512\",\"to_station_id\":\"297\"}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 1,
+     "queries": 2
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "No open path connects Bay Terrace and 215 St in the subway graph.\nAnswer: no",
+   "grounding": {
+    "checked": 1,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "no",
+   "correct": true,
+   "declined": false,
+   "at": 1792355732919
+  },
+  {
+   "qid": "unk-closure-2",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Sheepshead Bay\",\"Kings Landing\"],\"route_hint\":\"B\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Kings Landing is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Kings Landing is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732928
+  },
+  {
+   "qid": "unk-route-K",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"219 St\",\"15 St-Prospect Park\"],\"route_hint\":\"K\"}",
+     "outcome": "answered",
+     "ms": 0,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"K\"],\"from_station_id\":\"420\",\"to_station_id\":\"241\"}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (Not in the graph: route \"K\". Resolve names first.)",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (Not in the graph: route \"K\". Resolve names first.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732936
+  },
+  {
+   "qid": "unk-route-V",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Queens Plaza\",\"Lexington Av/51-53 Sts\"],\"route_hint\":\"V\"}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 2,
+     "queries": 2
+    },
+    {
+     "tool": "close_line",
+     "input": "{\"routes\":[\"V\"],\"from_station_id\":\"273\",\"to_station_id\":\"612\"}",
+     "outcome": "unknown_entity",
+     "ms": 0,
+     "rows": 0,
+     "queries": 0
+    }
+   ],
+   "tokens": null,
+   "steps": 2,
+   "answer": "Answer: unknown: not in the graph (Not in the graph: route \"V\". Resolve names first.)",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: not in the graph (Not in the graph: route \"V\". Resolve names first.)",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732945
+  },
+  {
+   "qid": "unk-stepfree-1",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Bikini Bottom\",\"30 Av\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Bikini Bottom is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Bikini Bottom is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732954
+  },
+  {
+   "qid": "unk-stepfree-2",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "resolve_places",
+     "input": "{\"names\":[\"Sunnydale\",\"161 St-Yankee Stadium\"]}",
+     "outcome": "answered",
+     "ms": 1,
+     "rows": 1,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Answer: unknown: Sunnydale is not in the graph",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 1,
+   "final": "unknown: Sunnydale is not in the graph",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732964
+  },
+  {
+   "qid": "unk-route-V-trip",
+   "arm": "rules",
+   "split": "dev",
+   "category": "unknown_entity",
+   "model": null,
+   "tools": [
+    {
+     "tool": "recall_memory",
+     "input": "{\"station_ids\":[],\"routes\":[\"V\"]}",
+     "outcome": "not_in_graph",
+     "ms": 1,
+     "rows": 0,
+     "queries": 3
+    }
+   ],
+   "tokens": null,
+   "steps": 1,
+   "answer": "Nothing remembered about these stations or routes yet.\nAnswer: unknown: nothing remembered",
+   "grounding": {
+    "checked": 0,
+    "unmatched": []
+   },
+   "ms": 2,
+   "final": "unknown: nothing remembered",
+   "correct": true,
+   "declined": true,
+   "at": 1792355732974
+  }
+ ]
+}
