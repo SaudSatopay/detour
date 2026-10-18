@@ -1,11 +1,11 @@
 {
   "visitor": {
-    "sandbox": "detour:sbx:rihz3p5mkubyt8pb",
+    "sandbox": "detour:sbx:j3chzgcflsnvlh3h",
     "created": false,
     "copyMs": 0
   },
   "incident": {
-    "id": "INC-MVE9TBNO",
+    "id": "INC-MVEALMMM",
     "title": "Signal fire in the Canarsie Tube",
     "report": "Signal fire in the Canarsie Tube. No L service between Bedford Av and 8 Av in either direction until further notice.",
     "routes": [
@@ -32,58 +32,41 @@
       1064
     ],
     "status": "open",
-    "openedMs": 1792354873669
+    "openedMs": 1792356194255
   },
   "plans": [
     {
-      "id": "PLAN-MVE9TK85",
-      "label": "1 Av to Astor Pl bridge",
+      "id": "PLAN-MVEALSO9",
+      "label": "Bedford-Marcy & 1Av-Astor shuttle plan",
       "status": "published",
-      "legs": [
-        {
-          "from": "119",
-          "to": "407",
-          "busesPerHour": 19,
-          "capacity": 1330,
-          "minutes": 6.4,
-          "meters": 802
-        }
-      ],
-      "vehicles": 6,
-      "overflowBefore": 24078,
-      "overflowAfter": 29602,
-      "unmetBefore": 1266,
-      "unmetAfter": 315,
-      "strandedBefore": 4689,
-      "strandedAfter": 623,
-      "createdMs": 1792354886049,
-      "publishedMs": 1792354890338,
-      "incident": "INC-MVE9TBNO"
-    },
-    {
-      "id": "PLAN-MVE9THDT",
-      "label": "Bedford Av to Marcy Av bridge",
-      "status": "simulated",
       "legs": [
         {
           "from": "120",
           "to": "101",
-          "busesPerHour": 24,
-          "capacity": 1680,
+          "busesPerHour": 35,
+          "capacity": 2450,
           "minutes": 7,
           "meters": 997
+        },
+        {
+          "from": "119",
+          "to": "407",
+          "busesPerHour": 30,
+          "capacity": 2100,
+          "minutes": 6.4,
+          "meters": 802
         }
       ],
-      "vehicles": 8,
+      "vehicles": 22,
       "overflowBefore": 24078,
-      "overflowAfter": 20208,
+      "overflowAfter": 23885,
       "unmetBefore": 1266,
-      "unmetAfter": 1266,
+      "unmetAfter": 315,
       "strandedBefore": 4689,
-      "strandedAfter": 4689,
-      "createdMs": 1792354882299,
-      "publishedMs": null,
-      "incident": "INC-MVE9TBNO"
+      "strandedAfter": 623,
+      "createdMs": 1792356203359,
+      "publishedMs": 1792356209070,
+      "incident": "INC-MVEALMMM"
     }
   ],
   "riders": [
@@ -123,8 +106,8 @@
       ],
       "advisory": {
         "rider": "aisha",
-        "text": "Take the step-free M train from Myrtle-Wyckoff Avs to 14 St/6 Av instead, which takes about 33 minutes with zero transfers. Your trip is fully step-free.",
-        "atMs": 1792354891291,
+        "text": "Take the M train from Myrtle-Wyckoff Avs to 14 St/6 Av instead, which takes about 33 minutes and is step-free. Both stations have elevators for your wheelchair.",
+        "atMs": 1792356209852,
         "minutes": 33.3,
         "route": [
           "630",
@@ -172,23 +155,15 @@
       ],
       "advisory": {
         "rider": "dev",
-        "text": "Take the L train to Metropolitan Av-Lorimer St, the G to Court Sq-23 St, and the E to 14 St/8 Av, which takes about 41 minutes. This route includes two transfers.",
-        "atMs": 1792354891132,
-        "minutes": 40.8,
+        "text": "Take the shuttle bus from Bedford Avenue to Marcy Avenue, then the M and A trains to reach 14th Street-8th Avenue in about 34 minutes. This route includes two transfers and is very crowded.",
+        "atMs": 1792356210093,
+        "minutes": 34.2,
         "route": [
           "120",
-          "629",
-          "284",
-          "283",
-          "282",
-          "606",
-          "612",
-          "276",
-          "277",
-          "162",
-          "611",
-          "164",
-          "165",
+          "101",
+          "625",
+          "619",
+          "167",
           "618"
         ],
         "stepFree": false
@@ -311,20 +286,16 @@
       ],
       "advisory": {
         "rider": "maya",
-        "text": "Take the L, M, and 6 trains instead, which takes about 45 minutes and includes two transfers. Since your route uses a shuttle, please plan for extra travel time.",
-        "atMs": 1792354891473,
-        "minutes": 45.4,
+        "text": "Take the L train, a shuttle bus, the M, and the 6 train to reach your shift in about 43 minutes. Because of the closure, you must use the shuttle bus between Bedford Avenue and Marcy Avenue.",
+        "atMs": 1792356210124,
+        "minutes": 42.9,
         "route": [
           "125",
-          "126",
-          "127",
-          "630",
-          "113",
-          "114",
-          "97",
-          "98",
-          "99",
-          "100",
+          "124",
+          "123",
+          "122",
+          "629",
+          "120",
           "101",
           "625",
           "619",
@@ -393,8 +364,8 @@
       "preferences": [],
       "advisory": {
         "rider": "tomas",
-        "text": "Take the L, A, and 4 trains for a fifty-two minute trip with two transfers. You will need to make those two transfers along the way.",
-        "atMs": 1792354891891,
+        "text": "Take the L train to Broadway Junction, the A train to Fulton Street, and the 4 train to 14 Street-Union Square instead, which takes about 52 minutes. There is no shuttle on this route.",
+        "atMs": 1792356210573,
         "minutes": 51.7,
         "route": [
           "138",
@@ -419,16 +390,18 @@
   ],
   "findings": [
     {
-      "id": "F-MVE9TM72",
-      "text": "1 Av to Astor Pl shuttle carried 1,015 riders an hour at 19 buses per hour (76% of nominal capacity).",
-      "kind": "capacity",
-      "validFromMs": 1792354887327,
+      "id": "F-MVEALVNSJLB",
+      "text": "Plan PLAN-MVEALSO9 (Bedford Av to Marcy Av with 35 buses/hr and 1 Av to Astor Pl with 30 buses/hr) reduced stranded riders from 4,689 to 623 using 22 buses.",
+      "kind": "plan",
+      "validFromMs": 1792356205963,
       "validToMs": null,
       "example": null,
       "about": [
+        "Bedford Av",
+        "1 Av",
+        "Marcy Av",
         "L",
-        "Astor Pl",
-        "1 Av"
+        "Astor Pl"
       ],
       "agent": "Control desk",
       "supersedes": null
@@ -512,124 +485,106 @@
       "tool": "route_rider",
       "outcome": "answered",
       "summary": "Tomás: about 52 min, 2 transfers: L Canarsie-Rockaway Pkwy → Broadway Junction (6 stops), then A Broadway Junction → Fulton St (6 stops), then 4 Fulton St → 14 St-Union Sq (2 stops).",
-      "atMs": 1792354891140,
+      "atMs": 1792356209884,
       "agent": "rider-desk",
-      "queries": 3,
-      "ms": 4
+      "queries": 5,
+      "ms": 21
     },
     {
       "tool": "route_rider",
       "outcome": "answered",
-      "summary": "Maya: about 45 min, 2 transfers: L Morgan Av → Myrtle-Wyckoff Avs (3 stops), then M Myrtle-Wyckoff Avs → Broadway-Lafayette St/Bleecker St (9 stops), then 6 Broadway-Lafayette St/Bleecker St → 14 St-Union Sq (2 stops).",
-      "atMs": 1792354890410,
+      "summary": "Maya: about 43 min, 3 transfers: L Morgan Av → Bedford Av (5 stops), then shuttle bus Bedford Av → Marcy Av, then M Marcy Av → Broadway-Lafayette St/Bleecker St (2 stops), then 6 Broadway-Lafayette St/Bleecker St → 14 St-Union Sq (2 stops). Rides the M between Marcy Av and Broadway-Lafayette St/Bleecker St, running at 102% of capacity: no reasonable route avoids it.",
+      "atMs": 1792356209155,
       "agent": "rider-desk",
-      "queries": 3,
-      "ms": 43
+      "queries": 5,
+      "ms": 59
     },
     {
       "tool": "route_rider",
       "outcome": "answered",
-      "summary": "Aisha: about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops).",
-      "atMs": 1792354890398,
+      "summary": "Dev: about 34 min, 2 transfers: shuttle bus Bedford Av → Marcy Av, then M Marcy Av → W 4 St-Wash Sq (3 stops), then A W 4 St-Wash Sq → 14 St/8 Av (1 stop). Rides the M between Marcy Av and W 4 St-Wash Sq, running at 102% of capacity: no reasonable route avoids it.",
+      "atMs": 1792356209150,
       "agent": "rider-desk",
-      "queries": 3,
-      "ms": 10
+      "queries": 5,
+      "ms": 27
     },
     {
       "tool": "route_rider",
       "outcome": "answered",
-      "summary": "Dev: about 41 min, 2 transfers: L Bedford Av → Metropolitan Av/Lorimer St (1 stop), then G Metropolitan Av/Lorimer St → Court Sq-23 St (4 stops), then E Court Sq-23 St → 14 St/8 Av (8 stops).",
-      "atMs": 1792354890398,
+      "summary": "Aisha: about 33 min, 0 transfers, step-free: M Myrtle-Wyckoff Avs → 14 St/6 Av (11 stops). Rides the M between Myrtle-Wyckoff Avs and 14 St/6 Av, running at 102% of capacity: no reasonable route avoids it.",
+      "atMs": 1792356209149,
       "agent": "rider-desk",
-      "queries": 3,
-      "ms": 10
+      "queries": 5,
+      "ms": 27
     },
     {
       "tool": "publish_plan",
       "outcome": "answered",
-      "summary": "PLAN-MVE9TK85 published: 1 Av to Astor Pl bridge. The rider desk has the handoff.",
-      "atMs": 1792354890342,
+      "summary": "PLAN-MVEALSO9 published: Bedford-Marcy & 1Av-Astor shuttle plan. The rider desk has the handoff.",
+      "atMs": 1792356209075,
       "agent": "controller",
-      "queries": 5,
-      "ms": 5
+      "queries": 8,
+      "ms": 30
     },
     {
       "tool": "remember",
       "outcome": "answered",
-      "summary": "Remembered F-MVE9TM72: 1 Av to Astor Pl shuttle carried 1,015 riders an hour at 19 buses per hour (76% of nominal capacity).",
-      "atMs": 1792354887349,
+      "summary": "Remembered F-MVEALVNSJLB, from INC-MVEALMMM: Plan PLAN-MVEALSO9 (Bedford Av to Marcy Av with 35 buses/hr and 1 Av to Astor Pl with 30 buses/hr) reduced stranded riders from 4,689 to 623 using 22 buses.",
+      "atMs": 1792356205982,
       "agent": "controller",
-      "queries": 4,
-      "ms": 3
+      "queries": 2,
+      "ms": 4
     },
     {
       "tool": "simulate_plan",
       "outcome": "answered",
-      "summary": "PLAN-MVE9TK85: 1 Av ↔ Astor Pl at 19 buses an hour (1,330 riders); 6 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 29,602 riders an hour (riders who had no path now travel and add load downstream).",
-      "atMs": 1792354886072,
+      "summary": "PLAN-MVEALSO9: Bedford Av ↔ Marcy Av at 35 buses an hour (2,450 riders); 1 Av ↔ Astor Pl at 30 buses an hour (2,100 riders); 22 buses on the road. Riders with no path 4,689 → 623; max-flow shortfall 1,266 → 315; fastest-path overflow 24,078 → 23,885 riders an hour.",
+      "atMs": 1792356203380,
       "agent": "controller",
       "queries": 24,
-      "ms": 2588
-    },
-    {
-      "tool": "simulate_plan",
-      "outcome": "answered",
-      "summary": "PLAN-MVE9THDT: Bedford Av ↔ Marcy Av at 24 buses an hour (1,680 riders); 8 buses on the road. Riders with no path 4,689 → 4,689; max-flow shortfall 1,266 → 1,266; fastest-path overflow 24,078 → 20,208 riders an hour.",
-      "atMs": 1792354882322,
-      "agent": "controller",
-      "queries": 24,
-      "ms": 2512
+      "ms": 2644
     },
     {
       "tool": "shuttle_candidates",
       "outcome": "answered",
       "summary": "Shuttle candidates: 1 Av → Astor Pl (1,266 riders an hour with no open line, 0.8 km away, line 6); 1 Av → 8 St-NYU (1,266 riders an hour with no open line, 0.9 km away, lines W/R); Bedford Av → Metropolitan Av/Lorimer St (relief for 4,038 riders an hour, 0.7 km away, lines L/G); Bedford Av → Nassau Av (relief for 4,038 riders an hour, 0.9 km away, line G); Metropolitan Av/Lorimer St → Hewes St (relief for 1,643 riders an hour, 0.8 km away, lines M/J).",
-      "atMs": 1792354878746,
+      "atMs": 1792356199220,
       "agent": "controller",
       "queries": 16,
-      "ms": 314
+      "ms": 375
     },
     {
       "tool": "measure_capacity",
       "outcome": "answered",
-      "summary": "23,445 displaced riders an hour. If each takes the fastest open path, 4 segments overflow by 24,078 riders an hour: G Greenpoint Av → 21 St at 244%; G Nassau Av → Greenpoint Av at 201%; G 21 St → Court Sq-23 St at 198%; 4,689 have no open path. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 17,167 of 18,432 (93%); 1,266 cannot move. Min cut is at the riders' own stations: 1 Av (1,266) have no open alternative.",
-      "atMs": 1792354877503,
+      "summary": "23,445 displaced riders an hour. If each takes the fastest open path, 4 segments overflow by 24,078 riders an hour: G Greenpoint Av → 21 St at 244%; G Nassau Av → Greenpoint Av at 201%; G 21 St → Court Sq-23 St at 198%; 4,689 have no open path. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 17,167 of 18,432 (93%); 1,266 cannot move. Certificate: the flow is feasible, leaves no augmenting path, and its 17,167 equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands. The min cut holds no open segment: the open network has spare…",
+      "atMs": 1792356197683,
       "agent": "controller",
-      "queries": 19,
-      "ms": 1487
-    },
-    {
-      "tool": "affected_riders",
-      "outcome": "answered",
-      "summary": "23,445 riders an hour had trips crossing the closure (2,021 origin-destination pairs). Within 1 stop of it: 10,142 riders at 23 stations; within 1 stops: 10,142 at 23 stations; 2,698 more start further out. Largest origin: Bedford Av (4,038).",
-      "atMs": 1792354874907,
-      "agent": "controller",
-      "queries": 10,
-      "ms": 344
+      "queries": 21,
+      "ms": 1600
     },
     {
       "tool": "affected_riders",
       "outcome": "answered",
       "summary": "23,445 riders an hour had trips crossing the closure (2,021 origin-destination pairs). Within 1 stop of it: 10,142 riders at 23 stations; within 4 stops: 14,713 at 90 stations; 2,698 more start further out. Largest origin: Bedford Av (4,038).",
-      "atMs": 1792354874876,
+      "atMs": 1792356196231,
       "agent": "controller",
       "queries": 10,
-      "ms": 309
+      "ms": 431
     },
     {
       "tool": "close_line",
       "outcome": "answered",
-      "summary": "Opened INC-MVE9TBNO. Closed 10 L segments across 6 stations (Bedford Av → 1 Av → 3 Av → 14 St-Union Sq → 14 St/6 Av → 14 St/8 Av). At 8 a.m. the busiest closed segment carried 18,086 riders an hour.",
-      "atMs": 1792354873685,
+      "summary": "Opened INC-MVEALMMM. Closed 10 L segments across 6 stations (Bedford Av → 1 Av → 3 Av → 14 St-Union Sq → 14 St/6 Av → 14 St/8 Av). At 8 a.m. the busiest closed segment carried 18,086 riders an hour.",
+      "atMs": 1792356194271,
       "agent": "controller",
-      "queries": 6,
-      "ms": 11
+      "queries": 7,
+      "ms": 25
     },
     {
       "tool": "recall",
       "outcome": "memory",
       "summary": "Since Oct 14, 2026: Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works. | Since Jun 12, 2026: The Bedford Av to Marcy Av shuttle carried 1,650 riders an hour, 79% of the 2,100 planned: buses queued on the Williamsburg Bridge approach. | No longer true (Oct 2, 2026 to Oct 9, 2026): Elevator to the L platform at 14 St-Union Sq out of service. | INC-0612 on Jun 12, 2026 (Smoke condition, Canarsie Tube): Bedford Av ↔ Marcy Av planned 2,100, carried 1,650 riders an hour | Playbook \"Canarsie Tube closure\" used once: Close the L between Bedford Av and 8 Av in…",
-      "atMs": 1792354872498,
+      "atMs": 1792356193180,
       "agent": "controller",
       "queries": 3,
       "ms": 6
@@ -638,7 +593,7 @@
       "tool": "resolve_places",
       "outcome": "answered",
       "summary": "Resolved: Bedford Av → Bedford Av (L) [120]; 8 Av → 14 St/8 Av (A,C,E,L) [618].",
-      "atMs": 1792354872367,
+      "atMs": 1792356193158,
       "agent": "controller",
       "queries": 2,
       "ms": 2
@@ -649,7 +604,7 @@
       "from": "controller",
       "to": "rider-desk",
       "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-      "atMs": 1792354890338
+      "atMs": 1792356209070
     }
   ],
   "playbooks": [
@@ -659,8 +614,8 @@
       "steps": [
         "Close the L between Bedford Av and 8 Av in both directions.",
         "Measure what the J/M/Z and G can absorb toward Manhattan.",
-        "Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity.",
-        "Add G trains if Metropolitan Av/Lorimer St is in the min cut."
+        "Bridge Bedford Av to Marcy Av with buses sized on the corridor's observed throughput: the June 12 bridge carried 79% of plan.",
+        "Add two G trains an hour if Metropolitan Av/Lorimer St is in the min cut."
       ],
       "uses": 1,
       "lastUsedMs": 1781260200000,

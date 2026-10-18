@@ -1,12 +1,12 @@
 {
   "visitor": {
-    "sandbox": "detour:sbx:xgyfcilmsso6wggb",
+    "sandbox": "detour:sbx:lzm6b6p94g7xlzao",
     "created": false,
     "copyMs": 0
   },
   "incident": {
-    "id": "INC-MVE9WMK6",
-    "title": "Track condition near 14 St-Union Sq",
+    "id": "INC-MVEAM1XL",
+    "title": "No 4 or 5 between Grand Central and Brooklyn Bridge",
     "report": "Track condition near 14 St-Union Sq. No 4 or 5 trains between Grand Central-42 St and Brooklyn Bridge-City Hall. 6 local trains are running.",
     "routes": [
       "4",
@@ -28,11 +28,11 @@
       361
     ],
     "status": "open",
-    "openedMs": 1792355027767
+    "openedMs": 1792356214090
   },
   "plans": [
     {
-      "id": "PLAN-MVE9WS90",
+      "id": "PLAN-MVEAM56J",
       "label": "No extra buses: steer riders onto open lines",
       "status": "published",
       "legs": [],
@@ -43,9 +43,9 @@
       "unmetAfter": 0,
       "strandedBefore": 0,
       "strandedAfter": 0,
-      "createdMs": 1792355035141,
-      "publishedMs": 1792355038770,
-      "incident": "INC-MVE9WMK6"
+      "createdMs": 1792356218381,
+      "publishedMs": 1792356221113,
+      "incident": "INC-MVEAM1XL"
     }
   ],
   "riders": [
@@ -251,8 +251,8 @@
       "preferences": [],
       "advisory": {
         "rider": "sam",
-        "text": "Take the 6 train from Grand Central-42 St to Brooklyn Bridge-City Hall/Chambers St, which takes about 19 minutes with zero transfers. This route does not require any additional buses or shuttles.",
-        "atMs": 1792355039528,
+        "text": "Take the 6 train from Grand Central-42 St to Brooklyn Bridge-City Hall/Chambers St, which takes about 19 minutes. This direct route requires no transfers.",
+        "atMs": 1792356234154,
         "minutes": 19.2,
         "route": [
           "610",
@@ -310,23 +310,6 @@
     }
   ],
   "findings": [
-    {
-      "id": "F-MVE9WT12",
-      "text": "When 4/5 service is suspended between Grand Central-42 St and Brooklyn Bridge-City Hall, 6 local trains absorb 31,347 affected riders per hour without segment overflow or stranding.",
-      "kind": "observation",
-      "validFromMs": 1792355036150,
-      "validToMs": null,
-      "example": null,
-      "about": [
-        "Brooklyn Bridge-City Hall/Chambers St",
-        "Grand Central-42 St",
-        "14 St-Union Sq",
-        "5",
-        "4"
-      ],
-      "agent": "Control desk",
-      "supersedes": null
-    },
     {
       "id": "F-ELEV-2",
       "text": "Elevator to the L platform at Myrtle-Wyckoff Avs out of service; M platform elevator works.",
@@ -406,100 +389,82 @@
       "tool": "route_rider",
       "outcome": "answered",
       "summary": "Sam: about 19 min, 0 transfers: 6 Grand Central-42 St → Brooklyn Bridge-City Hall/Chambers St (9 stops).",
-      "atMs": 1792355038819,
+      "atMs": 1792356221145,
       "agent": "rider-desk",
-      "queries": 3,
-      "ms": 5
+      "queries": 4,
+      "ms": 8
     },
     {
       "tool": "publish_plan",
       "outcome": "answered",
-      "summary": "PLAN-MVE9WS90 published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
-      "atMs": 1792355038775,
+      "summary": "PLAN-MVEAM56J published: No extra buses: steer riders onto open lines. The rider desk has the handoff.",
+      "atMs": 1792356221124,
       "agent": "controller",
-      "queries": 5,
-      "ms": 6
+      "queries": 6,
+      "ms": 40
     },
     {
-      "tool": "remember",
+      "tool": "measure_headroom",
       "outcome": "answered",
-      "summary": "Remembered F-MVE9WT12: When 4/5 service is suspended between Grand Central-42 St and Brooklyn Bridge-City Hall, 6 local trains absorb 31,347 affected riders per hour without segment o",
-      "atMs": 1792355036170,
+      "summary": "15,022 of 15,022 displaced riders an hour in the closure's forward direction can reach their destinations at all. Their demand can grow 10.61× before an open segment saturates; the first to fill: J 111 St → Woodhaven Blvd (spare 2,420 riders an hour) and G Nassau Av → Metropolitan Av/Lorimer St (spare 3,858 riders an hour). Found exactly in 3 certified max-flow solves on the fork.",
+      "atMs": 1792356219476,
       "agent": "controller",
-      "queries": 4,
-      "ms": 4
+      "queries": 34,
+      "ms": 1234
     },
     {
       "tool": "propose_steering",
       "outcome": "answered",
-      "summary": "PLAN-MVE9WS90: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
-      "atMs": 1792355035158,
+      "summary": "PLAN-MVEAM56J: no extra buses. Every displaced rider has an open path and nothing overflows on the fastest paths. Once published, the rider desk routes each remembered rider.",
+      "atMs": 1792356218412,
       "agent": "controller",
       "queries": 3,
-      "ms": 2
-    },
-    {
-      "tool": "shuttle_candidates",
-      "outcome": "answered",
-      "summary": "Shuttle candidates: Grand Central-42 St → 42 St-Bryant Pk/5 Av (relief for 4,718 riders an hour, 0.5 km away, lines M/F/D/B/7); Grand Central-42 St → 33 St (relief for 4,718 riders an hour, 0.8 km away, line 6); 86 St → 86 St (relief for 1,011 riders an hour, 0.4 km away, lines R/Q/N); 86 St → 77 St (relief for 1,011 riders an hour, 0.7 km away, line 6); Lexington Av/59 St → Lexington Av/63 St (relief for 552 riders an hour, 0.3 km away, lines Q/N/M/R).",
-      "atMs": 1792355034067,
-      "agent": "controller",
-      "queries": 16,
-      "ms": 396
+      "ms": 94
     },
     {
       "tool": "measure_capacity",
       "outcome": "answered",
-      "summary": "31,347 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 15,022 of 15,022 (100%); 0 cannot move.",
-      "atMs": 1792355032343,
+      "summary": "31,347 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 15,022 of 15,022 (100%); 0 cannot move. Certificate: the flow is feasible, leaves no augmenting path, and its 15,022 equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands.",
+      "atMs": 1792356217092,
       "agent": "controller",
-      "queries": 19,
-      "ms": 1577
-    },
-    {
-      "tool": "affected_riders",
-      "outcome": "answered",
-      "summary": "31,347 riders an hour had trips crossing the closure (1,786 origin-destination pairs). Within 1 stop of it: 11,197 riders at 14 stations; within 1 stops: 11,197 at 14 stations; 2,476 more start further out. Largest origin: Grand Central-42 St (4,718).",
-      "atMs": 1792355029943,
-      "agent": "controller",
-      "queries": 10,
-      "ms": 300
+      "queries": 20,
+      "ms": 1720
     },
     {
       "tool": "affected_riders",
       "outcome": "answered",
       "summary": "31,347 riders an hour had trips crossing the closure (1,786 origin-destination pairs). Within 1 stop of it: 11,197 riders at 14 stations; within 4 stops: 22,135 at 100 stations; 2,476 more start further out. Largest origin: Grand Central-42 St (4,718).",
-      "atMs": 1792355029465,
+      "atMs": 1792356215644,
       "agent": "controller",
       "queries": 10,
-      "ms": 195
+      "ms": 385
     },
     {
       "tool": "close_line",
       "outcome": "answered",
-      "summary": "Opened INC-MVE9WMK6. Closed 8 4/5 segments across 3 stations (Grand Central-42 St → 14 St-Union Sq → Brooklyn Bridge-City Hall/Chambers St). At 8 a.m. the busiest closed segment carried 12,260 riders an hour.",
-      "atMs": 1792355027789,
+      "summary": "Opened INC-MVEAM1XL. Closed 8 4/5 segments across 3 stations (Grand Central-42 St → 14 St-Union Sq → Brooklyn Bridge-City Hall/Chambers St). At 8 a.m. the busiest closed segment carried 12,260 riders an hour.",
+      "atMs": 1792356214111,
       "agent": "controller",
-      "queries": 6,
-      "ms": 12
+      "queries": 7,
+      "ms": 24
     },
     {
       "tool": "recall",
       "outcome": "not_in_graph",
       "summary": "Nothing remembered about these stations or routes yet.",
-      "atMs": 1792355026508,
+      "atMs": 1792356212878,
       "agent": "controller",
       "queries": 3,
-      "ms": 6
+      "ms": 4
     },
     {
       "tool": "resolve_places",
       "outcome": "answered",
       "summary": "Resolved: 14 St-Union Sq → 14 St-Union Sq (4,5,6,L,N,Q,R,W) [602]; Grand Central-42 St → Grand Central-42 St (4,5,6,7,S) [610]; Brooklyn Bridge-City Hall → Brooklyn Bridge-City Hall/Chambers St (4,5,6,J,Z) [622].",
-      "atMs": 1792355025467,
+      "atMs": 1792356211819,
       "agent": "controller",
       "queries": 3,
-      "ms": 4
+      "ms": 3
     }
   ],
   "handoffs": [
@@ -507,7 +472,7 @@
       "from": "controller",
       "to": "rider-desk",
       "note": "Plan published. Tell every remembered rider whose trip crosses the closure what to take instead.",
-      "atMs": 1792355038770
+      "atMs": 1792356221113
     }
   ],
   "playbooks": [
@@ -517,8 +482,8 @@
       "steps": [
         "Close the L between Bedford Av and 8 Av in both directions.",
         "Measure what the J/M/Z and G can absorb toward Manhattan.",
-        "Bridge Bedford Av to Marcy Av with buses; plan for 80% of nominal bus capacity.",
-        "Add G trains if Metropolitan Av/Lorimer St is in the min cut."
+        "Bridge Bedford Av to Marcy Av with buses sized on the corridor's observed throughput: the June 12 bridge carried 79% of plan.",
+        "Add two G trains an hour if Metropolitan Av/Lorimer St is in the min cut."
       ],
       "uses": 1,
       "lastUsedMs": 1781260200000,
