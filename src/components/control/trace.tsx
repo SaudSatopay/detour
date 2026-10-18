@@ -11,6 +11,17 @@ import type { Item, RunState, ToolStep } from "./run-state";
 /** Station ids like "[120]" are there for the agents, which pass them to the next tool; people read names. */
 const forPeople = readable;
 
+/** The arguments the agent passed, as one line: what it asked the graph, next to what the graph answered. */
+export function argsLine(input: unknown): string {
+  if (!input || typeof input !== "object") return "";
+  const show = (v: unknown): string =>
+    Array.isArray(v) ? v.map((x) => (x && typeof x === "object" ? JSON.stringify(x) : String(x))).join(", ") : v && typeof v === "object" ? JSON.stringify(v) : String(v);
+  return Object.entries(input as Record<string, unknown>)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}: ${show(v)}`)
+    .join(" · ");
+}
+
 export const agentName = (agent: string) =>
   agent === "controller" ? "Controller" : agent === "rider-desk" ? "Rider desk" : agent.startsWith("rider:") ? `Rider agent · ${agent.slice(6)}` : agent;
 
@@ -57,6 +68,11 @@ const StepCard = memo(function StepCard({
             </span>
           ) : null}
         </span>
+        {argsLine(step.input) ? (
+          <span className="mt-1 block truncate font-mono text-xs text-ink-500" title={JSON.stringify(step.input)}>
+            {argsLine(step.input)}
+          </span>
+        ) : null}
         {r ? (
           <>
             <span className="mt-1.5 flex flex-wrap items-center gap-2">
