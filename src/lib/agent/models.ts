@@ -21,9 +21,9 @@ const DEFAULTS = [
   "google:gemini-flash-lite-latest",
   "google:gemini-2.5-flash",
   "google:gemini-2.5-flash-lite",
+  // Groq retired kimi-k2-instruct-0905, qwen3-32b and (on the free tier) llama-3.3-70b-versatile in 2026.
   "groq:openai/gpt-oss-120b",
-  "groq:moonshotai/kimi-k2-instruct-0905",
-  "groq:llama-3.3-70b-versatile",
+  "groq:openai/gpt-oss-20b",
 ];
 
 /** The model specs to try, in order, without repeats. */
@@ -144,7 +144,7 @@ export function classify(error: unknown): ModelFailure {
   const text = errorText(error).toLowerCase();
   if (
     statuses.includes(404) ||
-    /model[^.]{0,40}(not found|does not exist|is not supported|decommissioned|deprecated|retired)|model_not_found|unsupported model|(function calling|tool use|tools?) (is )?not (enabled|supported)|does not support (tools|function)/.test(text)
+    /model\b.{0,60}?(not found|does not exist|is not supported|decommissioned|deprecated|retired)|model_not_found|unsupported model|(function calling|tool use|tools?) (is )?not (enabled|supported)|does not support (tools|function)/.test(text)
   ) {
     return "missing";
   }

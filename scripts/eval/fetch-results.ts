@@ -4,8 +4,9 @@
  *
  *   pnpm tsx scripts/eval/fetch-results.ts https://detour.example.app [--merge data/eval/results-earlier.json]
  *
- * --merge keeps an earlier run's records for every question the deployment's run has no record of (a run started with
- * "skip" for questions the earlier one had answered on every arm); each question's arms still come from one run.
+ * --merge keeps an earlier run's records where the deployment's run has none yet (a run started with "skip" leaves out
+ * questions the earlier one answered on every arm). A question's model arms always come from one run; its rules
+ * answer, which needs no model, stands until the new run has its own.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import type { ArmRecord } from "../../src/lib/eval/runner";
@@ -36,8 +37,11 @@ async function main() {
   if (!first?.run) throw new Error("The deployment has no eval run yet.");
   const at = process.argv.indexOf("--merge");
   const earlier = at > 0 ? (JSON.parse(readFileSync(process.argv[at + 1], "utf8")) as ResultsFile) : null;
-  const answered = new Set(results.map((r) => r.qid));
-  const kept = earlier ? earlier.results.filter((r) => !answered.has(r.qid)) : [];
+  // A question's model arms come from one run (the baseline uses the model its graph arm ended on); a rules answer
+  // needs no model, so the earlier one stands until the new run has its own.
+  const have = new Set(results.map((r) => `${r.qid}|${r.arm}`));
+  const rerun = new Set(results.filter((r) => r.arm !== "rules").map((r) => r.qid));
+  const kept = earlier ? earlier.results.filter((r) => !have.has(`${r.qid}|${r.arm}`) && !(r.arm !== "rules" && rerun.has(r.qid))) : [];
   const file: ResultsFile = {
     source: base,
     run: {

@@ -58,7 +58,7 @@ Every result below is committed with the script that produced it; the proof page
 
 | What was tested | Result |
 |:---|:---|
-| **The agent with the graph against the same model without it** (101 held-out questions, split before any run, plus a rules-only floor) | On the 25 held-out questions both model arms have run so far: with the graph **92%** (23 of 25), the same free model without it **4%** (1 of 25); rules alone 101 of 101. The rest of the run waits for the free models' daily quotas ([Agent vs no graph](https://detour-orpin.vercel.app/proof#agent-eval)) |
+| **The agent with the graph against the same model without it** (101 held-out questions, split before any run, plus a rules-only floor) | So far, on 28 held-out questions per arm: with the graph **93%** (26 of 28), the same free model without it **7%** (2 of 28); rules alone 101 of 101. The rest of the run goes on as the free models' daily quotas allow ([Agent vs no graph](https://detour-orpin.vercel.app/proof#agent-eval)) |
 | **48 random closures held out** (seeded, 25 lines, 2 to 6 segments) | FalkorDB and NetworkX agree on closed segments, displaced riders, max flow, riders with no path, cut-off stations and headroom in **48 of 48** |
 | **Max flow, certified on every run** | Each answer is checked for feasibility and optimality before use. FalkorDB 4.22.1 returns 300 where the exact answer is 453 on a published 11-edge network, and a wrong flow on 13 of 100 random node-split networks; the certificate catches all of them, and none occurred on the subway |
 | **Memory on real MTA elevator records** (9,360 held-out decisions, Jan to Aug 2026) | Picks the unit that ran more **66.3%** of the time (95% CI 61.3 to 72.4), against 61.8% for a memory without validity windows and 50.2% with none |
@@ -151,7 +151,7 @@ flowchart LR
     dispatcher(["Dispatcher<br/>describes a closure"]) --> agents
     subgraph agents ["Agents"]
         direction TB
-        controller["Controller<br/>7 free models in turn,<br/>or its procedure as code"]
+        controller["Controller<br/>6 free models in turn,<br/>or its procedure as code"]
         approval{"A person<br/>approves"}
         desk["Rider desk<br/>one agent per<br/>affected rider"]
         controller -- "plans and a brief" --> approval
@@ -176,7 +176,7 @@ flowchart LR
 
 - **The model never writes Cypher.** It picks from a fixed catalogue of typed tools served over MCP. Each returns one of four answer shapes (answered, from memory, not in the graph, unknown name), a one-line summary, the data, and the exact queries it ran with their timings.
 - **The agents use MCP as their tool path.** The controller and the rider desk connect to `/api/mcp` with a signed session for the visitor's sandbox, list their tools and call them there. If the server is unreachable, the same tools run in-process and the trace says so.
-- **Seven free models, in turn.** Four Gemini and three Groq models; one whose daily quota is spent, or that its provider no longer serves, is noted in the graph and skipped until it can answer again. A model that stops before its brief is told to continue; if the models run out, the standard procedure finishes from the last step, with the same tools.
+- **Six free models, in turn.** Four Gemini and two Groq models; one whose daily quota is spent, or that its provider no longer serves, is noted in the graph and skipped until it can answer again. A model that stops before its brief is told to continue; if the models run out, the standard procedure finishes from the last step, with the same tools.
 - **Every visitor and MCP session gets a graph.** `GRAPH.COPY` copies the template into `detour:sbx:<visitor>`; what-if forks are copied from that and deleted after use. When the free tier's 100 MB fills, forks and the least recently used sandboxes make room.
 
 ## Why a graph
@@ -412,7 +412,7 @@ Every answer is a list of numbered sources with who wrote each one, its team or 
 Results that went against Detour, or that it cannot show yet:
 
 - **The free models.** Live answers run on free-tier models. When every one of the day's quotas is spent, the standard procedure answers with the same tools and templated wording, labeled as such.
-- **The model against plain rules.** On the 25 held-out questions run so far, a rules router written against the question templates answers all 25 and the free model with the graph 23: once it misread the riders within four stops, and once a model stopped after its first tool. The full held-out run is still waiting on free quota.
+- **The model against plain rules.** On the held-out questions run so far, a rules router written against the question templates answers every one, and the free model with the graph 26 of 28: once it misread the riders within four stops, and once a model stopped after its first tool. The full held-out run is still waiting on free quota.
 - **The most failure-prone units.** Ranking the 50 elevators most likely to fail, the memory that keeps every record forever is right 72% of the time and Detour's time-aware memory 60%.
 - **The controller's plan choice.** On 15 held-out closures that need buses, its pick has the best gain per bus on 13; the mean gap to the best plan is 3.9%, the worst 31%, because it simulates only the first candidate of each kind.
 - **Bus sizing on some lines.** Memory makes sizing worse on the J/Z and the A/C, where buses already run near plan.

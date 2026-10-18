@@ -100,6 +100,13 @@ export function AgentEvalSection() {
                     {S.leftOut ? `; ${S.leftOut} arms that met a spent quota never ran and are left out, not counted wrong` : ""}.
                   </>
                 ) : null}
+                {run.id?.includes("+") ? (
+                  <>
+                    {" "}
+                    It ran in two parts: the free database restarted empty in between, so the second run skipped the questions the first had
+                    answered on every arm, and each question&rsquo;s model arms come from one run.
+                  </>
+                ) : null}
               </>
             ) : (
               <>

@@ -93,6 +93,7 @@ describe("eval pacing on free models", () => {
   it("runs again only the arms that met the free models' limits", () => {
     expect(unavailable("No free model can answer right now: none is configured, or every one has spent its daily quota.")).toBe(true);
     expect(unavailable("The model `qwen/qwen3-32b` does not exist or you do not have access to it.")).toBe(true);
+    expect(unavailable("The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.")).toBe(true);
     expect(unavailable("You exceeded your current quota. Quota exceeded for metric: generate_content_free_tier_requests, limit: 20 PerDay")).toBe(true);
     expect(unavailable("Rate limit reached for model `openai/gpt-oss-120b` on tokens per day (TPD): Limit 200000")).toBe(true);
     expect(unavailable("took longer than 100 s")).toBe(false);
