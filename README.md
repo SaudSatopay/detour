@@ -418,7 +418,7 @@ Results that went against Detour, or that it cannot show yet:
 - **Bus sizing on some lines.** Memory makes sizing worse on the J/Z and the A/C, where buses already run near plan.
 - **Ties in fastest paths.** On 6 of the 48 held-out closures, two paths take exactly the same minutes and FalkorDB and NetworkX pick different ones; overflow then differs within the range NetworkX itself finds over random tie-breaks.
 - **The brain's 100%.** Its questions are templates over the records its tools read, and the keyword baseline is given the question's ids; it measures joins and history, not open-ended language.
-- **The free database.** 100 MB holds the 8 most recently active visitors' graphs; an older one is copied fresh on the next visit.
+- **The free database.** 100 MB holds the 8 most recently active visitors' graphs; an older one is copied fresh on the next visit. The free instance went down twice on October 18 and once came back empty: the shared graphs now rebuild themselves within a minute, and while it is unreachable the control room plays recorded runs and the brain answers its suggested questions from a recording, each labeled with its date.
 
 ## Proof
 

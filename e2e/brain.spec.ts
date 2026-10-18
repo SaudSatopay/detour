@@ -51,3 +51,17 @@ test("a follow-up is read with what the previous answer cited", async ({ page })
   await expect(seen(page, /Read as a follow-up about/).first()).toBeVisible({ timeout: 90_000 });
   await expect(seen(page, /EL293 at 1 Av/).first()).toBeVisible();
 });
+
+test("with the database down, the brain answers its suggestions from a recording, labeled with its date", async ({ page }) => {
+  await page.goto("/brain");
+  await expect(page.getByRole("heading", { name: "Directory" })).toBeVisible();
+  const banner = seen(page, /This is the directory as recorded on/);
+  await expect(banner.or(seen(page, "Rail Control Center")).first()).toBeVisible({ timeout: 30_000 });
+  test.skip(!(await banner.isVisible()), "The graph database is up, so the brain answers live.");
+
+  await page.getByRole("button", { name: "Who owns the Myrtle-Wyckoff elevator outage?" }).first().click();
+  await expect(seen(page, /^Recorded · /).first()).toBeVisible({ timeout: 30_000 });
+  await expect(seen(page, "EE-1207").first()).toBeVisible();
+  await expect(seen(page, /Adding needs the live graph database/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Refresh from the MTA" })).toHaveCount(0);
+});
