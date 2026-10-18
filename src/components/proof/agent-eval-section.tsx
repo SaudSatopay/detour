@@ -70,7 +70,7 @@ export function AgentEvalSection() {
   return (
     <section className="deferred flex flex-col gap-6" aria-labelledby="agent-eval">
       <header className="flex max-w-prose flex-col gap-2">
-        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Check 4</p>
+        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Check 6</p>
         <h2 id="agent-eval" className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
           {title}
         </h2>
@@ -95,7 +95,8 @@ export function AgentEvalSection() {
                 {partial ? (
                   <>
                     {" "}
-                    The run is partial: {S.graphVsBaseline.n} of {questions.heldout} held-out questions have run on both model arms. The rest wait for
+                    The run is partial: {arms.graph.heldout.n} held-out questions have run with the graph and {arms.baseline.heldout.n} without it,{" "}
+                    {S.graphVsBaseline.n} of them on both. The rest wait for
                     the free models&rsquo; daily quotas, which the eval shares with visitors and never takes the last of
                     {S.leftOut ? `; ${S.leftOut} arms that met a spent quota never ran and are left out, not counted wrong` : ""}.
                   </>

@@ -116,7 +116,7 @@ function Elevators({ e }: { e: NonNullable<MemoryEval["elevators"]> }) {
       </dl>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-2">
-          <h4 className="font-display text-lg font-semibold">Where memory falls short</h4>
+          <h3 className="font-display text-lg font-semibold">Where memory falls short</h3>
           <ul className="flex flex-col gap-2 text-sm text-ink-700">
             <li>
               It still picks the wrong unit in {pct(e.failures.share)} of decisions ({n(e.failures.wrong)}). {e.failures.note}
@@ -133,7 +133,7 @@ function Elevators({ e }: { e: NonNullable<MemoryEval["elevators"]> }) {
           </ul>
         </div>
         <div className="flex min-w-0 flex-col gap-2">
-          <h4 className="font-display text-lg font-semibold">The validity window, varied</h4>
+          <h3 className="font-display text-lg font-semibold">The validity window, varied</h3>
           <p className="text-sm text-ink-700">Detour keeps a unit&apos;s monthly record for twelve months. Windows from three months to two years land within a point of it, so the result does not hang on that choice.</p>
           <table className="w-full border-collapse text-sm">
             <thead className="text-left">
@@ -256,7 +256,7 @@ export function MemoryEvalSection() {
   return (
     <section className="deferred flex flex-col gap-6" aria-labelledby="memory">
       <header className="flex max-w-prose flex-col gap-2">
-        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Memory</p>
+        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Check 5</p>
         <h2 id="memory" className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
           {title}
         </h2>

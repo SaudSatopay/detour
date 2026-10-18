@@ -36,13 +36,21 @@ export default function ProofPage() {
         <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-4 pb-12 pt-12 sm:px-6 lg:pb-16 lg:pt-20">
           <p className="label text-ink-500">Proof</p>
           <h1 className="lift max-w-[18ch] font-display text-5xl font-bold leading-[0.95] tracking-[-0.012em] sm:text-6xl lg:text-7xl">
-            Every number is computed twice, by two different programs.
+            Every network number is computed twice, by two different programs.
           </h1>
           <p className="max-w-prose text-lg text-ink-700">
             FalkorDB does the work: the agents&apos; tools run Cypher and graph algorithms on your copy of the subway graph. A separate Python
             program built on NetworkX reads the same data files, follows the same written spec, and recomputes the answers. Every max flow also
             carries a certificate that proves it maximal. Where a number would differ, the checks that compare them stop with an error:{" "}
-            <code className="font-mono text-base">pnpm judge</code> re-measures every README number on a FalkorDB and fails on any mismatch.
+            <code className="font-mono text-base">pnpm judge</code> re-measures every README number on a FalkorDB and fails on any mismatch. Memory, the agent and
+            the brain cannot be recomputed that way, so they are measured against baselines instead, with their caveats beside them.
+          </p>
+          <p className="max-w-prose text-sm text-ink-500">
+            The entry submitted before the deadline is{" "}
+            <a className="underline decoration-line-strong underline-offset-4" href="https://github.com/SaudSatopay/detour/tree/v1.0.0">
+              v1.0.0
+            </a>
+            . Checks 2 to 7 were added after the deadline, on October 19.
           </p>
           <nav aria-label="On this page" className="flex flex-wrap gap-2">
             {[
@@ -185,7 +193,7 @@ export default function ProofPage() {
         <BrainEvalSection />
 
         <section className="deferred flex flex-col gap-6" aria-labelledby="concurrency">
-          <SectionHead id="concurrency" kicker="Check 5" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>
+          <SectionHead id="concurrency" kicker="Check 8" title={`${n(BENCH.reads.perSecond)} reads and ${n(BENCH.writes.perSecond)} writes a second, no leaks between tenants.`}>
             <p>
               Every visitor gets a graph of their own. The benchmark runs {BENCH.readers} reader agents and {BENCH.writers} writer agents for{" "}
               {BENCH.seconds} seconds across {BENCH.tenants} tenant graphs over {BENCH.connections} connections, then checks that a closure written
@@ -215,7 +223,7 @@ export default function ProofPage() {
         </section>
 
         <section className="deferred flex flex-col gap-6" aria-labelledby="cost">
-          <SectionHead id="cost" kicker="Check 6" title="What each tool costs on the L closure.">
+          <SectionHead id="cost" kicker="Check 9" title="What each tool costs on the L closure.">
             <p>Summed query time per call, from the same run. The expensive tools fork the graph, rebuild the flow network and reroute two thousand trips.</p>
           </SectionHead>
           <ol className="flex flex-col gap-2">

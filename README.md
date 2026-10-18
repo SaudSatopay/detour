@@ -15,7 +15,7 @@
   <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks: tracks 1, 2 and 3" src="https://img.shields.io/badge/Graph_Hacks-tracks_1_%2B_2_%2B_3-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="#use-it-from-an-agent"><img alt="MCP: the agents' own tool path" src="https://img.shields.io/badge/MCP-the_agents'_own_tool_path-00848b?style=flat-square&labelColor=0d1013"></a>
   <a href="CLAIMS.md"><img alt="pnpm judge: 15 of 15 claims re-measured" src="https://img.shields.io/badge/pnpm_judge-15%2F15_claims_re--measured-00848b?style=flat-square&labelColor=0d1013"></a>
-  <a href="#evidence"><img alt="Tests: 226 unit, 18 end-to-end" src="https://img.shields.io/badge/tests-226_unit_%C2%B7_18_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
+  <a href="#evidence"><img alt="Tests: 229 unit, 19 end-to-end" src="https://img.shields.io/badge/tests-229_unit_%C2%B7_19_e2e-00848b?style=flat-square&labelColor=0d1013"></a>
 </p>
 
 <p align="center">
@@ -35,6 +35,9 @@
 
 <br>
 
+> [!IMPORTANT]
+> **The entry submitted before the deadline is [v1.0.0](https://github.com/SaudSatopay/detour/tree/v1.0.0)**, tagged on October 18 at 23:20 IST (the deadline was 23:59 IST), with [its README](https://github.com/SaudSatopay/detour/blob/v1.0.0/README.md). This page and the live site describe the current version, which adds work done on October 19, after the deadline: see [After the deadline](#after-the-deadline).
+
 Agents work on a FalkorDB graph of the real subway, built from MTA open data. When a line breaks, they:
 
 1. **Find** whose trips the closure breaks, including riders four stops away who never see it.
@@ -43,12 +46,12 @@ Agents work on a FalkorDB graph of the real subway, built from MTA open data. Wh
 4. **Tell** every remembered rider what to take instead, routed around the segments that overflow, after a person approves.
 5. **Explain** who maintains what, what is broken right now and why each decision was made, from the MTA's own elevator, outage and alert records in the same graph.
 
-The agents find their tools on Detour's own MCP server, the same one an outside agent connects to, and choose them toward a goal, saying before each call which result made them choose it. Memory lives in the same graph: facts carry dates, and a fact that stops being true is closed, not deleted, so it changes the next answer.
+The agents find their tools on Detour's own MCP server, the same one an outside agent connects to, and choose them toward a goal; when the model says why it makes a call, the trace shows that sentence with the call. Memory lives in the same graph: facts carry dates, and a fact that stops being true is closed, not deleted, so it changes the next answer.
 
 ## For judges: 60 seconds
 
-1. **[Run the L closure](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1).** A free model lists its tools over MCP and works through the closure. Each step shows the sentence that led to it, the arguments it passed, and the Cypher, time and rows behind the answer; every figure in the final brief is checked against the tool results. When the day's free models are spent, the standard procedure carries on from the last step and the trace says so.
-2. **[Report Aisha's elevator fixed](https://detour-orpin.vercel.app/riders?rider=aisha).** One memory write closes the old fact, resolves the ticket, lifts the decision that rested on it, and her step-free route changes from the M (33 min) to the L (24 min).
+1. **[Report Aisha's elevator fixed](https://detour-orpin.vercel.app/riders?rider=aisha)** first. One memory write closes the old fact, resolves the ticket, lifts the decision that rested on it, and her step-free route changes from the M (33 min) to the L (24 min). (After step 2 closes the L in your sandbox, her route stays on the M whatever memory says.)
+2. **[Run the L closure](https://detour-orpin.vercel.app/control?scenario=l-canarsie&run=1).** A free model lists its tools over MCP and works through the closure. Each step shows the arguments it passed, the model's sentence before it when it wrote one, and the Cypher, time and rows behind the answer; each figure in the final brief is then looked up in the tool results, a check that the figures exist there, not that they are used correctly. When the day's free models are spent, the standard procedure carries on from the last step and the trace says so.
 3. **[Ask the brain](https://detour-orpin.vercel.app/brain)** *"Is the elevator at Times Sq-42 St working?"* The answer quotes the MTA's own feed and says when it was read.
 4. **[Open the proof](https://detour-orpin.vercel.app/proof)**, or re-measure everything yourself: `pnpm judge` checks the README's 15 headline claims against FalkorDB and an independent NetworkX program, and fails loudly on any mismatch ([CLAIMS.md](CLAIMS.md)).
 
@@ -58,16 +61,26 @@ Every result below is committed with the script that produced it; the proof page
 
 | What was tested | Result |
 |:---|:---|
-| **The agent with the graph against the same model without it** (101 held-out questions, split before any run, plus a rules-only floor) | So far, on 28 held-out questions per arm: with the graph **93%** (26 of 28), the same free model without it **7%** (2 of 28); rules alone 101 of 101. The rest of the run goes on as the free models' daily quotas allow ([Agent vs no graph](https://detour-orpin.vercel.app/proof#agent-eval)) |
+| **The agent with the graph against the same model without it** (101 held-out questions, split before any run, plus a rules-only floor) | So far on 28 held-out questions per arm, mostly about the three demo closures: with the graph **93%** (26 of 28); the same free model with no data at all **7%** (2 of 28). A rules router written against the question templates answers 101 of 101, so on these questions the model adds no accuracy over plain rules. The run goes on as the free models' daily quotas allow ([Agent vs no graph](https://detour-orpin.vercel.app/proof#agent-eval)) |
 | **48 random closures held out** (seeded, 25 lines, 2 to 6 segments) | FalkorDB and NetworkX agree on closed segments, displaced riders, max flow, riders with no path, cut-off stations and headroom in **48 of 48** |
 | **Max flow, certified on every run** | Each answer is checked for feasibility and optimality before use. FalkorDB 4.22.1 returns 300 where the exact answer is 453 on a published 11-edge network, and a wrong flow on 13 of 100 random node-split networks; the certificate catches all of them, and none occurred on the subway |
-| **Memory on real MTA elevator records** (9,360 held-out decisions, Jan to Aug 2026) | Picks the unit that ran more **66.3%** of the time (95% CI 61.3 to 72.4), against 61.8% for a memory without validity windows and 50.2% with none |
-| **Step-free routing with memory off and on** | Routes through an out-of-service elevator: **100% → 0%** |
-| **Procedural memory** (leave-one-out over 32 incidents) | Bus-sizing error **255 → 107** riders an hour |
+| **Memory on real MTA elevator records** (a replay of the memory policy in TypeScript, not FalkorDB, over 9,360 held-out decisions, Jan to Aug 2026) | Picks the unit that ran more **66.3%** of the time (95% CI 61.3 to 72.4), against 61.8% for a memory that keeps every record forever and 50.2% with none |
+| **Step-free routing with memory off and on** (on FalkorDB; trips chosen because their memory-off route uses a platform whose elevator is out) | Routes through an out-of-service elevator: **100% → 0%**; 41% of those trips then have no step-free route at all |
+| **Procedural memory** (leave-one-out over 32 incidents, 30 of them synthetic, on FalkorDB) | Bus-sizing error **255 → 107** riders an hour |
 | **Concurrency** | 100 writers racing on one fact leave exactly **1** current; 48 readers and 6 writers sustain 7,195 reads and 719 writes a second, 0 errors, tenants isolated |
-| **The company brain on real MTA records** (769 held-out questions) | Graph tools **100%** exact match, against 84.4% for keyword retrieval and 83.1% for the latest snapshot alone ([caveats](https://detour-orpin.vercel.app/proof#brain-eval)) |
-| **A live run on production** | The first model's daily quota was spent and the run handed over to the next; 9 tools discovered and called over MCP; **26 of 26** figures in the brief matched a tool result |
-| **Tests** | 226 unit tests, 18 Playwright tests on desktop and phone (axe accessibility on every page, after a run and after approval, in light and dark), Python verifier tests |
+| **The company brain on real MTA records** (769 held-out template questions, the brain's tools without a model) | Graph tools **100%** exact match, against 84.4% for keyword retrieval and 83.1% for the latest snapshot alone; one fix, full station names read before partial ones, came after a held-out run that scored 99.4% ([caveats](https://detour-orpin.vercel.app/proof#brain-eval)) |
+| **A recorded live run** ([data/replays/l-canarsie-control.ndjson](data/replays/l-canarsie-control.ndjson)) | `gemini-flash-lite-latest` found 10 tools over MCP and made 8 calls in 19.5 s; **23 of 23** figures in its brief were found in the tool results. It tested only a two-leg plan, which leaves the same 623 riders with no path and the same 315 max-flow shortfall as the one-leg plan the standard procedure picks, with 22 buses on the road instead of 8 |
+| **Tests** | 229 unit tests, 19 Playwright tests on desktop and phone (axe accessibility on every page, after a run and after approval, in light and dark), Python verifier tests |
+
+## After the deadline
+
+Everything in this list was built on October 19, after the submission deadline, and is not part of the entry submitted as [v1.0.0](https://github.com/SaudSatopay/detour/tree/v1.0.0) ([every change since](https://github.com/SaudSatopay/detour/compare/v1.0.0...main)):
+
+- **Agents.** The app's own agents list and call their tools over Detour's MCP server (at v1.0.0 the server offered four tools to outside agents). A chain of free Gemini and Groq models, a goal-driven controller prompt, the check of the brief's figures, and a handover to the standard procedure from the last step.
+- **Proof.** The max-flow certificate with a Dinic fallback, 48 held-out closures against NetworkX, headroom, [CLAIMS.md](CLAIMS.md) and `pnpm judge`, and the held-out agent eval.
+- **Memory.** Procedural memory that learns from what shuttles carried, rider routing around crowded segments, and the memory evals.
+- **Company brain.** The MTA's real elevator, outage, alert, complaint and project records, and their held-out eval. At v1.0.0 the brain held the sample agency's records only.
+- **Operations.** Fixes for a free database that filled up, went down under load and once came back empty, and recorded fallbacks for the brain.
 
 ## The judging guidance, point by point
 
@@ -104,7 +117,7 @@ Every result below is committed with the script that produced it; the proof page
 ## What it finds on the L train
 
 > [!NOTE]
-> Every number in this table comes from tool calls on FalkorDB and is recomputed by an independent NetworkX program. `pnpm judge` re-measures all of them.
+> Every number in this table comes from tool calls on FalkorDB, and every one except the memory row's is recomputed by an independent NetworkX program. `pnpm judge` re-measures all of them.
 
 Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday:
 
@@ -112,13 +125,13 @@ Close the L between Bedford Av and 8 Av at 8 a.m. on a weekday:
 |:---|:---|
 | Whose trips cross the closure? | **23,445** riders an hour (10,142 board within one stop of it; 14,713 within four) |
 | Where do they go if nobody steers them? | 4 G segments run at **190 to 244%** of capacity; 4,689 riders have no open path |
-| What can the open network carry if riders spread perfectly? *(max flow)* | **17,167 of 18,432** riders an hour toward Manhattan (93%), certified |
+| What can the open network carry if riders spread perfectly? *(max flow)* | **17,167 of 18,432** riders an hour toward Manhattan (93%), certified. An upper bound: max flow treats riders as interchangeable, so the 315 an hour bound for 3 Av, which the closure also cuts off, are not subtracted |
 | Where is the bottleneck? *(min cut)* | **1 Av**: its only rail links are the closed L. No open segment is in the cut; only the stations the closure cuts off (1 Av, and 3 Av as a destination) limit the flow |
 | How much margin is left? *(parametric max flow)* | Displaced demand can grow **1.77×** before an open segment, on the G, saturates |
 | Does a shuttle help? *(tested on a fork)* | 1 Av ↔ Astor Pl: riders with no path 4,689 → **623**; max-flow shortfall 1,266 → **315**. A two-leg plan does no better with 18 more buses |
 | Did memory change the plan? | The June bus bridge carried 79% of plan, so the controller adds **27%** more buses |
 
-With the shuttle, fastest-path overflow rises (24,078 → 28,762) because 4,066 more riders can now travel, so the rider desk routes them around the segments that overflow, onto lines with room. The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
+With the shuttle, the reported fastest-path overflow rises (24,078 → 28,762), but most of that rise is a counting error a reviewer found after the deadline: the bus leg's riders are added over both directions and its excess is counted twice (see [Where we lose](#where-we-lose)). The Lexington express and Cranberry Street Tunnel closures come out differently: the open network absorbs everyone, so the controller proposes steering riders with no buses at all.
 
 ## See it run
 
@@ -383,7 +396,7 @@ CREATE (f:Finding {id: $id, text: $text, validFromMs: timestamp()})-[:SUPERSEDES
 
 ## Track 3: a company brain on the MTA's own records
 
-The brain answers from the MTA's real records, loaded into one shared graph and refreshed from the MTA's public feeds: 759 elevators and escalators with who maintains each (NYCT, a third party or a private owner) and the MTA's step-free alternative, their outages, current, planned and resolved, live service alerts and their update chains, complaints by station and quarter, and accessibility capital projects with dated milestones. They join the subway graph through the MTA's station complex ids, which Detour's stations already use. The agency's people, teams, documents, tickets, chats and decisions are sample data, labeled as such, linked to the same stations, lines and records.
+The brain answers from the MTA's real records, loaded into one shared graph and refreshed from the MTA's public feeds once a day and on request: 759 elevators and escalators with who maintains each (NYCT, a third party or a private owner) and the MTA's step-free alternative, their outages, current, planned and resolved, live service alerts and their update chains, complaints by station and quarter, and accessibility capital projects with dated milestones. They join the subway graph through the MTA's station complex ids, which Detour's stations already use. The agency's people, teams, documents, tickets, chats and decisions are sample data, labeled as such, linked to the same stations, lines and records.
 
 On the [brain page](https://detour-orpin.vercel.app/brain), ask:
 
@@ -411,6 +424,8 @@ Every answer is a list of numbered sources with who wrote each one, its team or 
 
 Results that went against Detour, or that it cannot show yet:
 
+- **A counting error in the shuttle's load.** A shuttle leg is two directed `BUS` edges with one id, and the fastest-path reroute adds the riders of both directions under that id, then compares them with one direction's capacity once per edge. That inflates the overflow with the shuttle (24,078 → 28,762, about 4,600 of it this error) and the bus's load (reported 232%; at least 116% in the busier direction, so the 25-bus plan is too small). The NetworkX verifier copied the same counting, so they agreed. Found after the deadline by a reviewer; being fixed.
+
 - **The free models.** Live answers run on free-tier models. When every one of the day's quotas is spent, the standard procedure answers with the same tools and templated wording, labeled as such.
 - **The model against plain rules.** On the held-out questions run so far, a rules router written against the question templates answers every one, and the free model with the graph 26 of 28: once it misread the riders within four stops, and once a model stopped after its first tool. The full held-out run is still waiting on free quota.
 - **The most failure-prone units.** Ranking the 50 elevators most likely to fail, the memory that keeps every record forever is right 72% of the time and Detour's time-aware memory 60%.
@@ -430,8 +445,8 @@ Results that went against Detour, or that it cannot show yet:
 | Headroom | 1.769 on FalkorDB, 1.768728 on NetworkX |
 | The README's headline claims | `pnpm judge`: all 15 re-measured and matched ([CLAIMS.md](CLAIMS.md)) |
 | Concurrency (FalkorDB 4.22.1) | 7,195 reads/s and 719 writes/s, 0 errors, tenant isolation held |
-| Unit tests | 226 Vitest tests, among them the model chain and its failure handling, the grounding check, MCP sessions, the max-flow certificate and Dinic solver, crowding-aware routing, playbook learning, the race on one fact (with a database), the brain's feed parsing and question generation, and the eval's gold answers |
-| End-to-end tests | 18 Playwright tests, each on desktop and phone: the control flow and playback, riders and memory, the command palette, the brain's answers, receipts and follow-ups, and axe accessibility checks on every page, after a run and after approval, in light and dark |
+| Unit tests | 229 Vitest tests, among them the model chain and its failure handling, the grounding check, MCP sessions, the max-flow certificate and Dinic solver, crowding-aware routing, playbook learning, the race on one fact (with a database), the brain's feed parsing and question generation, and the eval's gold answers |
+| End-to-end tests | 19 Playwright tests, each on desktop and phone: the control flow and playback, riders and memory, the command palette, the brain's answers, receipts and follow-ups, and axe accessibility checks on every page, after a run and after approval, in light and dark |
 | Lighthouse, mobile (every page) | Performance 96 to 99; accessibility, best practices and SEO 100 |
 
 <p align="center">

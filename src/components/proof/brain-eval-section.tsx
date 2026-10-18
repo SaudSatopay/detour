@@ -27,7 +27,7 @@ export function BrainEvalSection() {
   return (
     <section className="deferred flex flex-col gap-6" aria-labelledby="brain-eval">
       <header className="flex max-w-prose flex-col gap-2">
-        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Brain eval</p>
+        <p className="sign-band sign-rule label w-fit rounded-sm px-3 pb-1.5 pt-3.5">Check 7</p>
         <h2 id="brain-eval" className="scroll-mt-20 font-display text-3xl font-bold leading-tight tracking-tight">
           {`The brain's graph tools answer ${pct(g.em.mean)} of ${n(g.em.n)} held-out questions; keyword retrieval ${pct(k.em.mean)}.`}
         </h2>
