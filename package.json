@@ -14,10 +14,14 @@
     "fetch:data": "bash scripts/fetch-mta.sh",
     "test:e2e": "playwright test",
     "verify": "uv run --with networkx python scripts/verify/verify.py data/nyc data/scenarios.json data/nyc/verify",
+    "test:verify": "uv run --with networkx --with pytest pytest scripts/verify/test_verify.py -q",
     "ci:scenarios": "tsx scripts/ci/run-scenarios.ts && node scripts/ci/trim-proof.mjs",
     "ci:bench": "tsx scripts/ci/bench.ts",
     "record": "tsx scripts/record-replay.ts",
     "eval": "tsx scripts/eval/build-questions.ts && tsx scripts/eval/run-eval.ts",
+    "eval:closures": "tsx scripts/eval/closures-eval.ts",
+    "judge": "tsx scripts/judge/judge.ts",
+    "judge:maxflow": "tsx scripts/judge/maxflow-repro.ts",
     "deadcode": "knip"
   },
   "dependencies": {

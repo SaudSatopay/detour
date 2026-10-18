@@ -1,0 +1,5566 @@
+{
+ "generatedAt": "2026-10-18T20:24:10.630Z",
+ "engine": "FalkorDB 4.22.1",
+ "seed": 20261019,
+ "count": 48,
+ "lines": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "FS",
+  "G",
+  "H",
+  "J",
+  "L",
+  "M",
+  "N",
+  "Q",
+  "R",
+  "SI",
+  "W",
+  "Z"
+ ],
+ "segments": {
+  "min": 2,
+  "max": 6
+ },
+ "tolerance": {
+  "riders": 1.5,
+  "overflowShare": 0.01,
+  "headroomRelative": 0.001,
+  "closedSegments": "identical sets",
+  "cutOff": "identical sets"
+ },
+ "agreement": {
+  "closedSegments": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "displaced": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "maxFlow": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "noPath": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "overflow": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "cutOff": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "headroom": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  },
+  "certified": {
+   "agree": 48,
+   "total": 48,
+   "rate": 1
+  }
+ },
+ "overflowDetail": {
+  "sameAsNetworkx": 42,
+  "withinTieRange": 48,
+  "tieSensitive": 9,
+  "note": "overflow depends on which of several equally fast paths each pair takes; NetworkX reports the range over 8 random tie-breaks (1e-7 min per edge)"
+ },
+ "worst": {
+  "displaced": [
+   {
+    "id": "h08-b",
+    "title": "B: Kingsbridge Rd to 167 St",
+    "diff": 0.5,
+    "agree": true
+   },
+   {
+    "id": "h13-j",
+    "title": "J: Bowery to Brooklyn Bridge-City Hall/Chambers St",
+    "diff": 0.5,
+    "agree": true
+   },
+   {
+    "id": "h23-fs",
+    "title": "FS: Franklin Av-Medgar Evers College/Botanic Garden to Franklin Av",
+    "diff": 0.5,
+    "agree": true
+   }
+  ],
+  "maxFlow": [
+   {
+    "id": "h07-g",
+    "title": "G: Classon Av to Broadway",
+    "diff": 0.5,
+    "agree": true
+   },
+   {
+    "id": "h13-j",
+    "title": "J: Bowery to Brooklyn Bridge-City Hall/Chambers St",
+    "diff": 0.5,
+    "agree": true
+   },
+   {
+    "id": "h19-6",
+    "title": "6: Middletown Rd to Hunts Point Av",
+    "diff": 0.5,
+    "agree": true
+   }
+  ],
+  "noPath": [],
+  "overflow": [
+   {
+    "id": "h09-7",
+    "title": "7: 42 St-Bryant Pk/5 Av to 33 St-Rawson St",
+    "diff": 1248,
+    "agree": true
+   },
+   {
+    "id": "h27-1",
+    "title": "1: Christopher St-Stonewall to Times Sq-42 St/Port Authority Bus Terminal",
+    "diff": 302,
+    "agree": true
+   },
+   {
+    "id": "h02-1",
+    "title": "1: 18 St to Canal St",
+    "diff": 140,
+    "agree": true
+   }
+  ],
+  "headroom": []
+ },
+ "certificates": {
+  "maxFlowRuns": 90,
+  "falkordbPassed": 90,
+  "recomputedByDinic": 0,
+  "allChecked": true,
+  "headroomSolves": 254,
+  "headroomRecomputed": 0
+ },
+ "maxFlowRepro": {
+  "engine": "FalkorDB 4.22.1",
+  "chokepoint": {
+   "falkordb": 300,
+   "exact": 453,
+   "feasible": false,
+   "maximal": false,
+   "checked": false,
+   "problems": [
+    "flow is not conserved at a20:in: receives 158.000 more than it sends",
+    "reported 300.000 but the flows move 458.000 out of the source",
+    "an augmenting path from source to sink remains in the residual graph"
+   ],
+   "ms": 2.8
+  },
+  "random": {
+   "networks": 100,
+   "wrong": 13,
+   "caughtByCertificate": 13,
+   "missedByCertificate": 0,
+   "examples": [
+    {
+     "falkordb": 3633,
+     "exact": 3633,
+     "problem": "flow is not conserved at a7:in: receives 65.000 more than it sends"
+    },
+    {
+     "falkordb": 420,
+     "exact": 510,
+     "problem": "flow is not conserved at a6:in: receives 90.000 more than it sends"
+    },
+    {
+     "falkordb": 3859,
+     "exact": 3859,
+     "problem": "flow is not conserved at a4:in: receives 268.000 more than it sends"
+    }
+   ]
+  }
+ },
+ "presets": [
+  {
+   "id": "l-canarsie",
+   "title": "L train: Canarsie Tube closed",
+   "summary": "23,445 displaced riders an hour. If each takes the fastest open path, 4 segments overflow by 24,078 riders an hour: G Greenpoint Av → 21 St at 244%; G Nassau Av → Greenpoint Av at 201%; G 21 St → Court Sq-23 St at 198%; 4,689 have no open path. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 17,167 of 18,432 (93%); 1,266 cannot move. Certificate: the flow is feasible, leaves no augmenting path, and its 17,167 equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands. The min cut holds no open segment: the open network has spare capacity everywhere these riders can reach, and only stations the closure cuts off limit the flow: origins 1 Av (1,266 riders an hour starting there); destinations 3 Av (315 riders an hour ending there).",
+   "headroomSummary": "17,167 of 18,432 displaced riders an hour in the closure's forward direction can reach their destinations at all; the rest start or end at stations the closure cuts off (1 Av, 3 Av). Their demand can grow 1.77× before an open segment saturates; the first to fill: G Greenpoint Av → 21 St (spare 1,504 riders an hour) and G Metropolitan Av/Lorimer St → Broadway (spare 4,908 riders an hour). Found exactly in 4 certified max-flow solves on the fork.",
+   "displaced": 23445,
+   "noPath": 4689,
+   "overflow": 24078,
+   "overloaded": [
+    {
+     "route": "G",
+     "from": "283",
+     "to": "282",
+     "pct": 244
+    },
+    {
+     "route": "G",
+     "from": "284",
+     "to": "283",
+     "pct": 201
+    },
+    {
+     "route": "G",
+     "from": "282",
+     "to": "606",
+     "pct": 198
+    },
+    {
+     "route": "G",
+     "from": "629",
+     "to": "284",
+     "pct": 190
+    }
+   ],
+   "plan": {
+    "shuttles": [
+     {
+      "from": "119",
+      "to": "407",
+      "busesPerHour": 25,
+      "capacity": 1750,
+      "minutes": 6.4,
+      "vehicles": 8,
+      "meters": 802
+     }
+    ],
+    "vehicles": 8,
+    "before": {
+     "overflow": 24078,
+     "stranded": 4689,
+     "absorbed": 17167,
+     "unmet": 1266
+    },
+    "after": {
+     "overflow": 28762,
+     "stranded": 623,
+     "absorbed": 18117,
+     "unmet": 315
+    }
+   },
+   "directions": [
+    {
+     "direction": "forward",
+     "required": 18432,
+     "absorbed": 17167,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 17166.7,
+      "cutCapacity": 17166.699999999997,
+      "falkordb": {
+       "value": 17166.7,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [
+      {
+       "id": "119",
+       "side": "origin",
+       "riders": 1266
+      },
+      {
+       "id": "118",
+       "side": "destination",
+       "riders": 315
+      }
+     ],
+     "headroom": {
+      "multiplier": 1.769,
+      "connected": 17167,
+      "solves": 4,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": [
+       {
+        "kind": "RUNS",
+        "id": 930,
+        "from": "283",
+        "to": "282",
+        "spare": 1504,
+        "route": "G"
+       },
+       {
+        "kind": "RUNS",
+        "id": 952,
+        "from": "629",
+        "to": "286",
+        "spare": 4908,
+        "route": "G"
+       },
+       {
+        "kind": "RUNS",
+        "id": 1085,
+        "from": "114",
+        "to": "97",
+        "spare": 6862,
+        "route": "M"
+       }
+      ]
+     }
+    },
+    {
+     "direction": "backward",
+     "required": 2423,
+     "absorbed": 2033,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 2033.4,
+      "cutCapacity": 2033.399999999999,
+      "falkordb": {
+       "value": 2033.4,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [
+      {
+       "id": "119",
+       "side": "destination",
+       "riders": 356
+      },
+      {
+       "id": "118",
+       "side": "destination",
+       "riders": 33
+      }
+     ],
+     "headroom": {
+      "multiplier": null,
+      "connected": 2033,
+      "solves": 2,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "lex-express",
+   "title": "Lexington Ave express suspended",
+   "summary": "31,347 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 15,022 of 15,022 (100%); 0 cannot move. Certificate: the flow is feasible, leaves no augmenting path, and its 15,022 equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands.",
+   "headroomSummary": "15,022 of 15,022 displaced riders an hour in the closure's forward direction can reach their destinations at all. Their demand can grow 10.61× before an open segment saturates; the first to fill: J 111 St → Woodhaven Blvd (spare 2,420 riders an hour) and G Nassau Av → Metropolitan Av/Lorimer St (spare 3,858 riders an hour). Found exactly in 3 certified max-flow solves on the fork.",
+   "displaced": 31347,
+   "noPath": 0,
+   "overflow": 0,
+   "overloaded": [],
+   "plan": null,
+   "directions": [
+    {
+     "direction": "forward",
+     "required": 15022,
+     "absorbed": 15022,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 15021.7,
+      "cutCapacity": 15021.700000000003,
+      "falkordb": {
+       "value": 15021.7,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [],
+     "headroom": {
+      "multiplier": 10.611,
+      "connected": 15022,
+      "solves": 3,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": [
+       {
+        "kind": "RUNS",
+        "id": 988,
+        "from": "81",
+        "to": "83",
+        "spare": 2420,
+        "route": "J"
+       },
+       {
+        "kind": "RUNS",
+        "id": 933,
+        "from": "284",
+        "to": "629",
+        "spare": 3858,
+        "route": "G"
+       },
+       {
+        "kind": "RUNS",
+        "id": 1449,
+        "from": "82",
+        "to": "83",
+        "spare": 2320,
+        "route": "Z"
+       }
+      ]
+     }
+    },
+    {
+     "direction": "backward",
+     "required": 14487,
+     "absorbed": 14487,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 14486.6,
+      "cutCapacity": 14486.599999999997,
+      "falkordb": {
+       "value": 14486.6,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [],
+     "headroom": {
+      "multiplier": 11.144,
+      "connected": 14487,
+      "solves": 4,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": [
+       {
+        "kind": "RUNS",
+        "id": 930,
+        "from": "283",
+        "to": "282",
+        "spare": 1486,
+        "route": "G"
+       },
+       {
+        "kind": "RUNS",
+        "id": 989,
+        "from": "82",
+        "to": "81",
+        "spare": 5881,
+        "route": "J"
+       },
+       {
+        "kind": "RUNS",
+        "id": 425,
+        "from": "405",
+        "to": "404",
+        "spare": 11211,
+        "route": "6"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "cranberry",
+   "title": "A and C: Cranberry Street Tunnel closed",
+   "summary": "16,268 displaced riders an hour. If each takes the fastest open path, 0 segments overflow by 0 riders an hour. If riders are spread perfectly (max flow, forward peak direction), the open network can carry 14,267 of 14,267 (100%); 0 cannot move. Certificate: the flow is feasible, leaves no augmenting path, and its 14,268 equals the min cut's capacity, so FalkorDB's algo.maxFlow answer stands.",
+   "headroomSummary": "14,267 of 14,267 displaced riders an hour in the closure's forward direction can reach their destinations at all. Their demand can grow 7.12× before an open segment saturates; the first to fill: FS Park Pl → Franklin Av-Medgar Evers College/Botanic Garden (spare 1,891 riders an hour) and walk Livonia Av → Junius St (spare 3,000 riders an hour). Found exactly in 4 certified max-flow solves on the fork.",
+   "displaced": 16268,
+   "noPath": 0,
+   "overflow": 0,
+   "overloaded": [],
+   "plan": null,
+   "directions": [
+    {
+     "direction": "forward",
+     "required": 14267,
+     "absorbed": 14267,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 14267.5,
+      "cutCapacity": 14267.499999999998,
+      "falkordb": {
+       "value": 14267.5,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [],
+     "headroom": {
+      "multiplier": 7.115,
+      "connected": 14267,
+      "solves": 4,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": [
+       {
+        "kind": "RUNS",
+        "id": 907,
+        "from": "141",
+        "to": "626",
+        "spare": 1891,
+        "route": "FS"
+       },
+       {
+        "kind": "WALK",
+        "id": 189,
+        "from": "135",
+        "to": "349",
+        "spare": 3000
+       },
+       {
+        "kind": "RUNS",
+        "id": 1020,
+        "from": "96",
+        "to": "97",
+        "spare": 3340,
+        "route": "J"
+       }
+      ]
+     }
+    },
+    {
+     "direction": "backward",
+     "required": 2001,
+     "absorbed": 2001,
+     "check": {
+      "checked": true,
+      "solver": "falkordb",
+      "value": 2000.6,
+      "cutCapacity": 2000.5999999999995,
+      "falkordb": {
+       "value": 2000.6,
+       "checked": true,
+       "problems": []
+      }
+     },
+     "openSegmentsInCut": 0,
+     "cutOff": [],
+     "headroom": {
+      "multiplier": null,
+      "connected": 2001,
+      "solves": 2,
+      "recomputed": 0,
+      "checked": true,
+      "saturating": []
+     }
+    }
+   ]
+  }
+ ],
+ "policy": {
+  "oracle": "every shuttle candidate the controller saw, simulated alone on its own fork at the controller's sizing; best gain per bus (riders with no path plus max-flow shortfall cleared, per bus on the road)",
+  "closures": 48,
+  "needingBuses": 15,
+  "optimal": 13,
+  "meanGap": 0.039,
+  "maxGap": 0.31165892580683585,
+  "worst": [
+   {
+    "id": "h33-7",
+    "title": "7: Court Sq-23 St to Jackson Hts-Roosevelt Av/74 St-Broadway",
+    "gap": 0.312,
+    "chosen": {
+     "label": "458↔272@23",
+     "gain": 5780,
+     "vehicles": 9,
+     "perBus": 642.2222222222222
+    },
+    "oracle": {
+     "label": "457↔269@6",
+     "gain": 2799,
+     "vehicles": 3,
+     "perBus": 933
+    }
+   },
+   {
+    "id": "h41-l",
+    "title": "L: Grand St to DeKalb Av",
+    "gap": 0.279,
+    "chosen": {
+     "label": "126↔113@14",
+     "gain": 1769,
+     "vehicles": 5,
+     "perBus": 353.8
+    },
+    "oracle": {
+     "label": "125↔98@9",
+     "gain": 1473,
+     "vehicles": 3,
+     "perBus": 491
+    }
+   }
+  ]
+ },
+ "seconds": 129,
+ "closures": [
+  {
+   "id": "h01-m",
+   "title": "M: Roosevelt Island to 57 St",
+   "routes": [
+    "M"
+   ],
+   "stations": [
+    "222",
+    "223",
+    "224"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 5723,
+    "noPath": 0,
+    "overflow": 11,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 4116,
+      "absorbed": 4116,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4115.8,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 681,
+      "absorbed": 681,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 680.9,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 4.556,
+     "backward": null
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 5722.8,
+    "noPath": 0,
+    "overflow": 11,
+    "overflowRange": {
+     "min": 11,
+     "max": 11
+    },
+    "directions": {
+     "forward": {
+      "required": 4115.8,
+      "absorbed": 4115.8,
+      "cutOff": [],
+      "headroom": 4.555632
+     },
+     "backward": {
+      "required": 680.9,
+      "absorbed": 680.9,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1999999999998181,
+    "maxFlow": 0.1999999999998181,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h02-1",
+   "title": "1: 18 St to Canal St",
+   "routes": [
+    "1"
+   ],
+   "stations": [
+    "321",
+    "601",
+    "323",
+    "324",
+    "325"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 13167,
+    "noPath": 0,
+    "overflow": 174,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 8136,
+      "absorbed": 8136,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 8135.9,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 3971,
+      "absorbed": 3971,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3970.7,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 1.319,
+     "backward": 8.217
+    },
+    "headroomSolves": 8,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 13166.9,
+    "noPath": 0,
+    "overflow": 314,
+    "overflowRange": {
+     "min": 14,
+     "max": 408
+    },
+    "directions": {
+     "forward": {
+      "required": 8135.9,
+      "absorbed": 8135.9,
+      "cutOff": [],
+      "headroom": 1.319377
+     },
+     "backward": {
+      "required": 3970.7,
+      "absorbed": 3970.7,
+      "cutOff": [],
+      "headroom": 8.216927
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1000000000003638,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 140
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h03-3",
+   "title": "3: Kingston Av to Rockaway Av",
+   "routes": [
+    "3"
+   ],
+   "stations": [
+    "344",
+    "345",
+    "346",
+    "347",
+    "348"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 2610,
+    "noPath": 1087,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 322,
+      "absorbed": 314,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 314.2,
+      "cutOff": [
+       "destination:347",
+       "origin:346"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 1994,
+      "absorbed": 1226,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1226.1,
+      "cutOff": [
+       "origin:346",
+       "origin:347"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": 11.705,
+     "backward": 2.915
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 2610.1,
+    "noPath": 1087,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 322.4,
+      "absorbed": 314.2,
+      "cutOff": [
+       "destination:347",
+       "origin:346"
+      ],
+      "headroom": 11.705033
+     },
+     "backward": {
+      "required": 1993.6,
+      "absorbed": 1226.1,
+      "cutOff": [
+       "origin:346",
+       "origin:347"
+      ],
+      "headroom": 2.914602
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.09999999999990905,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "346↔182@7",
+     "gain": 1042,
+     "vehicles": 3,
+     "perBus": 347.3333333333333
+    },
+    "oracle": {
+     "label": "346↔182@7",
+     "gain": 1042,
+     "vehicles": 3,
+     "perBus": 347.3333333333333
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h04-d",
+   "title": "D: 42 St-Bryant Pk/5 Av to 59 St-Columbus Circle",
+   "routes": [
+    "D"
+   ],
+   "stations": [
+    "609",
+    "225",
+    "277",
+    "614"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 7315,
+    "noPath": 0,
+    "overflow": 2,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 3701,
+      "absorbed": 3701,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3701,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 3492,
+      "absorbed": 3492,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3491.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 16.447
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 7315.3,
+    "noPath": 0,
+    "overflow": 2,
+    "overflowRange": {
+     "min": 2,
+     "max": 2
+    },
+    "directions": {
+     "forward": {
+      "required": 3701,
+      "absorbed": 3701,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 3491.6,
+      "absorbed": 3491.6,
+      "cutOff": [],
+      "headroom": 16.44654
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3000000000001819,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h05-c",
+   "title": "C: Fulton St to 23 St",
+   "routes": [
+    "C"
+   ],
+   "stations": [
+    "628",
+    "624",
+    "169",
+    "168",
+    "167",
+    "618",
+    "165"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 3356,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2320,
+      "absorbed": 2320,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2319.9,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 938,
+      "absorbed": 938,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 938.4,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 19.225,
+     "backward": null
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 3355.6,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 2319.9,
+      "absorbed": 2319.9,
+      "cutOff": [],
+      "headroom": 19.224752
+     },
+     "backward": {
+      "required": 938.4,
+      "absorbed": 938.4,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.40000000000009095,
+    "maxFlow": 0.39999999999997726,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h06-n",
+   "title": "N: 34 St-Herald Sq to 59 St",
+   "routes": [
+    "N"
+   ],
+   "stations": [
+    "607",
+    "602",
+    "623",
+    "617",
+    "32",
+    "35"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 9887,
+    "noPath": 0,
+    "overflow": 64,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 1147,
+      "absorbed": 1147,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1147.4,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 7442,
+      "absorbed": 7442,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 7442.4,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 5.445
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 9886.8,
+    "noPath": 0,
+    "overflow": 64,
+    "overflowRange": {
+     "min": 64,
+     "max": 64
+    },
+    "directions": {
+     "forward": {
+      "required": 1147.4,
+      "absorbed": 1147.4,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 7442.4,
+      "absorbed": 7442.4,
+      "cutOff": [],
+      "headroom": 5.445317
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h07-g",
+   "title": "G: Classon Av to Broadway",
+   "routes": [
+    "G"
+   ],
+   "stations": [
+    "290",
+    "289",
+    "288",
+    "287",
+    "286"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 5319,
+    "noPath": 2215,
+    "overflow": 22,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2874,
+      "absorbed": 1727,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1727.4,
+      "cutOff": [
+       "origin:287",
+       "origin:288",
+       "origin:289"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 2173,
+      "absorbed": 1673,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1672.6,
+      "cutOff": [
+       "destination:287",
+       "origin:288",
+       "origin:289"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": 7.815,
+     "backward": null
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 5318.6,
+    "noPath": 2215,
+    "overflow": 22,
+    "overflowRange": {
+     "min": 22,
+     "max": 22
+    },
+    "directions": {
+     "forward": {
+      "required": 2873.5,
+      "absorbed": 1727.4,
+      "cutOff": [
+       "origin:287",
+       "origin:288",
+       "origin:289"
+      ],
+      "headroom": 7.81536
+     },
+     "backward": {
+      "required": 2172.8,
+      "absorbed": 1672.6,
+      "cutOff": [
+       "destination:287",
+       "origin:288",
+       "origin:289"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "289↔627@11",
+     "gain": 2067,
+     "vehicles": 4,
+     "perBus": 516.75
+    },
+    "oracle": {
+     "label": "289↔627@11",
+     "gain": 2067,
+     "vehicles": 4,
+     "perBus": 516.75
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h08-b",
+   "title": "B: Kingsbridge Rd to 167 St",
+   "routes": [
+    "B"
+   ],
+   "stations": [
+    "212",
+    "213",
+    "215",
+    "216",
+    "217",
+    "218"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 969,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 588,
+      "absorbed": 588,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 588.4,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 220,
+      "absorbed": 220,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 219.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 4,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 968.5,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 588.4,
+      "absorbed": 588.4,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 219.6,
+      "absorbed": 219.6,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.5,
+    "maxFlow": 0.4000000000000057,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h09-7",
+   "title": "7: 42 St-Bryant Pk/5 Av to 33 St-Rawson St",
+   "routes": [
+    "7"
+   ],
+   "stations": [
+    "609",
+    "610",
+    "464",
+    "463",
+    "606",
+    "461",
+    "460"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 18797,
+    "noPath": 0,
+    "overflow": 391,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2682,
+      "absorbed": 2682,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2682.3,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 10992,
+      "absorbed": 10992,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 10992.3,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 2.478
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 18796.8,
+    "noPath": 0,
+    "overflow": 1639,
+    "overflowRange": {
+     "min": 391,
+     "max": 1639
+    },
+    "directions": {
+     "forward": {
+      "required": 2682.3,
+      "absorbed": 2682.3,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 10992.3,
+      "absorbed": 10992.3,
+      "cutOff": [],
+      "headroom": 2.477598
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 1248
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h10-4",
+   "title": "4: Crown Hts-Utica Av to Wall St",
+   "routes": [
+    "4"
+   ],
+   "stations": [
+    "345",
+    "626",
+    "617",
+    "337",
+    "620",
+    "414",
+    "413"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 7467,
+    "noPath": 0,
+    "overflow": 208,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 5354,
+      "absorbed": 5354,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 5353.7,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 907,
+      "absorbed": 907,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 907.4,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 4.923,
+     "backward": null
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 7466.9,
+    "noPath": 0,
+    "overflow": 208,
+    "overflowRange": {
+     "min": 208,
+     "max": 208
+    },
+    "directions": {
+     "forward": {
+      "required": 5353.7,
+      "absorbed": 5353.7,
+      "cutOff": [],
+      "headroom": 4.9231
+     },
+     "backward": {
+      "required": 907.4,
+      "absorbed": 907.4,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1000000000003638,
+    "maxFlow": 0.39999999999997726,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h11-si",
+   "title": "SI: Grant City to Dongan Hills",
+   "routes": [
+    "SI"
+   ],
+   "stations": [
+    "509",
+    "508",
+    "507"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 0,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [],
+    "headroom": {},
+    "headroomSolves": 0,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 0,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h12-a",
+   "title": "A: 145 St to 181 St",
+   "routes": [
+    "A"
+   ],
+   "stations": [
+    "151",
+    "605",
+    "147",
+    "146"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 7892,
+    "noPath": 1237,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 1609,
+      "absorbed": 1504,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1503.7,
+      "cutOff": [
+       "destination:147"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 6003,
+      "absorbed": 4850,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4850.3,
+      "cutOff": [
+       "origin:147"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": 9.699,
+     "backward": 0.953
+    },
+    "headroomSolves": 8,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 7891.7,
+    "noPath": 1237,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 1609.4,
+      "absorbed": 1503.7,
+      "cutOff": [
+       "destination:147"
+      ],
+      "headroom": 9.699321
+     },
+     "backward": {
+      "required": 6002.8,
+      "absorbed": 4850.3,
+      "cutOff": [
+       "origin:147"
+      ],
+      "headroom": 0.953016
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3000000000001819,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "147↔301@17",
+     "gain": 2241,
+     "vehicles": 5,
+     "perBus": 448.2
+    },
+    "oracle": {
+     "label": "147↔301@15",
+     "gain": 2241,
+     "vehicles": 5,
+     "perBus": 448.2
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h13-j",
+   "title": "J: Bowery to Brooklyn Bridge-City Hall/Chambers St",
+   "routes": [
+    "J"
+   ],
+   "stations": [
+    "103",
+    "623",
+    "622"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 4140,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 3785,
+      "absorbed": 3785,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3784.6,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 331,
+      "absorbed": 331,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 330.5,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 15.489,
+     "backward": null
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 4140.5,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 3784.6,
+      "absorbed": 3784.6,
+      "cutOff": [],
+      "headroom": 15.489101
+     },
+     "backward": {
+      "required": 330.5,
+      "absorbed": 330.5,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.5,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h14-r",
+   "title": "R: Prospect Av to 53 St",
+   "routes": [
+    "R"
+   ],
+   "stations": [
+    "30",
+    "31",
+    "32",
+    "33",
+    "34"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 5432,
+    "noPath": 1499,
+    "overflow": 3,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 736,
+      "absorbed": 714,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 713.6,
+      "cutOff": [
+       "destination:31",
+       "origin:33"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 4184,
+      "absorbed": 3198,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3197.8,
+      "cutOff": [
+       "origin:31",
+       "origin:33"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 5.297
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 5431.9,
+    "noPath": 1499,
+    "overflow": 3,
+    "overflowRange": {
+     "min": 3,
+     "max": 3
+    },
+    "directions": {
+     "forward": {
+      "required": 735.7,
+      "absorbed": 713.6,
+      "cutOff": [
+       "destination:31",
+       "origin:33"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 4184.2,
+      "absorbed": 3197.8,
+      "cutOff": [
+       "origin:31",
+       "origin:33"
+      ],
+      "headroom": 5.296661
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1000000000003638,
+    "maxFlow": 0.39999999999997726,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "33↔35@11",
+     "gain": 1807,
+     "vehicles": 4,
+     "perBus": 451.75
+    },
+    "oracle": {
+     "label": "33↔35@11",
+     "gain": 1807,
+     "vehicles": 4,
+     "perBus": 451.75
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h15-2",
+   "title": "2: President St-Medgar Evers College to Flatbush Av-Brooklyn College",
+   "routes": [
+    "2"
+   ],
+   "stations": [
+    "353",
+    "354",
+    "355",
+    "356",
+    "357",
+    "358",
+    "359"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 2058,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 376,
+      "absorbed": 376,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 375.9,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 1503,
+      "absorbed": 1503,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1502.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 3.922
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 2058,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 375.9,
+      "absorbed": 375.9,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 1502.6,
+      "absorbed": 1502.6,
+      "cutOff": [],
+      "headroom": 3.921869
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h16-h",
+   "title": "H: Rockaway Park-Beach 116 St to Broad Channel",
+   "routes": [
+    "H"
+   ],
+   "stations": [
+    "203",
+    "202",
+    "201",
+    "200",
+    "199"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 18,
+    "noPath": 13,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 12,
+      "absorbed": 3,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2.6,
+      "cutOff": [
+       "origin:203"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 3,
+      "absorbed": 0,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 0,
+      "cutOff": [
+       "destination:202",
+       "origin:209"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 3,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 17.7,
+    "noPath": 13,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 12.2,
+      "absorbed": 2.6,
+      "cutOff": [
+       "origin:203"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 3.4,
+      "absorbed": 0,
+      "cutOff": [
+       "destination:202",
+       "origin:209"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3000000000000007,
+    "maxFlow": 0.3999999999999999,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 1,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h17-5",
+   "title": "5: Wall St to Nevins St",
+   "routes": [
+    "5"
+   ],
+   "stations": [
+    "413",
+    "414",
+    "620",
+    "337"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 8494,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2453,
+      "absorbed": 2453,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2452.6,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 5574,
+      "absorbed": 5574,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 5573.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 6.815
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 8493.7,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 2452.6,
+      "absorbed": 2452.6,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 5573.6,
+      "absorbed": 5573.6,
+      "cutOff": [],
+      "headroom": 6.815447
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2999999999992724,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h18-l",
+   "title": "L: 14 St/6 Av to 3 Av",
+   "routes": [
+    "L"
+   ],
+   "stations": [
+    "601",
+    "602",
+    "118"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 21377,
+    "noPath": 0,
+    "overflow": 31325,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2381,
+      "absorbed": 2381,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2380.7,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 18050,
+      "absorbed": 18050,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 18049.8,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 15.744,
+     "backward": 1.619
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 21377.4,
+    "noPath": 0,
+    "overflow": 31325,
+    "overflowRange": {
+     "min": 31325,
+     "max": 31367
+    },
+    "directions": {
+     "forward": {
+      "required": 2380.7,
+      "absorbed": 2380.7,
+      "cutOff": [],
+      "headroom": 15.743581
+     },
+     "backward": {
+      "required": 18049.8,
+      "absorbed": 18049.8,
+      "cutOff": [],
+      "headroom": 1.618836
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.4000000000014552,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h19-6",
+   "title": "6: Middletown Rd to Hunts Point Av",
+   "routes": [
+    "6"
+   ],
+   "stations": [
+    "362",
+    "363",
+    "364",
+    "365",
+    "366",
+    "371"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 9,
+    "displaced": 3996,
+    "noPath": 2471,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 3272,
+      "absorbed": 1473,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1472.5,
+      "cutOff": [
+       "origin:360",
+       "origin:361",
+       "origin:362",
+       "origin:363",
+       "origin:364",
+       "origin:365"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 535,
+      "absorbed": 0,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 0,
+      "cutOff": [
+       "destination:360",
+       "destination:361",
+       "destination:362",
+       "destination:363",
+       "destination:364",
+       "destination:365",
+       "origin:366",
+       "origin:367",
+       "origin:368",
+       "origin:369",
+       "origin:370",
+       "origin:371",
+       "origin:372",
+       "origin:373",
+       "origin:375",
+       "origin:376",
+       "origin:377",
+       "origin:386",
+       "origin:388",
+       "origin:392",
+       "origin:393",
+       "origin:394",
+       "origin:395",
+       "origin:396",
+       "origin:397",
+       "origin:398",
+       "origin:399",
+       "origin:403",
+       "origin:405",
+       "origin:420",
+       "origin:430",
+       "origin:444",
+       "origin:602",
+       "origin:604",
+       "origin:610",
+       "origin:611",
+       "origin:612",
+       "origin:613",
+       "origin:628"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": 3.963,
+     "backward": null
+    },
+    "headroomSolves": 4,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 9,
+    "displaced": 3995.8,
+    "noPath": 2471,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 3272.1,
+      "absorbed": 1472.5,
+      "cutOff": [
+       "origin:360",
+       "origin:361",
+       "origin:362",
+       "origin:363",
+       "origin:364",
+       "origin:365"
+      ],
+      "headroom": 3.962628
+     },
+     "backward": {
+      "required": 534.8,
+      "absorbed": 0,
+      "cutOff": [
+       "destination:360",
+       "destination:361",
+       "destination:362",
+       "destination:363",
+       "destination:364",
+       "destination:365",
+       "origin:366",
+       "origin:367",
+       "origin:368",
+       "origin:369",
+       "origin:370",
+       "origin:371",
+       "origin:372",
+       "origin:373",
+       "origin:375",
+       "origin:376",
+       "origin:377",
+       "origin:386",
+       "origin:388",
+       "origin:392",
+       "origin:393",
+       "origin:394",
+       "origin:395",
+       "origin:396",
+       "origin:397",
+       "origin:398",
+       "origin:399",
+       "origin:403",
+       "origin:405",
+       "origin:420",
+       "origin:430",
+       "origin:444",
+       "origin:602",
+       "origin:604",
+       "origin:610",
+       "origin:611",
+       "origin:612",
+       "origin:613",
+       "origin:628"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1999999999998181,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 4,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h20-e",
+   "title": "E: 50 St to Lexington Av/51-53 Sts",
+   "routes": [
+    "E"
+   ],
+   "stations": [
+    "162",
+    "277",
+    "276",
+    "612"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 19585,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 7539,
+      "absorbed": 7539,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 7539,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 11662,
+      "absorbed": 11662,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 11662.1,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 8.872,
+     "backward": 8.2
+    },
+    "headroomSolves": 8,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 19585,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 7539,
+      "absorbed": 7539,
+      "cutOff": [],
+      "headroom": 8.871553
+     },
+     "backward": {
+      "required": 11662.1,
+      "absorbed": 11662.1,
+      "cutOff": [],
+      "headroom": 8.199725
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0.1000000000003638,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h21-z",
+   "title": "Z: Woodhaven Blvd to Broadway Junction",
+   "routes": [
+    "Z"
+   ],
+   "stations": [
+    "83",
+    "85",
+    "87",
+    "88",
+    "90",
+    "91",
+    "621"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 8,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 8,
+      "absorbed": 8,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 8,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null
+    },
+    "headroomSolves": 2,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 8,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 8,
+      "absorbed": 8,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h22-f",
+   "title": "F: Smith-9 Sts to East Broadway",
+   "routes": [
+    "F"
+   ],
+   "stations": [
+    "238",
+    "237",
+    "236",
+    "636",
+    "235",
+    "234"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 13666,
+    "noPath": 0,
+    "overflow": 169,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 9372,
+      "absorbed": 9372,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 9372.1,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 2443,
+      "absorbed": 2443,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2443.5,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 4.498,
+     "backward": 4.197
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 13666.2,
+    "noPath": 0,
+    "overflow": 169,
+    "overflowRange": {
+     "min": 169,
+     "max": 169
+    },
+    "directions": {
+     "forward": {
+      "required": 9372.1,
+      "absorbed": 9372.1,
+      "cutOff": [],
+      "headroom": 4.498416
+     },
+     "backward": {
+      "required": 2443.5,
+      "absorbed": 2443.5,
+      "cutOff": [],
+      "headroom": 4.196978
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h23-fs",
+   "title": "FS: Franklin Av-Medgar Evers College/Botanic Garden to Franklin Av",
+   "routes": [
+    "FS"
+   ],
+   "stations": [
+    "626",
+    "141",
+    "627"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 347,
+    "noPath": 183,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 108,
+      "absorbed": 106,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 105.8,
+      "cutOff": [
+       "origin:141"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 209,
+      "absorbed": 87,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 86.9,
+      "cutOff": [
+       "origin:141"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 4,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 346.5,
+    "noPath": 183,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 108,
+      "absorbed": 105.8,
+      "cutOff": [
+       "origin:141"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 209.4,
+      "absorbed": 86.9,
+      "cutOff": [
+       "origin:141"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.5,
+    "maxFlow": 0.4000000000000057,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "141↔341@6",
+     "gain": 306,
+     "vehicles": 2,
+     "perBus": 153
+    },
+    "oracle": {
+     "label": "141↔341@6",
+     "gain": 306,
+     "vehicles": 2,
+     "perBus": 153
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h24-w",
+   "title": "W: 5 Av/59 St to 36 Av",
+   "routes": [
+    "W"
+   ],
+   "stations": [
+    "8",
+    "613",
+    "461",
+    "6",
+    "5"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 4352,
+    "noPath": 0,
+    "overflow": 294,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2,
+      "absorbed": 2,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2.4,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 4234,
+      "absorbed": 4234,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4233.9,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 1.449
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 4351.6,
+    "noPath": 0,
+    "overflow": 294,
+    "overflowRange": {
+     "min": 294,
+     "max": 294
+    },
+    "directions": {
+     "forward": {
+      "required": 2.4,
+      "absorbed": 2.4,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 4233.9,
+      "absorbed": 4233.9,
+      "cutOff": [],
+      "headroom": 1.449055
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.3999999999999999,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h25-q",
+   "title": "Q: 72 St to 57 St-7 Av",
+   "routes": [
+    "Q"
+   ],
+   "stations": [
+    "477",
+    "223",
+    "9"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 13693,
+    "noPath": 0,
+    "overflow": 5175,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 9049,
+      "absorbed": 7929,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 7929,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 4493,
+      "absorbed": 4493,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4493,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 0.869,
+     "backward": 2.149
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 13693.2,
+    "noPath": 0,
+    "overflow": 5175,
+    "overflowRange": {
+     "min": 5175,
+     "max": 5175
+    },
+    "directions": {
+     "forward": {
+      "required": 9048.8,
+      "absorbed": 7929,
+      "cutOff": [],
+      "headroom": 0.869332
+     },
+     "backward": {
+      "required": 4493,
+      "absorbed": 4493,
+      "cutOff": [],
+      "headroom": 2.149291
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.2000000000007276,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "477↔399@16",
+     "gain": 1120,
+     "vehicles": 5,
+     "perBus": 224
+    },
+    "oracle": {
+     "label": "477↔399@16",
+     "gain": 1120,
+     "vehicles": 5,
+     "perBus": 224
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h26-m",
+   "title": "M: 14 St/6 Av to Hewes St",
+   "routes": [
+    "M"
+   ],
+   "stations": [
+    "601",
+    "167",
+    "619",
+    "625",
+    "101",
+    "100"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 5350,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 490,
+      "absorbed": 490,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 489.8,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 4246,
+      "absorbed": 4246,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4245.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 10.22
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 5350.4,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 489.8,
+      "absorbed": 489.8,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 4245.6,
+      "absorbed": 4245.6,
+      "cutOff": [],
+      "headroom": 10.220487
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.3999999999996362,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h27-1",
+   "title": "1: Christopher St-Stonewall to Times Sq-42 St/Port Authority Bus Terminal",
+   "routes": [
+    "1"
+   ],
+   "stations": [
+    "323",
+    "601",
+    "321",
+    "320",
+    "319",
+    "318",
+    "611"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 20360,
+    "noPath": 0,
+    "overflow": 1980,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 6322,
+      "absorbed": 6322,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 6322.2,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 9966,
+      "absorbed": 9966,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 9966.2,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 13.119,
+     "backward": 3.326
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 20360.1,
+    "noPath": 0,
+    "overflow": 2282,
+    "overflowRange": {
+     "min": 1000,
+     "max": 2460
+    },
+    "directions": {
+     "forward": {
+      "required": 6322.2,
+      "absorbed": 6322.2,
+      "cutOff": [],
+      "headroom": 13.119451
+     },
+     "backward": {
+      "required": 9966.2,
+      "absorbed": 9966.2,
+      "cutOff": [],
+      "headroom": 3.325942
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.09999999999854481,
+    "maxFlow": 0.2000000000007276,
+    "noPath": 0,
+    "overflow": 302
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h28-3",
+   "title": "3: Nevins St to Bergen St",
+   "routes": [
+    "3"
+   ],
+   "stations": [
+    "337",
+    "617",
+    "339"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 2194,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 177,
+      "absorbed": 177,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 176.5,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 1831,
+      "absorbed": 1831,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1831.4,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 11.254
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 2193.6,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 176.5,
+      "absorbed": 176.5,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 1831.4,
+      "absorbed": 1831.4,
+      "cutOff": [],
+      "headroom": 11.253831
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.40000000000009095,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h29-d",
+   "title": "D: 71 St to 9 Av",
+   "routes": [
+    "D"
+   ],
+   "stations": [
+    "64",
+    "615",
+    "62",
+    "61",
+    "60",
+    "59"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 4258,
+    "noPath": 906,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 3318,
+      "absorbed": 3187,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3187,
+      "cutOff": [
+       "destination:61",
+       "destination:62",
+       "origin:60"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 466,
+      "absorbed": 423,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 422.6,
+      "cutOff": [
+       "destination:62",
+       "origin:60",
+       "origin:61"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": 2.811,
+     "backward": null
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 4258.2,
+    "noPath": 906,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 3317.7,
+      "absorbed": 3187,
+      "cutOff": [
+       "destination:61",
+       "destination:62",
+       "origin:60"
+      ],
+      "headroom": 2.811173
+     },
+     "backward": {
+      "required": 466.2,
+      "absorbed": 422.6,
+      "cutOff": [
+       "destination:62",
+       "origin:60",
+       "origin:61"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1999999999998181,
+    "maxFlow": 0.39999999999997726,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "60↔243@6",
+     "gain": 533,
+     "vehicles": 3,
+     "perBus": 177.66666666666666
+    },
+    "oracle": {
+     "label": "60↔243@6",
+     "gain": 533,
+     "vehicles": 3,
+     "perBus": 177.66666666666666
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h30-c",
+   "title": "C: 34 St-Penn Station to 81 St-Museum of Natural History",
+   "routes": [
+    "C"
+   ],
+   "stations": [
+    "164",
+    "611",
+    "162",
+    "614",
+    "160",
+    "159"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 3591,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 972,
+      "absorbed": 972,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 972,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 2231,
+      "absorbed": 2231,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2230.9,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 14.259
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 3591.4,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 972,
+      "absorbed": 972,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 2230.9,
+      "absorbed": 2230.9,
+      "cutOff": [],
+      "headroom": 14.258765
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.40000000000009095,
+    "maxFlow": 0.09999999999990905,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h31-n",
+   "title": "N: 5 Av/59 St to 30 Av",
+   "routes": [
+    "N"
+   ],
+   "stations": [
+    "8",
+    "613",
+    "461",
+    "6",
+    "5",
+    "4",
+    "3"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 7259,
+    "noPath": 0,
+    "overflow": 72,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 1353,
+      "absorbed": 1353,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1353.4,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 5476,
+      "absorbed": 5476,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 5475.5,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 14.294,
+     "backward": 1.417
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 7259.1,
+    "noPath": 0,
+    "overflow": 72,
+    "overflowRange": {
+     "min": 72,
+     "max": 72
+    },
+    "directions": {
+     "forward": {
+      "required": 1353.4,
+      "absorbed": 1353.4,
+      "cutOff": [],
+      "headroom": 14.293761
+     },
+     "backward": {
+      "required": 5475.5,
+      "absorbed": 5475.5,
+      "cutOff": [],
+      "headroom": 1.417127
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1000000000003638,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h32-b",
+   "title": "B: 103 St to 125 St",
+   "routes": [
+    "B"
+   ],
+   "stations": [
+    "156",
+    "155",
+    "154",
+    "153"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 2746,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 415,
+      "absorbed": 415,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 414.7,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 2052,
+      "absorbed": 2052,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2051.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 19.67
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 2745.8,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 414.7,
+      "absorbed": 414.7,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 2051.6,
+      "absorbed": 2051.6,
+      "cutOff": [],
+      "headroom": 19.669587
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1999999999998181,
+    "maxFlow": 0.40000000000009095,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h33-7",
+   "title": "7: Court Sq-23 St to Jackson Hts-Roosevelt Av/74 St-Broadway",
+   "routes": [
+    "7"
+   ],
+   "stations": [
+    "606",
+    "461",
+    "460",
+    "459",
+    "458",
+    "456",
+    "616"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 12847,
+    "noPath": 7691,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 2415,
+      "absorbed": 1621,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1620.8,
+      "cutOff": [
+       "destination:460",
+       "origin:455",
+       "origin:456",
+       "origin:457",
+       "origin:458",
+       "origin:459"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 8710,
+      "absorbed": 4612,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4612.3,
+      "cutOff": [
+       "destination:460",
+       "origin:455",
+       "origin:456",
+       "origin:457",
+       "origin:458",
+       "origin:459"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 6.49
+    },
+    "headroomSolves": 5,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 12847.3,
+    "noPath": 7691,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 2415.3,
+      "absorbed": 1620.8,
+      "cutOff": [
+       "destination:460",
+       "origin:455",
+       "origin:456",
+       "origin:457",
+       "origin:458",
+       "origin:459"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 8710.3,
+      "absorbed": 4612.3,
+      "cutOff": [
+       "destination:460",
+       "origin:455",
+       "origin:456",
+       "origin:457",
+       "origin:458",
+       "origin:459"
+      ],
+      "headroom": 6.48977
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2999999999992724,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "458↔272@23",
+     "gain": 5780,
+     "vehicles": 9,
+     "perBus": 642.2222222222222
+    },
+    "oracle": {
+     "label": "457↔269@6",
+     "gain": 2799,
+     "vehicles": 3,
+     "perBus": 933
+    },
+    "candidatesTried": 8,
+    "gap": 0.31165892580683585
+   }
+  },
+  {
+   "id": "h34-4",
+   "title": "4: Brooklyn Bridge-City Hall/Chambers St to 149 St-Hostos",
+   "routes": [
+    "4"
+   ],
+   "stations": [
+    "622",
+    "602",
+    "610",
+    "613",
+    "397",
+    "392",
+    "603"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 22509,
+    "noPath": 0,
+    "overflow": 4112,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 13772,
+      "absorbed": 13772,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 13772.1,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 5329,
+      "absorbed": 5329,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 5328.7,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 12.829,
+     "backward": 7.827
+    },
+    "headroomSolves": 8,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 22508.8,
+    "noPath": 0,
+    "overflow": 4119,
+    "overflowRange": {
+     "min": 4119,
+     "max": 4125
+    },
+    "directions": {
+     "forward": {
+      "required": 13772.1,
+      "absorbed": 13772.1,
+      "cutOff": [],
+      "headroom": 12.829258
+     },
+     "backward": {
+      "required": 5328.7,
+      "absorbed": 5328.7,
+      "cutOff": [],
+      "headroom": 7.827276
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 7
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h35-si",
+   "title": "SI: Clifton to New Dorp",
+   "routes": [
+    "SI"
+   ],
+   "stations": [
+    "504",
+    "505",
+    "506",
+    "507",
+    "508",
+    "509",
+    "510"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 0,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [],
+    "headroom": {},
+    "headroomSolves": 0,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 0,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h36-a",
+   "title": "A: Far Rockaway-Mott Av to Beach 60 St",
+   "routes": [
+    "A"
+   ],
+   "stations": [
+    "209",
+    "208",
+    "207",
+    "206",
+    "205"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 371,
+    "noPath": 371,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 222,
+      "absorbed": 0,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 0,
+      "cutOff": [
+       "destination:138",
+       "destination:153",
+       "destination:164",
+       "destination:169",
+       "destination:175",
+       "destination:177",
+       "destination:179",
+       "destination:181",
+       "destination:188",
+       "destination:189",
+       "destination:192",
+       "destination:195",
+       "destination:198",
+       "destination:202",
+       "destination:204",
+       "destination:205",
+       "destination:235",
+       "destination:278",
+       "destination:284",
+       "destination:602",
+       "destination:611",
+       "destination:614",
+       "destination:618",
+       "destination:619",
+       "destination:621",
+       "destination:624",
+       "destination:628",
+       "destination:636",
+       "origin:206",
+       "origin:207",
+       "origin:208",
+       "origin:209"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 120,
+      "absorbed": 0,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 0,
+      "cutOff": [
+       "destination:208",
+       "destination:209",
+       "origin:138",
+       "origin:179",
+       "origin:181",
+       "origin:188",
+       "origin:189",
+       "origin:190",
+       "origin:192",
+       "origin:195",
+       "origin:198",
+       "origin:204",
+       "origin:205",
+       "origin:206",
+       "origin:207",
+       "origin:240",
+       "origin:611",
+       "origin:621",
+       "origin:625",
+       "origin:98"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 2,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 371.1,
+    "noPath": 371,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 222,
+      "absorbed": 0,
+      "cutOff": [
+       "destination:138",
+       "destination:153",
+       "destination:164",
+       "destination:169",
+       "destination:175",
+       "destination:177",
+       "destination:179",
+       "destination:181",
+       "destination:188",
+       "destination:189",
+       "destination:192",
+       "destination:195",
+       "destination:198",
+       "destination:202",
+       "destination:204",
+       "destination:205",
+       "destination:235",
+       "destination:278",
+       "destination:284",
+       "destination:602",
+       "destination:611",
+       "destination:614",
+       "destination:618",
+       "destination:619",
+       "destination:621",
+       "destination:624",
+       "destination:628",
+       "destination:636",
+       "origin:206",
+       "origin:207",
+       "origin:208",
+       "origin:209"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 120.4,
+      "absorbed": 0,
+      "cutOff": [
+       "destination:208",
+       "destination:209",
+       "origin:138",
+       "origin:179",
+       "origin:181",
+       "origin:188",
+       "origin:189",
+       "origin:190",
+       "origin:192",
+       "origin:195",
+       "origin:198",
+       "origin:204",
+       "origin:205",
+       "origin:206",
+       "origin:207",
+       "origin:240",
+       "origin:611",
+       "origin:621",
+       "origin:625",
+       "origin:98"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.10000000000002274,
+    "maxFlow": 0.4000000000000057,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h37-j",
+   "title": "J: Marcy Av to Brooklyn Bridge-City Hall/Chambers St",
+   "routes": [
+    "J"
+   ],
+   "stations": [
+    "101",
+    "625",
+    "103",
+    "623",
+    "622"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 5321,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 4493,
+      "absorbed": 4493,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4493.3,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 371,
+      "absorbed": 371,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 370.7,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 10.896,
+     "backward": null
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 5320.9,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 4493.3,
+      "absorbed": 4493.3,
+      "cutOff": [],
+      "headroom": 10.896325
+     },
+     "backward": {
+      "required": 370.7,
+      "absorbed": 370.7,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.1000000000003638,
+    "maxFlow": 0.3000000000001819,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h38-r",
+   "title": "R: Borough Hall/Court St to Prospect Av",
+   "routes": [
+    "R"
+   ],
+   "stations": [
+    "620",
+    "636",
+    "26",
+    "617",
+    "28",
+    "608",
+    "30"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 9623,
+    "noPath": 1270,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 928,
+      "absorbed": 911,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 911.3,
+      "cutOff": [
+       "destination:28"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 7023,
+      "absorbed": 6153,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 6153.4,
+      "cutOff": [
+       "origin:28"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 6.738
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 9623.3,
+    "noPath": 1270,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 927.9,
+      "absorbed": 911.3,
+      "cutOff": [
+       "destination:28"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 7023.2,
+      "absorbed": 6153.4,
+      "cutOff": [
+       "origin:28"
+      ],
+      "headroom": 6.737571
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2999999999992724,
+    "maxFlow": 0.3999999999996362,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "28↔339@13",
+     "gain": 2140,
+     "vehicles": 5,
+     "perBus": 428
+    },
+    "oracle": {
+     "label": "28↔339@13",
+     "gain": 2140,
+     "vehicles": 5,
+     "perBus": 428
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h39-2",
+   "title": "2: Intervale Av to 125 St",
+   "routes": [
+    "2"
+   ],
+   "stations": [
+    "431",
+    "432",
+    "433",
+    "434",
+    "603",
+    "438",
+    "439"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 5832,
+    "noPath": 0,
+    "overflow": 506,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 3692,
+      "absorbed": 3692,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 3691.9,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 892,
+      "absorbed": 892,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 892.1,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 3.093,
+     "backward": 17.028
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 5832.4,
+    "noPath": 0,
+    "overflow": 542,
+    "overflowRange": {
+     "min": 482,
+     "max": 559
+    },
+    "directions": {
+     "forward": {
+      "required": 3691.9,
+      "absorbed": 3691.9,
+      "cutOff": [],
+      "headroom": 3.092864
+     },
+     "backward": {
+      "required": 892.1,
+      "absorbed": 892.1,
+      "cutOff": [],
+      "headroom": 17.027665
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.10000000000002274,
+    "noPath": 0,
+    "overflow": 36
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h40-5",
+   "title": "5: 125 St to Brooklyn Bridge-City Hall/Chambers St",
+   "routes": [
+    "5"
+   ],
+   "stations": [
+    "392",
+    "397",
+    "613",
+    "610",
+    "602",
+    "622"
+   ],
+   "segments": 5,
+   "falkordb": {
+    "closed": 10,
+    "displaced": 16693,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 13192,
+      "absorbed": 13192,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 13192.3,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 1509,
+      "absorbed": 1509,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 1509.3,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 8.244,
+     "backward": 14.641
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 10,
+    "displaced": 16693.4,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 13192.3,
+      "absorbed": 13192.3,
+      "cutOff": [],
+      "headroom": 8.243887
+     },
+     "backward": {
+      "required": 1509.3,
+      "absorbed": 1509.3,
+      "cutOff": [],
+      "headroom": 14.641198
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.4000000000014552,
+    "maxFlow": 0.2999999999999545,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h41-l",
+   "title": "L: Grand St to DeKalb Av",
+   "routes": [
+    "L"
+   ],
+   "stations": [
+    "123",
+    "124",
+    "125",
+    "126",
+    "127"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 10128,
+    "noPath": 2889,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 572,
+      "absorbed": 394,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 393.8,
+      "cutOff": [
+       "destination:124",
+       "destination:125",
+       "destination:126"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 9239,
+      "absorbed": 7130,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 7130,
+      "cutOff": [
+       "origin:124",
+       "origin:125",
+       "origin:126"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 3.678
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 10127.6,
+    "noPath": 2889,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 571.7,
+      "absorbed": 393.8,
+      "cutOff": [
+       "destination:124",
+       "destination:125",
+       "destination:126"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 9239.4,
+      "absorbed": 7130,
+      "cutOff": [
+       "origin:124",
+       "origin:125",
+       "origin:126"
+      ],
+      "headroom": 3.678155
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.3999999999996362,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "126↔113@14",
+     "gain": 1769,
+     "vehicles": 5,
+     "perBus": 353.8
+    },
+    "oracle": {
+     "label": "125↔98@9",
+     "gain": 1473,
+     "vehicles": 3,
+     "perBus": 491
+    },
+    "candidatesTried": 8,
+    "gap": 0.2794297352342159
+   }
+  },
+  {
+   "id": "h42-6",
+   "title": "6: Elder Av to Parkchester",
+   "routes": [
+    "6"
+   ],
+   "stations": [
+    "369",
+    "368",
+    "367",
+    "366"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 2002,
+    "noPath": 1494,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 1062,
+      "absorbed": 402,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 401.8,
+      "cutOff": [
+       "destination:360",
+       "destination:361",
+       "destination:362",
+       "destination:363",
+       "destination:364",
+       "destination:365",
+       "destination:366",
+       "destination:368",
+       "origin:367"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 489,
+      "absorbed": 77,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 77.4,
+      "cutOff": [
+       "origin:367",
+       "origin:368"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 4,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 2001.8,
+    "noPath": 1494,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 1062.2,
+      "absorbed": 401.8,
+      "cutOff": [
+       "destination:360",
+       "destination:361",
+       "destination:362",
+       "destination:363",
+       "destination:364",
+       "destination:365",
+       "destination:366",
+       "destination:368",
+       "origin:367"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 488.6,
+      "absorbed": 77.4,
+      "cutOff": [
+       "origin:367",
+       "origin:368"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.20000000000004547,
+    "maxFlow": 0.4000000000000057,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "367↔426@6",
+     "gain": 320,
+     "vehicles": 3,
+     "perBus": 106.66666666666667
+    },
+    "oracle": {
+     "label": "367↔426@6",
+     "gain": 320,
+     "vehicles": 3,
+     "perBus": 106.66666666666667
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h43-e",
+   "title": "E: 5 Av/53 St to Jackson Hts-Roosevelt Av/74 St-Broadway",
+   "routes": [
+    "E"
+   ],
+   "stations": [
+    "276",
+    "612",
+    "606",
+    "273",
+    "616"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 8,
+    "displaced": 24300,
+    "noPath": 0,
+    "overflow": 14487,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 4616,
+      "absorbed": 4616,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4616.4,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 16892,
+      "absorbed": 16892,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 16892.1,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": 3.704
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 8,
+    "displaced": 24300.2,
+    "noPath": 0,
+    "overflow": 14411,
+    "overflowRange": {
+     "min": 14411,
+     "max": 14683
+    },
+    "directions": {
+     "forward": {
+      "required": 4616.4,
+      "absorbed": 4616.4,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 16892.1,
+      "absorbed": 16892.1,
+      "cutOff": [],
+      "headroom": 3.704149
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.2000000000007276,
+    "maxFlow": 0.3999999999996362,
+    "noPath": 0,
+    "overflow": 76
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h44-z",
+   "title": "Z: Van Siclen Av to Gates Av",
+   "routes": [
+    "Z"
+   ],
+   "stations": [
+    "90",
+    "91",
+    "621",
+    "93",
+    "95"
+   ],
+   "segments": 4,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 38,
+    "noPath": 0,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 38,
+      "absorbed": 38,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 37.6,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": null
+    },
+    "headroomSolves": 2,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 37.6,
+    "noPath": 0,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 37.6,
+      "absorbed": 37.6,
+      "cutOff": [],
+      "headroom": null
+     },
+     "backward": {
+      "required": 0,
+      "absorbed": 0,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999999986,
+    "maxFlow": 0.3999999999999986,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h45-f",
+   "title": "F: 23 St to 47-50 Sts-Rockefeller Ctr",
+   "routes": [
+    "F"
+   ],
+   "stations": [
+    "228",
+    "607",
+    "609",
+    "225"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 21147,
+    "noPath": 0,
+    "overflow": 192,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 9342,
+      "absorbed": 9342,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 9341.7,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 10072,
+      "absorbed": 10072,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 10071.8,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 17.144,
+     "backward": 9.588
+    },
+    "headroomSolves": 7,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 21147.1,
+    "noPath": 0,
+    "overflow": 113,
+    "overflowRange": {
+     "min": 113,
+     "max": 192
+    },
+    "directions": {
+     "forward": {
+      "required": 9341.7,
+      "absorbed": 9341.7,
+      "cutOff": [],
+      "headroom": 17.144027
+     },
+     "backward": {
+      "required": 10071.8,
+      "absorbed": 10071.8,
+      "cutOff": [],
+      "headroom": 9.587629
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.09999999999854481,
+    "maxFlow": 0.2999999999992724,
+    "noPath": 0,
+    "overflow": 79
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h46-fs",
+   "title": "FS: Franklin Av to Prospect Park",
+   "routes": [
+    "FS"
+   ],
+   "stations": [
+    "627",
+    "141",
+    "626",
+    "42"
+   ],
+   "segments": 3,
+   "falkordb": {
+    "closed": 6,
+    "displaced": 497,
+    "noPath": 183,
+    "overflow": 0,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 253,
+      "absorbed": 131,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 130.8,
+      "cutOff": [
+       "origin:141"
+      ]
+     },
+     {
+      "direction": "backward",
+      "required": 146,
+      "absorbed": 143,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 143.4,
+      "cutOff": [
+       "origin:141"
+      ]
+     }
+    ],
+    "headroom": {
+     "forward": null,
+     "backward": null
+    },
+    "headroomSolves": 4,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 6,
+    "displaced": 497,
+    "noPath": 183,
+    "overflow": 0,
+    "overflowRange": {
+     "min": 0,
+     "max": 0
+    },
+    "directions": {
+     "forward": {
+      "required": 253.3,
+      "absorbed": 130.8,
+      "cutOff": [
+       "origin:141"
+      ],
+      "headroom": null
+     },
+     "backward": {
+      "required": 145.6,
+      "absorbed": 143.4,
+      "cutOff": [
+       "origin:141"
+      ],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0,
+    "maxFlow": 0.4000000000000057,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": true,
+    "chosen": {
+     "label": "141↔341@6",
+     "gain": 306,
+     "vehicles": 2,
+     "perBus": 153
+    },
+    "oracle": {
+     "label": "141↔341@6",
+     "gain": 306,
+     "vehicles": 2,
+     "perBus": 153
+    },
+    "candidatesTried": 8,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h47-w",
+   "title": "W: 36 Av to 49 St",
+   "routes": [
+    "W"
+   ],
+   "stations": [
+    "5",
+    "6",
+    "461",
+    "613",
+    "8",
+    "9",
+    "10"
+   ],
+   "segments": 6,
+   "falkordb": {
+    "closed": 12,
+    "displaced": 4352,
+    "noPath": 0,
+    "overflow": 294,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 4234,
+      "absorbed": 4234,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 4233.9,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 2,
+      "absorbed": 2,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2.4,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 1.449,
+     "backward": null
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 12,
+    "displaced": 4351.6,
+    "noPath": 0,
+    "overflow": 294,
+    "overflowRange": {
+     "min": 294,
+     "max": 294
+    },
+    "directions": {
+     "forward": {
+      "required": 4233.9,
+      "absorbed": 4233.9,
+      "cutOff": [],
+      "headroom": 1.449055
+     },
+     "backward": {
+      "required": 2.4,
+      "absorbed": 2.4,
+      "cutOff": [],
+      "headroom": null
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.3999999999996362,
+    "maxFlow": 0.3999999999999999,
+    "noPath": 0,
+    "overflow": 0
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  },
+  {
+   "id": "h48-q",
+   "title": "Q: DeKalb Av to 14 St-Union Sq",
+   "routes": [
+    "Q"
+   ],
+   "stations": [
+    "26",
+    "623",
+    "602"
+   ],
+   "segments": 2,
+   "falkordb": {
+    "closed": 4,
+    "displaced": 9965,
+    "noPath": 0,
+    "overflow": 69,
+    "directions": [
+     {
+      "direction": "forward",
+      "required": 7211,
+      "absorbed": 7211,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 7211.5,
+      "cutOff": []
+     },
+     {
+      "direction": "backward",
+      "required": 2483,
+      "absorbed": 2483,
+      "solver": "falkordb",
+      "checked": true,
+      "falkordbValue": 2483.2,
+      "cutOff": []
+     }
+    ],
+    "headroom": {
+     "forward": 7.16,
+     "backward": 18.308
+    },
+    "headroomSolves": 6,
+    "headroomRecomputed": 0
+   },
+   "networkx": {
+    "closed": 4,
+    "displaced": 9964.5,
+    "noPath": 0,
+    "overflow": 97,
+    "overflowRange": {
+     "min": 10,
+     "max": 97
+    },
+    "directions": {
+     "forward": {
+      "required": 7211.5,
+      "absorbed": 7211.5,
+      "cutOff": [],
+      "headroom": 7.159571
+     },
+     "backward": {
+      "required": 2483.2,
+      "absorbed": 2483.2,
+      "cutOff": [],
+      "headroom": 18.308241
+     }
+    }
+   },
+   "agree": {
+    "closedSegments": true,
+    "displaced": true,
+    "maxFlow": true,
+    "noPath": true,
+    "overflow": true,
+    "cutOff": true,
+    "headroom": true,
+    "certified": true
+   },
+   "diff": {
+    "displaced": 0.5,
+    "maxFlow": 0.5,
+    "noPath": 0,
+    "overflow": 28
+   },
+   "policy": {
+    "needsBuses": false,
+    "chosen": null,
+    "oracle": null,
+    "candidatesTried": 0,
+    "gap": 0
+   }
+  }
+ ]
+}
