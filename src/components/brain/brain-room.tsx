@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type {
+  AgencyRefreshReply,
+  AgencySummary,
   BrainAnswer,
   BrainDirectory,
   BrainIntake,
@@ -35,6 +37,15 @@ const KIND: Record<SourceKind, string> = {
   decision: "Decision",
   finding: "Finding",
   playbook: "Playbook",
+  equipment: "Unit",
+  asset: "Asset inventory",
+  outage: "Outage",
+  alert: "Alert",
+  notice: "Alert update",
+  complaints: "Complaints",
+  project: "Capital project",
+  milestone: "Milestone",
+  alternative: "Alternative route",
 };
 const BY: Record<SourceKind, string> = {
   document: "Written by",
@@ -43,6 +54,27 @@ const BY: Record<SourceKind, string> = {
   decision: "Decided by",
   finding: "Written by",
   playbook: "Written by",
+  equipment: "Published by",
+  asset: "Published by",
+  outage: "Published by",
+  alert: "Published by",
+  notice: "Published by",
+  complaints: "Published by",
+  project: "Published by",
+  milestone: "Published by",
+  alternative: "Published by",
+};
+/** The brain's tools over the MTA's records, named for the trace beside the shared titles. */
+const TITLES: Record<string, string> = {
+  ...TOOL_TITLE,
+  equipment_status: "Elevator and escalator status",
+  line_outages: "Outages along a line",
+  alerts_for: "Service alerts",
+  notice_chain: "An alert's updates",
+  agency_changes: "What changed at the MTA",
+  project_trace: "Trace a capital project",
+  complaints_at: "Rider complaints",
+  agency_search: "Search MTA records",
 };
 const OUTCOMES = new Set<string>(["answered", "memory", "not_in_graph", "unknown_entity"]);
 
@@ -60,6 +92,37 @@ const kindOf = (kind: string) => KIND[kind as SourceKind] ?? kind;
 function byline(s: BrainSource) {
   const who = s.by ? `${BY[s.kind] ?? "By"} ${s.kind === "finding" ? agentName(s.by) : s.by}` : null;
   return [who, s.team, s.atMs ? dayKept(s.atMs) : null].filter(Boolean).join(" · ");
+}
+
+// A moment in the subway's time zone, for "as of" times and receipts.
+const moment = (ms: number) =>
+  new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET";
+
+/** Real MTA record, sample org record, or the visitor's own: said in words, not by color alone. */
+function OriginTag({ origin }: { origin: BrainSource["origin"] }) {
+  if (origin === "mta") {
+    return <span className="label inline-flex items-center rounded-sm border border-signal bg-signal-wash px-1.5 text-ink-900">MTA record</span>;
+  }
+  if (origin === "visitor") return <span className="label inline-flex items-center rounded-sm border border-line-strong px-1.5 text-ink-700">Yours</span>;
+  return <span className="label inline-flex items-center rounded-sm border border-dashed border-line-strong px-1.5 text-ink-500">Sample</span>;
+}
+
+/** The record's own words as published, where, and when Detour read them. */
+function ReceiptBlock({ s }: { s: BrainSource }) {
+  const r = s.receipt;
+  if (!r) return null;
+  return (
+    <figure className="flex min-w-0 flex-col gap-1 rounded-sm border-l-2 border-signal bg-sunk/60 px-2.5 py-1.5">
+      <blockquote className="line-clamp-4 break-words font-mono text-xs leading-relaxed text-ink-900">{r.quote}</blockquote>
+      <figcaption className="flex flex-wrap gap-x-2 text-xs text-ink-500">
+        <a href={r.url} target="_blank" rel="noreferrer" className="break-all underline decoration-line-strong underline-offset-2 hover:text-ink-900">
+          {r.source}
+        </a>
+        {r.fetchedMs ? <span>fetched {moment(r.fetchedMs)}</span> : null}
+        {r.hash ? <span className="font-mono">sha1 {r.hash.slice(0, 8)}</span> : null}
+      </figcaption>
+    </figure>
+  );
 }
 
 type Got<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -94,7 +157,13 @@ function toDirectory(d: BrainDirectory): BrainDirectory {
     decisions: list<BrainSource>(d.decisions).map(toSource),
     suggestions: list<string>(d.suggestions).filter((s) => typeof s === "string" && s.trim().length >= MIN),
     history: list<BrainTurn>(d.history).map((t) => ({ ...t, cites: list<string>(t.cites) })),
+    agency: toAgency(d.agency),
   };
+}
+
+function toAgency(a: AgencySummary | null | undefined): AgencySummary | null {
+  if (!a || typeof a !== "object" || !a.counts || !a.asOf) return null;
+  return { ...a, sources: list<AgencySummary["sources"][number]>(a.sources), outages: list<BrainSource>(a.outages).map(toSource) };
 }
 
 function toAnswer(a: BrainAnswer, asked: string): BrainAnswer {
@@ -270,6 +339,7 @@ function Intake({ colors, onAdded, onAskChanged }: { colors: Colors; onAdded: ()
                 {state.data.sources.map((s) => (
                   <li key={s.id} className="flex flex-col gap-1 px-3 py-2.5">
                     <span className="flex flex-wrap items-center gap-2">
+                      <OriginTag origin={s.origin} />
                       <span className="label text-ink-500">{kindOf(s.kind)}</span>
                       <span className="break-all font-mono text-xs text-ink-500">{s.id}</span>
                       <StatusPill status={s.status} className="ml-auto" />
@@ -425,6 +495,7 @@ function SourceItem({ s, n, lit, colors }: { s: BrainSource; n: number; lit: boo
       <span className="tabular w-5 shrink-0 font-mono text-sm font-semibold leading-6 text-ink-500">{n}</span>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <OriginTag origin={s.origin} />
           <span className="label rounded-sm bg-sunk px-1.5 text-ink-700">{kindOf(s.kind)}</span>
           <span className="break-all font-mono text-xs text-ink-500">{s.id}</span>
           <StatusPill status={s.status} className="ml-auto" />
@@ -432,6 +503,7 @@ function SourceItem({ s, n, lit, colors }: { s: BrainSource; n: number; lit: boo
         <p className="break-words text-sm font-semibold text-ink-900">{s.title}</p>
         {meta ? <p className="text-xs text-ink-500">{meta}</p> : null}
         {s.snippet ? <p className="line-clamp-3 break-words text-sm text-ink-700">{s.snippet}</p> : null}
+        <ReceiptBlock s={s} />
         <About labels={s.about} colors={colors} />
       </div>
     </li>
@@ -454,7 +526,7 @@ function Steps({ steps }: { steps: BrainStep[] }) {
       </summary>
       <ol className="flex flex-col gap-5 border-t border-line px-4 py-4">
         {steps.map((s, i) => {
-          const title = TOOL_TITLE[s.tool];
+          const title = TITLES[s.tool];
           return (
             <li key={i} className="flex min-w-0 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -572,6 +644,119 @@ function TeamItem({ t, colors }: { t: BrainTeam; colors: Colors }) {
         </ul>
       ) : null}
     </li>
+  );
+}
+
+type Refresh = { status: "idle" } | { status: "pending" } | { status: "done"; text: string } | { status: "error"; error: string };
+
+/**
+ * The shared graph of real MTA records: as of when each source was read, what it holds, the newest outages, and a
+ * control to read the live feeds again now.
+ */
+function AgencyPanel({ agency, colors, onRefreshed }: { agency: AgencySummary | null; colors: Colors; onRefreshed: (a: AgencySummary) => void }) {
+  const [state, setState] = useState<Refresh>({ status: "idle" });
+  const pending = state.status === "pending";
+  const refresh = async () => {
+    if (pending) return;
+    setState({ status: "pending" });
+    const res = await call<AgencyRefreshReply>("/api/brain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refresh: true }) });
+    if (!res.ok) {
+      setState({ status: "error", error: res.error });
+      return;
+    }
+    const r = res.data;
+    const fresh = toAgency(r.agency);
+    if (fresh) onRefreshed(fresh);
+    setState({
+      status: "done",
+      text:
+        r.from === "skipped"
+          ? "Another refresh was already running; the records shown are from it."
+          : `Read the MTA's live feeds in ${took(r.ms)}: ${count(r.opened, "new outage")}, ${count(r.resolved, "outage")} resolved, ${count(r.alertsStarted, "new alert")}.`,
+    });
+  };
+  if (!agency) {
+    return (
+      <section aria-labelledby="brain-mta" className="flex flex-col gap-2 rounded-md border border-dashed border-line-strong p-4">
+        <h3 id="brain-mta" className="font-display text-xl font-semibold">
+          Real MTA records
+        </h3>
+        <p className="text-sm text-ink-700">The shared graph of the MTA&apos;s elevator, outage and alert records could not be read just now. Questions about them will say so.</p>
+      </section>
+    );
+  }
+  const c = agency.counts;
+  const asOf = agency.asOf.outagesMs ?? agency.asOf.alertsMs;
+  return (
+    <section aria-labelledby="brain-mta" className="flex flex-col gap-4 rounded-md border border-signal bg-panel p-4">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 id="brain-mta" className="font-display text-xl font-semibold">
+            Real MTA records
+          </h3>
+          <OriginTag origin="mta" />
+        </div>
+        <p className="text-sm text-ink-700">
+          One shared graph, read from the MTA&apos;s public feeds and data.ny.gov. An outage that leaves the feed is marked resolved, never deleted.
+        </p>
+      </div>
+      <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 text-sm">
+        <dt className="text-ink-700">Outages and alerts as of</dt>
+        <dd className="tabular text-right font-mono text-xs leading-5 text-ink-900">{asOf ? moment(asOf) : "not read yet"}</dd>
+        <dt className="text-ink-700">Asset inventory, alert archive, complaints and projects as of</dt>
+        <dd className="tabular text-right font-mono text-xs leading-5 text-ink-900">{agency.asOf.assetsMs ? moment(agency.asOf.assetsMs) : "not read yet"}</dd>
+        <dt className="text-ink-700">Read from</dt>
+        <dd className="text-right text-xs leading-5 text-ink-900">{agency.from === "snapshot" ? "the committed snapshot" : agency.from === "feed" ? "the live feeds" : "unknown"}</dd>
+      </dl>
+      <dl className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <Stat label="Units" value={fmt(c.equipment)} />
+        <Stat label="Out now" value={fmt(c.outagesOpen)} tone={c.outagesOpen ? "crit" : "ink"} />
+        <Stat label="Planned" value={fmt(c.outagesPlanned)} />
+        <Stat label="Resolved" value={fmt(c.outagesResolved)} />
+        <Stat label="Alerts" value={fmt(c.alerts)} />
+        <Stat label="Projects" value={fmt(c.projects)} />
+      </dl>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => void refresh()}
+          aria-disabled={pending}
+          className={`rounded-md border border-ink-900 px-3 py-1.5 font-display text-base font-semibold text-ink-900 transition-colors duration-150 ${pending ? "cursor-not-allowed opacity-60" : "hover:bg-sunk"}`}
+        >
+          {pending ? "Reading the feeds…" : "Refresh from the MTA"}
+        </button>
+        {agency.lastRefresh ? <span className="text-xs text-ink-500">Last refresh {moment(agency.lastRefresh.atMs)}</span> : null}
+      </div>
+      <p aria-live="polite" className="text-sm empty:hidden">
+        {state.status === "done" ? <span className="text-ink-700">{state.text}</span> : state.status === "error" ? <span className="text-crit">{state.error}</span> : null}
+      </p>
+      {agency.outages.length ? (
+        <div className="flex flex-col gap-2">
+          <h4 className="label text-ink-500">Newest outages</h4>
+          <ul className="flex flex-col divide-y divide-line rounded-md border border-line">
+            {agency.outages.map((o) => (
+              <li key={o.id} className="flex flex-col gap-1 px-3 py-2">
+                <span className="break-words text-sm text-ink-900">{o.title}</span>
+                {o.snippet ? <span className="text-xs text-ink-500">{o.snippet}</span> : null}
+                <About labels={o.about} colors={colors} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      <details className="group text-sm">
+        <summary className="cursor-pointer text-ink-700 hover:text-ink-900">Sources ({agency.sources.length})</summary>
+        <ul className="mt-2 flex flex-col gap-1">
+          {agency.sources.map((s) => (
+            <li key={s.id} className="break-words">
+              <a href={s.page} target="_blank" rel="noreferrer" className="underline decoration-line-strong underline-offset-2 hover:text-ink-900">
+                {s.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </section>
   );
 }
 
@@ -924,14 +1109,20 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
                       </span>
                     </div>
                     {answer.note ? <p className="text-xs text-ink-500">{answer.note}</p> : null}
+                    {answer.followUp ? (
+                      <p className="text-xs text-ink-700">
+                        Read as a follow-up about <span className="font-mono font-semibold text-ink-900">{answer.followUp.label}</span>, from what the previous answer cited.
+                      </p>
+                    ) : null}
                   </div>
                   <h3 className="break-words font-display text-xl font-semibold leading-tight">{answer.question}</h3>
                   <AnswerText text={answer.answer} sources={answer.sources} onCite={cite} />
                 </div>
               ) : (
                 <p className="max-w-prose text-sm text-ink-700">
-                  Answers show here with numbered sources: the documents, tickets, chats and decisions in the graph that each line came from. Pick a
-                  question above or ask your own.
+                  Answers show here with numbered sources: the MTA records (each with its receipt: the published text, its source and when it was
+                  read) and the sample agency&apos;s documents, tickets, chats and decisions that each line came from. Pick a question above or ask your
+                  own; a follow-up like &ldquo;when will it be back?&rdquo; is read with the previous answer.
                 </p>
               )}
             </div>
@@ -971,7 +1162,9 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
           <h2 id="brain-directory" className="font-display text-2xl font-bold">
             Directory
           </h2>
-          <p className="text-sm text-ink-700">The agency side of the graph: who is on which team, what each team owns, what is still open and what was decided.</p>
+          <p className="text-sm text-ink-700">
+            The MTA&apos;s real records, then the sample agency: who is on which team, what each team owns, what is still open and what was decided.
+          </p>
         </header>
         {dir.status === "loading" ? (
           <DirectorySkeleton />
@@ -991,7 +1184,21 @@ export function BrainRoom({ routeColors }: { routeColors: Colors }) {
             </button>
           </div>
         ) : (
-          <Directory data={dir.data} colors={routeColors} pending={pending} onAskWhy={askWhy} />
+          <>
+            <AgencyPanel
+              agency={dir.data.agency}
+              colors={routeColors}
+              onRefreshed={(agency) => setDir((d) => (d.status === "ready" ? { status: "ready", data: { ...d.data, agency } } : d))}
+            />
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-display text-xl font-semibold">The sample agency</h3>
+                <OriginTag origin="sample" />
+              </div>
+              <p className="text-sm text-ink-700">Invented people, teams, documents, tickets, chats and decisions, wired to the real stations and lines. Not MTA staff.</p>
+            </div>
+            <Directory data={dir.data} colors={routeColors} pending={pending} onAskWhy={askWhy} />
+          </>
         )}
       </aside>
     </div>

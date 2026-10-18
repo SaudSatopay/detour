@@ -5,6 +5,7 @@
  *   detour:sbx:<visitor>   one isolated sandbox per visitor, copied from the template (GRAPH.COPY)
  *   detour:fork:<sbx>:<n>  short-lived what-if forks of a sandbox (closure applied, plans tested)
  *   detour:meta            bookkeeping: the sandbox registry, the seed lock, rate counters
+ *   detour:agency          shared, one copy for every visitor: the MTA's real elevators, outages, alerts, complaints and projects
  */
 export const DEMAND_GRAPH = "detour:demand";
 export const TEMPLATE_GRAPH = "detour:template";
@@ -13,6 +14,7 @@ export const FORK_PREFIX = "detour:fork:";
 export const META_GRAPH = "detour:meta";
 /** The agent eval's progress and per-question results (src/app/api/eval), one run at a time. */
 export const EVAL_GRAPH = "detour:eval";
+export const AGENCY_GRAPH = "detour:agency";
 
 const VISITOR_ID = /^[a-z0-9]{8,32}$/;
 

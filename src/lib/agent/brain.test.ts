@@ -3,7 +3,7 @@ import type { BrainSource } from "../brain/types";
 import { routesIn, searchTerms } from "../graph/tools/brain";
 import { BRAIN_SUGGESTIONS, FINDING_SOURCES, ORG_DECISIONS, ORG_DOCUMENTS, ORG_MESSAGES, ORG_PEOPLE, ORG_TEAMS, ORG_TICKETS } from "../graph/seed-org";
 import { SEED_FINDINGS, SEED_INCIDENTS, SEED_PLAYBOOKS } from "../graph/seed-memory";
-import { describe, listJoin, planQuestion, SourceBook } from "./brain";
+import { describe, entityOf, listJoin, planQuestion, resolveFollowUp, SourceBook } from "./brain";
 
 const source = (over: Partial<BrainSource>): BrainSource => ({
   kind: "document",
@@ -20,7 +20,21 @@ const source = (over: Partial<BrainSource>): BrainSource => ({
 
 group("planQuestion", () => {
   it("sends each suggested question to the tool that answers it", () => {
-    expect(BRAIN_SUGGESTIONS.map((q) => planQuestion(q).tool)).toEqual(["who_owns", "trace_decision", "who_owns", "whats_changed", "search_knowledge"]);
+    expect(BRAIN_SUGGESTIONS.map((q) => planQuestion(q).tool)).toEqual(["who_owns", "trace_decision", "line_outages", "equipment_status", "project_trace", "whats_changed"]);
+  });
+  it("sends questions about the MTA's records to the agency graph's tools", () => {
+    const now = Date.UTC(2026, 9, 18);
+    expect(planQuestion("Is elevator EL382 in service right now?").tool).toBe("equipment_status");
+    expect(planQuestion("Who maintains escalator ES236?").tool).toBe("equipment_status");
+    expect(planQuestion("Is the elevator at Prospect Park working?").tool).toBe("equipment_status");
+    expect(planQuestion("Which subway lines does MTA alert lmm:alert:272420 affect?").tool).toBe("alerts_for");
+    expect(planQuestion("Any alerts on the Q?").tool).toBe("alerts_for");
+    expect(planQuestion("How many updates did MTA subway alert event 262722 have?").tool).toBe("notice_chain");
+    expect(planQuestion("What stage is MTA capital project 8356 in?").tool).toBe("project_trace");
+    expect(planQuestion("How many rider complaints were filed for 1 Av in 2026 Q1?").tool).toBe("complaints_at");
+    expect(planQuestion("Which elevator and escalator outages began since 2026-10-10 18:00?", now)).toEqual({ tool: "agency_changes", input: { sinceMs: Date.UTC(2026, 9, 10, 22) } });
+    expect(planQuestion("What elevator outages changed in the last 2 days?", now)).toEqual({ tool: "agency_changes", input: { sinceMs: now - 2 * 86_400_000 } });
+    expect(planQuestion("Why was DEC-0616-SIZE decided?").tool).toBe("trace_decision");
   });
   it("reads the window from 'last N days'", () => {
     expect(planQuestion("What changed in the last 30 days?")).toEqual({ tool: "whats_changed", input: { days: 30 } });
@@ -28,6 +42,36 @@ group("planQuestion", () => {
   });
   it("treats why-questions as decision traces", () => {
     expect(planQuestion("Why did we add two G trains?").tool).toBe("trace_decision");
+  });
+});
+
+group("follow-up questions", () => {
+  const prev = { cites: ["EL382@2026-10-18 15:36", "ASSET-EL382", "ALT-EL382", "DEC-1014-SF", "CP-8356", "lmm:alert:9"], stations: [{ id: "33", name: "Prospect Park" }] };
+  it("names what a cited id is about", () => {
+    expect(entityOf("EL382@2026-10-18 15:36")).toEqual({ kind: "unit", text: "EL382" });
+    expect(entityOf("ALT-ES236")).toEqual({ kind: "unit", text: "ES236" });
+    expect(entityOf("CP-8356-2-1")).toEqual({ kind: "project", text: "project 8356" });
+    expect(entityOf("EV-262722")).toEqual({ kind: "event", text: "event 262722" });
+    expect(entityOf("MSG-0612-1")).toBeNull();
+  });
+  it("reads 'it' as the unit the previous answer cited", () => {
+    expect(resolveFollowUp("When will it be back?", prev)).toEqual({ question: "When will it be back? (EL382)", entity: "EL382", label: "EL382" });
+    expect(planQuestion(resolveFollowUp("Who maintains it?", prev)!.question).tool).toBe("equipment_status");
+  });
+  it("lets the noun pick the kind: that decision, the project, that alert", () => {
+    expect(resolveFollowUp("Who made that decision?", prev)?.entity).toBe("DEC-1014-SF");
+    expect(resolveFollowUp("What stage is that project in?", prev)?.entity).toBe("project 8356");
+    expect(resolveFollowUp("Which lines does that alert affect?", prev)?.entity).toBe("lmm:alert:9");
+  });
+  it("reads 'there' as the station the previous question named", () => {
+    expect(resolveFollowUp("Any alerts there?", prev)).toEqual({ question: "Any alerts there? (at Prospect Park)", entity: "33", label: "Prospect Park" });
+  });
+  it("leaves a question alone when it names its own subject, refers to nothing, or has no previous turn", () => {
+    expect(resolveFollowUp("Is EL293 working?", prev)).toBeNull();
+    expect(resolveFollowUp("Which stations on the A have an elevator out of service?", prev, true)).toBeNull();
+    expect(resolveFollowUp("Is there an elevator outage at 1 Av?", prev, true)).toBeNull();
+    expect(resolveFollowUp("Which stations have elevators that are out?", prev)).toBeNull();
+    expect(resolveFollowUp("When will it be back?", null)).toBeNull();
   });
 });
 

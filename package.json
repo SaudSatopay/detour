@@ -26,6 +26,8 @@
     "eval:closures": "tsx scripts/eval/closures-eval.ts",
     "judge": "tsx scripts/judge/judge.ts",
     "judge:maxflow": "tsx scripts/judge/maxflow-repro.ts",
+    "eval:brain": "tsx scripts/eval/brain-eval.ts",
+    "agency:snapshot": "tsx scripts/agency/fetch-snapshot.ts",
     "deadcode": "knip"
   },
   "dependencies": {
