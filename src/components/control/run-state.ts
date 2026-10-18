@@ -22,12 +22,16 @@ export interface ToolStep {
   input: unknown;
   result?: ToolResult;
   error?: string;
+  /** How the agent reached the tool: over Detour's MCP server, or in-process when it was unreachable. */
+  via?: "mcp" | "in-process";
 }
 
 export type Item =
   | { kind: "say"; agent: string; text: string }
   | ToolStep
   | { kind: "handoff"; from: string; to: string; note: string }
+  | { kind: "tools"; agent: string; via: "mcp" | "in-process"; names: string[]; server: string | null }
+  | { kind: "model"; agent: string; model: string; reason: string }
   | { kind: "approval"; planId: string }
   | { kind: "error"; agent: string; message: string };
 
@@ -38,6 +42,8 @@ export interface RunState {
   model: string | null;
   items: Item[];
   brief: string | null;
+  /** Whether every figure in the brief was found in the run's tool results (live runs only). */
+  grounding: { checked: number; unmatched: string[] } | null;
   /** Rider id -> advisory text, filled by the rider desk after approval. */
   advisories: Record<string, string>;
   published: string | null;
@@ -60,6 +66,7 @@ export const initialRun: RunState = {
   model: null,
   items: [],
   brief: null,
+  grounding: null,
   advisories: {},
   published: null,
   recorded: null,
@@ -96,7 +103,14 @@ function onEvent(state: RunState, e: AgentEvent, scenarioId?: string): RunState 
       if (state.stage === "desk") return state;
       return { ...state, mode: e.mode, note: e.note ?? null, recorded: e.mode === "replay" ? (scenarioId ?? null) : null };
     case "model":
-      return { ...state, model: e.model };
+      // A switch mid-run is shown where it happened, with the reason (a spent quota, a retired model).
+      if (!e.reason || state.stage === "desk") return { ...state, model: e.model };
+      return { ...state, model: e.model, items: [...state.items, { kind: "model", agent: e.agent, model: e.model, reason: e.reason }] };
+    case "tools":
+      if (riderOf(e.agent)) return state;
+      return { ...state, items: [...state.items, { kind: "tools", agent: e.agent, via: e.via, names: e.names, server: e.server }] };
+    case "grounding":
+      return { ...state, grounding: { checked: e.checked, unmatched: e.unmatched } };
     case "text": {
       const rider = riderOf(e.agent);
       if (rider) return { ...state, advisories: { ...state.advisories, [rider]: (state.advisories[rider] ?? "") + e.delta } };
@@ -107,7 +121,7 @@ function onEvent(state: RunState, e: AgentEvent, scenarioId?: string): RunState 
       return { ...state, items };
     }
     case "tool-call":
-      return { ...state, items: [...state.items, { kind: "tool", id: e.id, agent: e.agent, tool: e.tool, input: e.input }] };
+      return { ...state, items: [...state.items, { kind: "tool", id: e.id, agent: e.agent, tool: e.tool, input: e.input, via: e.via }] };
     case "tool-result": {
       const items = state.items.slice();
       const at = findStep(items, e.id, e.agent);

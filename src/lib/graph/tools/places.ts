@@ -20,14 +20,61 @@ interface PlaceMatch {
 
 const ROUTE_WORDS = /^(?:the\s+)?([a-z0-9]{1,2})(?:\s*(?:train|trains|line|service))?$/i;
 
-/** RediSearch query text: words only, every term required, short numbers kept. */
-function fulltextQuery(name: string, fuzzy = false): string {
-  const terms = name
+/** Station names use the MTA's short forms ("Times Sq-42 St", "1 Av"); people write the words out. */
+const SHORT_FORM: Record<string, string> = {
+  square: "sq",
+  street: "st",
+  avenue: "av",
+  ave: "av",
+  boulevard: "blvd",
+  parkway: "pkwy",
+  road: "rd",
+  place: "pl",
+  center: "ctr",
+  centre: "ctr",
+  junction: "jct",
+  heights: "hts",
+  highway: "hwy",
+  first: "1",
+  second: "2",
+  third: "3",
+  fourth: "4",
+  fifth: "5",
+  sixth: "6",
+  seventh: "7",
+  eighth: "8",
+  ninth: "9",
+  tenth: "10",
+};
+
+/** Names people use for a station that share no word with its MTA name. */
+const ALIASES: Record<string, string> = {
+  wtc: "world trade center",
+  "world trade": "world trade center",
+  "yankee stadium": "161 st yankee stadium",
+  "barclays center": "atlantic av barclays ctr",
+  "port authority": "42 st port authority",
+  "jfk airport": "howard beach jfk airport",
+  jfk: "howard beach jfk airport",
+  "columbus circle": "59 st columbus circle",
+};
+
+/** Lowercase words with the MTA's short forms, so "Times Square" finds "Times Sq-42 St". */
+export function normalizePlace(name: string): string {
+  const words = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
     .split(/\s+/)
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((w) => SHORT_FORM[w] ?? w.replace(/^(\d+)(st|nd|rd|th)$/, "$1"));
+  const joined = words.join(" ");
+  return ALIASES[joined] ?? joined;
+}
+
+/** RediSearch query text: words only, every term required, short numbers kept. */
+function fulltextQuery(name: string, fuzzy = false): string {
+  const terms = normalizePlace(name).split(" ").filter(Boolean);
   if (!terms.length) return "";
   return terms.map((t) => (fuzzy && t.length >= 4 ? `%${t}%` : t)).join(" ");
 }
@@ -84,11 +131,16 @@ export async function resolvePlaces(
     }
     const top = stations[0];
     const sameName = stations.filter((s) => s.name.toLowerCase() === top.name.toLowerCase());
+    // Different stations that match about equally well ("Metropolitan": the M's Middle Village or the G and L's
+    // Lorimer St) are a choice to make by route, not one to make silently.
+    const exact = stations.find((s) => normalizePlace(s.name) === normalizePlace(name));
+    const close = stations.filter((s) => s.score >= top.score * 0.9).slice(0, 4);
+    const candidates = sameName.length > 1 ? sameName : exact ? [exact] : close;
     matches.push({
       query: name,
       kind: "station",
-      stations: sameName.length > 1 ? sameName : [top],
-      ambiguous: sameName.length > 1,
+      stations: candidates.length > 1 ? candidates : [exact ?? top],
+      ambiguous: candidates.length > 1,
     });
   }
 

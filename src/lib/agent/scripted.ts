@@ -28,35 +28,50 @@ function shuttleRatio(memory: RecallData | null): { ratio: number; note: string 
 }
 
 /**
- * The controller's procedure without a model: the same tools, in the order its instructions give
- * them, on the visitor's own graph, with the same decisions written as code. Used when no model
- * quota is left, and to record replays. The interface labels these runs as scripted.
+ * The controller's procedure without a model: the same tools on the visitor's own graph, with the decisions
+ * written as code, each step saying which result made it the next one. Used when no model quota is left, and to
+ * record replays; the interface labels these runs as scripted.
+ *
+ * When a live run loses its model halfway, `prior` holds what it already found, and the procedure carries on from
+ * there instead of starting over: a step whose answer is already on screen is not run again.
  */
 export async function scriptedControl(
   base: Omit<ToolContext, "tracer">,
   scenario: Scenario,
   emit: Emit,
+  prior: ToolResult[] = [],
 ): Promise<{ brief: string; planId: string | null; steps: number }> {
   const agent = "controller";
   const network = await loadNetwork();
   const names = new Map(network.stations.map((s) => [s.id, s.name]));
   const name = (id: string) => names.get(id) ?? id;
-  let seq = 0;
-  const say = (text: string) => emit({ type: "text", agent, delta: `${text}\n\n` });
+  let seq = prior.length ? 100 : 0;
+  let why = "";
+  const say = (text: string) => {
+    why = text;
+    emit({ type: "text", agent, delta: `${text}\n\n` });
+  };
+  const done = (tool: string) => [...prior].reverse().find((r) => r.tool === tool);
   const step = async <T>(tool: string, input: unknown, fn: (ctx: ToolContext) => Promise<ToolResult<T>>): Promise<ToolResult<T>> => {
+    const already = done(tool);
+    if (already) return already as ToolResult<T>;
     const id = `${tool}-${++seq}`;
     emit({ type: "tool-call", agent, id, tool, input });
     const ctx: ToolContext = { ...base, tracer: new Tracer() };
     const r = await fn(ctx);
     emit({ type: "tool-result", agent, id, result: forClient(r) });
-    void recordEpisode(ctx, r);
+    void recordEpisode(ctx, r, { why, input, model: "standard procedure" });
     return r;
+  };
+  /** Says why the next step comes next, unless the live run already took it. */
+  const next = (tool: string, text: string) => {
+    if (!done(tool)) say(text);
   };
 
   const first = scenario.stations[0];
   const last = scenario.stations[scenario.stations.length - 1];
   const lines = scenario.routes.join("/");
-  say(`Resolving ${name(first)}, ${name(last)} and the ${lines} against the graph, and reading what memory holds for these routes.`);
+  next("resolve_places", `Resolving ${name(first)}, ${name(last)} and the ${lines} against the graph, and reading what memory holds for these routes.`);
   const [, recalled] = await Promise.all([
     step("resolve_places", { names: [name(first), name(last), ...scenario.routes] }, (ctx) =>
       resolvePlaces(ctx, { names: [name(first), name(last), ...scenario.routes] }),
@@ -65,15 +80,16 @@ export async function scriptedControl(
   ]);
   const memory = recalled.outcome === "memory" ? recalled.data : null;
 
-  say(`Closing the ${lines} between ${name(first)} and ${name(last)} in this sandbox graph.`);
+  next("close_line", `Closing the ${lines} between ${name(first)} and ${name(last)} in this sandbox graph${memory ? ", with memory for these routes in hand" : ""}.`);
   await step("close_line", { routes: scenario.routes, from_station_id: first, to_station_id: last }, (ctx) =>
     closeLine(ctx, { routes: scenario.routes, fromStation: first, toStation: last, report: scenario.report, title: scenario.title }),
   );
 
-  say("Counting whose trips cross the closure, by how many stops away they board.");
+  next("affected_riders", "The closure is in place; counting whose trips cross it, by how many stops away they board.");
   const impact = await step("affected_riders", { depth: 4 }, (ctx) => affectedRiders(ctx, { depth: 4 }));
+  const hit = (impact.data as ImpactData | null)?.totalRiders ?? 0;
 
-  say("Measuring the network on a fork: where riders go on their own, and what max flow says is possible.");
+  next("measure_capacity", `${fmt(hit)} riders an hour are displaced; measuring on a fork where they go on their own, and what max flow says the open network can carry.`);
   const capacity = await step("measure_capacity", {}, (ctx) => measureCapacity(ctx));
   const cap = capacity.data as CapacityData | null;
   const peak = cap?.directions.find((d) => d.direction === cap.peak) ?? cap?.directions[0];
@@ -93,7 +109,10 @@ export async function scriptedControl(
   if (!stranded && !unmet) {
     choice = await steer("Everyone displaced still has an open path and max flow has no shortfall, so no buses: the plan is to steer riders.");
   } else {
-    say("Looking for shuttle bridges: stations the network cannot clear first, then relief for overloaded lines.");
+    next(
+      "shuttle_candidates",
+      `${stranded ? `${fmt(stranded)} riders have no open path` : "Nobody is cut off"}${unmet ? ` and max flow falls ${fmt(unmet)} short` : ""}, so looking for shuttle bridges: stations the network cannot clear first, then relief for overloaded lines.`,
+    );
     const cands = await step("shuttle_candidates", { max_km: 2 }, (ctx) => shuttleCandidates(ctx, { maxKm: 2 }));
     const list: Candidate[] = (cands.data as { candidates: Candidate[] } | null)?.candidates ?? [];
     const options = [list.find((c) => c.reason === "stranded"), list.find((c) => c.reason === "relief")].filter((c): c is Candidate => Boolean(c));
@@ -103,7 +122,8 @@ export async function scriptedControl(
     const size = (c: Candidate) => Math.min(60, Math.ceil(c.suggestedBusesPerHour / (past?.ratio ?? 1)));
     if (past && options.length) say(`From memory: ${past.note}, so each leg gets ${Math.round((1 / past.ratio - 1) * 100)}% more buses than the raw estimate.`);
 
-    const plans: PlanData[] = [];
+    // Plans the live run already tested count too; the procedure tests one only if none exists yet.
+    const plans: PlanData[] = prior.filter((r) => r.tool === "simulate_plan" && r.data).map((r) => r.data as PlanData);
     const simulate = async (legs: Candidate[]) => {
       const shuttles = legs.map((c) => ({ from: c.fromId, to: c.toId, busesPerHour: size(c) }));
       const r = await step(
@@ -113,8 +133,12 @@ export async function scriptedControl(
       );
       if (r.data) plans.push(r.data);
     };
-    if (options.length) {
-      say(`Testing ${options.length === 2 ? "two plans" : "a plan"} on forks of the closure graph.`);
+    if (options.length && !plans.length) {
+      say(
+        `Testing ${options.length === 2 ? "two plans" : "a plan"} on forks of the closure graph: ${options
+          .map((c) => `${name(c.fromId)} ↔ ${name(c.toId)} (${c.reason === "stranded" ? "where riders are stuck" : "relief for a crowded line"})`)
+          .join(" and ")}.`,
+      );
       await simulate(options.slice(0, 1));
       if (options.length === 2) await simulate(options);
     }
@@ -132,6 +156,7 @@ export async function scriptedControl(
     }
   }
 
+  if (!done("remember")) say("Writing what this closure taught to memory, so the next plan starts from it.");
   if (worst) {
     await step("remember", { kind: "crowding" }, (ctx) =>
       remember(ctx, {

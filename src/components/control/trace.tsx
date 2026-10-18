@@ -51,6 +51,11 @@ const StepCard = memo(function StepCard({
           <span className="font-display text-base font-semibold leading-tight text-ink-900">{TOOL_TITLE[step.tool] ?? step.tool}</span>
           {step.agent !== "controller" ? <span className="label text-ink-500">{agentName(step.agent)}</span> : null}
           <code className="ml-auto truncate font-mono text-xs text-ink-500">{step.tool}</code>
+          {step.via === "mcp" ? (
+            <span className="label shrink-0 rounded-sm border border-line-strong px-1 text-ink-700" title="Called over Detour's MCP server (tools/call)">
+              MCP
+            </span>
+          ) : null}
         </span>
         {r ? (
           <>
@@ -147,6 +152,29 @@ function Row({ item, index, n, selected, onSelect, enter }: { item: Item; index:
           <span className="text-sm text-ink-700">{item.note}</span>
         </div>
       );
+    case "tools":
+      return (
+        <details className={`${enter} group rounded-md border border-line px-3 py-2`}>
+          <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="label text-ink-900">
+              {item.via === "mcp" ? `${item.names.length} tools discovered over MCP` : `${item.names.length} tools, in-process`}
+            </span>
+            <span className="text-xs text-ink-500">
+              {item.via === "mcp" ? <>tools/list on <code className="font-mono">{item.server}</code>, the server outside agents use</> : "the MCP server was unreachable, so the same tools run in-process"}
+            </span>
+          </summary>
+          <p className="mt-1.5 font-mono text-xs leading-relaxed text-ink-700">{item.names.join(" · ")}</p>
+        </details>
+      );
+    case "model":
+      return (
+        <p className={`${enter} flex flex-wrap items-baseline gap-x-2 px-1 text-xs text-ink-500`}>
+          <span className="label text-ink-700">Model handover</span>
+          <span>
+            now <code className="font-mono">{item.model.split(":").pop()}</code> · {item.reason}
+          </span>
+        </p>
+      );
     case "approval":
       return (
         <div className={`${enter} flex items-center gap-2 rounded-md bg-sign px-3 py-2 text-sign-ink`}>
@@ -211,6 +239,15 @@ export function Trace({
           <h3 className="sign-band label px-3 py-1.5">Brief for the dispatcher</h3>
           <div className="flex flex-col gap-3 p-3">
             <BriefLines text={state.brief} />
+            {state.grounding && state.grounding.checked ? (
+              state.grounding.unmatched.length ? (
+                <p className="text-xs text-crit">
+                  Not found in any tool result: {state.grounding.unmatched.join(", ")}. Check these figures against the steps above.
+                </p>
+              ) : (
+                <p className="text-xs text-ink-500">Every figure in this brief ({state.grounding.checked}) matches a tool result above.</p>
+              )
+            ) : null}
             {onJumpToPlan && state.stage === "control" && state.status === "done" ? (
               <button
                 type="button"
