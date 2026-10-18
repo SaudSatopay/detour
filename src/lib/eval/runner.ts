@@ -76,6 +76,8 @@ export interface RunnerDeps {
   chain: () => Promise<ChainedModel[]>;
   /** How long until a model cooling off after a per-minute limit is back; null when none will be soon. */
   soonest?: () => Promise<number | null>;
+  /** How long until this model is back from a per-minute cool-down (0 when it is not cooling). */
+  cooling?: (id: string) => number;
   /** One question's cap per arm, so a stuck model cannot eat the batch. */
   armTimeoutMs?: number;
 }
@@ -210,7 +212,13 @@ export async function runGraphArm(q: EvalQuestion, deps: RunnerDeps): Promise<Ar
 
 /** The same model the graph arm ended on (the next ones in the chain only if it is rate limited), no tools. */
 export async function runBaselineArm(q: EvalQuestion, modelId: string | null, deps: RunnerDeps): Promise<ArmRecord> {
-  const chain = await deps.chain();
+  let chain = await deps.chain();
+  // Pair with the graph arm's model: if it is only cooling off after a per-minute limit, wait for it rather than switch.
+  const wait = modelId && !chain.some((m) => m.id === modelId) ? (deps.cooling?.(modelId) ?? 0) : 0;
+  if (wait > 0 && wait <= 65_000) {
+    await new Promise((resolve) => setTimeout(resolve, wait + 250));
+    chain = await deps.chain();
+  }
   const start = Math.max(0, chain.findIndex((m) => m.id === modelId));
   const started = performance.now();
   let lastError: unknown = null;

@@ -83,6 +83,11 @@ export async function soonestModelMs(now = Date.now()): Promise<number | null> {
   return waits.length ? Math.min(...waits) : null;
 }
 
+/** How long until this model is back from a per-minute cool-down on this server instance; 0 when it is not cooling. */
+export function coolingMs(id: string, now = Date.now()): number {
+  return Math.max(0, (cooling.get(id) ?? 0) - now);
+}
+
 /** Whether any model can answer now: false sends a run straight to the standard procedure. */
 export async function liveModelAvailable(): Promise<boolean> {
   return (await liveChain()).length > 0;

@@ -90,6 +90,21 @@ describe("eval pacing on free models", () => {
     expect(await modelReady({ ...deps, chain: async () => [], soonest: async () => 60_000 }, Date.now() + 1_000)).toBe("later");
   });
 
+  it("gives the baseline the graph arm's model, waiting out its short cool-down instead of switching", async () => {
+    const plain = (id: string) =>
+      new MockLanguageModelV4({
+        modelId: id,
+        doGenerate: async () => ({ content: [{ type: "text", text: "Answer: 10" }], finishReason: { unified: "stop", raw: "stop" }, usage, warnings: [] }),
+      });
+    const other = { id: "mock:other", model: plain("other") };
+    const same = { id: "mock:same", model: plain("same") };
+    let calls = 0;
+    const deps: RunnerDeps = { base, toolset, chain: async () => (calls++ ? [other, same] : [other]), cooling: (id) => (id === "mock:same" ? 40 : 0) };
+    const r = await runBaselineArm(q, "mock:same", deps);
+    expect(r.model).toBe("mock:same");
+    expect(calls).toBe(2);
+  });
+
   it("runs again only the arms that met the free models' limits", () => {
     expect(unavailable("No free model can answer right now: none is configured, or every one has spent its daily quota.")).toBe(true);
     expect(unavailable("The model `qwen/qwen3-32b` does not exist or you do not have access to it.")).toBe(true);

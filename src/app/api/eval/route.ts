@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { liveChain, soonestModelMs } from "@/lib/agent/models";
+import { coolingMs, liveChain, soonestModelMs } from "@/lib/agent/models";
 import { unavailable } from "@/lib/eval/availability";
 import { evalToolset, EVAL_VISITOR, runBatch, runOrder } from "@/lib/eval/runner";
 import type { EvalQuestion } from "@/lib/eval/questions";
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       return runBatch({
         questions: QUESTIONS,
         order,
-        deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: evalChain, soonest: () => soonestModelMs(), armTimeoutMs: ARM_TIMEOUT_MS },
+        deps: { base, toolset: (emit) => evalToolset(base, emit, origin), chain: evalChain, soonest: () => soonestModelMs(), cooling: (id) => coolingMs(id), armTimeoutMs: ARM_TIMEOUT_MS },
         done: await doneKeys(runId),
         save: (r) => saveResult(runId, r),
         graphModel: async (qid) => (await getResult(runId, qid, "graph"))?.model ?? null,
