@@ -8,8 +8,12 @@ import { ensureBaseGraphs } from "./seed";
  * plans and memory written during a visit never touch anyone else's graph. The free FalkorDB
  * tier has 100 MB, so sandboxes are capped and the least recently used ones are dropped.
  */
-/** Eight leaves room for the what-if forks each tool call makes, and for the shared graphs, inside 100 MB. */
-export const MAX_SANDBOXES = 8;
+/**
+ * Measured on FalkorDB 4.22: the shared graphs and the MTA records take about 37 MB, each sandbox about 5 MB and each
+ * what-if fork about 5 MB more while it lives. Four sandboxes leave room for two runs' forks at once inside 100 MB; eight
+ * did not, and the free instance restarted empty under load.
+ */
+export const MAX_SANDBOXES = 4;
 /** Long enough for a returning visitor's memory and conversation to still be there; the cap above still bounds space. */
 const SANDBOX_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 /** A hold outlasts the longest request (300 s), then lapses on its own if the request died without releasing it. */

@@ -391,7 +391,7 @@ CREATE (f:Finding {id: $id, text: $text, validFromMs: timestamp()})-[:SUPERSEDES
 | **Semantic, with time** | Findings carry `validFromMs`/`validToMs` and provenance. On 9,360 held-out decisions from the MTA's real elevator records, time-aware memory picks the unit that ran more 66.3% of the time, a memory that keeps every record forever 61.8%, and none 50.2% |
 | **Procedural, learning** | Closing an incident with what each shuttle carried writes it to memory and revises the route's playbook (the old steps stay as a `PlaybookRevision`); the next plan sizes buses from it. Leave-one-out over 32 incidents: bus-sizing error 255 → 107 riders an hour |
 | **Shared state and handoffs** | Approval writes `HANDED_OFF` from the controller to the rider desk, which runs one agent per affected rider and routes each around the segments the controller measured over capacity |
-| **Persistent conversation history** | Every question and answer is a `Turn` node, chained by `NEXT`, linked to the stations and lines it mentions and the nodes it cites. Follow-ups such as *"Who made that decision?"* resolve from the last turn even without a model. A visitor's graph is kept for up to three days; the free tier holds the 8 most recently active |
+| **Persistent conversation history** | Every question and answer is a `Turn` node, chained by `NEXT`, linked to the stations and lines it mentions and the nodes it cites. Follow-ups such as *"Who made that decision?"* resolve from the last turn even without a model. A visitor's graph is kept for up to three days; the free tier holds the 4 most recently active |
 | **Per tenant, under load** | One graph per visitor and per MCP session. 48 readers and 6 writers across 6 tenant graphs: 7,195 reads and 719 writes a second, 0 errors, isolation held; 10, 50 and 100 writers racing on one fact leave exactly one current |
 
 ## Track 3: a company brain on the MTA's own records
@@ -433,7 +433,7 @@ Results that went against Detour, or that it cannot show yet:
 - **Bus sizing on some lines.** Memory makes sizing worse on the J/Z and the A/C, where buses already run near plan.
 - **Ties in fastest paths.** On 6 of the 48 held-out closures, two paths take exactly the same minutes and FalkorDB and NetworkX pick different ones; overflow then differs within the range NetworkX itself finds over random tie-breaks.
 - **The brain's 100%.** Its questions are templates over the records its tools read, and the keyword baseline is given the question's ids; it measures joins and history, not open-ended language.
-- **The free database.** 100 MB holds the 8 most recently active visitors' graphs; an older one is copied fresh on the next visit. The free instance went down twice on October 18 and once came back empty: the shared graphs now rebuild themselves within a minute, and while it is unreachable the control room plays recorded runs and the brain answers its suggested questions from a recording, each labeled with its date.
+- **The free database.** 100 MB holds the 4 most recently active visitors' graphs; an older one is copied fresh on the next visit. The free instance went down twice on October 18 and once came back empty: the shared graphs now rebuild themselves within a minute, and while it is unreachable the control room plays recorded runs and the brain answers its suggested questions from a recording, each labeled with its date.
 
 ## Proof
 
