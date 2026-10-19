@@ -80,3 +80,18 @@ describe("control room state on a closure the network absorbs", () => {
     expect(plans[0].vehicles).toBe(0);
   });
 });
+
+describe("a live run the database drops", () => {
+  it("starts a clean trace when the recorded run takes over", () => {
+    let s: RunState = reduce(initialRun, { type: "start", stage: "control" });
+    const live: AgentEvent[] = [
+      { type: "run", runId: "r1", agent: "controller", mode: "live" },
+      { type: "tool-call", agent: "controller", id: "resolve_places-1", tool: "resolve_places", input: {} },
+      { type: "tool-error", agent: "controller", id: "resolve_places-1", tool: "resolve_places", message: "Can't reach the graph database right now." },
+    ];
+    for (const event of live) s = reduce(s, { type: "event", event, scenarioId: "l-canarsie" });
+    expect(s.items.length).toBeGreaterThan(0);
+    s = reduce(s, { type: "event", event: { type: "run", runId: "r1", agent: "controller", mode: "replay", note: "recorded" }, scenarioId: "l-canarsie" });
+    expect({ items: s.items.length, mode: s.mode, recorded: s.recorded, status: s.status }).toEqual({ items: 0, mode: "replay", recorded: "l-canarsie", status: "running" });
+  });
+});

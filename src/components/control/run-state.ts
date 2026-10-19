@@ -101,7 +101,9 @@ function onEvent(state: RunState, e: AgentEvent, scenarioId?: string): RunState 
   switch (e.type) {
     case "run":
       if (state.stage === "desk") return state;
-      return { ...state, mode: e.mode, note: e.note ?? null, recorded: e.mode === "replay" ? (scenarioId ?? null) : null };
+      // A recording is a whole run: one that replaces a live run cut short (the database dropped) starts a clean trace.
+      if (e.mode === "replay") return { ...initialRun, status: state.status, mode: e.mode, note: e.note ?? null, recorded: scenarioId ?? null };
+      return { ...state, mode: e.mode, note: e.note ?? null, recorded: null };
     case "model":
       // A switch mid-run is shown where it happened, with the reason (a spent quota, a retired model).
       if (!e.reason || state.stage === "desk") return { ...state, model: e.model };

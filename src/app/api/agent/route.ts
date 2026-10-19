@@ -133,11 +133,20 @@ export async function POST(request: Request) {
       let model: string | null = null;
       let narration = "";
       const results: ToolResult[] = [];
+      // A graph database that drops mid-run fails every later tool: stop the model at the first such failure rather
+      // than let it read the failures as unknown stations and keep spending its quota.
+      const stop = new AbortController();
+      request.signal.addEventListener("abort", () => stop.abort(request.signal.reason), { once: true });
+      let unreachable = false;
       const tap: Emit = (e) => {
         if (e.type === "model" && e.agent === agent) model = e.model;
         if (e.type === "text" && e.agent === agent) narration += e.delta;
         if (e.type === "tool-result" && e.agent === agent) results.push(e.result);
         emit(e);
+        if (e.type === "tool-error" && !unreachable && /can't reach the graph database/i.test(e.message)) {
+          unreachable = true;
+          stop.abort(new Error("The graph database became unreachable during the run."));
+        }
       };
       const why = () => lastSentence(narration);
 
@@ -177,12 +186,17 @@ export async function POST(request: Request) {
           tools,
           emit: tap,
           maxSteps: body.mode === "control" ? 12 : 6,
-          abortSignal: request.signal,
+          abortSignal: stop.signal,
           // The controller is done when its brief is written; the rider desk's answer can be any length.
           complete: body.mode === "control" ? (text) => text.includes("**What broke**") && text.includes("**Recommended plan**") : undefined,
         });
       } catch (error) {
         await closeTools().catch(() => undefined);
+        if (unreachable) {
+          if (body.mode === "control" && scenario) return replay("The graph database became unreachable during the run, so this is a recorded run of the same scenario.");
+          emit({ type: "error", agent, message: "The graph database became unreachable during the answer. Try again in a minute." });
+          return;
+        }
         if (body.mode === "ask" && (isRetryable(error) || error instanceof NoModelError)) {
           return scriptedRider("The free models' quotas ran out mid-answer, so the rider desk answered with its rules: the same graph tools, with templated wording.");
         }
